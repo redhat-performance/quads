@@ -4,9 +4,11 @@ from datetime import datetime
 import yaml
 import argparse
 import os
+from subprocess import call
 
 defaultconfig = "/etc/lab/schedule.yaml"
 defaultstatedir = "/etc/lab/state"
+defaultmovecommand = "/bin/echo"
 
 parser = argparse.ArgumentParser(description='Query current cloud for a given host')
 parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
@@ -32,6 +34,8 @@ parser.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Re
 parser.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
 parser.add_argument('--statedir', dest='statedir', type=str, default=None, help='Default state dir')
 parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
+parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
+parser.add_argument('--move-command', dest='movecommand', type=str, default=None, help='External command to move a host')
 
 args = parser.parse_args()
 
@@ -56,12 +60,17 @@ rmhost = args.rmhost
 rmcloud = args.rmcloud
 statedir = args.statedir
 syncstate = args.syncstate
+movehosts = args.movehosts
+movecommand = args.movecommand
 
 if config is None:
     config = defaultconfig
 
 if statedir is None:
     statedir = defaultstatedir
+
+if movecommand is None:
+    movecommand = defaultmovecommand
 
 if not os.path.exists(statedir):
     try:
@@ -138,6 +147,34 @@ def syncState():
                     stream.close()
                 except Exception, ex:
                     print "There was a problem with your file %s" % ex
+        exit(0)
+
+def moveHosts():
+    global movehosts
+    global movecommand
+    global data
+    global statedir
+
+    if movehosts:
+        for h in sorted(data['hosts'].iterkeys()):
+            default_cloud, current_cloud = findCurrent(h)
+            if not os.path.isfile(statedir + "/" + h):
+                try:
+                    stream = open(statedir + "/" + h, 'w')
+                    stream.write(current_cloud + '\n')
+                    stream.close()
+                except Exception, ex:
+                    print "There was a problem with your file %s" % ex
+            else:
+                stream = open(statedir + "/" + h, 'r')
+                current_state = stream.readline().rstrip()
+                stream.close()
+                if current_state != current_cloud:
+                    print "INFO: Moving " + h + " from " + current_state + " to " + current_cloud
+                    call([movecommand, h, current_state, current_cloud])
+                    stream = open(statedir + "/" + h, 'w')
+                    stream.write(current_cloud + '\n')
+                    stream.close()
         exit(0)
 
 def listHosts():
@@ -371,6 +408,7 @@ updateHost()
 updateCloud()
 addHostSchedule()
 rmHostSchedule()
+moveHosts()
 printResult()
 
 
