@@ -343,7 +343,11 @@ def findCurrent(host):
                 if datearg is None:
                     current_time = datetime.now()
                 else:
-                    current_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                    try:
+                        current_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                    except Exception, ex:
+                        print "Data format error : %s" % ex
+                        exit(1)
 
                 if start_obj <= current_time and current_time <= end_obj:
                     current_cloud = data['hosts'][host]["schedule"][override]["cloud"]
