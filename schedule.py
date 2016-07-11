@@ -76,7 +76,7 @@ def initConfig():
     global initialize
     global fname
     global data
-    
+
     if initialize:
         try:
             stream = open(fname, 'w')
@@ -91,7 +91,7 @@ def initConfig():
 def checkDefineOpts():
     global hostresource
     global cloudresource
-    
+
     if hostresource is not None and cloudresource is not None:
         print "--define-cloud and --define-host are mutually exclusive."
         exit(1)
@@ -99,7 +99,7 @@ def checkDefineOpts():
 def loadData():
     global fname
     global data
-    
+
     # load the current data
     try:
         stream = open(fname, 'r')
@@ -126,7 +126,7 @@ def syncState():
     global syncstate
     global data
     global statedir
-    
+
     # sync state
     if syncstate:
         for h in sorted(data['hosts'].iterkeys()):
@@ -345,7 +345,7 @@ def printResult():
     # print the cloud a host belongs to
     else:
         default_cloud, current_cloud = findCurrent(host)
-        
+
         if host is not None:
             if lsschedule:
                 print "Default cloud: " + default_cloud
@@ -368,7 +368,7 @@ listHosts()
 removeHost()
 removeCloud()
 updateHost()
-updateCloud()    
+updateCloud()
 addHostSchedule()
 rmHostSchedule()
 printResult()
