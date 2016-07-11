@@ -1,0 +1,105 @@
+1)  Initialize
+
+   mkdir /etc/lab
+   ./schedule.py --init
+
+2) Define the various cloud environments
+
+   ./schedule.py --define-cloud cloud01 --description "Primary Cloud Environment"
+   ./schedule.py --define-cloud cloud02 --description "02 Cloud Environment"
+   ./schedule.py --define-cloud cloud03 --description "03 Cloud Environment"
+
+3) Define the hosts in the environment
+
+   for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do
+     ./schedule.py --define-host $h --default-cloud cloud01
+   done
+
+4) To list the hosts:
+
+-=>>./schedule.py --ls-hosts
+c08-h21-r630.rdu.openstack.engineering.redhat.com
+c08-h22-r630.rdu.openstack.engineering.redhat.com
+c08-h23-r630.rdu.openstack.engineering.redhat.com
+c08-h24-r630.rdu.openstack.engineering.redhat.com
+c08-h25-r630.rdu.openstack.engineering.redhat.com
+c08-h26-r630.rdu.openstack.engineering.redhat.com
+c08-h27-r630.rdu.openstack.engineering.redhat.com
+c08-h28-r630.rdu.openstack.engineering.redhat.com
+c08-h29-r630.rdu.openstack.engineering.redhat.com
+c09-h01-r630.rdu.openstack.engineering.redhat.com
+c09-h02-r630.rdu.openstack.engineering.redhat.com
+c09-h03-r630.rdu.openstack.engineering.redhat.com
+c09-h04-r630.rdu.openstack.engineering.redhat.com
+c09-h05-r630.rdu.openstack.engineering.redhat.com
+c09-h06-r630.rdu.openstack.engineering.redhat.com
+c09-h07-r630.rdu.openstack.engineering.redhat.com
+c09-h08-r630.rdu.openstack.engineering.redhat.com
+c09-h09-r630.rdu.openstack.engineering.redhat.com
+c09-h10-r630.rdu.openstack.engineering.redhat.com
+c09-h11-r630.rdu.openstack.engineering.redhat.com
+c09-h12-r630.rdu.openstack.engineering.redhat.com
+c09-h13-r630.rdu.openstack.engineering.redhat.com
+c09-h14-r630.rdu.openstack.engineering.redhat.com
+c09-h15-r630.rdu.openstack.engineering.redhat.com
+c09-h16-r630.rdu.openstack.engineering.redhat.com
+c09-h17-r630.rdu.openstack.engineering.redhat.com
+c09-h18-r630.rdu.openstack.engineering.redhat.com
+c09-h19-r630.rdu.openstack.engineering.redhat.com
+c09-h20-r630.rdu.openstack.engineering.redhat.com
+c09-h21-r630.rdu.openstack.engineering.redhat.com
+c09-h22-r630.rdu.openstack.engineering.redhat.com
+c09-h23-r630.rdu.openstack.engineering.redhat.com
+c09-h24-r630.rdu.openstack.engineering.redhat.com
+c09-h25-r630.rdu.openstack.engineering.redhat.com
+c09-h26-r630.rdu.openstack.engineering.redhat.com
+c09-h27-r630.rdu.openstack.engineering.redhat.com
+c10-h25-r630.rdu.openstack.engineering.redhat.com
+c10-h26-r630.rdu.openstack.engineering.redhat.com
+c10-h27-r630.rdu.openstack.engineering.redhat.com
+c10-h28-r630.rdu.openstack.engineering.redhat.com
+c10-h29-r630.rdu.openstack.engineering.redhat.com
+c10-h30-r630.rdu.openstack.engineering.redhat.com
+c10-h31-r630.rdu.openstack.engineering.redhat.com
+c10-h32-r630.rdu.openstack.engineering.redhat.com
+c10-h33-r630.rdu.openstack.engineering.redhat.com
+
+5) To see the current system allocations:
+
+-=>>./schedule.py --summary
+cloud01 : 45 (Primary Cloud Environment)
+cloud02 : 0 (02 Cloud Environment)
+cloud03 : 0 (03 Cloud Environment)
+
+6) Sync the state of each host.  This has to be done whenever a new host is created. We also need to track the last configured environment of each host.  This is how we track whether or not we have to reconfigure a host if the schedule for the host changes.  Note this will NOT overwrite a pre-existing state file.  The state files are stored in /etc/lab/state/HOSTNAME for each host, and contains the cloud name that the host belongs to.  The current active cloud (based on the schedule) will be stored in the state file for hosts missing the state file:
+
+   -=>>./schedule.py --sync
+
+6) Define a custom schedule for a host
+
+This is how a host is scheduled to be a member of a different cloud (defined above) for a set schedule.  For example, allocate c08-h21-r630.rdu.openstack.engineering.redhat.com to "cloud02" from July 11 to July 12:
+
+-=>>./schedule.py --add-schedule --host c08-h21-r630.rdu.openstack.engineering.redhat.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
+
+7) List the schedule for a specific host:
+
+-=>>./schedule.py --ls-schedule --host c08-h21-r630.rdu.openstack.engineering.redhat.com
+Default cloud: cloud01
+Current cloud: cloud02
+Defined schedules:
+  0:
+    start: 2016-07-11 08:00
+    end: 2016-07-12 08:00
+    cloud: cloud02
+
+8) Move any hosts that need to be reallocated based on the current schedule
+
+-=>>./schedule.py --move-hosts
+INFO: Moving c08-h21-r630.rdu.openstack.engineering.redhat.com from cloud01 to cloud02
+c08-h21-r630.rdu.openstack.engineering.redhat.com cloud01 cloud02
+
+In the above example the default move command was called ("/bin/echo").  Obviously this is not very useful.  In order for this to do something more meaningful, you should invoke the script with the --move-command option, which should be the path to a valid command.  The script takes three arguments (hostname, current cloud, new cloud).
+
+
+
+
