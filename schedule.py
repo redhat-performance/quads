@@ -38,6 +38,7 @@ parser.add_argument('--statedir', dest='statedir', type=str, default=None, help=
 parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
 parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
 parser.add_argument('--move-command', dest='movecommand', type=str, default=None, help='External command to move a host')
+parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
 
 args = parser.parse_args()
 
@@ -66,6 +67,7 @@ statedir = args.statedir
 syncstate = args.syncstate
 movehosts = args.movehosts
 movecommand = args.movecommand
+dryrun = args.dryrun
 
 if config is None:
     config = defaultconfig
@@ -156,6 +158,7 @@ def syncState():
 def moveHosts():
     global movehosts
     global movecommand
+    global dryrun
     global data
     global statedir
 
@@ -175,10 +178,11 @@ def moveHosts():
                 stream.close()
                 if current_state != current_cloud:
                     print "INFO: Moving " + h + " from " + current_state + " to " + current_cloud
-                    call([movecommand, h, current_state, current_cloud])
-                    stream = open(statedir + "/" + h, 'w')
-                    stream.write(current_cloud + '\n')
-                    stream.close()
+                    if not dryrun:
+                        call([movecommand, h, current_state, current_cloud])
+                        stream = open(statedir + "/" + h, 'w')
+                        stream.write(current_cloud + '\n')
+                        stream.close()
         exit(0)
 
 def listHosts():
