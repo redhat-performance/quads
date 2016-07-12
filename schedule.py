@@ -12,6 +12,7 @@ defaultmovecommand = "/bin/echo"
 
 parser = argparse.ArgumentParser(description='Query current cloud for a given host')
 parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
+parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
 parser.add_argument('-c', '--config', dest='config',
                                             help='YAML file with cluster data',
                                             default=None, type=str)
@@ -30,6 +31,7 @@ parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=Non
 parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
 parser.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
 parser.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
+parser.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
 parser.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
 parser.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
 parser.add_argument('--statedir', dest='statedir', type=str, default=None, help='Default state dir')
@@ -40,6 +42,7 @@ parser.add_argument('--move-command', dest='movecommand', type=str, default=None
 args = parser.parse_args()
 
 host = args.host
+cloudonly = args.cloudonly
 config = args.config
 datearg = args.datearg
 initialize = args.initialize
@@ -56,6 +59,7 @@ schedcloud = args.schedcloud
 lsschedule = args.lsschedule
 rmschedule = args.rmschedule
 lshosts = args.lshosts
+lsclouds = args.lsclouds
 rmhost = args.rmhost
 rmcloud = args.rmcloud
 statedir = args.statedir
@@ -185,6 +189,16 @@ def listHosts():
     if lshosts:
         for h in sorted(data['hosts'].iterkeys()):
             print h
+        exit(0)
+
+def listClouds():
+    global lsclouds
+    global data
+
+    # list just the clouds
+    if lsclouds:
+        for c in sorted(data['clouds'].iterkeys()):
+            print c
         exit(0)
 
 def removeHost():
@@ -357,6 +371,7 @@ def findCurrent(host):
 
 def printResult():
     global host
+    global cloudonly
     global data
     global datearg
     global summary
@@ -379,9 +394,14 @@ def printResult():
                 print cloud + " : " + str(len(summary[cloud])) + " (" + data["clouds"][cloud]["description"] + ")"
         else:
             for cloud in sorted(data['clouds'].iterkeys()):
-                print cloud + ":"
-                for h in summary[cloud]:
-                    print "  - " + h
+                if cloudonly is None:
+                    print cloud + ":"
+                    for h in summary[cloud]:
+                        print "  - " + h
+                else:
+                    if cloud == cloudonly:
+                        for h in summary[cloud]:
+                            print h
 
     # print the cloud a host belongs to
     else:
@@ -406,6 +426,7 @@ checkDefineOpts()
 loadData()
 syncState()
 listHosts()
+listClouds()
 removeHost()
 removeCloud()
 updateHost()
