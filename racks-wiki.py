@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# Update an existing wiki page with generated markdown
+# Update an existing wordpress page with generated markdown
+# Assumes you have a markdown file with content you want published
+# to an existing wordpress page.
 # requires: python-wordpress-xmlrpc
 
 from wordpress_xmlrpc import *
@@ -8,7 +10,7 @@ from wordpress_xmlrpc.methods.posts import *
 from wordpress_xmlrpc.methods.users import *
 from wordpress_xmlrpc.methods import *
 
-#authentication
+# authentication and wp url
 wp_url = "http://wiki.example.com/xmlrpc.php"
 wp_username = "admin"
 wp_password = "admin"
@@ -19,8 +21,7 @@ page = WordPressPage()
 page.title = 'RDU Scale Lab Racks'
 # page id can be found by viewing via wp-admin dashboard in URL
 page.id = 4
-# pull page from generated/converted markdown
-# set local file to read handle from
+# set local content file to read handle info into a string
 f = open('update-racks-page.md', 'r')
 page.content = f.read()
 wp.call(EditPost(page.id, page))
