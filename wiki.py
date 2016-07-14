@@ -2,10 +2,8 @@
 # Update an existing wiki page with generated markdown
 # requires: python-wordpress-xmlrpc
 
-from wordpress_xmlrpc import WordPressPage
+from wordpress_xmlrpc import Client, WordPressPage
 from wordpress_xmlrpc.methods.posts import NewPost, EditPost
-
-import os
 
 #authentication
 wp_url = "http://wiki.example.com/xmlrpc.php"
@@ -18,7 +16,7 @@ pages = client.call(posts.GetPosts({'post_type': 'page'}, results_class=WordPres
 page = WordPressPage()
 page.title = 'Example Scale Data Post'
 # page id can be found by viewing via wp-admin dashboard in URL
-page.id = '9'
+page.id = "9"
 
 # pull page from generated/converted markdown
 page.content = open('/tmp/update-page.md', 'r')
