@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # Update an existing wiki page with generated markdown
+# requires: python-wordpress-xmlrpc
 
 from wordpress_xmlrpc import WordPressPage
+from wordpress_xmlrpc.methods.posts import NewPost, EditPost
+
 import os
 
 #authentication
