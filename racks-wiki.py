@@ -2,7 +2,7 @@
 # Update an existing wordpress page with generated markdown
 # Assumes you have a markdown file with content you want published
 # to an existing wordpress page.
-# requires: python2-wordpress-xmlrpc or python3-wordpress-xmlrpc
+# requires: python-wordpress-xmlrpc or python3-wordpress-xmlrpc
 
 from wordpress_xmlrpc import *
 from wordpress_xmlrpc.methods.taxonomies import *
