@@ -1,4 +1,4 @@
-QADS (quick and dirty lab scheduler)
+QUADS (quick and dirty lab scheduler)
 ====================================
 
 Automate scheduling and end-to-end provisioning of R&D scale systems.
