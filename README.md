@@ -6,18 +6,18 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
 ![quads](/lab-scheduler/image/quad.jpg?raw=true)
 
 **What does it do?**
-   - Create and manage a date/time based schedule for machine allocations
-   - Drive system provisioning and network switch changes based on workload assignment
-   - Automatically generate documentation to illustrate current status
+   - Create and manage a date/time based YAML schedule for machine allocations
+   - Drive system provisioning and network switch changes based on workload assignment via external commands
+   - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
      * Standard system facts based on Ansible and Foreman
      * Current workloads and assignments
      * Current ownership and resource utilization links (grafana/collectd) 
 
 **Notes**
    - Very simple design (flat files, no external DB)
-   - Relies on Foreman provisioning (via Hammer CLI)
+   - Allows for calling external provisioning commands via ```--path-to-command```
 
-**Usage Documentation**
+**Scheduler Usage Documentation**
    - Initialize the schedule structure
 
 ```
@@ -149,7 +149,7 @@ You should see the following verbosity from a move operation
 INFO: Moving c08-h21-r630.example.com from cloud01 to cloud02 c08-h21-r630.example.com cloud01 cloud02
 ```
 
-In the above example the default move command was called ("/bin/echo").  Obviously this is not very useful.  In order for this to do something more meaningful, you should invoke the script with the --move-command option, which should be the path to a valid command.  The script takes three arguments (hostname, current cloud, new cloud).
+In the above example the default move command was called ```/bin/echo``` for illustration purposes.  In order for this to do something more meaningful you should invoke the script with the ```--move-command``` option, which should be the path to a valid command.  The script takes three arguments (hostname, current cloud, new cloud).
 
 
    - Move a host using --move-command
