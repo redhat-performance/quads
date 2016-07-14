@@ -3,7 +3,7 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of R&D scale systems.
 
-![quads](/lab-scheduler/image/quad.jpg?raw=true)
+![quads](/lab-scheduler/image/quads.jpg?raw=true)
 
 **What does it do?**
    - Create and manage a date/time based YAML schedule for machine allocations
