@@ -3,6 +3,8 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of R&D scale systems.
 
+![quads](/image/quad.jpg?raw=true)
+
 **What does it do?**
    - Create and manage a date/time based schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment
