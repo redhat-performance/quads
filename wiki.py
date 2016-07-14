@@ -9,7 +9,7 @@ from wordpress_xmlrpc.methods.users import *
 from wordpress_xmlrpc.methods import *
 
 #authentication
-wp_url = "http://wiki.example/xmlrpc.php"
+wp_url = "http://wiki.example.com/xmlrpc.php"
 wp_username = "admin"
 wp_password = "admin"
 wp = Client(wp_url, wp_username, wp_password)
@@ -20,8 +20,7 @@ page.title = 'Example Scale Data Post'
 # page id can be found by viewing via wp-admin dashboard in URL
 page.id = 9
 # pull page from generated/converted markdown
-# FIXME: probably need a markdown or similiar lib here
-# as it doesn't like page.content with open('file', 'r')
-page.content = open('/tmp/update-page.md', 'r')
-# post page update
+# set local file to read handle from
+f = open('/tmp/update-page.md', 'r')
+page.content = f.read()
 wp.call(EditPost(page.id, page))
