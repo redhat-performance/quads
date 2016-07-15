@@ -1,5 +1,3 @@
-Scale Lab RDU Racks Inventory
-=============================
    - This is [automatically generated](https://github.com/redhat-performance/ops-tools/tree/master/lab-scheduler).
 
 
