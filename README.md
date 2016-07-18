@@ -19,7 +19,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
 
 **Workflow**
 
-![quadsworkflow](/lab-scheduler/image/quads-workflow-full.png?raw=true)
+![quadsworkflow](/lab-scheduler/image/quads-workflow.png?raw=true)
 
 **Scheduler Usage Documentation**
    - Initialize the schedule structure
