@@ -18,7 +18,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
    - Allows for calling external provisioning commands via ```--path-to-command```
 
 **Workflow**
-![quads-workflow](/lab-scheduler/image/quads-workflow-full.jpg?raw=true)
+![quads-workflow](/lab-scheduler/image/quads-workflow-.png?raw=true)
 
 **Scheduler Usage Documentation**
    - Initialize the schedule structure
