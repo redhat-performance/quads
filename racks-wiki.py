@@ -48,7 +48,7 @@ if markdown is None:
 
 if pagetitle is None:
     pagetitle = 'Example Wiki Page'
-    
+
 wp = Client(wp_url, wp_username, wp_password)
 
 # define pages variable
