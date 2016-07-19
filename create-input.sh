@@ -7,43 +7,28 @@ cat > /dev/null <<EOF
 
 **Rack C10**
 
-| U-loc    |      Host                 | Serial | MAC  |  IP  |  OOB IP | OOB URL |  OOB-MAC     |  Workload  |  Owner  |  Graph                      |
-|:---------|:--------------------------|:------|:-----|:------|:-------------|:-----------|:--------|:----------------------------|
-|1         |c10-h30-r630.openstack.example.com  | JVKNZ1 | 00:01:AA:B4:A8|10.1.2.1|10.2.1.1|[idrac](http://example.com)|01:AA:BC:7D:8A|cloud1      |wfoster  |[grafana](http://example.com)|
-|2         |                           |       |      |       |              |            |         |                             |
-|3         |                           |       |      |       |              |            |         |                             |
-
-**Rack C11**
-
-| U-loc    |      Host     |  MAC  |  IP  |  OOB  |  OOB-MAC     |  Workload  |  Owner  |  Graph  |
-|----------|:-------------:|------:|:----:|:-----:|:------------:|:----------:|:-------:|:-------:|
-|          |               |       |      |       |              |            |         |         |
-|          |               |       |      |       |              |            |         |         |
-|          |               |       |      |       |              |            |         |         |
-
-**Rack C12**
-
-| U-loc    |      Host     |  MAC  |  IP  |  OOB  |  OOB-MAC     |  Workload  |  Owner  |  Graph  |
-|----------|:-------------:|------:|:----:|:-----:|:------------:|:----------:|:-------:|:-------:|
-|          |               |       |      |       |              |            |         |         |
-|          |               |       |      |       |              |            |         |         |
-|          |               |       |      |       |              |            |         |         |
+| U-loc | Host | Serial | MAC | IP | OOB IP | OOB URL | OOB-MAC | Workload | Owner | Graph |
+|-------|------|--------|-----|----|--------|---------|---------|----------|-------|-------|
+| 1 |c10-h30-r630.openstack.example.com | JVKNZ1 | 00:01:AA:B4:A8 | 10.1.2.1 | 10.2.1.1 | [idrac](http://example.com) |01:AA:BC:7D:8A |cloud1 | wfoster | [grafana](http://example.com) |
 EOF
 
-# define your racks to generate for
+# define your racks
 racks="c08 c09 c10"
 
 function print_header() {
     cat <<EOF
 
-| U-loc    |      Host                 | Serial | MAC  |  IP  |  OOB IP | OOB URL |  OOB-MAC     |  Workload  |  Owner  |  Graph                      |
-|:---------|:--------------------------|:------|:-----|:------|:-------------|:-----------|:--------|:----------------------------|
+| U-loc | Host | Serial | MAC | IP | OOB IP | OOB URL | OOB-MAC | Workload | Owner | Graph |
+|-------|------|--------|-----|----|--------|---------|---------|----------|-------|-------|
 EOF
 }
     
-# note this currently is very Dell/iDRAC specific
-
 function add_row() {
+    # this assumes we are working with iDRAC (Dell specific) and we have ssh
+    # keys setup. Also assumes working with hammer CLI (foreman). These bits can
+    # be swapped out for alternate methods (or function extended to support
+    # multiple platforms.
+
     arg=$1
     uloc=$2
     #echo $arg $uloc
@@ -63,7 +48,6 @@ function add_row() {
 }
 
 # assume hostnames are the format "<rackname>-h<U location>-<type>"
-
 function find_u() {
     echo $1 | awk -F- '{ print $3 }' | sed 's/^h//'
 }
