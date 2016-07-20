@@ -18,11 +18,11 @@ racks="c08 c09 c10"
 function print_header() {
     cat <<EOF
 
-| U-loc | Host | Serial | MAC | IP | OOB IP | OOB URL | OOB-MAC | Workload | Owner | Graph |
-|-------|------|--------|-----|----|--------|---------|---------|----------|-------|-------|
+| U | ServerHostname | Serial | MAC | IP | IPMIADDR | IPMIURL | IPMIMAC | Workload | Owner | Graph |
+|---|----------------|--------|-----|----|----------|---------|---------|----------|-------|-------|
 EOF
 }
-    
+
 function add_row() {
     # this assumes we are working with iDRAC (Dell specific) and we have ssh
     # keys setup. Also assumes working with hammer CLI (foreman). These bits can
