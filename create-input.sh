@@ -13,7 +13,7 @@ cat > /dev/null <<EOF
 EOF
 
 # define your racks
-racks="c08 c09 c10"
+racks="b08 b09 b10 c01 c02 c03 c08 c09 c10"
 
 function print_header() {
     cat <<EOF
@@ -33,12 +33,30 @@ function add_row() {
     uloc=$2
     #echo $arg $uloc
     nodename=$(echo $arg | sed 's/mgmt-//')
-    svctag=$(ssh $arg racadm getsysinfo 2>/dev/null | egrep "^Service Tag" | awk '{ print $NF }')
-    macaddr=$(ssh $arg racadm getsysinfo 2>/dev/null | egrep "^NIC.Integrated.1-1-1" | awk '{ print $NF }')
+    if [ ! -d /etc/lab/ipmi/$nodename ]; then 
+        mkdir -p /etc/lab/ipmi/$nodename
+    fi
+    if [ -f /etc/lab/ipmi/$nodename/svctag ]; then
+        svctag=$(cat /etc/lab/ipmi/$nodename/svctag)
+    else
+        svctag=$(ssh -o PasswordAuthentication=false -o ConnectTimeout=10 $arg racadm getsysinfo 2>/dev/null | egrep "^Service Tag" | awk '{ print $NF }')
+        echo $svctag > /etc/lab/ipmi/$nodename/svctag
+    fi
+    if [ -f /etc/lab/ipmi/$nodename/macaddr ]; then
+        macaddr=$(cat /etc/lab/ipmi/$nodename/macaddr)
+    else
+        macaddr=$(ssh -o PasswordAuthentication=false -o ConnectTimeout=10 $arg racadm getsysinfo 2>/dev/null | egrep "^NIC.Integrated.1-1-1" | awk '{ print $NF }')
+        echo $macaddr > /etc/lab/ipmi/$nodename/macaddr
+    fi
     ip=$(host $nodename | awk '{ print $NF }')
     oobip=$(host $arg | awk '{ print $NF }')
     ooburl="[idrac](http://$arg/)"
-    oobmacaddr=$(hammer host info --name $arg | grep "MAC address" | awk '{ print $NF }')
+    if [ -f /etc/lab/ipmi/$nodename/oobmacaddr ]; then
+        oobmacaddr=$(cat /etc/lab/ipmi/$nodename/oobmacaddr)
+    else
+        oobmacaddr=$(hammer host info --name $arg | grep "MAC address" | awk '{ print $NF }')
+        echo $oobmacaddr > /etc/lab/ipmi/$nodename/oobmacaddr
+    fi
     workload=$(/root/schedule.py --host $nodename)
     # need to figure out owner
     owner=""
@@ -55,7 +73,7 @@ function find_u() {
 for rack in $racks ; do
     echo "**Rack "$(echo $rack | tr a-z A-Z)"**"
     print_header
-    for h in $(hammer host list --per-page 10000 | grep mgmt | egrep -v 'cyclades|s4810' | awk '{ print $3 }' | egrep $rack) ; do
+    for h in $(hammer host list --per-page 10000 | grep mgmt | egrep -v 'cyclades|s4810|5548' | awk '{ print $3 }' | egrep $rack) ; do
         add_row $h $(find_u $h)
     done
     # add any special hosts that dont conform to naming ...
