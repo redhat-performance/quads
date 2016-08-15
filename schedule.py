@@ -409,7 +409,7 @@ def findCurrent(host):
                     current_override = override
         return default_cloud, current_cloud, current_override
     else:
-        return None, None
+        return None, None, None
 
 def printResult():
     global host
@@ -451,15 +451,16 @@ def printResult():
 
         if host is not None:
             if lsschedule:
-                print "Default cloud: " + default_cloud
-                print "Current cloud: " + current_cloud
+                print "Default cloud: " + str(default_cloud)
+                print "Current cloud: " + str(current_cloud)
                 if current_override is not None:
                     print "Current schedule: " + str(current_override)
                 print "Defined schedules:"
-                for override in data['hosts'][host]["schedule"]:
-                    print "  " + str(override) + "| start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
-            else:
-                print current_cloud
+                if host in data['hosts'].keys():
+                    for override in data['hosts'][host]["schedule"]:
+                        print "  " + str(override) + "| start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
+                else:
+                    print current_cloud
 
 
 initConfig()
