@@ -457,7 +457,7 @@ def printResult():
                     print "Current schedule: " + str(current_override)
                 print "Defined schedules:"
                 for override in data['hosts'][host]["schedule"]:
-                    print "  " + str(override) + ": start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
+                    print "  " + str(override) + "| start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
             else:
                 print current_cloud
 
