@@ -459,8 +459,8 @@ def printResult():
                 if host in data['hosts'].keys():
                     for override in data['hosts'][host]["schedule"]:
                         print "  " + str(override) + "| start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
-                else:
-                    print current_cloud
+            else:
+                print current_cloud
 
 
 initConfig()
