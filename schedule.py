@@ -321,6 +321,42 @@ def addHostSchedule():
             print "host \"" + host + "\" is not defined."
             exit(1)
 
+        # before updating the schedule (adding the new override), we need to
+        # ensure the host does not have existing schedules that overlap the new
+        # schedule being requested
+
+        schedstart_obj = datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+        schedend_obj = datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+
+        for s in data['hosts'][host]["schedule"]:
+            s_start = data['hosts'][host]["schedule"][s]["start"]
+            s_end = data['hosts'][host]["schedule"][s]["end"]
+            s_start_obj = datetime.strptime(s_start, '%Y-%m-%d %H:%M')
+            s_end_obj = datetime.strptime(s_end, '%Y-%m-%d %H:%M')
+
+            # need code to see if schedstart or schedend is between s_start and
+            # s_end
+
+            if s_start_obj <= schedstart_obj and schedstart_obj <= s_end_obj:
+                print "Error. New schedule conflicts with existing schedule."
+                print "New schedule: "
+                print "   Start: " + schedstart
+                print "   End: " + schedend
+                print "Existing schedule: "
+                print "   Start: " + s_start
+                print "   End: " + s_end
+                exit(1)
+
+            if s_start_obj <= schedend_obj and schedend_obj <= s_end_obj:
+                print "Error. New schedule conflicts with existing schedule."
+                print "New schedule: "
+                print "   Start: " + schedstart
+                print "   End: " + schedend
+                print "Existing schedule: "
+                print "   Start: " + s_start
+                print "   End: " + s_end
+                exit(1)
+
         data['hosts'][host]["schedule"][len(data['hosts'][host]["schedule"].keys())] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
         writeData()
 
