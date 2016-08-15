@@ -145,7 +145,7 @@ def syncState():
     # sync state
     if syncstate:
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud = findCurrent(h)
+            default_cloud, current_cloud, current_override = findCurrent(h)
             if not os.path.isfile(statedir + "/" + h):
                 try:
                     stream = open(statedir + "/" + h, 'w')
@@ -164,7 +164,7 @@ def moveHosts():
 
     if movehosts:
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud = findCurrent(h)
+            default_cloud, current_cloud, current_override = findCurrent(h)
             if not os.path.isfile(statedir + "/" + h):
                 try:
                     stream = open(statedir + "/" + h, 'w')
@@ -390,6 +390,7 @@ def findCurrent(host):
     if host in data['hosts'].keys():
         default_cloud = data['hosts'][host]["cloud"]
         current_cloud = default_cloud
+        current_override = None
         if "schedule" in data['hosts'][host].keys():
             for override in data['hosts'][host]["schedule"]:
                 start_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
@@ -405,7 +406,8 @@ def findCurrent(host):
 
                 if start_obj <= current_time and current_time <= end_obj:
                     current_cloud = data['hosts'][host]["schedule"][override]["cloud"]
-        return default_cloud, current_cloud
+                    current_override = override
+        return default_cloud, current_cloud, current_override
     else:
         return None, None
 
@@ -426,7 +428,7 @@ def printResult():
             summary[cloud] = []
 
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud = findCurrent(h)
+            default_cloud, current_cloud, current_override = findCurrent(h)
             summary[current_cloud].append(h)
 
         if summaryreport:
@@ -445,18 +447,17 @@ def printResult():
 
     # print the cloud a host belongs to
     else:
-        default_cloud, current_cloud = findCurrent(host)
+        default_cloud, current_cloud, current_override = findCurrent(host)
 
         if host is not None:
             if lsschedule:
                 print "Default cloud: " + default_cloud
                 print "Current cloud: " + current_cloud
+                if current_override is not None:
+                    print "Current schedule: " + str(current_override)
                 print "Defined schedules:"
                 for override in data['hosts'][host]["schedule"]:
-                    print "  " + str(override) + ":"
-                    print "    start: " + data['hosts'][host]["schedule"][override]["start"]
-                    print "    end: " + data['hosts'][host]["schedule"][override]["end"]
-                    print "    cloud: " + data['hosts'][host]["schedule"][override]["cloud"]
+                    print "  " + str(override) + ": start=" + data['hosts'][host]["schedule"][override]["start"] + ",end=" + data['hosts'][host]["schedule"][override]["end"] + ",cloud=" + data['hosts'][host]["schedule"][override]["cloud"]
             else:
                 print current_cloud
 
