@@ -33,7 +33,7 @@ function add_row() {
     uloc=$2
     #echo $arg $uloc
     nodename=$(echo $arg | sed 's/mgmt-//')
-    if [ ! -d /etc/lab/ipmi/$nodename ]; then 
+    if [ ! -d /etc/lab/ipmi/$nodename ]; then
         mkdir -p /etc/lab/ipmi/$nodename
     fi
     if [ -f /etc/lab/ipmi/$nodename/svctag ]; then
@@ -50,7 +50,7 @@ function add_row() {
     fi
     ip=$(host $nodename | awk '{ print $NF }')
     oobip=$(host $arg | awk '{ print $NF }')
-    ooburl="[idrac](http://$arg/)"
+    ooburl="[console](http://$arg/)"
     if [ -f /etc/lab/ipmi/$nodename/oobmacaddr ]; then
         oobmacaddr=$(cat /etc/lab/ipmi/$nodename/oobmacaddr)
     else
