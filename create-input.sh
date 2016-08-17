@@ -1,4 +1,5 @@
 #!/bin/sh
+# generate markdown for racks/inventory wiki page
 
 # output might look like ....
 cat > /dev/null <<EOF
