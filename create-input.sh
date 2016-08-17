@@ -50,7 +50,7 @@ function add_row() {
     fi
     ip=$(host $nodename | awk '{ print $NF }')
     oobip=$(host $arg | awk '{ print $NF }')
-    ooburl="[console](http://$arg/)"
+    ooburl="<a href=http://$arg/ target=_blank>console</a>"
     if [ -f /etc/lab/ipmi/$nodename/oobmacaddr ]; then
         oobmacaddr=$(cat /etc/lab/ipmi/$nodename/oobmacaddr)
     else
