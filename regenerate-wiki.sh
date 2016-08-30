@@ -12,9 +12,9 @@ if [ -f $lockfile ]; then
 else
     touch $lockfile
     sh create-input.sh 1>$tmpfile  2>&1
-    ./racks-wiki.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username admin --wp-password admin --page-title "Title of your Dashboard"
+    ./racks-wiki.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username admin --wp-password admin --page-title "Title of your Dashboard" --page-id 4
     sh create-input.sh 1>$tmpfile  2>&1
-    ./racks-wiki-ownership.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username admin --wp-password admin --page-title "Title of your Systems Ownership Page"
+    ./racks-wiki-ownership.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username admin --wp-password admin --page-title "Title of your Systems Ownership Page" --page-id 357
 rm -f $tmpfile $lockfile
 fi
 
