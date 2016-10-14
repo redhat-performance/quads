@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+#!/bin/python
 
 from datetime import datetime
+import calendar
+import time
 import yaml
 import argparse
 import os
@@ -124,17 +126,19 @@ def loadData():
         print ex
         exit(1)
 
-def writeData():
+def writeData(doexit = True):
     global fname
     global data
 
     try:
         stream = open(fname, 'w')
         stream.write( yaml.dump(data, default_flow_style=False))
-        exit(0)
+        if doexit:
+            exit(0)
     except Exception, ex:
         print "There was a problem with your file %s" % ex
-        exit(1)
+        if doexit:
+            exit(1)
 
 
 def syncState():
@@ -184,6 +188,24 @@ def moveHosts():
                         stream.write(current_cloud + '\n')
                         stream.close()
         exit(0)
+
+def historyInit():
+    global data
+
+    updateyaml = False
+    if 'history' not in data:
+        data['history']  = {}
+        updateyaml = True
+
+    for h in sorted(data['hosts'].iterkeys()):
+        if h not in data['history']:
+            data['history'][h] = {}
+            default_cloud, current_cloud, current_override = findCurrent(h)
+            data['history'][h][0] = current_cloud
+            updateyaml = True
+
+    if updateyaml:
+        writeData(False)
 
 def listHosts():
     global lshosts
@@ -261,8 +283,11 @@ def updateHost():
 
             if hostresource in data['hosts']:
                 data["hosts"][hostresource] = { "cloud": hostcloud, "interfaces": data["hosts"][hostresource]["interfaces"], "schedule": data["hosts"][hostresource]["schedule"] }
+                data["history"][hostresource][int(time.time())] = hostcloud
             else:
                 data["hosts"][hostresource] = { "cloud": hostcloud, "interfaces": {}, "schedule": {}}
+                data["history"][hostresource] = {}
+                data["history"][hostresource][0] = hostcloud
             writeData()
 
 def updateCloud():
@@ -391,23 +416,32 @@ def findCurrent(host):
         default_cloud = data['hosts'][host]["cloud"]
         current_cloud = default_cloud
         current_override = None
+
+        if datearg is None:
+            current_time = datetime.now()
+        else:
+            try:
+                current_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+            except Exception, ex:
+                print "Data format error : %s" % ex
+                exit(1)
+
         if "schedule" in data['hosts'][host].keys():
             for override in data['hosts'][host]["schedule"]:
                 start_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
                 end_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
-                if datearg is None:
-                    current_time = datetime.now()
-                else:
-                    try:
-                        current_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
-                    except Exception, ex:
-                        print "Data format error : %s" % ex
-                        exit(1)
 
                 if start_obj <= current_time and current_time <= end_obj:
                     current_cloud = data['hosts'][host]["schedule"][override]["cloud"]
                     current_override = override
+                    return default_cloud, current_cloud, current_override
+
+        for history in data['history'][host]:
+            if datetime.fromtimestamp(history) <= current_time:
+                current_cloud = data['history'][host][history]
+
         return default_cloud, current_cloud, current_override
+
     else:
         return None, None, None
 
@@ -467,6 +501,7 @@ initConfig()
 checkDefineOpts()
 loadData()
 syncState()
+historyInit()
 listHosts()
 listClouds()
 removeHost()
