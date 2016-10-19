@@ -1,16 +1,13 @@
 #!/bin/sh
 
-# these arguments should be of the form YYYY-mm-dd
 startdate=$1
 enddate=$2
 
-# change paths to match where your scripts are
 daterangecmd=/root/ops-tools/lab-scheduler/date-range-generate.py
-schedcmd=/root/ops-tools/lab-scheduler/schedule.py
+schedcmd=/root/schedule.py
+summaryloc=/etc/lab/summary
 
-# possible crontab entry:
-# This will show last 3 months and upcoming 3 months on a calendar file.
-# 0 * * * * /root/ops-tools/lab-scheduler/ical-generate.sh $(date -d "today - 90 days" +%Y-%m-%d) $(date -d "today + 90 days" +%Y-%m-%d) > /srv/cal/calendars/schedule.ics && /bin/cp /srv/cal/calendars/schedule.ics /var/www/html/ical/schedule.ics
+$schedcmd --summary > $summaryloc/$(date +%Y-%m-%d)
 
 cat <<EOF
 BEGIN:VCALENDAR
@@ -47,7 +44,20 @@ UID:$d@scalelab
 SUMMARY:$d
 EOF
     echo -n "DESCRIPTION:\\n"
-    $schedcmd --summary --date "$d 00:00" | sed 's,$,\\n,' | sed 's/^/ /g'
+    # for dates in the past, generate a cached summary once
+    if [ $(date +%s -d $d) -lt $(date +%s -d $(date +%Y-%m-%d)) ]; then
+        # if you already have the summary, use it
+        if [ -f $summaryloc/$d ]; then
+            cat $summaryloc/$d | sed 's,$,\\n,' | sed 's/^/ /g'
+        # otherwise generate it.  this will speed up next runs
+        else
+            $schedcmd --summary --date "$d 00:00" > $summaryloc/$d
+            cat $summaryloc/$d | sed 's,$,\\n,' | sed 's/^/ /g'
+        fi
+    # anything for today and forward is subject to change.
+    else
+        $schedcmd --summary --date "$d 00:00" | sed 's,$,\\n,' | sed 's/^/ /g'
+    fi
     cat <<EOF
 LOCATION:Scale Lab
 DTSTART;VALUE=DATE:$dtstart

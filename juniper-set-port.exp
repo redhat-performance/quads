@@ -1,0 +1,55 @@
+#!/usr/bin/expect
+
+set timeout 20
+
+set ip [lindex $argv 0]
+set interfacename [lindex $argv 1]
+set oldvlan [lindex $argv 2]
+set newvlan [lindex $argv 3]
+
+spawn ssh "$ip"
+expect ">"
+send "edit\r";
+expect "#"
+send "edit interfaces $interfacename\r";
+expect "#"
+send "delete native-vlan-id $oldvlan\r";
+expect "#"
+send "set native-vlan-id $newvlan\r";
+expect "#"
+send "edit unit 0\r";
+expect "#"
+send "delete vlan-id $oldvlan\r";
+expect "#"
+send "set vlan-id $newvlan\r";
+expect "#"
+send "commit\r";
+expect "#"
+send "exit\r";
+expect "#"
+send "exit\r";
+expect "#"
+send "edit vlans\r";
+expect "#"
+send "edit vlan$oldvlan\r";
+expect "#"
+send "delete interface $interfacename\r";
+expect "#"
+send "exit\r";
+expect "#"
+send "edit vlan$newvlan\r";
+expect "#"
+send "set interface $interfacename\r";
+expect "#"
+send "exit\r";
+expect "#"
+send "exit\r";
+expect "#"
+send "commit\r";
+expect "#"
+send "exit\r";
+expect ">"
+send "exit\r";
+
+interact
+

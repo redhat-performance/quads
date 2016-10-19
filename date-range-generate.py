@@ -7,12 +7,13 @@ import argparse
 import os
 import datetime
 
-parser = argparse.ArgumentParser(description='Generate a list of valid calendar dates between start and end')
+parser = argparse.ArgumentParser(description='Generate ical file showing resource allocations')
 parser.add_argument('--start-date', dest='startdate', type=str, default=None, help='Specify start date')
 parser.add_argument('--end-date', dest='enddate', type=str, default=None, help='Specify end date')
 
 args=parser.parse_args()
 
+# authentication and wp url
 startdate = args.startdate
 enddate = args.enddate
 

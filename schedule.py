@@ -7,6 +7,7 @@ import yaml
 import argparse
 import os
 from subprocess import call
+from subprocess import check_call
 
 defaultconfig = "/etc/lab/schedule.yaml"
 defaultstatedir = "/etc/lab/state"
@@ -20,13 +21,19 @@ parser.add_argument('-c', '--config', dest='config',
                                             default=None, type=str)
 parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
 parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
+parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
+parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
+parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
+parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
 parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
 parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
 parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
 parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
 parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
 parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
+parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
 parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
+parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
 parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
 parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
 parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
@@ -49,20 +56,26 @@ cloudonly = args.cloudonly
 config = args.config
 datearg = args.datearg
 initialize = args.initialize
+cloudowner = args.cloudowner
+cloudticket = args.cloudticket
 cloudresource = args.cloudresource
 hostresource = args.hostresource
 description = args.description
 hostcloud = args.hostcloud
 forceupdate = args.force
 summaryreport = args.summary
+fullsummaryreport = args.fullsummary
 addschedule = args.addschedule
 schedstart = args.schedstart
 schedend = args.schedend
 schedcloud = args.schedcloud
 lsschedule = args.lsschedule
 rmschedule = args.rmschedule
+modschedule = args.modschedule
 lshosts = args.lshosts
 lsclouds = args.lsclouds
+lsowner = args.lsowner
+lsticket = args.lsticket
 rmhost = args.rmhost
 rmcloud = args.rmcloud
 statedir = args.statedir
@@ -183,7 +196,11 @@ def moveHosts():
                 if current_state != current_cloud:
                     print "INFO: Moving " + h + " from " + current_state + " to " + current_cloud
                     if not dryrun:
-                        call([movecommand, h, current_state, current_cloud])
+                        try:
+                            check_call([movecommand, h, current_state, current_cloud])
+                        except Exception, ex:
+                            print "Move command failed: %s" % ex
+                            exit(1)
                         stream = open(statedir + "/" + h, 'w')
                         stream.write(current_cloud + '\n')
                         stream.close()
@@ -226,6 +243,46 @@ def listClouds():
         for c in sorted(data['clouds'].iterkeys()):
             print c
         exit(0)
+
+def listOwners():
+    global lsowner
+    global data
+    global cloudonly
+
+    # list the owners
+    if lsowner:
+        if cloudonly is not None:
+            if cloudonly not in data['clouds']:
+                exit(0)
+            print data['clouds'][cloudonly]['owner']
+            exit(0)
+
+        for c in sorted(data['clouds'].iterkeys()):
+            print c + " : " + data['clouds'][c]['owner']
+
+        exit(0)
+
+def listTickets():
+    global lsticket
+    global data
+    global cloudonly
+
+    # list the service request tickets
+    if lsticket:
+        if cloudonly is not None:
+            if cloudonly not in data['clouds']:
+                exit(0)
+            if 'ticket' not in data['clouds'][cloudonly]:
+                exit(0)
+            print data['clouds'][cloudonly]['ticket']
+            exit(0)
+
+        for c in sorted(data['clouds'].iterkeys()):
+            if 'ticket' in data['clouds'][c]:
+                print c + " : " + data['clouds'][c]['ticket']
+
+        exit(0)
+
 
 def removeHost():
     global rmhost
@@ -291,6 +348,8 @@ def updateHost():
             writeData()
 
 def updateCloud():
+    global cloudowner
+    global cloudticket
     global cloudresource
     global description
     global data
@@ -305,7 +364,11 @@ def updateCloud():
             if cloudresource in data['clouds'] and not forceupdate:
                 print "Cloud \"%s\" already defined. Use --force to replace" % cloudresource
                 exit(1)
-            data["clouds"][cloudresource] = { "description": description, "networks": {}}
+            data["clouds"][cloudresource] = { "description": description, "networks": {}, "owner": {}, "ticket": {}}
+            if cloudowner is not None:
+                data["clouds"][cloudresource]["owner"] = cloudowner
+            if cloudticket is not None:
+                data["clouds"][cloudresource]["ticket"] = cloudticket
             writeData()
 
 def addHostSchedule():
@@ -362,7 +425,7 @@ def addHostSchedule():
             # need code to see if schedstart or schedend is between s_start and
             # s_end
 
-            if s_start_obj <= schedstart_obj and schedstart_obj <= s_end_obj:
+            if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
                 print "Error. New schedule conflicts with existing schedule."
                 print "New schedule: "
                 print "   Start: " + schedstart
@@ -372,7 +435,7 @@ def addHostSchedule():
                 print "   End: " + s_end
                 exit(1)
 
-            if s_start_obj <= schedend_obj and schedend_obj <= s_end_obj:
+            if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
                 print "Error. New schedule conflicts with existing schedule."
                 print "New schedule: "
                 print "   Start: " + schedstart
@@ -383,6 +446,108 @@ def addHostSchedule():
                 exit(1)
 
         data['hosts'][host]["schedule"][len(data['hosts'][host]["schedule"].keys())] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
+        writeData()
+
+def modHostSchedule():
+    global modschedule
+    global schedstart
+    global schedend
+    global schedcloud
+    global host
+    global data
+
+    # add a scheduled override for a given host
+    if modschedule is not None:
+        if host is None:
+            print "Missing option. Need --host when using --mod-schedule"
+            exit(1)
+
+        if schedstart is None and schedend is None and schedcloud is None:
+            print "Missing option. At least one these options are required for --mod-schedule:"
+            print "    --schedule-start"
+            print "    --schedule-end"
+            print "    --schedule-cloud"
+            exit(1)
+
+        if schedstart:
+            try:
+                datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+            except Exception, ex:
+                print "Data format error : %s" % ex
+                exit(1)
+
+        if schedend:
+            try:
+                datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+            except Exception, ex:
+                print "Data format error : %s" % ex
+                exit(1)
+
+        if schedcloud:
+            if schedcloud not in data['clouds']:
+                print "cloud \"" + schedcloud + "\" is not defined."
+                exit(1)
+
+        if host not in data['hosts']:
+            print "host \"" + host + "\" is not defined."
+            exit(1)
+
+        if modschedule not in data['hosts'][host]["schedule"].keys():
+            print "Could not find schedule for host"
+            exit(1)
+
+        # before updating the schedule (modifying the new override), we need to
+        # ensure the host does not have existing schedules that overlap the 
+        # schedule being updated
+
+
+        if not schedcloud:
+            schedcloud = data['hosts'][host]["schedule"][modschedule]["cloud"]
+
+        if not schedstart:
+            schedstart = data['hosts'][host]["schedule"][modschedule]["start"]
+
+        schedstart_obj = datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+
+        if not schedend:
+            schedend = data['hosts'][host]["schedule"][modschedule]["end"]
+
+        schedend_obj = datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+
+        for s in data['hosts'][host]["schedule"]:
+            if s != modschedule:
+                s_start = data['hosts'][host]["schedule"][s]["start"]
+                s_end = data['hosts'][host]["schedule"][s]["end"]
+                s_start_obj = datetime.strptime(s_start, '%Y-%m-%d %H:%M')
+                s_end_obj = datetime.strptime(s_end, '%Y-%m-%d %H:%M')
+
+                # need code to see if schedstart or schedend is between s_start and
+                # s_end
+
+                if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
+                    print "Error. Updated schedule conflicts with existing schedule."
+                    print "Updated schedule: "
+                    print "   Start: " + schedstart
+                    print "   End: " + schedend
+                    print "Existing schedule: "
+                    print "   Start: " + s_start
+                    print "   End: " + s_end
+                    exit(1)
+
+                if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
+                    print "Error. Updated schedule conflicts with existing schedule."
+                    print "Updated schedule: "
+                    print "   Start: " + schedstart
+                    print "   End: " + schedend
+                    print "Existing schedule: "
+                    print "   Start: " + s_start
+                    print "   End: " + s_end
+                    exit(1)
+
+        data['hosts'][host]["schedule"][modschedule]["start"] = schedstart
+        data['hosts'][host]["schedule"][modschedule]["end"] = schedend
+        data['hosts'][host]["schedule"][modschedule]["cloud"] = schedcloud
+
         writeData()
 
 def rmHostSchedule():
@@ -452,6 +617,7 @@ def printResult():
     global datearg
     global summary
     global summaryreport
+    global fullsummaryreport
 
     # If we're here, we're done with all other options and just need to
     # print either summary, full report if no host is specified
@@ -465,9 +631,14 @@ def printResult():
             default_cloud, current_cloud, current_override = findCurrent(h)
             summary[current_cloud].append(h)
 
-        if summaryreport:
-            for cloud in sorted(data['clouds'].iterkeys()):
-                print cloud + " : " + str(len(summary[cloud])) + " (" + data["clouds"][cloud]["description"] + ")"
+        if summaryreport or fullsummaryreport:
+            if fullsummaryreport:
+                for cloud in sorted(data['clouds'].iterkeys()):
+                    print cloud + " : " + str(len(summary[cloud])) + " (" + data["clouds"][cloud]["description"] + ")"
+            else:
+                for cloud in sorted(data['clouds'].iterkeys()):
+                    if len(summary[cloud]) > 0:
+                        print cloud + " : " + str(len(summary[cloud])) + " (" + data["clouds"][cloud]["description"] + ")"
         else:
             for cloud in sorted(data['clouds'].iterkeys()):
                 if cloudonly is None:
@@ -504,12 +675,15 @@ syncState()
 historyInit()
 listHosts()
 listClouds()
+listOwners()
+listTickets()
 removeHost()
 removeCloud()
 updateHost()
 updateCloud()
 addHostSchedule()
 rmHostSchedule()
+modHostSchedule()
 moveHosts()
 printResult()
 

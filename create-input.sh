@@ -9,11 +9,11 @@ cat > /dev/null <<EOF
 
 | U-loc | Host | Serial | MAC | IP | OOB IP | OOB URL | OOB-MAC | Workload | Owner | Graph |
 |-------|------|--------|-----|----|--------|---------|---------|----------|-------|-------|
-| 1 |c10-h30-r630.openstack.example.com | JVKNZ1 | 00:01:AA:B4:A8 | 10.1.2.1 | 10.2.1.1 | [idrac](http://example.com) |01:AA:BC:7D:8A |cloud1 | wfoster | [grafana](http://example.com) |
+| 1 |c10-h30-r630.openstack.example.com | JVKNZ1 | 00:01:AA:B4:A8 | 10.1.2.1 | 10.2.1.1 | [idrac](http://example.com) |01:AA:BC:7D:8A |cloud1 | someuser | [grafana](http://example.com) |
 EOF
 
 # define your racks
-racks="b08 b09 b10 c01 c02 c03 c06 c07 c08 c09 c10"
+racks="b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10"
 
 function print_header() {
     cat <<EOF
@@ -24,7 +24,7 @@ EOF
 }
 
 function add_row() {
-    # this assumes we are working with ipmitool capable machines and we have ssh
+    # this assumes we are working with iDRAC (Dell specific) and we have ssh
     # keys setup. Also assumes working with hammer CLI (foreman). These bits can
     # be swapped out for alternate methods (or function extended to support
     # multiple platforms.
@@ -59,7 +59,11 @@ function add_row() {
     fi
     workload=$(/root/schedule.py --host $nodename)
     # need to figure out owner
-    owner=""
+    if [ "$workload" == "None" ]; then
+        owner=""
+    else
+        owner=$(/root/schedule.py --ls-owner --cloud-only $workload)
+    fi
     # need to figure out grafana links
     grafana=""
     echo "| $uloc | $(echo $nodename | awk -F. '{ print $1 }') | $svctag | $macaddr | $ip | $oobip | $ooburl | $oobmacaddr | [$workload](/assignments/#$workload) | $owner | $grafana |"
@@ -71,8 +75,7 @@ function find_u() {
 }
 
 TMPHAMMERFILE=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-# omit core switches, tor switches, mgmt switches or special machines
-hammer host list --per-page 10000 | grep mgmt | egrep -v 'cyclades|s4810|z9000|5548|r930' | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
+hammer host list --per-page 10000 | grep mgmt | egrep -v 'cyclades|s4810|z9000|5548|c08-h05-r930' | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
 
 for rack in $racks ; do
     echo "**Rack "$(echo $rack | tr a-z A-Z)"**"
@@ -89,3 +92,4 @@ for rack in $racks ; do
 done
 
 rm -f $TMPHAMMERFILE
+
