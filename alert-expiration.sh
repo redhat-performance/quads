@@ -30,10 +30,13 @@ Subject: QUADS upcoming expiration notification
 From: QUADS <quads@example.com>
 Reply-To: dev-null@example.com
 
-This is a message to alert you that in $days_to_report days,
+This is a message to alert you that in $days_to_report days
 your allocated environment:
 
    $env_to_report
+
+(Details)
+http://wiki.example.com/assignments/#$env_to_report
 
 will have some or all of the hosts expire.  The hosts in your
 environment will automatically be reprovisioned and returned to
