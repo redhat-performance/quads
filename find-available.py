@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# query availability of machines
+# e.g.
+# find 4 machines for 4 days of type r620
+# find-available.py -c 4 -d 4 -l '620'
 
 import itertools
 import string

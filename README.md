@@ -10,9 +10,11 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
    - Drive system provisioning and network switch changes based on workload assignment via external commands
    - Generates instack.json for each OpenStack environment.
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
-     * Standard system facts based on Ansible and Foreman
+     * Current system details
      * Current workloads and assignments
      * Current ownership and resource utilization links (grafana/collectd) 
+     * Total duration and time remaining in system assignments
+   - Query scheduling data to determine future availability
 
 **Notes**
    - Very simple design (flat files, no external DB)
@@ -64,39 +66,6 @@ c08-h29-r630.example.com
 c09-h01-r630.example.com
 c09-h02-r630.example.com
 c09-h03-r630.example.com
-c09-h04-r630.example.com
-c09-h05-r630.example.com
-c09-h06-r630.example.com
-c09-h07-r630.example.com
-c09-h08-r630.example.com
-c09-h09-r630.example.com
-c09-h10-r630.example.com
-c09-h11-r630.example.com
-c09-h12-r630.example.com
-c09-h13-r630.example.com
-c09-h14-r630.example.com
-c09-h15-r630.example.com
-c09-h16-r630.example.com
-c09-h17-r630.example.com
-c09-h18-r630.example.com
-c09-h19-r630.example.com
-c09-h20-r630.example.com
-c09-h21-r630.example.com
-c09-h22-r630.example.com
-c09-h23-r630.example.com
-c09-h24-r630.example.com
-c09-h25-r630.example.com
-c09-h26-r630.example.com
-c09-h27-r630.example.com
-c10-h25-r630.example.com
-c10-h26-r630.example.com
-c10-h27-r630.example.com
-c10-h28-r630.example.com
-c10-h29-r630.example.com
-c10-h30-r630.example.com
-c10-h31-r630.example.com
-c10-h32-r630.example.com
-c10-h33-r630.example.com
 ```
 
    - To see the current system allocations:
@@ -163,4 +132,3 @@ In the above example the default move command was called ```/bin/echo``` for ill
 ```
 ./schedule.py --move-hosts --path-to-command /usr/bin/movecommand.sh
 ```
-
