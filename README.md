@@ -3,6 +3,8 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of R&D scale systems.
 
+**Note:** Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
+
 ![quads](/image/quads.jpg?raw=true)
 
 **What does it do?**
@@ -132,4 +134,3 @@ In the above example the default move command was called ```/bin/echo``` for ill
 ```
 ./schedule.py --move-hosts --path-to-command /usr/bin/movecommand.sh
 ```
-
