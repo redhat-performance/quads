@@ -1,0 +1,7 @@
+# cronjobs go in here.
+#
+# example:
+# * * * * * /root/ops-tools/lab-scheduler/schedule.py --move-hosts --move-command /root/move-and-rebuild-host.sh 1>>/var/log/move-and-rebuild.log 2>&1
+# 0 * * * * /root/ops-tools/lab-scheduler/regenerate-wiki.sh 1>/dev/null 2>&1
+# 0 0 * * * /root/ops-tools/lab-scheduler/alert-expiration.sh 1>/dev/null 2>&1
+# 0 * * * * /root/ical-generate-cron.sh
