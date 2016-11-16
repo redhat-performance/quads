@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# query availability of machines
-# e.g.
-# find 4 machines for 4 days of type r620
-# find-available.py -c 4 -d 4 -l '620'
+# tool to query lab schedule and find available nodes
+# e.g. find 10 nodes for 20 consecutive days
+# ./find-availably.py -c 10 -d 20
 
 import itertools
 import string
@@ -17,7 +16,8 @@ parser = argparse.ArgumentParser(description='Find first available time for lab 
 parser.add_argument('-c', '--count', dest='count', type=int, default=None, help='number of nodes needed')
 parser.add_argument('-d', '--days', dest='days', type=int, default=None, help='number of days needed')
 parser.add_argument('-l', '--limit', dest='limited', type=str, default=None, help='limit hostnames to match')
-parser.add_argument('--debug', dest='debug', action='store_true',help='debug output')
+parser.add_argument('--debug', dest='debug', action='store_true', help='debug output')
+parser.add_argument('-C', '--cli', dest='cli', action='store_true', help='print QUADS example schedule commands')
 
 def printf(format, *args):
     sys.stdout.write(format % args)
@@ -27,12 +27,13 @@ count = args.count
 days = args.days
 limited = args.limited
 debug = args.debug
+cli = args.cli
 
 hostset = ()
 hostnames = ()
 
 if count is None or days is None:
-    print "Usage: find-available.py -c COUNT -d DAYS"
+    print "Usage: find-available.py -c NODECOUNT -d DAYSNEEDED"
     exit(1)
 
 def avail_for(start_day, n, duration):
@@ -92,7 +93,6 @@ def find_date(node_count, for_days):
         schedulepycommand = "/root/schedule.py --cloud-only cloud01 --date \"" + datestring + "\""
         if limited != None:
             schedulepycommand += "| egrep '" + limited + "'"
-#        schedulepycommand = "/root/schedule.py --full-summary --date \"" + datestring + "\" | grep cloud01 | awk '{ print $3 }'"
         schedulepycommand += "| wc -l"
         schedulepystring = os.popen(schedulepycommand).read().rstrip('\n')
         count = int(schedulepystring)
@@ -120,10 +120,11 @@ print "Requested end date = " + enddatestring
 print "hostnames = "
 for k in hostset:
     print hostnames[k]
-print "================"
-print "Schedule Commands:"
-print "------------------"
-for k in hostset:
-    print "schedule.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
+if cli:
+    print "================"
+    print "Schedule Commands:"
+    print "------------------"
+    for k in hostset:
+        print "schedule.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
 
 exit(0)
