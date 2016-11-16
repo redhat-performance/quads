@@ -105,7 +105,7 @@ def find_date(node_count, for_days):
 first_avail = find_date(count, days)
 datecommand = "date -d \"today + " + str(first_avail) + " days \" '+%Y-%m-%d 08:00'"
 startdatestring = os.popen(datecommand).read().rstrip('\n')
-print "================"
+print "=================="
 print "First available date = " + startdatestring
 datecommand = "date -d \"today + " + str(first_avail + days) + " days \" '+%Y-%m-%d 08:00'"
 if debug:
@@ -118,10 +118,10 @@ print "hostnames = "
 for k in hostset:
     print hostnames[k]
 if cli:
-    print "================"
+    print "=================="
     print "Schedule Commands:"
     print "------------------"
     for k in hostset:
-        print "schedule.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
+        print "./schedule.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
 
 exit(0)
