@@ -13,17 +13,17 @@ function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
    echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
    echo "|----------|-------------|-----------|--------------------|----------------|"
-   /root/schedule.py --summary | while read line ; do
+   /root/quads.py --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
       desc=$(echo $(echo $line | awk -F: '{ print $2 }'))
-      owner=$(/root/schedule.py --ls-owner --cloud-only $name)
-      rt=$(/root/schedule.py --ls-ticket --cloud-only $name)
+      owner=$(/root/quads.py --ls-owner --cloud-only $name)
+      rt=$(/root/quads.py --ls-ticket --cloud-only $name)
       if [ "$rt" ]; then
           link="<a href=https://engineering.example.com/rt/Ticket/Display.html?id=$rt target=_blank>$rt</a>"
       else
           link=""
       fi
-      ~/schedule.py --cloud-only ${name} > $tmpsummary
+      ~/quads.py --cloud-only ${name} > $tmpsummary
       if [ -f /etc/lab/undercloud/$name ]; then
           uc=$(cat /etc/lab/undercloud/$name)
       else
@@ -58,7 +58,7 @@ for h in $(cat $TMPHAMMERFILE) ; do
     else
         u=$(echo $h | awk -F- '{ print $3 }' | sed 's/^h//')
         short_host=$(echo $nodename | awk -F. '{ print $1 }')
-        if [ "$(~/schedule.py --host $nodename)" == "None" ]; then
+        if [ "$(~/quads.py --host $nodename)" == "None" ]; then
            echo "| $short_host | <a href=http://$h/ target=_blank>console</a> |"
         fi
     fi
@@ -88,16 +88,16 @@ rm -f $TMPHAMMERFILE
 
 function add_row() {
     short_host=$(echo $1 | awk -F. '{ print $1 }')
-    sched=$(/root/schedule.py --ls-schedule --host $1 | grep "^Current schedule:" | awk -F: '{ print $2 }')
-    defenv=$(/root/schedule.py --ls-schedule --host $1 | egrep "^Default cloud:" | awk -F: '{ print $2 }')
+    sched=$(/root/quads.py --ls-schedule --host $1 | grep "^Current schedule:" | awk -F: '{ print $2 }')
+    defenv=$(/root/quads.py --ls-schedule --host $1 | egrep "^Default cloud:" | awk -F: '{ print $2 }')
     if [ "$sched" = "" ]; then
         datestart="∞"
         dateend="∞"
         totaltime="∞"
         totaltimeleft="∞"
     else
-        datestart=$(/root/schedule.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
-        dateend=$(/root/schedule.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
+        datestart=$(/root/quads.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
+        dateend=$(/root/quads.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
         datenowsec=$(date +%s)
         datestartsec=$(date -d "$datestart" +%s)
         dateendsec=$(date -d "$dateend" +%s)
@@ -141,13 +141,13 @@ echo ""
 
 echo '### **DETAILS**'
 echo ""
-/root/schedule.py --summary | while read line ; do
+/root/quads.py --summary | while read line ; do
     cloudname=$(echo $line | awk -F: '{ print $1 }')
-    cloudowner=$(/root/schedule.py --ls-owner --cloud-only $cloudname)
+    cloudowner=$(/root/quads.py --ls-owner --cloud-only $cloudname)
     echo '### <a name='"$cloudname"'></a>'
     echo '### **'$line -- $cloudowner'**'
     print_header
-    for h in $(/root/schedule.py --cloud-only $cloudname) ; do
+    for h in $(/root/quads.py --cloud-only $cloudname) ; do
         add_row $h
     done
     echo ""

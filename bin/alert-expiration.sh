@@ -4,7 +4,7 @@
 #
 #######
 
-quads=/root/schedule.py
+quads=/root/quads.py
 
 days="1 3 5 7"
 #days="14 21 25 27"

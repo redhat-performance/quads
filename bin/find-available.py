@@ -43,7 +43,7 @@ def avail_for(start_day, n, duration):
         print "DEBUG: avail_for called with : start_days = " + str(start_day) + ", n = " + str(n) + ", duration = " + str(duration)
     datecommand = "date -d \"today + " + str(start_day) + " days \" '+%Y-%m-%d 08:00'"
     datestring = os.popen(datecommand).read().rstrip('\n')
-    schedulepycommand = "/root/schedule.py --cloud-only cloud01 --date \"" + datestring + "\""
+    schedulepycommand = "/root/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
     if limited != None:
         schedulepycommand += "| egrep '" + limited + "'"
     if debug:
@@ -66,7 +66,7 @@ def avail_for(start_day, n, duration):
                 for t in range(start_day, (start_day + duration)):
                     datecommand = "date -d \"today + " + str(t) + " days \" '+%Y-%m-%d 08:00'"
                     datestring = os.popen(datecommand).read().rstrip('\n')
-                    schedulepycommand = "/root/schedule.py --host " + myresult[k] + " --date \"" + datestring + "\""
+                    schedulepycommand = "/root/quads.py --host " + myresult[k] + " --date \"" + datestring + "\""
                     if debug:
                         print "DEBUG: schedulepycommand = " + schedulepycommand
                     schedulepyresult = os.popen(schedulepycommand).read().rstrip('\n')
@@ -87,7 +87,7 @@ def find_date(node_count, for_days):
     while count < node_count and avail_for(increment, node_count, for_days) != 0:
         datecommand = "date -d \"today + " + str(increment) + " days \" '+%Y-%m-%d 08:00'"
         datestring = os.popen(datecommand).read().rstrip('\n')
-        schedulepycommand = "/root/schedule.py --cloud-only cloud01 --date \"" + datestring + "\""
+        schedulepycommand = "/root/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
         if limited != None:
             schedulepycommand += "| egrep '" + limited + "'"
         schedulepycommand += "| wc -l"
@@ -122,6 +122,6 @@ if cli:
     print "Schedule Commands:"
     print "------------------"
     for k in hostset:
-        print "./schedule.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
+        print "./quads.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
 
 exit(0)

@@ -31,27 +31,27 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
 
 ```
 mkdir /etc/lab
-./schedule.py --init
+./quads.py --init
 ```
 
    - Define the various cloud environments
 
 ```
-./schedule.py --define-cloud cloud01 --description "Primary Cloud Environment"
-./schedule.py --define-cloud cloud02 --description "02 Cloud Environment"
-./schedule.py --define-cloud cloud03 --description "03 Cloud Environment"
+./quads.py --define-cloud cloud01 --description "Primary Cloud Environment"
+./quads.py --define-cloud cloud02 --description "02 Cloud Environment"
+./quads.py --define-cloud cloud03 --description "03 Cloud Environment"
 ```
 
    - Define the hosts in the environment
 
 ```
-for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do ./schedule.py --define-host $h --default-cloud cloud01; done
+for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do ./quads.py --define-host $h --default-cloud cloud01; done
 ```
 
    - To list the hosts:
 
 ```
-./schedule.py --ls-hosts
+./quads.py --ls-hosts
 ```
 You will now see the list of full hosts.
 
@@ -73,7 +73,7 @@ c09-h03-r630.example.com
    - To see the current system allocations:
 
 ```
-./schedule.py --summary
+./quads.py --summary
 cloud01 : 45 (Primary Cloud Environment)
 cloud02 : 0 (02 Cloud Environment)
 cloud03 : 0 (03 Cloud Environment)
@@ -85,20 +85,20 @@ cloud03 : 0 (03 Cloud Environment)
      - *Note*: state files are stored in ```/etc/lab/state/HOSTNAME``` for each host and contains the current cloud membership
 
 ```
-./schedule.py --sync
+./quads.py --sync
 ```
 
    - Define a custom schedule for a host
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
 ```
-./schedule.py --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
+./quads.py --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
 ```
 
    - List the schedule for a specific host:
 
 ```
-./schedule.py --ls-schedule --host c08-h21-r630.example.com
+./quads.py --ls-schedule --host c08-h21-r630.example.com
 ```
 
 You'll see the schedule output below
@@ -116,7 +116,7 @@ Defined schedules:
    - Move any hosts that need to be re-allocated based on the current schedule
 
 ```
-./schedule.py --move-hosts
+./quads.py --move-hosts
 ```
 
 You should see the following verbosity from a move operation
@@ -132,5 +132,5 @@ In the above example the default move command was called ```/bin/echo``` for ill
      - You can append a script, command or other action as a post-hook (perhaps to fire off system provisioning).
 
 ```
-./schedule.py --move-hosts --path-to-command /usr/bin/movecommand.sh
+./quads.py --move-hosts --path-to-command /usr/bin/movecommand.sh
 ```

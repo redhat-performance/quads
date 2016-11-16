@@ -57,12 +57,12 @@ function add_row() {
         oobmacaddr=$(hammer host info --name $arg | grep "MAC:" | awk '{ print $NF }')
         echo $oobmacaddr > /etc/lab/ipmi/$nodename/oobmacaddr
     fi
-    workload=$(/root/schedule.py --host $nodename)
+    workload=$(/root/quads.py --host $nodename)
     # need to figure out owner
     if [ "$workload" == "None" ]; then
         owner=""
     else
-        owner=$(/root/schedule.py --ls-owner --cloud-only $workload)
+        owner=$(/root/quads.py --ls-owner --cloud-only $workload)
     fi
     # need to figure out grafana links
     grafana=""

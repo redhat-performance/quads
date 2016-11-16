@@ -1,4 +1,4 @@
-   - This is [automatically generated](https://github.com/redhat-performance/ops-tools/tree/master/lab-scheduler).
+   - This is [automatically generated](https://github.com/redhat-performance/quads).
 
 
 **Rack C11**

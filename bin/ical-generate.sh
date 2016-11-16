@@ -4,7 +4,7 @@ startdate=$1
 enddate=$2
 
 daterangecmd=/root/ops-tools/lab-scheduler/date-range-generate.py
-schedcmd=/root/schedule.py
+schedcmd=/root/quads.py
 summaryloc=/etc/lab/summary
 
 $schedcmd --summary > $summaryloc/$(date +%Y-%m-%d)

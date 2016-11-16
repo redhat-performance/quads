@@ -1,11 +1,11 @@
 #!/bin/sh
 #
 # Dependencies: quads
-#                  https://github.com/redhat-performance/ops-tools/blob/master/lab-scheduler/schedule.py
+#                  https://github.com/redhat-performance/ops-tools/blob/master/lab-scheduler/quads.py
 #               csv-to-instack.py
 #                  https://github.com/someuser/csv-to-instack
 #
-SCHEDULER=/root/schedule.py
+SCHEDULER=/root/quads.py
 JSON_MAKER=/root/csv-to-instack.py
 TMPCSVFILE=$(mktemp /tmp/csvfileXXXXXX)
 
