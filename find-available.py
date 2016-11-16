@@ -13,11 +13,12 @@ from subprocess import call
 from subprocess import check_call
 
 parser = argparse.ArgumentParser(description='Find first available time for lab reservation')
-parser.add_argument('-c', '--count', dest='count', type=int, default=None, help='number of nodes needed')
-parser.add_argument('-d', '--days', dest='days', type=int, default=None, help='number of days needed')
-parser.add_argument('-l', '--limit', dest='limited', type=str, default=None, help='limit hostnames to match')
-parser.add_argument('--debug', dest='debug', action='store_true', help='debug output')
-parser.add_argument('-C', '--cli', dest='cli', action='store_true', help='print QUADS example schedule commands')
+requiredArgs=parser.add_argument_group('Required Arguments')
+requiredArgs.add_argument('-c', '--count', dest='count', type=int, required=True, default=None, help='number of nodes needed')
+requiredArgs.add_argument('-d', '--days', dest='days', type=int, required=True, default=None, help='number of days needed')
+parser.add_argument('-l', '--limit', dest='limited', type=str, required=False, default=None, help='limit hostnames to match')
+parser.add_argument('--debug', dest='debug', action='store_true', required=False, help='debug output')
+parser.add_argument('-C', '--cli', dest='cli', action='store_true', required=False, help='print QUADS example schedule commands')
 
 def printf(format, *args):
     sys.stdout.write(format % args)
@@ -31,10 +32,6 @@ cli = args.cli
 
 hostset = ()
 hostnames = ()
-
-if count is None or days is None:
-    print "Usage: find-available.py -c NODECOUNT -d DAYSNEEDED"
-    exit(1)
 
 def avail_for(start_day, n, duration):
     global hostset
