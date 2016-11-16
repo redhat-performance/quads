@@ -11,23 +11,11 @@ spawn ssh "$ip"
 expect ">"
 send "edit\r";
 expect "#"
-send "edit interfaces $interfacename\r";
+send "delete interfaces $interfacename\r";
 expect "#"
-send "delete native-vlan-id $oldvlan\r";
-expect "#"
-send "set native-vlan-id $newvlan\r";
-expect "#"
-send "edit unit 0\r";
-expect "#"
-send "delete vlan-id $oldvlan\r";
-expect "#"
-send "set vlan-id $newvlan\r";
+send "set interfaces $interfacename apply-groups QinQ_vl$newvlan\r";
 expect "#"
 send "commit\r";
-expect "#"
-send "exit\r";
-expect "#"
-send "exit\r";
 expect "#"
 send "edit vlans\r";
 expect "#"

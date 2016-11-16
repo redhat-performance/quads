@@ -1,4 +1,49 @@
 ---
 # This is the main configuration file for QUADS
-#
+# Configure for your environment
+
+install_dir: /opt/quads
+data_dir: /opt/quads/data
+domain: example.com
+
+# used for reporting
+report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
+
+# wordpress wiki
+wp_wiki: wiki.example.com
+wp_username: wikiadmin
+wp_password: wikipassword
+
+# you will have to know your wordpress page ID for the main and assignment pages
+wp_wiki_main_title: Lab Dashboard
+wp_wiki_main_page_id: 4
+wp_wiki_assignments_title: assignments
+wp_wiki_assignments_page_id: 357
+
+# (optional RT location)
+rt_url: https://engineering.example.com/rt/Ticket/Display.html
+
+# omit these hosts (used for wiki generation)
+# These are typically hosts known to your foreman that you don't 
+# want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'
+exclude_hosts: cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|e05-h25|zfs01
+
+# Foreman naming convention is <rack>-<u-location>-<type>
+# e.g. c01-h23-r620 is an r620 type host in rack c01 at u-location 23
+racks: b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10
+
+# this is where we place the generated instackenv.json files
+json_web_path: /var/www/html/cloud
+
+# move_pid_file is used to ensure only one instance of the move-and-rebuild-host.sh
+# script is running at any point in time. Ensure the user that runs quads
+# and associated cron jobs has write access in the directory location for
+# this file.
+move_pid_file: /var/log/quads-move.pid
+
+# untouchable_hosts is used for paranoid people that worry that quads
+# might in some way effect changes on critical infrastructure. Use this 
+# to define hosts quads should never move.
+untouchable_hosts: foreman.example.com c08-h30-r630.example.com
+
 
