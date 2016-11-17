@@ -88,6 +88,8 @@ def avail_for(start_day, n, duration):
             for k in item:
 				# here we check that the host stays in cloud01 (in other words available)
 				# for the duration of days we are requesting
+                if fail:
+                    break
                 for t in range(start_day, (start_day + duration)):
                     datecommand = "date -d \"today + " + str(t) + " days \" '+%Y-%m-%d 08:00'"
                     datestring = os.popen(datecommand).read().rstrip('\n')
@@ -97,9 +99,10 @@ def avail_for(start_day, n, duration):
                     schedulepyresult = os.popen(schedulepycommand).read().rstrip('\n')
                     if schedulepyresult != "cloud01":
                         fail = True
-			if not fail:
-				hostset = item
-				return 0
+                        break
+            if not fail:
+                hostset = item
+                return 0
     if debug:
         print "DEBUG: avail_for return(1)"
     return 1
