@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_d609e785",
+        "filename": "bin/quads.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2016-11-17T18:12:42Z",
+      "side": 1,
+      "message": "looks good.",
+      "revId": "a17c5f18e9dfe3ebc6dfcc1f5bb53e13edf95aea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
