@@ -9,14 +9,14 @@ source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
-datadir=${quads["install_dir"]}/data
+data_dir=${quads["data_dir"]}
 
 startdate=$1
 enddate=$2
 
 daterangecmd=$bindir/date-range-generate.py
 schedcmd=$quads
-summaryloc=$datadir/summary
+summaryloc=$data_dir/summary
 
 $schedcmd --summary > $summaryloc/$(date +%Y-%m-%d)
 

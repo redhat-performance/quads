@@ -7,9 +7,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
-datadir=${quads["install_dir"]}/data
 phpical_dir=${quads["phpical_dir"]}
 ical_web_location=${quads["ical_web_location"]}
 

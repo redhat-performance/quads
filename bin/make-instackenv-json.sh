@@ -14,7 +14,7 @@ fi
 source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
-datadir=${quads["install_dir"]}/data
+data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
 
@@ -22,7 +22,7 @@ SCHEDULER=$quads
 JSON_MAKER=$bindir/csv-to-instack.py
 TMPCSVFILE=$(mktemp /tmp/csvfileXXXXXX)
 
-configdir=$datadir/ports
+configdir=$data_dir/ports
 
 CLOUD_LIST=$($SCHEDULER --ls-clouds)
 
@@ -36,13 +36,13 @@ rm -f /var/www/html/cloud/*.json
 for cloud in $CLOUD_LIST ; do
     echo "macaddress,ipmi url,ipmi user, ipmi password, ipmi tool" > $TMPCSVFILE
 
-    # if $datadir/overcloud/$cloud exists it should contain a subset for hosts to
+    # if $data_dir/overcloud/$cloud exists it should contain a subset for hosts to
     # use in the instackenv.json
     # But it cannot contain arbitrary hostnames. Instead it can only contain
     # hosts that are already defined in the schedule for the $cloud env.
 
-    if [ -f $datadir/overcloud/$cloud ]; then
-        TEMP_HOST_LIST=$(cat $datadir/overcloud/$cloud | sort -u)
+    if [ -f $data_dir/overcloud/$cloud ]; then
+        TEMP_HOST_LIST=$(cat $data_dir/overcloud/$cloud | sort -u)
         FULL_HOST_LIST=$($SCHEDULER --cloud-only $cloud)
         HOST_LIST=""
         for h in $TEMP_HOST_LIST ; do
@@ -56,8 +56,8 @@ for cloud in $CLOUD_LIST ; do
         HOST_LIST=$($SCHEDULER --cloud-only $cloud)
     fi
     undercloud=""
-    if [ -f $datadir/undercloud/$cloud ]; then
-        UC_HOST=$(cat $datadir/undercloud/$cloud)
+    if [ -f $data_dir/undercloud/$cloud ]; then
+        UC_HOST=$(cat $data_dir/undercloud/$cloud)
         FULL_HOST_LIST=$($SCHEDULER --cloud-only $cloud)
         for f in $FULL_HOST_LIST ; do
             if [ "$UC_HOST" == "$f" ]; then

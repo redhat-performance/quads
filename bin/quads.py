@@ -27,7 +27,7 @@ def load_quads_config():
 load_quads_config()
 
 
-defaultconfig = quads["install_dir"] + "/data/schedule.yaml"
+defaultconfig = quads["data_dir"] + "/schedule.yaml"
 defaultstatedir = quads["install_dir"] + "/state"
 defaultmovecommand = "/bin/echo"
 

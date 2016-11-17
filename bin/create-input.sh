@@ -10,7 +10,7 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
-datadir=${quads["install_dir"]}/data
+data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
 # define your racks
@@ -47,24 +47,24 @@ function add_row() {
     uloc=$2
     #echo $arg $uloc
     nodename=$(echo $arg | sed 's/mgmt-//')
-    if [ ! -d $datadir/ipmi/$nodename ]; then 
-        mkdir -p $datadir/ipmi/$nodename
+    if [ ! -d $data_dir/ipmi/$nodename ]; then 
+        mkdir -p $data_dir/ipmi/$nodename
     fi
-    svctag=$(cat $datadir/ipmi/$nodename/svctag 2>/dev/null)
-    if [ -f $datadir/ipmi/$nodename/macaddr ]; then
-        macaddr=$(cat $datadir/ipmi/$nodename/macaddr)
+    svctag=$(cat $data_dir/ipmi/$nodename/svctag 2>/dev/null)
+    if [ -f $data_dir/ipmi/$nodename/macaddr ]; then
+        macaddr=$(cat $data_dir/ipmi/$nodename/macaddr)
     else
         macaddr=$(hammer host info --name $nodename | grep "MAC:" | awk '{ print $NF }')
-        echo $macaddr > $datadir/ipmi/$nodename/macaddr
+        echo $macaddr > $data_dir/ipmi/$nodename/macaddr
     fi
     ip=$(host $nodename | awk '{ print $NF }')
     oobip=$(host $arg | awk '{ print $NF }')
     ooburl="<a href=http://$arg/ target=_blank>console</a>"
-    if [ -f $datadir/ipmi/$nodename/oobmacaddr ]; then
-        oobmacaddr=$(cat $datadir/ipmi/$nodename/oobmacaddr)
+    if [ -f $data_dir/ipmi/$nodename/oobmacaddr ]; then
+        oobmacaddr=$(cat $data_dir/ipmi/$nodename/oobmacaddr)
     else
         oobmacaddr=$(hammer host info --name $arg | grep "MAC:" | awk '{ print $NF }')
-        echo $oobmacaddr > $datadir/ipmi/$nodename/oobmacaddr
+        echo $oobmacaddr > $data_dir/ipmi/$nodename/oobmacaddr
     fi
     workload=$($quads --host $nodename)
     # need to figure out owner

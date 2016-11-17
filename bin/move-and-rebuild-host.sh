@@ -30,8 +30,8 @@ source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
-datadir=${quads["install_dir"]}/data
-lockdir=$datadir/lock
+data_dir=${quads["data_dir"]}
+lockdir=$data_dir/lock
 untouchable_hosts=${quads["untouchable_hosts"]}
 ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
@@ -73,7 +73,7 @@ declare -A cloud08=( ["em2"]="1171" ["em3"]="1172" ["em4"]="1173")
 declare -A cloud09=( ["em2"]="1181" ["em3"]="1182" ["em4"]="1183")
 declare -A cloud10=( ["em2"]="1191" ["em3"]="1192" ["em4"]="1193")
 
-configdir=$datadir/ports
+configdir=$data_dir/ports
 
 if [ ! -f $configdir/$host_to_move ]; then
     echo No data found in $configdir/$host_to_move

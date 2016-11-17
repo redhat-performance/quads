@@ -11,7 +11,7 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
-datadir=${quads["install_dir"]}/data
+data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
 
@@ -38,8 +38,8 @@ function print_summary() {
           link=""
       fi
       $quads --cloud-only ${name} > $tmpsummary
-      if [ -f $datadir/undercloud/$name ]; then
-          uc=$(cat $datadir/undercloud/$name)
+      if [ -f $data_dir/undercloud/$name ]; then
+          uc=$(cat $data_dir/undercloud/$name)
       else
           uc=$(head -1 $tmpsummary)
       fi

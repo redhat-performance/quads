@@ -12,7 +12,7 @@ fi
 source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads.py
-datadir=${quads["install_dir"]}/data
+data_dir=${quads["data_dir"]}
 
 days="1 3 5 7"
 
@@ -28,8 +28,8 @@ function craft_message() {
     env_to_report=$3
 
     report_file=${env_to_report}-${owner}-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
-    if [ ! -f ${datadir}/report/${report_file} ]; then
-        touch ${datadir}/report/${report_file}
+    if [ ! -f ${data_dir}/report/${report_file} ]; then
+        touch ${data_dir}/report/${report_file}
         cat > $msg_file <<EOF
 To: $owner@${quads["domain"]}
 Cc: ${quads["report_cc"]}
