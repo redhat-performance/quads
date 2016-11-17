@@ -614,7 +614,7 @@ def findCurrent(host):
                 start_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
                 end_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
 
-                if start_obj <= current_time and current_time <= end_obj:
+                if start_obj <= current_time and current_time < end_obj:
                     current_cloud = data['hosts'][host]["schedule"][override]["cloud"]
                     current_override = override
                     return default_cloud, current_cloud, current_override
