@@ -9,7 +9,7 @@ import os
 from subprocess import call
 from subprocess import check_call
 
-quads_config = os.path.dirname(__file__) + "/../data/quads.yml"
+quads_config = os.path.dirname(__file__) + "/../conf/quads.yml"
 quads = {}
 
 def load_quads_config():
