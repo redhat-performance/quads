@@ -149,7 +149,7 @@ echo ""
 
 echo '### **DETAILS**'
 echo ""
-/root/quads.py --summary | while read line ; do
+$quads --summary | while read line ; do
     cloudname=$(echo $line | awk -F: '{ print $1 }')
     cloudowner=$($quads --ls-owner --cloud-only $cloudname)
     echo '### <a name='"$cloudname"'></a>'
