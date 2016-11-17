@@ -33,17 +33,36 @@ cli = args.cli
 hostset = ()
 hostnames = ()
 
+quads_config = os.path.dirname(__file__) + "/../data/quads.yml"
+quads = {}
+
+def load_quads_config():
+    global quads_config
+    global quads
+
+    try:
+        stream = open(quads_config, 'r')
+        quads = yaml.load(stream)
+        stream.close()
+    except Exception, ex:
+        print ex
+        exit(1)
+
+load_quads_config()
+
+
 def avail_for(start_day, n, duration):
     global hostset
     global hostnames
     global limited
     global debug
+    global quads
 
     if debug:
         print "DEBUG: avail_for called with : start_days = " + str(start_day) + ", n = " + str(n) + ", duration = " + str(duration)
     datecommand = "date -d \"today + " + str(start_day) + " days \" '+%Y-%m-%d 08:00'"
     datestring = os.popen(datecommand).read().rstrip('\n')
-    schedulepycommand = "/root/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
+    schedulepycommand = quads["install_dir"] + "/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
     if limited != None:
         schedulepycommand += "| egrep '" + limited + "'"
     if debug:
@@ -60,34 +79,40 @@ def avail_for(start_day, n, duration):
         i.append(j)
 
     if n <= len(myresult):
+		# item is a single combination of hosts (expressed as integer index into myresult)
+		# we are iterating over them.
         for item in itertools.combinations(i, n):
             fail = False
+			# k is a single host in the combination (actually the index)
             for k in item:
+				# here we check that the host stays in cloud01 (in other words available)
+				# for the duration of days we are requesting
                 for t in range(start_day, (start_day + duration)):
                     datecommand = "date -d \"today + " + str(t) + " days \" '+%Y-%m-%d 08:00'"
                     datestring = os.popen(datecommand).read().rstrip('\n')
-                    schedulepycommand = "/root/quads.py --host " + myresult[k] + " --date \"" + datestring + "\""
+                    schedulepycommand = quads["install_dir"] + "/quads.py --host " + myresult[k] + " --date \"" + datestring + "\""
                     if debug:
                         print "DEBUG: schedulepycommand = " + schedulepycommand
                     schedulepyresult = os.popen(schedulepycommand).read().rstrip('\n')
                     if schedulepyresult != "cloud01":
                         fail = True
-                if not fail:
-                    hostset = item
-                    return 0
+			if not fail:
+				hostset = item
+				return 0
     if debug:
         print "DEBUG: avail_for return(1)"
     return 1
 
 def find_date(node_count, for_days):
     global debug
+    global quads
 
     count = 0
     increment = 0
     while count < node_count and avail_for(increment, node_count, for_days) != 0:
         datecommand = "date -d \"today + " + str(increment) + " days \" '+%Y-%m-%d 08:00'"
         datestring = os.popen(datecommand).read().rstrip('\n')
-        schedulepycommand = "/root/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
+        schedulepycommand = quads["install_dir"] + "/quads.py --cloud-only cloud01 --date \"" + datestring + "\""
         if limited != None:
             schedulepycommand += "| egrep '" + limited + "'"
         schedulepycommand += "| wc -l"
@@ -122,6 +147,6 @@ if cli:
     print "Schedule Commands:"
     print "------------------"
     for k in hostset:
-        print "./quads.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
+        print quads["install_dir"] + "/quads.py --host " + hostnames[k] + " --add-schedule --schedule-start \"" + startdatestring + "\" --schedule-end \"" + enddatestring + "\" --schedule-cloud cloudXX"
 
 exit(0)

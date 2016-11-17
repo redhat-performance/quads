@@ -1,11 +1,22 @@
 #!/bin/sh
 
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+bindir=${quads["install_dir"]}/bin
+datadir=${quads["install_dir"]}/data
+
 startdate=$1
 enddate=$2
 
-daterangecmd=/root/ops-tools/lab-scheduler/date-range-generate.py
-schedcmd=/root/quads.py
-summaryloc=/etc/lab/summary
+daterangecmd=$bindir/date-range-generate.py
+schedcmd=$quads
+summaryloc=$datadir/summary
 
 $schedcmd --summary > $summaryloc/$(date +%Y-%m-%d)
 

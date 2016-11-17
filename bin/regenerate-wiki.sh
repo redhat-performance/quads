@@ -1,6 +1,25 @@
 #!/bin/sh
 
-lockfile=/root/.wiki_regenerate
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+datadir=${quads["install_dir"]}/data
+bindir=${quads["install_dir"]}/bin
+wp_wiki=${quads["wp_wiki"]}
+wp_username=${quads["wp_username"]}
+wp_password=${quads["wp_password"]}
+wp_wiki_main_title=${quads["wp_wiki_main_title"]}
+wp_wiki_main_page_id=${quads["wp_wiki_main_page_id"]}
+wp_wiki_assignments_title=${quads["wp_wiki_assignments_title"]}
+wp_wiki_assignments_page_id=${quads["wp_wiki_assignments_page_id"]}
+
+
+lockfile=$datadir/.wiki_regenerate
 
 if [ -f $lockfile ]; then
     if [ -d /proc/$(cat $lockfile) ]; then
@@ -15,11 +34,9 @@ fi
 
 tmpfile=$(mktemp /tmp/wikimarkdownXXXXX)
 
-cd /root/ops-tools/lab-scheduler
-
-sh create-input.sh 1>$tmpfile  2>&1
-./racks-wiki.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username  ADMINUSER --wp-password  ADMINPASSWORD --page-title "RDU ScaleLab Dashboard"
-sh create-input-assignments.sh 1>$tmpfile  2>&1
-./racks-wiki.py --markdown $tmpfile --wp-url http://wiki.example.com/xmlrpc.php --wp-username  ADMINUSER --wp-password  ADMINPASSWORD --page-title "assignments" --page-id 357
+$bindir/create-input.sh 1>$tmpfile  2>&1
+$bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "$wp_wiki_main_title" --page-id $wp_wiki_main_page_id
+$bindir/create-input-assignments.sh 1>$tmpfile  2>&1
+$bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "wp_wiki_assignments_title" --page-id $wp_wiki_assignments_page_id
 rm -f $tmpfile $lockfile
 

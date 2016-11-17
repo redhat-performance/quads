@@ -4,10 +4,17 @@
 #
 #######
 
-quads=/root/quads.py
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+datadir=${quads["install_dir"]}/data
 
 days="1 3 5 7"
-#days="14 21 25 27"
 
 # only worry about environments with active hosts
 env_list=$($quads --summary | awk '{ print $1 }')
@@ -21,14 +28,14 @@ function craft_message() {
     env_to_report=$3
 
     report_file=${env_to_report}-${owner}-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
-    if [ ! -f /etc/lab/report/${report_file} ]; then
-        touch /etc/lab/report/${report_file}
+    if [ ! -f ${datadir}/report/${report_file} ]; then
+        touch ${datadir}/report/${report_file}
         cat > $msg_file <<EOF
-To: $owner@example.com
-Cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
+To: $owner@${quads["domain"]}
+Cc: ${quads["report_cc"]}
 Subject: QUADS upcoming expiration notification
-From: QUADS <quads@example.com>
-Reply-To: dev-null@example.com
+From: QUADS <quads@${quads["domain"]}>
+Reply-To: dev-null@${quads["domain"]}
 
 This is a message to alert you that in $days_to_report days
 your allocated environment:
@@ -36,7 +43,7 @@ your allocated environment:
    $env_to_report
 
 (Details)
-http://wiki.example.com/assignments/#$env_to_report
+http://${quads["wp_wiki"]}/assignments/#$env_to_report
 
 will have some or all of the hosts expire.  The hosts in your
 environment will automatically be reprovisioned and returned to
@@ -44,7 +51,7 @@ the pool of available hosts.
 
 Thank you for your attention.
 
-Scale/Perf DevOps Team
+DevOps Team
 
 EOF
         /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1

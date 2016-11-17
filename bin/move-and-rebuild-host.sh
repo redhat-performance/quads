@@ -21,7 +21,24 @@
 #
 ####
 
-PIDFILE=/var/log/quads-move.pid
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+bindir=${quads["install_dir"]}/bin
+datadir=${quads["install_dir"]}/data
+lockdir=$datadir/lock
+untouchable_hosts=${quads["untouchable_hosts"]}
+ipmi_username=${quads["ipmi_username"]}
+ipmi_password=${quads["ipmi_password"]}
+
+[ ! -d $lockdir ] && mkdir -p $lockdir
+
+PIDFILE=$lockdir/quads-move.pid
 
 if [ -f $PIDFILE ]; then
     if [ -d /proc/$(cat $PIDFILE) ]; then
@@ -43,7 +60,7 @@ else
     rebuild=false
 fi
 
-expect_script=/root/juniper-set-port.exp
+expect_script=$bindir/juniper-set-port.exp
 
 declare -A cloud01=( ["em2"]="1101" ["em3"]="1102" ["em4"]="1103")
 declare -A cloud02=( ["em2"]="1111" ["em3"]="1112" ["em4"]="1113")
@@ -56,22 +73,19 @@ declare -A cloud08=( ["em2"]="1171" ["em3"]="1172" ["em4"]="1173")
 declare -A cloud09=( ["em2"]="1181" ["em3"]="1182" ["em4"]="1183")
 declare -A cloud10=( ["em2"]="1191" ["em3"]="1192" ["em4"]="1193")
 
-configdir=/etc/lab/ports
+configdir=$datadir/ports
 
 if [ ! -f $configdir/$host_to_move ]; then
     echo No data found in $configdir/$host_to_move
     exit 1
 fi
 
-if [ "$host_to_move" == "foreman.example.com" ]; then
-    echo no way ....
-    exit 1
-fi
-
-if [ "$host_to_move" == "c08-h30-r630.example.com" ]; then
-    echo no way ....
-    exit 1
-fi
+for redalert in $untouchable_hosts ; do
+    if [ "$host_to_move" == $redalert ]; then
+        echo no way ....
+        exit 1
+    fi
+done
 
 for line in $(cat $configdir/$host_to_move); do
     interface=$(echo $line | awk -F, '{ print $1 }')
@@ -161,17 +175,17 @@ for line in $(cat $configdir/$host_to_move); do
 done
 
 # update the instackenv.json files
-/root/make-instackenv-json.sh
+$bindir/make-instackenv-json.sh
 
 if $rebuild ; then
   hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7"
-  ipmitool -I lanplus -H mgmt-$host_to_move -U root -P YOUR_DRAC_PASSWORD chassis power off
+  ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
   sleep 90
-  ipmitool -I lanplus -H mgmt-$host_to_move -U root -P YOUR_DRAC_PASSWORD chassis power on
+  ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power on
 fi
 
 # update the wiki
-/root/ops-tools/lab-scheduler/regenerate-wiki.sh 1>/dev/null 2>&1
+$bindir/regenerate-wiki.sh 1>/dev/null 2>&1
 
 exit 0
 

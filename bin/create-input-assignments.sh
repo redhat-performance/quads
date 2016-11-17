@@ -1,6 +1,20 @@
 #!/bin/sh
 # generate markdown for an auto-generated wiki assignments page
 
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+quads_url=${quads["quads_url"]}
+rt_url=${quads["rt_url"]}
+datadir=${quads["install_dir"]}/data
+exclude_hosts=${quads["exclude_hosts"]}
+domain=${quads["domain"]}
+
 function print_header() {
     cat <<EOF
 
@@ -13,23 +27,23 @@ function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
    echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
    echo "|----------|-------------|-----------|--------------------|----------------|"
-   /root/quads.py --summary | while read line ; do
+   $quads --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
       desc=$(echo $(echo $line | awk -F: '{ print $2 }'))
-      owner=$(/root/quads.py --ls-owner --cloud-only $name)
-      rt=$(/root/quads.py --ls-ticket --cloud-only $name)
+      owner=$($quads --ls-owner --cloud-only $name)
+      rt=$($quads --ls-ticket --cloud-only $name)
       if [ "$rt" ]; then
-          link="<a href=https://engineering.example.com/rt/Ticket/Display.html?id=$rt target=_blank>$rt</a>"
+          link="<a href=${rt_url}?id=$rt target=_blank>$rt</a>"
       else
           link=""
       fi
-      ~/quads.py --cloud-only ${name} > $tmpsummary
-      if [ -f /etc/lab/undercloud/$name ]; then
-          uc=$(cat /etc/lab/undercloud/$name)
+      $quads --cloud-only ${name} > $tmpsummary
+      if [ -f $datadir/undercloud/$name ]; then
+          uc=$(cat $datadir/undercloud/$name)
       else
           uc=$(head -1 $tmpsummary)
       fi
-      echo "| [$name](#${name}) | $desc | $owner | $link | <a href=http://quads.scalelab.example.com/cloud/${name}_${uc}_instackenv.json target=_blank>$name</a> |"
+      echo "| [$name](#${name}) | $desc | $owner | $link | <a href=${quads_url}/cloud/${name}_${uc}_instackenv.json target=_blank>$name</a> |"
       rm -f $tmpsummary
   done
   echo ""
@@ -49,8 +63,8 @@ EOF
 
 TMPHAMMERFILE=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
 TMPHAMMERFILE2=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-hammer host list --per-page 10000 | grep mgmt | egrep -v 'cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|e05-h25|zfs01' | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
-hammer host list --search params.broken_state=true | grep example.com | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
+hammer host list --per-page 10000 | grep mgmt | egrep -v "$exclude_hosts" | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
+hammer host list --search params.broken_state=true | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
 for h in $(cat $TMPHAMMERFILE) ; do
     nodename=$(echo $h | sed 's/mgmt-//')
     if grep -q $nodename $TMPHAMMERFILE2 ; then
@@ -58,7 +72,7 @@ for h in $(cat $TMPHAMMERFILE) ; do
     else
         u=$(echo $h | awk -F- '{ print $3 }' | sed 's/^h//')
         short_host=$(echo $nodename | awk -F. '{ print $1 }')
-        if [ "$(~/quads.py --host $nodename)" == "None" ]; then
+        if [ "$($quads --host $nodename)" == "None" ]; then
            echo "| $short_host | <a href=http://$h/ target=_blank>console</a> |"
         fi
     fi
@@ -76,7 +90,7 @@ function print_faulty() {
 EOF
 
 TMPHAMMERFILE=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-hammer host list --search params.broken_state=true | grep example.com | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
+hammer host list --search params.broken_state=true | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
 for h in $(cat $TMPHAMMERFILE) ; do
     nodename=$(echo $h | sed 's/mgmt-//')
     u=$(echo $h | awk -F- '{ print $3 }' | sed 's/^h//')
@@ -88,16 +102,16 @@ rm -f $TMPHAMMERFILE
 
 function add_row() {
     short_host=$(echo $1 | awk -F. '{ print $1 }')
-    sched=$(/root/quads.py --ls-schedule --host $1 | grep "^Current schedule:" | awk -F: '{ print $2 }')
-    defenv=$(/root/quads.py --ls-schedule --host $1 | egrep "^Default cloud:" | awk -F: '{ print $2 }')
+    sched=$($quads --ls-schedule --host $1 | grep "^Current schedule:" | awk -F: '{ print $2 }')
+    defenv=$($quads --ls-schedule --host $1 | egrep "^Default cloud:" | awk -F: '{ print $2 }')
     if [ "$sched" = "" ]; then
         datestart="∞"
         dateend="∞"
         totaltime="∞"
         totaltimeleft="∞"
     else
-        datestart=$(/root/quads.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
-        dateend=$(/root/quads.py --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
+        datestart=$($quads --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
+        dateend=$($quads --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
         datenowsec=$(date +%s)
         datestartsec=$(date -d "$datestart" +%s)
         dateendsec=$(date -d "$dateend" +%s)
@@ -114,15 +128,9 @@ function add_row() {
         if [ $totalhours -gt 0 ]; then 
             totaltime="$totaltime, $totalhours hour(s)"
         fi
-#        if [ $totalminutes -gt 0 ]; then 
-#            totaltime="$totaltime, $totalminutes minute(s)"
-#        fi
         if [ $totalhoursleft -gt 0 ]; then 
             totaltimeleft="$totaltimeleft, $totalhoursleft hour(s)"
         fi
-#        if [ $totalminutesleft -gt 0 ]; then 
-#            totaltime="$totaltimeleft, $totalminutesleft minute(s)"
-#        fi
     fi
 
 
@@ -143,11 +151,11 @@ echo '### **DETAILS**'
 echo ""
 /root/quads.py --summary | while read line ; do
     cloudname=$(echo $line | awk -F: '{ print $1 }')
-    cloudowner=$(/root/quads.py --ls-owner --cloud-only $cloudname)
+    cloudowner=$($quads --ls-owner --cloud-only $cloudname)
     echo '### <a name='"$cloudname"'></a>'
     echo '### **'$line -- $cloudowner'**'
     print_header
-    for h in $(/root/quads.py --cloud-only $cloudname) ; do
+    for h in $($quads --cloud-only $cloudname) ; do
         add_row $h
     done
     echo ""

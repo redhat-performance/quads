@@ -9,8 +9,26 @@ import os
 from subprocess import call
 from subprocess import check_call
 
-defaultconfig = "/etc/lab/schedule.yaml"
-defaultstatedir = "/etc/lab/state"
+quads_config = os.path.dirname(__file__) + "/../data/quads.yml"
+quads = {}
+
+def load_quads_config():
+    global quads_config
+    global quads
+
+    try:
+        stream = open(quads_config, 'r')
+        quads = yaml.load(stream)
+        stream.close()
+    except Exception, ex:
+        print ex
+        exit(1)
+
+load_quads_config()
+
+
+defaultconfig = quads["install_dir"] + "/data/schedule.yaml"
+defaultstatedir = quads["install_dir"] + "/state"
 defaultmovecommand = "/bin/echo"
 
 parser = argparse.ArgumentParser(description='Query current cloud for a given host')

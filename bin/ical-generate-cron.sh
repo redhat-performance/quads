@@ -1,3 +1,17 @@
 #!/bin/sh
 
-/root/ops-tools/lab-scheduler/ical-generate.sh $(date -d "today - 90 days" '+%Y-%m-%d') $(date -d "today + 90 days" '+%Y-%m-%d') > /srv/cal/calendars/schedule.ics && /bin/cp /srv/cal/calendars/schedule.ics /var/www/html/ical/schedule.ics
+if [ ! -e $(dirname $0)/load-config.sh ]; then
+    echo "$(basename $0): could not find load-config.sh"
+    exit 1
+fi
+
+source $(dirname $0)/load-config.sh
+
+quads=${quads["install_dir"]}/bin/quads.py
+bindir=${quads["install_dir"]}/bin
+datadir=${quads["install_dir"]}/data
+phpical_dir=${quads["phpical_dir"]}
+ical_web_location=${quads["ical_web_location"]}
+
+
+$bindir/ical-generate.sh $(date -d "today - 90 days" '+%Y-%m-%d') $(date -d "today + 90 days" '+%Y-%m-%d') > $phpical_dir/calendars/schedule.ics && /bin/cp $phpical_dir/calendars/schedule.ics $ical_web_location
