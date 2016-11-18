@@ -17,6 +17,7 @@ bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
+json_web_path=${quads["json_web_path"]}
 
 SCHEDULER=$quads
 JSON_MAKER=$bindir/csv-to-instack.py
@@ -27,9 +28,9 @@ configdir=$data_dir/ports
 CLOUD_LIST=$($SCHEDULER --ls-clouds)
 
 # assume we have apache and /var/www/html/cloud will be used
-[ ! -d /var/www/html/cloud ] && mkdir -p /var/www/html/cloud
+[ ! -d $json_web_path ] && mkdir -p $json_web_path
 
-rm -f /var/www/html/cloud/*.json
+rm -f json_web_path/*.json
 
 # first host should be the undercloud
 
@@ -78,8 +79,8 @@ for cloud in $CLOUD_LIST ; do
             echo $mac,$ipmi_url,$ipmi_user,$ipmi_password,$ipmi_tool >> $TMPCSVFILE
         fi
     done
-    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > /var/www/html/cloud/${cloud}_${undercloud}_instackenv.json 
-    chmod 644 /var/www/html/cloud/${cloud}_${undercloud}_instackenv.json
+    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $json_web_path/${cloud}_${undercloud}_instackenv.json 
+    chmod 644 $json_web_path/${cloud}_${undercloud}_instackenv.json
 done
 rm -f $TMPCSVFILE
 
