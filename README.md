@@ -1,7 +1,7 @@
 QUADS (quick and dirty scheduler)
 ====================================
 
-Automate scheduling and end-to-end provisioning of R&D scale systems.
+Automate scheduling and end-to-end provisioning of R&D scale systems and networks.
 
 **Note:** Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
 
@@ -17,6 +17,8 @@ Automate scheduling and end-to-end provisioning of R&D scale systems.
      * Current ownership and resource utilization links (grafana/collectd) 
      * Total duration and time remaining in system assignments
    - Query scheduling data to determine future availability
+   - Generates a monthly, auto-updated calendar of machine assignments
+   - Generates a per-month visualization map for per-machine allocations to assignments.
 
 **Notes**
    - Very simple design (flat files, no external DB)
