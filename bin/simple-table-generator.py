@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# feeds from simple-table-generator.sh
+# generates HTML visualization map for machine allocations
 
 import random
 import string
@@ -68,8 +70,6 @@ def print_simple_table(data, data_colors, days):
     print "</body>"
     print "</html>"
     return
-
-
 
 import csv
 with open(host_file, 'r') as f:
