@@ -17,11 +17,13 @@ requiredArgs=parser.add_argument_group('Required Arguments')
 requiredArgs.add_argument('-d', '--days', dest='days', type=int, required=True, default=None, help='number of days to generate')
 requiredArgs.add_argument('--host-file', dest='host_file', type=str, required=True, default=None, help='file with list of hosts')
 requiredArgs.add_argument('--host-color-file', dest='host_color_file', type=str, required=True, default=None, help='file with list of colors to use across days per host')
+parser.add_argument('--gentime', '-g', dest='gentime', type=str, required=False, default=None, help='generate timestamp when created')
 
 args = parser.parse_args()
 host_file = args.host_file
 host_color_file = args.host_color_file
 days = args.days
+gentime = args.gentime
 
 def get_spaced_colors():
     return [(190,193,212),(2,63,165),(216,19, 19),(187,119,132),(142,6,59),(74,111,227),(230,175,185),(211,63,106),(17,198,56),(239,151,8),(15,207,192),(247,156,212)]
@@ -39,7 +41,10 @@ def print_simple_table(data, data_colors, days):
 
     print "<html>"
     print "<head>"
-    print "<title>Sample Page</title>"
+    if gentime:
+        print "<title>" + gentime + "</title>"
+    else:
+        print "<title> Monthly Allocation </title>"
     print "</head>"
     print "<body>"
     print "<table>"

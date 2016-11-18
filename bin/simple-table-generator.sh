@@ -43,5 +43,5 @@ for h in $(cat $TMPHOSTFILE) ; do
 done
 ) > $TMPCOLORFILE
 
-$bindir/simple-table-generator.py --host-file $TMPHOSTFILE --host-color-file $TMPCOLORFILE -d $NUM_DAYS
+$bindir/simple-table-generator.py --host-file $TMPHOSTFILE --host-color-file $TMPCOLORFILE -d $NUM_DAYS --gentime "Allocation Map for $YEAR_MONTH"
 rm -f $TMPCOLORFILE $TMPHOSTFILE
