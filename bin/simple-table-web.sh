@@ -9,27 +9,32 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
     exit 1
 fi
 
+months_out=2
+declare -A month=()
+declare -A year=()
+declare -A days=()
+
+for i in $(seq 0 $months_out) ; do
+    month[$i]="$(date -d "now + $i months" +%m)"
+    year[$i]="$(date -d "now + $i months"  +%Y)"
+    days[$i]="$(date -d "${month[$i]}/01/${year[$i]} + 1 month - 1day" +%d)"
+done
+
 source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
 visual_web_dir=${quads["visual_web_dir"]}
 
-currentmonth=$(date +"%m")
-currentyear=$(date +"%Y")
-currentmonthdays=$(date -d "$currentmonth/01/$currentyear + 1 month - 1 day" +%d)
-
-nextmonth=$(date -d 'next month' +"%m")
-nextyear=$(date -d 'next month' +"%Y")
-nextmonthdays=$(date -d "$nextmonth/01/$nextyear + 1 month - 1 day" +%d)
 
 [ ! -d $visual_web_dir ] && mkdir -p $visual_web_dir
 
-$bindir/simple-table-generator.sh ${currentyear}-${currentmonth} $currentmonthdays > $visual_web_dir/${currentyear}-${currentmonth}.html
-$bindir/simple-table-generator.sh ${nextyear}-${nextmonth} $nextmonthdays > $visual_web_dir/${nextyear}-${nextmonth}.html
+for i in $(seq 0 $months_out) ; do
+    $bindir/simple-table-generator.sh ${year[$i]}-${month[$i]} ${days[$i]} > $visual_web_dir/${year[$i]}-${month[$i]}.html
+done
 
 rm -f $visual_web_dir/current.html $visual_web_dir/next.html
-ln -sf $visual_web_dir/${currentyear}-${currentmonth}.html $visual_web_dir/current.html
-ln -sf $visual_web_dir/${nextyear}-${nextmonth}.html $visual_web_dir/next.html
+ln -sf $visual_web_dir/${year[0]}-${month[0]}.html $visual_web_dir/current.html
+ln -sf $visual_web_dir/${year[1]}-${month[1]}.html $visual_web_dir/next.html
 
 cd $visual_web_dir
 for f in $(ls *.html | sort |  egrep -v 'current|next|index') ; do
