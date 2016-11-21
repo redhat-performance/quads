@@ -37,6 +37,5 @@ tmpfile=$(mktemp /tmp/wikimarkdownXXXXX)
 $bindir/create-input.sh 1>$tmpfile  2>&1
 $bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "$wp_wiki_main_title" --page-id $wp_wiki_main_page_id
 $bindir/create-input-assignments.sh 1>$tmpfile  2>&1
-$bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "wp_wiki_assignments_title" --page-id $wp_wiki_assignments_page_id
-rm -f $tmpfile $lockfile
+$bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "$wp_wiki_assignments_title" --page-id $wp_wiki_assignments_page_id rm -f $tmpfile $lockfile
 
