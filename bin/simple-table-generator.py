@@ -47,6 +47,8 @@ def print_simple_table(data, data_colors, days):
         print "<title> Monthly Allocation </title>"
     print "</head>"
     print "<body>"
+    if gentime:
+        print "<b>" + gentime + "</b><br>"
     print "<table>"
     print "<tr>"
     print "<th>Name</th>"
