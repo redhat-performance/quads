@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa53dc9_0d1790a4",
+        "filename": "bin/schedule-at-notify-cloud-start.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2016-11-22T12:20:02Z",
+      "side": 1,
+      "message": "I\u0027m not able to get \"at\" to accept a STDIN variable ($1 etc) here as the cloud that\u0027s being scheduled yet.  Perhaps I\u0027m missing something though.",
+      "range": {
+        "startLine": 24,
+        "startChar": 39,
+        "endLine": 24,
+        "endChar": 41
+      },
+      "revId": "52e959078367723fb5972ed00571cb48276bdd92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
