@@ -25,7 +25,7 @@ function craft_initial_message() {
     env_to_report=$2
     ircbot_ipaddr=${quads["ircbot_ipaddr"]}
     ircbot_port=${quads["ircbot_port"]}
-    irc_channel=${quads["ircbot_channel"]}
+    ircbot_channel=${quads["ircbot_channel"]}
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
     if [ ! -f ${data_dir}/report/${report_file} ]; then
