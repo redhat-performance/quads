@@ -90,9 +90,13 @@ $cloudinfo
 (Details)
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
 
-will have some or all of the hosts expire.  The hosts in your
-environment will automatically be reprovisioned and returned to
+will have some or all of the hosts expire.  Some or all of your
+hosts will automatically be reprovisioned and returned to
 the pool of available hosts.
+
+This does not necessarily mean all your hosts are going away,
+only that some of them may have been re-allocated.  Please
+check the assignments wiki URL above for details.
 
 Thank you for your attention.
 
