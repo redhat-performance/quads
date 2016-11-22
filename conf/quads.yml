@@ -8,6 +8,19 @@ domain: example.com
 # used for reporting
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
 
+# notification options
+# set to true to receive notifications when:
+# 1) upon systems assignment
+# 2) 1,3,5,7 days out from when assignment ends
+email_notify: true
+# set to true to receive notifications when:
+# 1) upon systems assignment
+# * Note* you'll need Supybot with the notify plugin
+irc_notify: true
+ircbot_ipaddr: 192.168.0.100
+ircbot_port: 5050
+ircbot_channel: #yourchannel
+
 # wordpress wiki
 wp_wiki: wiki.example.com
 wp_username: wikiadmin
@@ -37,9 +50,8 @@ racks: b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10
 # this is where we place the generated instackenv.json files
 json_web_path: /var/www/html/cloud
 
-# untouchable_hosts is used for paranoid people that worry that quads
-# might in some way effect changes on critical infrastructure. Use this 
-# to define hosts quads should never move.
+# untouchable_hosts are hosts that should be avoided by QUADS in any way.
+# use this to define hosts QUADS should never move.
 untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 
 # phpical
