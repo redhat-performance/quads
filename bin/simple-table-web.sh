@@ -25,6 +25,18 @@ quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
 visual_web_dir=${quads["visual_web_dir"]}
 
+lockfile=$data_dir/.simple_table_web
+
+if [ -f $lockfile ]; then
+    if [ -d /proc/$(cat $lockfile) ]; then
+        exit 0
+    else
+        echo $$ > $lockfile
+    fi
+else
+    echo $$ > $lockfile
+fi
+
 
 [ ! -d $visual_web_dir ] && mkdir -p $visual_web_dir
 
