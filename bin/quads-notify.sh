@@ -26,6 +26,7 @@ function craft_initial_message() {
     ircbot_ipaddr=${quads["ircbot_ipaddr"]}
     ircbot_port=${quads["ircbot_port"]}
     irc_channel=${quads["ircbot_channel"]}
+    cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
@@ -41,7 +42,7 @@ Greetings Citizen,
 
 You've been allocated a new environment!
 
-   $env_to_report
+   $cloudinfo
 
 (Details)
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
@@ -56,7 +57,7 @@ EOF
         fi
         if ${quads["irc_notify"]} ; then
             # send IRC notification
-            printf "$ircbot_channel QUADS: $env_to_report is now active, choo choo! - http://${quads["wp_wiki"]}/assignments/#$env_to_report" | nc -w 1 $ircbot_ipaddr $ircbot_port
+            printf "$ircbot_channel QUADS: $cloudinfo is now active, choo choo! - http://${quads["wp_wiki"]}/assignments/#$env_to_report" | nc -w 1 $ircbot_ipaddr $ircbot_port
         fi
     fi
     rm -f $msg_file
@@ -69,7 +70,7 @@ function craft_message() {
     owner=$1
     days_to_report=$2
     env_to_report=$3
-
+    cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
@@ -84,7 +85,7 @@ Reply-To: dev-null@${quads["domain"]}
 This is a message to alert you that in $days_to_report days
 your allocated environment:
 
-   $env_to_report
+   $cloudinfo
 
 (Details)
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
