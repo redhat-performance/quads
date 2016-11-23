@@ -51,7 +51,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Initialize the schedule structure
 
 ```
-mkdir /opt/quads
+mkdir /etc/lab
 bin/quads.py --init
 ```
 
@@ -231,7 +231,7 @@ Defined schedules:
   0| start=2016-10-17 00:00,end=2016-10-30 18:00,cloud=cloud03
 ```
 
-   - Extend the Schedule End Date for the Cloud
+   - Extend the ```--schedule-end``` date for the Cloud
 
 If you are sure you've got the right cloud assignment from above you can proceed
 This is the actual command that extends the schedule, the other commands above are more for your verification.
@@ -257,9 +257,9 @@ rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
 ### Extending Machine Allocation to an existing Cloud
 
 QUADS also supports adding new machines into an existing workload (cloud).
-Search Availability Pool for Free Servers
 
-   - Let's look for any 5 x servers for 10 days 
+   - Search Availability Pool for Free Servers
+      - Let's look for any 5 x servers for 10 days 
 
 ```
 bin/find-available.py -c 5 -d 10
