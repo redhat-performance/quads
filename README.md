@@ -30,21 +30,20 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 
 ![quadsworkflow](/image/quads-workflow.png?raw=true)
 
-**Examples**
 
-* Auto-generated Systems Wiki
+**Example: Systems Wiki**
 
 ![wiki](/image/quads-wiki.png?raw=true)
 
-* Auto-generated Workload Assignments
+**Example: Workload Assignments**
 
 ![wiki](/image/quads-assignments.png?raw=true)
 
-* Monthly Calendar View
+**Example: Calendar View**
 
 ![wiki](/image/quads-calendar.png?raw=true)
 
-* Systems Visualization Map
+**Example: Systems Visualization Map
 
 ![wiki](/image/quads-visual.png?raw=true)
 
