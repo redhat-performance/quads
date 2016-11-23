@@ -8,7 +8,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 
 ![quads](/image/quads.jpg?raw=true)
 
-**What does it do?**
+## What does it do?
    - Create and manage a date/time based YAML schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment via external commands
    - Generates instack.json for each OpenStack environment.
@@ -21,33 +21,33 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Generates a monthly, auto-updated calendar of machine assignments
    - Generates a per-month visualization map for per-machine allocations to assignments.
 
-**Notes**
+## Notes
    - Very simple design (flat files, no external DB)
    - Allows for calling external provisioning commands via ```--path-to-command```
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend, but this can be substituted.
 
-**Workflow**
+## QUADS Workflow
 
 ![quadsworkflow](/image/quads-workflow.png?raw=true)
 
 
-**Example: Systems Wiki**
+## Example: Systems Wiki
 
 ![wiki](/image/quads-wiki.png?raw=true)
 
-**Example: Workload Assignments**
+## Example: Workload Assignments
 
 ![wiki](/image/quads-assignments.png?raw=true)
 
-**Example: Calendar View**
+## Example: Calendar View
 
 ![wiki](/image/quads-calendar.png?raw=true)
 
-**Example: Systems Visualization Map**
+## Example: Systems Visualization Map
 
 ![wiki](/image/quads-visual.png?raw=true)
 
-**QUADS Usage Documentation**
+## QUADS Usage Documentation
    - Initialize the schedule structure
 
 ```
@@ -157,9 +157,9 @@ In the above example the default move command was called ```/bin/echo``` for ill
 bin/quads.py --move-hosts --path-to-command /usr/bin/movecommand.sh
 ```
 
-**Common Administration Tasks**
+## Common Administration Tasks
 
-* __Extending the Schedule of an Existing Cloud__
+### Extending the __Schedule__ of an Existing Cloud
 
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
 In this example we'll be extending the assignment end date for cloud03
@@ -254,7 +254,7 @@ rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-5-423624'? y
 rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
 ```
 
-* __Extending Machine Allocation to an existing Cloud__
+### Extending Machine Allocation to an existing Cloud
 
 QUADS also supports adding new machines into an existing workload (cloud).
 Search Availability Pool for Free Servers
@@ -290,7 +290,7 @@ bin/quads.py --host c03-h17-r620.rdu.openstack.example.com --add-schedule --sche
 
 * Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
 
-**Additional Tools and Commands**
+## Additional Tools and Commands
 
 * You can use find-available.py to search for free machines for a timerange for allocation.
   - Use the optional ```-l``` option to filter results
