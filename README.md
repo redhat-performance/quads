@@ -3,7 +3,8 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of R&D scale systems and networks.
 
-**Note:** Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
+* Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
+* We have also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
 
 ![quads](/image/quads.jpg?raw=true)
 
@@ -23,37 +24,56 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 **Notes**
    - Very simple design (flat files, no external DB)
    - Allows for calling external provisioning commands via ```--path-to-command```
+   - We use [Foreman](https://theforeman.org/) for the systems provisioning backend, but this can be substituted.
 
 **Workflow**
 
 ![quadsworkflow](/image/quads-workflow.png?raw=true)
 
-**Scheduler Usage Documentation**
+**Examples**
+
+* Auto-generated Systems Wiki
+
+![wiki](/image/quads-wiki.png?raw=true)
+
+* Auto-generated Workload Assignments
+
+![wiki](/image/quads-assignments.png?raw=true)
+
+* Monthly Calendar View
+
+![wiki](/image/quads-calendar.png?raw=true)
+
+* Systems Visualization Map
+
+![wiki](/image/quads-visual.png?raw=true)
+
+**QUADS Usage Documentation**
    - Initialize the schedule structure
 
 ```
-mkdir /etc/lab
-./quads.py --init
+mkdir /opt/quads
+bin/quads.py --init
 ```
 
    - Define the various cloud environments
 
 ```
-./quads.py --define-cloud cloud01 --description "Primary Cloud Environment"
-./quads.py --define-cloud cloud02 --description "02 Cloud Environment"
-./quads.py --define-cloud cloud03 --description "03 Cloud Environment"
+bin/quads.py --define-cloud cloud01 --description "Primary Cloud Environment"
+bin/quads.py --define-cloud cloud02 --description "02 Cloud Environment"
+bin/quads.py --define-cloud cloud03 --description "03 Cloud Environment"
 ```
 
    - Define the hosts in the environment
 
 ```
-for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do ./quads.py --define-host $h --default-cloud cloud01; done
+for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do bin/quads.py --define-host $h --default-cloud cloud01; done
 ```
 
    - To list the hosts:
 
 ```
-./quads.py --ls-hosts
+bin/quads.py --ls-hosts
 ```
 You will now see the list of full hosts.
 
@@ -75,32 +95,33 @@ c09-h03-r630.example.com
    - To see the current system allocations:
 
 ```
-./quads.py --summary
+bin/quads.py --summary
+```
+```
 cloud01 : 45 (Primary Cloud Environment)
 cloud02 : 0 (02 Cloud Environment)
 cloud03 : 0 (03 Cloud Environment)
 ```
-
    - Sync states of each host.
      - This needs to be done whenever a new host is created.
      - We also need to track the last configured environment of each host (this is how we track whether or not we need to reconfigure a host if the schedule changes).
-     - *Note*: state files are stored in ```/etc/lab/state/HOSTNAME``` for each host and contains the current cloud membership
+     - *Note*: state files are stored in ```/opt/quads/state/HOSTNAME``` for each host and contains the current cloud membership
 
 ```
-./quads.py --sync
+bin/quads.py --sync
 ```
 
    - Define a custom schedule for a host
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
 ```
-./quads.py --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
+bin/quads.py --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
 ```
 
    - List the schedule for a specific host:
 
 ```
-./quads.py --ls-schedule --host c08-h21-r630.example.com
+bin/quads.py --ls-schedule --host c08-h21-r630.example.com
 ```
 
 You'll see the schedule output below
@@ -118,7 +139,7 @@ Defined schedules:
    - Move any hosts that need to be re-allocated based on the current schedule
 
 ```
-./quads.py --move-hosts
+bin/quads.py --move-hosts
 ```
 
 You should see the following verbosity from a move operation
@@ -134,5 +155,172 @@ In the above example the default move command was called ```/bin/echo``` for ill
      - You can append a script, command or other action as a post-hook (perhaps to fire off system provisioning).
 
 ```
-./quads.py --move-hosts --path-to-command /usr/bin/movecommand.sh
+bin/quads.py --move-hosts --path-to-command /usr/bin/movecommand.sh
+```
+
+**Common Administration Tasks**
+
+* __Extending the Schedule of an Existing Cloud__
+
+Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
+In this example we'll be extending the assignment end date for cloud03
+
+   - First, get the updated list of current assignments
+
+```
+bin/quads.py --summary
+```
+```
+cloud01 : 55 (Pool of available servers)
+cloud02 : 12 (Small OSPD deployment)
+cloud03 : 20 (Messaging - AMQ - dispatch router and artemis broker)
+cloud04 : 60 (Ceph deployment)
+cloud07 : 10 (Small OSPD deployment)
+cloud09 : 5 (Keystone OSPD deployment)
+cloud10 : 14 (Openshift + OSPD testing)
+```
+
+   - Next, List the owners of the clouds.
+
+```
+bin/quads.py --ls-owner
+```
+```
+cloud01 : nobody
+cloud02 : bjohnson
+cloud03 : jhoffa
+cloud04 : ltorvalds
+cloud05 : nobody
+cloud06 : nobody
+cloud07 : dtrump
+cloud08 : nobody
+cloud09 : dtrump
+cloud10 : cnorris
+```
+
+   - Lastly, obtain a list of the current machines in cloud03
+
+```
+bin/quads.py --cloud-only cloud03
+```
+```
+b09-h01-r620.rdu.openstack.example.com
+b09-h02-r620.rdu.openstack.example.com
+b09-h03-r620.rdu.openstack.example.com
+b09-h05-r620.rdu.openstack.example.com
+b09-h06-r620.rdu.openstack.example.com
+b09-h07-r620.rdu.openstack.example.com
+b09-h09-r620.rdu.openstack.example.com
+b09-h11-r620.rdu.openstack.example.com
+b09-h14-r620.rdu.openstack.example.com
+b09-h15-r620.rdu.openstack.example.com
+b09-h17-r620.rdu.openstack.example.com
+b09-h18-r620.rdu.openstack.example.com
+b09-h19-r620.rdu.openstack.example.com
+```
+
+   - Take a look at the existing schedule for one of these machines, you'll see it expires 2016-10-30.
+
+```
+bin/quads.py --host b09-h01-r620.rdu.openstack.example.com --ls-schedule
+```
+```
+Default cloud: cloud01
+Current cloud: cloud03
+Current schedule: 0
+Defined schedules:
+  0| start=2016-10-17 00:00,end=2016-10-30 18:00,cloud=cloud03
+```
+
+   - Extend the Schedule End Date for the Cloud
+
+If you are sure you've got the right cloud assignment from above you can proceed
+This is the actual command that extends the schedule, the other commands above are more for your verification.
+Below we will be extending the schedule end date from 2016-10-30 to 2016-11-27 at 18:00
+
+```
+for h in $(bin/quads.py --cloud-only cloud03) ; do ./quads.py --host $h --mod-schedule 0 --schedule-end "2016-11-27 18:00"; done
+```
+
+  - Cleanup Notification Files
+
+Your tenant may have already been receiving email notifications about machines coming up for reclamation, we want to clear these out so future notifications are up to date.
+On the QUADS host you'll want to remove these files if they exist, in this case they will be called ```cloud03-jhoffa-*```
+
+```
+rm /etc/lab/report/cloud03*
+```
+```
+rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-5-423624'? y
+rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
+```
+
+* __Extending Machine Allocation to an existing Cloud__
+
+QUADS also supports adding new machines into an existing workload (cloud).
+Search Availability Pool for Free Servers
+
+   - Let's look for any 5 x servers for 10 days 
+
+```
+bin/find-available.py -c 5 -d 10
+```
+```
+================
+First available date = 2016-12-05 08:00
+Requested end date = 2016-12-15 08:00
+hostnames = 
+c03-h11-r620.rdu.openstack.example.com
+c03-h13-r620.rdu.openstack.example.com
+c03-h14-r620.rdu.openstack.example.com
+c03-h15-r620.rdu.openstack.example.com
+c03-h17-r620.rdu.openstack.example.com
+```
+
+  - Move New Hosts into Existing Cloud
+
+Above we see all the free servers during our timeframe, let's move them into cloud10
+
+```
+bin/quads.py --host c03-h11-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+bin/quads.py --host c03-h13-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+bin/quads.py --host c03-h14-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+bin/quads.py --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+bin/quads.py --host c03-h17-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+```
+
+* Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
+
+**Additional Tools and Commands**
+
+* You can use find-available.py to search for free machines for a timerange for allocation.
+  - Use the optional ```-l``` option to filter results
+
+```
+bin/find-available.py -c 5 -d 10
+```
+```
+================
+First available date = 2016-12-05 08:00
+Requested end date = 2016-12-15 08:00
+hostnames = 
+c03-h11-r620.rdu.openstack.example.com
+c03-h13-r620.rdu.openstack.example.com
+c03-h14-r620.rdu.openstack.example.com
+c03-h15-r620.rdu.openstack.example.com
+c03-h17-r620.rdu.openstack.example.com
+```
+
+* You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
+
+```
+bin/quads.py --move-hosts --dry-run
+```
+```
+INFO: Moving b10-h27-r620.rdu.openstack.example.com from cloud01 to cloud03
+INFO: Moving c02-h18-r620.rdu.openstack.example.com from cloud01 to cloud03
+INFO: Moving c02-h19-r620.rdu.openstack.example.com from cloud01 to cloud03
+INFO: Moving c02-h21-r620.rdu.openstack.example.com from cloud01 to cloud03
+INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
+INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
