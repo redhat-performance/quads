@@ -43,7 +43,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 
 ![wiki](/image/quads-calendar.png?raw=true)
 
-**Example: Systems Visualization Map
+**Example: Systems Visualization Map**
 
 ![wiki](/image/quads-visual.png?raw=true)
 
