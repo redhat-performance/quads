@@ -8,6 +8,22 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 
 ![quads](/image/quads.jpg?raw=true)
 
+   * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
+      * [What does it do?](#what-does-it-do)
+      * [Notes](#notes)
+      * [QUADS Workflow](#quads-workflow)
+      * [Example: Systems Wiki](#example-systems-wiki)
+      * [Example: Workload Assignments](#example-workload-assignments)
+      * [Example: Calendar View](#example-calendar-view)
+      * [Example: Systems Visualization Map](#example-systems-visualization-map)
+      * [QUADS Usage Documentation](#quads-usage-documentation)
+      * [Common Administration Tasks](#common-administration-tasks)
+         * [Extending the <strong>Schedule</strong> of an Existing
+           Cloud](#extending-the-schedule-of-an-existing-cloud)
+         * [Extending Machine Allocation to an existing
+           Cloud](#extending-machine-allocation-to-an-existing-cloud)
+      * [Additional Tools and Commands](#additional-tools-and-commands)
+
 ## What does it do?
    - Create and manage a date/time based YAML schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment via external commands
@@ -15,7 +31,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
      * Current system details
      * Current workloads and assignments
-     * Current ownership and resource utilization links (grafana/collectd) 
+     * Current ownership and resource utilization links (grafana/collectd)
      * Total duration and time remaining in system assignments
    - Query scheduling data to determine future availability
    - Generates a monthly, auto-updated calendar of machine assignments
@@ -259,7 +275,7 @@ rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
 QUADS also supports adding new machines into an existing workload (cloud).
 
    - Search Availability Pool for Free Servers
-      - Let's look for any 5 x servers for 10 days 
+      - Let's look for any 5 x servers for 10 days
 
 ```
 bin/find-available.py -c 5 -d 10
@@ -268,7 +284,7 @@ bin/find-available.py -c 5 -d 10
 ================
 First available date = 2016-12-05 08:00
 Requested end date = 2016-12-15 08:00
-hostnames = 
+hostnames =
 c03-h11-r620.rdu.openstack.example.com
 c03-h13-r620.rdu.openstack.example.com
 c03-h14-r620.rdu.openstack.example.com
@@ -302,7 +318,7 @@ bin/find-available.py -c 5 -d 10
 ================
 First available date = 2016-12-05 08:00
 Requested end date = 2016-12-15 08:00
-hostnames = 
+hostnames =
 c03-h11-r620.rdu.openstack.example.com
 c03-h13-r620.rdu.openstack.example.com
 c03-h14-r620.rdu.openstack.example.com
