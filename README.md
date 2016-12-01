@@ -36,6 +36,9 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Query scheduling data to determine future availability
    - Generates a monthly, auto-updated calendar of machine assignments
    - Generates a per-month visualization map for per-machine allocations to assignments.
+   - RT (or similiar ticketing system) integration.
+   - IRC bot and email notifications for new provisioning tasks and ones ending completion
+     * ```<lucius> QUADS: cloud02 : 9 (OSP Newton Testing) is now active, choo choo! - http://wiki.example.com/assignments/#cloud02```
 
 ## Notes
    - Very simple design (flat files, no external DB)
