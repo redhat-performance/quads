@@ -16,6 +16,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
       * [Example: Workload Assignments](#example-workload-assignments)
       * [Example: Calendar View](#example-calendar-view)
       * [Example: Systems Visualization Map](#example-systems-visualization-map)
+      * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
       * [QUADS Usage Documentation](#quads-usage-documentation)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Extending the <strong>Schedule</strong> of an Existing
@@ -38,7 +39,6 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Generates a per-month visualization map for per-machine allocations to assignments.
    - RT (or similiar ticketing system) integration.
    - IRC bot and email notifications for new provisioning tasks and ones ending completion
-     * ```<lucius> QUADS: cloud02 : 9 (OSP Newton Testing) is now active, choo choo! - http://wiki.example.com/assignments/#cloud02```
 
 ## Notes
    - Very simple design (flat files, no external DB)
@@ -65,6 +65,45 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 ## Example: Systems Visualization Map
 
 ![wiki](/image/quads-visual.png?raw=true)
+
+## Example: IRC and Email Notifications
+   - We notify our Supybot IRC bot to announce when new environments are provisioned
+
+```
+<lucius> QUADS: cloud02 : 9 (OSP Newton Testing) is now active, choo choo! - http://wiki.example.com/assignments/#cloud02
+```
+   - We also send email notifications when new environments are provisioned.
+
+```
+Greetings Citizen,
+
+You've been allocated a new environment!
+
+cloud06 : 13 (OVN and OpenStack ML2/OVS)
+
+(Details)
+http://wiki.example.com/assignments/#cloud06
+
+```
+   - Lastly we send notifications 7, 5, 3, 1 days out from when assignments expire (or any number of machines are set to be removed during the current assignment schedule). 
+
+```
+This is a message to alert you that in 7 days
+your allocated environment:
+
+cloud08 : 29 (JBOSS Data Grid)
+
+(Details)
+http://wiki.example.com/assignments/#cloud08
+
+will have some or all of the hosts expire.  Some or all of your
+hosts will automatically be reprovisioned and returned to
+the pool of available hosts.
+
+This does not necessarily mean all your hosts are going away,
+only that some of them may have been re-allocated.  Please
+check the assignments wiki URL above for details.
+```
 
 ## QUADS Usage Documentation
    - Initialize the schedule structure
