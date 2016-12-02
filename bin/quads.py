@@ -28,7 +28,7 @@ load_quads_config()
 
 
 defaultconfig = quads["data_dir"] + "/schedule.yaml"
-defaultstatedir = quads["install_dir"] + "/state"
+defaultstatedir = quads["data_dir"] + "/state"
 defaultmovecommand = "/bin/echo"
 
 parser = argparse.ArgumentParser(description='Query current cloud for a given host')
