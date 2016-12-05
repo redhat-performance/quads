@@ -28,7 +28,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 ## What does it do?
    - Create and manage a date/time based YAML schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment via external commands
-   - Generates instack.json for each OpenStack environment.
+   - Generates instackenv.json for each OpenStack environment.
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
      * Current system details
      * Current workloads and assignments
