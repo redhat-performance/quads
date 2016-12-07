@@ -15,23 +15,9 @@ send "delete interfaces $interfacename\r";
 expect "#"
 send "set interfaces $interfacename apply-groups QinQ_vl$newvlan\r";
 expect "#"
-send "commit\r";
+send "delete vlans vlan$oldvlan interface $interfacename\r";
 expect "#"
-send "edit vlans\r";
-expect "#"
-send "edit vlan$oldvlan\r";
-expect "#"
-send "delete interface $interfacename\r";
-expect "#"
-send "exit\r";
-expect "#"
-send "edit vlan$newvlan\r";
-expect "#"
-send "set interface $interfacename\r";
-expect "#"
-send "exit\r";
-expect "#"
-send "exit\r";
+send "set vlans vlan$newvlan interface $interfacename\r";
 expect "#"
 send "commit\r";
 expect "#"
