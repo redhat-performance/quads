@@ -6,16 +6,12 @@ import time
 import yaml
 import argparse
 import os
+import sys
 from subprocess import call
 from subprocess import check_call
 
-quads_config = os.path.dirname(__file__) + "/../conf/quads.yml"
-quads = {}
-
-def load_quads_config():
-    global quads_config
-    global quads
-
+# used to load the configuration for quads behavior
+def quads_load_config(quads_config):
     try:
         stream = open(quads_config, 'r')
         quads = yaml.load(stream)
@@ -23,131 +19,28 @@ def load_quads_config():
     except Exception, ex:
         print ex
         exit(1)
+    return(quads)
 
-load_quads_config()
-
-
-defaultconfig = quads["data_dir"] + "/schedule.yaml"
-defaultstatedir = quads["data_dir"] + "/state"
-defaultmovecommand = "/bin/echo"
-
-parser = argparse.ArgumentParser(description='Query current cloud for a given host')
-parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
-parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
-parser.add_argument('-c', '--config', dest='config',
-                                            help='YAML file with cluster data',
-                                            default=None, type=str)
-parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
-parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
-parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
-parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
-parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
-parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
-parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
-parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
-parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
-parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
-parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
-parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
-parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
-parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
-parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
-parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
-parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
-parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
-parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
-parser.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
-parser.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
-parser.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
-parser.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
-parser.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
-parser.add_argument('--statedir', dest='statedir', type=str, default=None, help='Default state dir')
-parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
-parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
-parser.add_argument('--move-command', dest='movecommand', type=str, default=None, help='External command to move a host')
-parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
-
-args = parser.parse_args()
-
-host = args.host
-cloudonly = args.cloudonly
-config = args.config
-datearg = args.datearg
-initialize = args.initialize
-cloudowner = args.cloudowner
-cloudticket = args.cloudticket
-cloudresource = args.cloudresource
-hostresource = args.hostresource
-description = args.description
-hostcloud = args.hostcloud
-forceupdate = args.force
-summaryreport = args.summary
-fullsummaryreport = args.fullsummary
-addschedule = args.addschedule
-schedstart = args.schedstart
-schedend = args.schedend
-schedcloud = args.schedcloud
-lsschedule = args.lsschedule
-rmschedule = args.rmschedule
-modschedule = args.modschedule
-lshosts = args.lshosts
-lsclouds = args.lsclouds
-lsowner = args.lsowner
-lsticket = args.lsticket
-rmhost = args.rmhost
-rmcloud = args.rmcloud
-statedir = args.statedir
-syncstate = args.syncstate
-movehosts = args.movehosts
-movecommand = args.movecommand
-dryrun = args.dryrun
-
-if config is None:
-    config = defaultconfig
-
-if statedir is None:
-    statedir = defaultstatedir
-
-if movecommand is None:
-    movecommand = defaultmovecommand
-
-if not os.path.exists(statedir):
-    try:
-        os.makedirs(statedir)
-    except Exception, ex:
-        print ex
-        exit(1)
-
-fname = config
-
-def initConfig():
-    global initialize
-    global fname
-    global data
-
+# if passed --init, the config data is wiped. Consider a confirmation dialog here
+def quads_init_config(initialize, fname):
     if initialize:
         try:
             stream = open(fname, 'w')
             data = {"clouds":{}, "hosts":{}}
             stream.write( yaml.dump(data, default_flow_style=False))
             exit(0)
-
         except Exception, ex:
             print "There was a problem with your file %s" % ex
             exit(1)
 
-def checkDefineOpts():
-    global hostresource
-    global cloudresource
-
+# check for mutually exclusive define options
+def quads_check_define_opts(hostresource, cloudresource):
     if hostresource is not None and cloudresource is not None:
         print "--define-cloud and --define-host are mutually exclusive."
         exit(1)
 
-def loadData():
-    global fname
-    global data
-
+# anything we do needs our data to be loaded.  So we start with that
+def quads_load_data(fname):
     # load the current data
     try:
         stream = open(fname, 'r')
@@ -156,11 +49,10 @@ def loadData():
     except Exception, ex:
         print ex
         exit(1)
+    return data
 
-def writeData(doexit = True):
-    global fname
-    global data
-
+# we occasionally need to write the data back out
+def quads_write_data(fname, data, doexit = True):
     try:
         stream = open(fname, 'w')
         stream.write( yaml.dump(data, default_flow_style=False))
@@ -172,15 +64,15 @@ def writeData(doexit = True):
             exit(1)
 
 
-def syncState():
-    global syncstate
-    global data
-    global statedir
-
+# sync the statedir db for hosts with schedule
+def quads_sync_state(syncstate, data, statedir, datearg):
     # sync state
+    if datearg is not None:
+        print "--sync and --date are mutually exclusive."
+        exit(1)
     if syncstate:
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud, current_override = findCurrent(h)
+            default_cloud, current_cloud, current_override = quads_find_current(data, datearg, h)
             if not os.path.isfile(statedir + "/" + h):
                 try:
                     stream = open(statedir + "/" + h, 'w')
@@ -190,16 +82,15 @@ def syncState():
                     print "There was a problem with your file %s" % ex
         exit(0)
 
-def moveHosts():
-    global movehosts
-    global movecommand
-    global dryrun
-    global data
-    global statedir
-
+# as needed move host(s) based on defined schedules
+def quads_move_hosts(movehosts, movecommand, dryrun, data, statedir, datearg):
+    # move a host
+    if datearg is not None:
+        print "--move-hosts and --date are mutually exclusive."
+        exit(1)
     if movehosts:
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud, current_override = findCurrent(h)
+            default_cloud, current_cloud, current_override = quads_find_current(data, datearg, h)
             if not os.path.isfile(statedir + "/" + h):
                 try:
                     stream = open(statedir + "/" + h, 'w')
@@ -224,9 +115,8 @@ def moveHosts():
                         stream.close()
         exit(0)
 
-def historyInit():
-    global data
-
+# initialize history        
+def quads_history_init(fname, data):
     updateyaml = False
     if 'history' not in data:
         data['history']  = {}
@@ -235,38 +125,33 @@ def historyInit():
     for h in sorted(data['hosts'].iterkeys()):
         if h not in data['history']:
             data['history'][h] = {}
-            default_cloud, current_cloud, current_override = findCurrent(h)
+            default_cloud, current_cloud, current_override = quads_find_current(data, None, h)
             data['history'][h][0] = current_cloud
             updateyaml = True
 
     if updateyaml:
-        writeData(False)
+        quads_write_data(fname, data, False)
 
-def listHosts():
-    global lshosts
-    global data
+    return data
 
+# list the hosts
+def quads_list_hosts(lshosts, data):
     # list just the hostnames
     if lshosts:
         for h in sorted(data['hosts'].iterkeys()):
             print h
         exit(0)
 
-def listClouds():
-    global lsclouds
-    global data
-
+# list the clouds
+def quads_list_clouds(lsclouds, data):
     # list just the clouds
     if lsclouds:
         for c in sorted(data['clouds'].iterkeys()):
             print c
         exit(0)
 
-def listOwners():
-    global lsowner
-    global data
-    global cloudonly
-
+# list the owners
+def quads_list_owners(lsowner, data, cloudonly):
     # list the owners
     if lsowner:
         if cloudonly is not None:
@@ -280,11 +165,8 @@ def listOwners():
 
         exit(0)
 
-def listTickets():
-    global lsticket
-    global data
-    global cloudonly
-
+# list the tickets
+def quads_list_tickets(lsticket, data, cloudonly):
     # list the service request tickets
     if lsticket:
         if cloudonly is not None:
@@ -302,22 +184,20 @@ def listTickets():
         exit(0)
 
 
-def removeHost():
-    global rmhost
-    global data
-
+# remove a host
+def quads_remove_host(fname, data, rmhost):
     # remove a specific host
     if rmhost is not None:
         if rmhost not in data['hosts']:
             print rmhost + " not found"
             exit(1)
         del(data['hosts'][rmhost])
-        writeData()
+        quads_write_data(fname, data)
 
-def removeCloud():
-    global rmcloud
-    global data
+    return data
 
+# remove a cloud
+def quads_remove_cloud(fname, data, rmcloud):
     # remove a cloud (only if no hosts use it)
     if rmcloud is not None:
         if rmcloud not in data['clouds']:
@@ -334,14 +214,12 @@ def removeCloud():
                     print "Delete schedule before deleting this cloud"
                     exit(1)
         del(data['clouds'][rmcloud])
-        writeData()
+        quads_write_data(fname, data)
 
-def updateHost():
-    global hostresource
-    global hostcloud
-    global data
-    global forceupdate
+    return data
 
+# update a host resource
+def quads_update_host(fname, hostresource, hostcloud, data, forceupdate):
     # define or update a host resouce
     if hostresource is not None:
         if hostcloud is None:
@@ -363,16 +241,12 @@ def updateHost():
                 data["hosts"][hostresource] = { "cloud": hostcloud, "interfaces": {}, "schedule": {}}
                 data["history"][hostresource] = {}
                 data["history"][hostresource][0] = hostcloud
-            writeData()
+            quads_write_data(fname, data)
 
-def updateCloud():
-    global cloudowner
-    global cloudticket
-    global cloudresource
-    global description
-    global data
-    global forceupdate
+    return data
 
+# update a cloud resource
+def quads_update_cloud(fname, cloudresource, description, data, forceupdate, cloudowner, cloudticket):
     # define or update a cloud resource
     if cloudresource is not None:
         if description is None:
@@ -382,21 +256,21 @@ def updateCloud():
             if cloudresource in data['clouds'] and not forceupdate:
                 print "Cloud \"%s\" already defined. Use --force to replace" % cloudresource
                 exit(1)
+            if cloudowner is None:
+                cloudowner = "nobody"
+            if cloudticket is None:
+                cloudticket = "00000"
             data["clouds"][cloudresource] = { "description": description, "networks": {}, "owner": {}, "ticket": {}}
             if cloudowner is not None:
                 data["clouds"][cloudresource]["owner"] = cloudowner
             if cloudticket is not None:
                 data["clouds"][cloudresource]["ticket"] = cloudticket
-            writeData()
+            quads_write_data(fname, data)
 
-def addHostSchedule():
-    global addschedule
-    global schedstart
-    global schedend
-    global schedcloud
-    global host
-    global data
+    return data
 
+# define a schedule for a given host
+def quads_add_host_schedule(fname, addschedule, schedstart, schedend, schedcloud, host, data):
     # add a scheduled override for a given host
     if addschedule:
         if schedstart is None or schedend is None or schedcloud is None or host is None:
@@ -464,16 +338,12 @@ def addHostSchedule():
                 exit(1)
 
         data['hosts'][host]["schedule"][len(data['hosts'][host]["schedule"].keys())] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
-        writeData()
+        quads_write_data(fname, data)
 
-def modHostSchedule():
-    global modschedule
-    global schedstart
-    global schedend
-    global schedcloud
-    global host
-    global data
+    return data
 
+# modify an existing schedule
+def quads_mod_host_schedule(fname, modschedule, schedstart, schedend, schedcloud, host, data):
     # add a scheduled override for a given host
     if modschedule is not None:
         if host is None:
@@ -566,13 +436,12 @@ def modHostSchedule():
         data['hosts'][host]["schedule"][modschedule]["end"] = schedend
         data['hosts'][host]["schedule"][modschedule]["cloud"] = schedcloud
 
-        writeData()
+        quads_write_data(fname, data)
 
-def rmHostSchedule():
-    global rmschedule
-    global host
-    global data
+    return data
 
+# remove a scheduled override for a given host
+def quads_rm_host_schedule(fname, rmschedule, host, data):
     # remove a scheduled override for a given host
     if rmschedule is not None:
         if host is None:
@@ -588,13 +457,12 @@ def rmHostSchedule():
             exit(1)
 
         del(data['hosts'][host]["schedule"][rmschedule])
-        writeData()
+        quads_write_data(fname, data)
 
-def findCurrent(host):
-    global data
-    global datearg
-    global summary
+    return data
 
+# helper function called from other methods.  Never called from main()
+def quads_find_current(data, datearg, host):
     if host in data['hosts'].keys():
         default_cloud = data['hosts'][host]["cloud"]
         current_cloud = default_cloud
@@ -628,15 +496,8 @@ def findCurrent(host):
     else:
         return None, None, None
 
-def printResult():
-    global host
-    global cloudonly
-    global data
-    global datearg
-    global summary
-    global summaryreport
-    global fullsummaryreport
-
+# generally the last thing that happens is reporting results
+def quads_print_result(host, cloudonly, data, datearg, summaryreport, fullsummaryreport, lsschedule):
     # If we're here, we're done with all other options and just need to
     # print either summary, full report if no host is specified
     if host is None:
@@ -646,7 +507,7 @@ def printResult():
             summary[cloud] = []
 
         for h in sorted(data['hosts'].iterkeys()):
-            default_cloud, current_cloud, current_override = findCurrent(h)
+            default_cloud, current_cloud, current_override = quads_find_current(data, datearg, h)
             summary[current_cloud].append(h)
 
         if summaryreport or fullsummaryreport:
@@ -670,7 +531,7 @@ def printResult():
 
     # print the cloud a host belongs to
     else:
-        default_cloud, current_cloud, current_override = findCurrent(host)
+        default_cloud, current_cloud, current_override = quads_find_current(data, datearg, host)
 
         if host is not None:
             if lsschedule:
@@ -686,24 +547,81 @@ def printResult():
                 print current_cloud
 
 
-initConfig()
-checkDefineOpts()
-loadData()
-syncState()
-historyInit()
-listHosts()
-listClouds()
-listOwners()
-listTickets()
-removeHost()
-removeCloud()
-updateHost()
-updateCloud()
-addHostSchedule()
-rmHostSchedule()
-modHostSchedule()
-moveHosts()
-printResult()
+def main(argv):
+    quads_config = os.path.dirname(__file__) + "/../conf/quads.yml"
+    quads = {}
+    data = {}
+
+    quads = quads_load_config(quads_config)
+
+    defaultconfig = quads["data_dir"] + "/schedule.yaml"
+    defaultstatedir = quads["data_dir"] + "/state"
+    defaultmovecommand = "/bin/echo"
+
+    parser = argparse.ArgumentParser(description='Query current cloud for a given host')
+    parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
+    parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
+    parser.add_argument('-c', '--config', dest='config',
+                                            help='YAML file with cluster data',
+                                            default=defaultconfig, type=str)
+    parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
+    parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
+    parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
+    parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
+    parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
+    parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
+    parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
+    parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
+    parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
+    parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
+    parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
+    parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
+    parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
+    parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
+    parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
+    parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
+    parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
+    parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
+    parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
+    parser.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
+    parser.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
+    parser.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
+    parser.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
+    parser.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
+    parser.add_argument('--statedir', dest='statedir', type=str, default=defaultstatedir, help='Default state dir')
+    parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
+    parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
+    parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
+    parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.statedir):
+        try:
+            os.makedirs(args.statedir)
+        except Exception, ex:
+            print ex
+            exit(1)
+
+    quads_init_config(args.initialize, args.config)
+    quads_check_define_opts(args.hostresource, args.cloudresource)
+    data = quads_load_data(args.config)
+    quads_sync_state(args.syncstate, data, args.statedir, args.datearg)
+    data = quads_history_init(args.config, data)
+    quads_list_hosts(args.lshosts, data)
+    quads_list_clouds(args.lsclouds, data)
+    quads_list_owners(args.lsowner, data, args.cloudonly)
+    quads_list_tickets(args.lsticket, data, args.cloudonly)
+    data = quads_remove_host(args.config, data, args.rmhost)
+    data = quads_remove_cloud(args.config, data, args.rmcloud)
+    data = quads_update_host(args.config, args.hostresource, args.hostcloud, data, args.force)
+    data = quads_update_cloud(args.config, args.cloudresource, args.description, data, args.force, args.cloudowner, args.cloudticket)
+    data = quads_add_host_schedule(args.config, args.addschedule, args.schedstart, args.schedend, args.schedcloud, args.host, data)
+    data = quads_rm_host_schedule(args.config, args.rmschedule, args.host, data)
+    data = quads_mod_host_schedule(args.config, args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host, data)
+    quads_move_hosts(args.movehosts, args.movecommand, args.dryrun, data, args.statedir, args.datearg)
+    quads_print_result(args.host, args.cloudonly, data, args.datearg, args.summary, args.fullsummary, args.lsschedule)
 
 
-
+if __name__ == "__main__":
+       main(sys.argv[1:])
