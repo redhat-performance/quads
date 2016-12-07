@@ -1,5 +1,6 @@
 # This is the main configuration file for QUADS
 # Configure for your environment
+########
 
 install_dir: /opt/quads
 data_dir: /opt/quads/data
