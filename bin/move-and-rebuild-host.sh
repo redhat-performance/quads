@@ -180,12 +180,16 @@ $bindir/make-instackenv-json.sh
 if $rebuild ; then
   hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7"
   ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
-  sleep 90
+  sleep 30
   ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power on
 fi
 
-# update the wiki
-$bindir/regenerate-wiki.sh 1>/dev/null 2>&1
+# DONT update the wiki here.  This is costly and slows down the
+# move of a large number of nodes.  Instead, run the wiki regeneration
+# more frequently (via cron).  There's a lock file regardless so you
+# cannot cause inconsistencies by running the cronjob more frequently.
+
+# $bindir/regenerate-wiki.sh 1>/dev/null 2>&1
 
 exit 0
 
