@@ -65,3 +65,4 @@ ipmi_password: calvin
 # visual web dir is where the visual HTML representation of the lab usage goes
 visual_web_dir: /var/www/html/visual
 
+# dummy change here
