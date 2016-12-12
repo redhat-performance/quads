@@ -6,6 +6,8 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
 * Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
 * We have also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
 
+![jenkins](/image/jenkins.png?raw=true)
+
 ![quads](/image/quads.jpg?raw=true)
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
