@@ -1,3 +1,4 @@
+##
 # This is the main configuration file for QUADS
 # Configure for your environment
 
@@ -39,7 +40,7 @@ rt_url: https://engineering.example.com/rt/Ticket/Display.html
 quads_url: http://quads.scalelab.example.com
 
 # omit these hosts (used for wiki generation)
-# These are typically hosts known to your foreman that you don't 
+# These are typically hosts known to your foreman that you don't
 # want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'
 exclude_hosts: cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|e05-h25|zfs01
 
@@ -60,8 +61,7 @@ ical_web_location: /var/www/html/ical/schedule.ics
 
 # ipmi user/pass
 ipmi_username: root
-ipmi_password: calvin
+ipmi_password: password
 
 # visual web dir is where the visual HTML representation of the lab usage goes
 visual_web_dir: /var/www/html/visual
-
