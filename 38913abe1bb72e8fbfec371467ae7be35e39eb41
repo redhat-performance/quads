@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ab451fb_f29e8506",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2016-12-13T20:19:45Z",
+      "side": 1,
+      "message": "Would you mind collapsing the double space between \"We\" and \"also\" to a single space?",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 6
+      },
+      "revId": "38913abe1bb72e8fbfec371467ae7be35e39eb41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
