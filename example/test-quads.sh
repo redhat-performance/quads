@@ -1,8 +1,9 @@
 #!/bin/sh
 #
-# Test quads using a test location.  Run this using:
-# We use this in a jenkins instance tied to the 
-# gerrit for quads.
+# QUADS Simulator 5000
+# Test quads using CI or in a sandbox.
+# We use this in a Jenkins instance  with the Gerrit
+# trigger plugin to be run on all patchsets.
 ############################################
 
 if [ -z "$1" ]; then
@@ -13,12 +14,12 @@ fi
 
 ## Jenkins specific debug here
 echo ========== START === `date` ====================
-echo "called as $0" 
+echo "called as $0"
 echo "called with params: $*"
 printenv
 echo pwd is: `pwd`
 echo "------"
-ls -la 
+ls -la
 echo "------"
 ## end Jenkins debug here
 
