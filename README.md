@@ -4,7 +4,7 @@ QUADS (quick and dirty scheduler)
 Automate scheduling and end-to-end provisioning of R&D scale systems and networks.
 
 * Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
-* We have also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
+* We also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
 
 ![jenkins](/image/jenkins.png?raw=true)
 
@@ -87,7 +87,7 @@ cloud06 : 13 (OVN and OpenStack ML2/OVS)
 http://wiki.example.com/assignments/#cloud06
 
 ```
-   - Lastly we send notifications 7, 5, 3, 1 days out from when assignments expire (or any number of machines are set to be removed during the current assignment schedule). 
+   - Lastly we send notifications 7, 5, 3, 1 days out from when assignments expire (or any number of machines are set to be removed during the current assignment schedule).
 
 ```
 This is a message to alert you that in 7 days
@@ -383,3 +383,6 @@ INFO: Moving c02-h21-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
+
+* We have full Jenkins CI runs against all Gerrit patchsets.
+  - Here is our [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
