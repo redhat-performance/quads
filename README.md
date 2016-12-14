@@ -395,7 +395,7 @@ INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 * We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
 
 ## Contributing
-We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch simply perform the following:
+We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch perform the following:
 
 * Clone our repository:
 
@@ -425,7 +425,7 @@ git review -s
 * Now submit your patchset with git review
 
 ```
-git review -s
+git review
 ```
 
 * If you want to make changes to your patchset you can run the ```git commit --amend``` command.
@@ -436,4 +436,4 @@ git commit --amend
 git review
 ```
 
-For each patchset our CI will run QUADS through all of the possible command variations, manipulate data and simulate running against systems and then vote on your change.  In the future this will be improved upon possibly spin up actual systems and interact with network switches.  We will also be adding Python and Shell checks such as pep8, flake8 and shellcheck.
+For each patchset our CI will run QUADS through all of the possible command variations, manipulate data and simulate running against systems and then vote on your change.  In the future this will be improved upon possibly spin up actual systems and interact with network switches. 
