@@ -13,6 +13,7 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
       * [Notes](#notes)
+      * [Requirements](#requirements)
       * [QUADS Workflow](#quads-workflow)
       * [Example: Systems Wiki](#example-systems-wiki)
       * [Example: Workload Assignments](#example-workload-assignments)
@@ -46,6 +47,12 @@ Automate scheduling and end-to-end provisioning of R&D scale systems and network
    - Very simple design (flat files, no external DB)
    - Allows for calling external provisioning commands via ```--path-to-command```
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend, but this can be substituted.
+
+## Requirements
+   - Python 2.6+ and libyaml (or [pyaml](https://pypi.python.org/pypi/pyaml)) are required for basic operation.
+   - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
+   - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
+   - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
 
 ## QUADS Workflow
 
@@ -384,5 +391,4 @@ INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
 
-* We have full Jenkins CI runs against all Gerrit patchsets.
-  - Here is our [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
+* We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
