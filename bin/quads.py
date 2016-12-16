@@ -87,12 +87,13 @@ class Quads(object):
             default_cloud = data['hosts'][host]["cloud"]
             current_cloud = default_cloud
             current_override = None
+            current_time = datetime.now()
 
             if datearg is None:
-                current_time = datetime.now()
+                requested_time = current_time
             else:
                 try:
-                    current_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                    requested_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
                 except Exception, ex:
                     print "Data format error : %s" % ex
                     exit(1)
@@ -102,14 +103,16 @@ class Quads(object):
                     start_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
                     end_obj = datetime.strptime(data['hosts'][host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
 
-                    if start_obj <= current_time and current_time < end_obj:
+                    if start_obj <= requested_time and requested_time < end_obj:
                         current_cloud = data['hosts'][host]["schedule"][override]["cloud"]
                         current_override = override
                         return default_cloud, current_cloud, current_override
 
-            for history in data['history'][host]:
-                if datetime.fromtimestamp(history) <= current_time:
-                    current_cloud = data['history'][host][history]
+            # only consider history data when looking at past data
+            if requested_time < current_time:
+                for history in sorted(data['history'][host]):
+                    if datetime.fromtimestamp(history) <= requested_time:
+                        current_cloud = data['history'][host][history]
 
             return default_cloud, current_cloud, current_override
 
