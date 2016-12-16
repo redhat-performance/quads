@@ -24,6 +24,7 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
 visual_web_dir=${quads["visual_web_dir"]}
+visual_tmp_file=$(mktemp /tmp/quads-visual-tmpXXXX)
 
 lockfile=$data_dir/.simple_table_web
 
@@ -41,8 +42,10 @@ fi
 [ ! -d $visual_web_dir ] && mkdir -p $visual_web_dir
 
 for i in $(seq 0 $months_out) ; do
-    $bindir/simple-table-generator.sh ${year[$i]}-${month[$i]} ${days[$i]} > $visual_web_dir/${year[$i]}-${month[$i]}.html
+    $bindir/simple-table-generator.sh ${year[$i]}-${month[$i]} ${days[$i]} > $visual_tmp_file
+    cp $visual_tmp_file $visual_web_dir/${year[$i]}-${month[$i]}.html
 done
+rm -f $visual_tmp_file
 
 rm -f $visual_web_dir/current.html $visual_web_dir/next.html
 ln -sf $visual_web_dir/${year[0]}-${month[0]}.html $visual_web_dir/current.html
