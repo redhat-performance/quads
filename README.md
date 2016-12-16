@@ -1,7 +1,7 @@
 QUADS (quick and dirty scheduler)
 ====================================
 
-Automate scheduling and end-to-end provisioning of R&D scale systems and networks.
+Automate scheduling and end-to-end provisioning of servers and networks.
 
 * Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
 * We also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
@@ -312,11 +312,8 @@ for h in $(bin/quads.py --cloud-only cloud03) ; do ./quads.py --host $h --mod-sc
   - Cleanup Notification Files
 
 Your tenant may have already been receiving email notifications about machines coming up for reclamation, we want to clear these out so future notifications are up to date.
-On the QUADS host you'll want to remove these files if they exist, in this case they will be called ```cloud03-jhoffa-*```
+On the QUADS host you'll want to remove these files if they exist, in this case they will be called ```cloud03-jhoffa-$notifyday-$ticketid```
 
-```
-rm /etc/lab/report/cloud03*
-```
 ```
 rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-5-423624'? y
 rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
@@ -403,6 +400,14 @@ We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads
 git clone https://github.com/redhat-performance/quads
 ```
 
+* Setup username/email for git and gerrithub:
+
+```
+git config --global user.email "example@example.com"
+git config --global user.name "example"
+git config --global --add gitreview.username "example"
+```
+
 * Make your changes
 
 ```
@@ -416,13 +421,14 @@ git add bin/quads.py
 git commit
 ```
 
-* Run git review for the first time.
+* Install git-review and run it for first time.
 
 ```
+yum install git-review
 git review -s
 ```
 
-* Now submit your patchset with git review
+* Now submit your patchset with git review (future patches you only need to run ```git review```
 
 ```
 git review
@@ -436,4 +442,4 @@ git commit --amend
 git review
 ```
 
-For each patchset our CI will run QUADS through all of the possible command variations, manipulate data and simulate running against systems and then vote on your change.  In the future this will be improved upon possibly spin up actual systems and interact with network switches. 
+For each patchset our CI will run QUADS through all of the possible command variations, manipulate data and simulate running against systems and then vote on your change.  We will be constantly expanding CI checks in the future to possibly include testing against bare-metal hardware and switches as we improve QUADS.
