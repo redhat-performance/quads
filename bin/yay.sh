@@ -1,3 +1,12 @@
+#!/bin/sh
+# yay lets you parse config values in shells scripts from
+# our global ../conf/quads.yml configuration.  This lets us
+# have one authoritative place for configuration across all
+# tooling within QUADS.  Python has a library for this already
+# so this is only needed for shell and expect.
+# Original credit goes to:
+# https://github.com/HumanNeuroscienceLab/gunther/blob/master/include/yay.sh
+
 yay_parse() {
 
    # find input file
