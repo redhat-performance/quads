@@ -20,7 +20,7 @@ days="1 3 5 7"
 env_list=$($quads --summary | awk '{ print $1 }')
 
 function craft_initial_message() {
-    msg_file=$(mktemp /tmp/msgXXXXXXXXXX)
+    msg_file=$(mktemp /tmp/ImsgXXXXXXXXXX)
     owner=$1
     env_to_report=$2
     ircbot_ipaddr=${quads["ircbot_ipaddr"]}
@@ -28,12 +28,17 @@ function craft_initial_message() {
     ircbot_channel=${quads["ircbot_channel"]}
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
+    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    cc_field=${quads["report_cc"]}
+    if [ "$additional_cc" ]; then
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+    fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
         if ${quads["email_notify"]} ; then
-            cat > $msg_file <<EOF
+            cat > $msg_file <<EOI
 To: $owner@${quads["domain"]}
-Cc: ${quads["report_cc"]}
+Cc: $cc_field
 Subject: New QUADS Assignment Allocated
 From: QUADS <quads@${quads["domain"]}>
 Reply-To: dev-null@${quads["domain"]}
@@ -52,7 +57,7 @@ details above.
 
 DevOps Team
 
-EOF
+EOI
             /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
         fi
         if ${quads["irc_notify"]} ; then
@@ -60,24 +65,31 @@ EOF
             printf "$ircbot_channel QUADS: $cloudinfo is now active, choo choo! - http://${quads["wp_wiki"]}/assignments/#$env_to_report" | nc -w 1 $ircbot_ipaddr $ircbot_port
         fi
     fi
+    cat $msg_file
     rm -f $msg_file
 }
 
 function craft_message() {
-
     msg_file=$(mktemp /tmp/msgXXXXXXXXXX)
 
     owner=$1
     days_to_report=$2
     env_to_report=$3
+    current_list_file=$4
+    future_list_file=$5
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
+    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    cc_field=${quads["report_cc"]}
+    if [ "$additional_cc" ]; then
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+    fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
         if ${quads["email_notify"]} ; then
-            cat > $msg_file <<EOF
+            cat > $msg_file <<EOM
 To: $owner@${quads["domain"]}
-Cc: ${quads["report_cc"]}
+Cc: $cc_field
 Subject: QUADS upcoming expiration notification
 From: QUADS <quads@${quads["domain"]}>
 Reply-To: dev-null@${quads["domain"]}
@@ -90,27 +102,34 @@ $cloudinfo
 (Details)
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
 
-will have some or all of the hosts expire.  Some or all of your
+will have some or all of the hosts expire.  The following
 hosts will automatically be reprovisioned and returned to
 the pool of available hosts.
 
-This does not necessarily mean all your hosts are going away,
-only that some of them may have been re-allocated.  Please
-check the assignments wiki URL above for details.
+EOM
+            comm -23 $current_list_file $future_list_file >> $msg_file
+            cat >> $msg_file <<EOM
 
 Thank you for your attention.
 
 DevOps Team
 
-EOF
+EOM
             /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
         fi
     fi
+    cat $msg_file
     rm -f $msg_file
 }
 
 for e in $env_list ; do
-    craft_initial_message $($quads --cloud-only $e --ls-owner) $e
+    # if "nobody" is the owner you can skip it...
+    if [ "$($quads --ls-owner --cloud-only $e)" == "nobody" ]; then
+        :
+    else
+        craft_initial_message $($quads --cloud-only $e --ls-owner) $e
+    fi
+
     alerted=false
     for d in $days ; do
         # if "nobody" is the owner you can skip it...
@@ -120,12 +139,17 @@ for e in $env_list ; do
             if $alerted ; then
                 :
             else
-                current_count=$($quads --cloud-only $e --date "$(date +%Y-%m-%d) 00:00" | wc -l)
-                upcoming_count=$($quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 00:00" | wc -l)
-                if [ $upcoming_count -lt $current_count ]; then
-                    craft_message $($quads --cloud-only $e --ls-owner) $d $e
+                tmpcurlist=$(mktemp /tmp/curlistfileXXXXXXX)
+                tmpfuturelist=$(mktemp /tmp/futurelistfileXXXXXXX)
+                $quads --cloud-only $e --date "$(date +%Y-%m-%d) 05:00" | sort > $tmpcurlist
+                $quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 05:00" | sort > $tmpfuturelist
+                if cmp -s $tmpcurlist $tmpfuturelist ; then
+                    :
+                else
+                    craft_message $($quads --cloud-only $e --ls-owner) $d $e $tmpcurlist $tmpfuturelist
                     alerted=true
                 fi
+                rm -f $tmpcurlist $tmpfuturelist
             fi
         fi
     done
