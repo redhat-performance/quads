@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ab14d0d_ef6229ad",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2016-12-19T18:43:19Z",
+      "side": 1,
+      "message": "This needs to be uncommented.",
+      "range": {
+        "startLine": 61,
+        "startChar": 18,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "4fa722c5daf83625be859287f2e6260c40af6b54",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
