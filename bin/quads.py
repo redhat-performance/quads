@@ -162,6 +162,19 @@ class Quads(object):
 
         return
 
+    # list the cc users
+    def quads_list_cc(self, cloudonly):
+        # list the cc users
+        if cloudonly is not None:
+            if cloudonly not in self.data['clouds']:
+                return
+            if 'ccusers' not in self.data['clouds'][cloudonly]:
+                return
+            for u in self.data['clouds'][cloudonly]['ccusers']:
+                print u
+
+        return
+
     # list the tickets
     def quads_list_tickets(self, cloudonly):
         # list the service request tickets
@@ -238,7 +251,7 @@ class Quads(object):
         return
 
     # update a cloud resource
-    def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, cloudticket):
+    def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket):
         # define or update a cloud resource
         if description is None:
             print "--description is required when using --define-cloud"
@@ -251,7 +264,11 @@ class Quads(object):
                 cloudowner = "nobody"
             if not cloudticket:
                 cloudticket = "00000"
-            self.data["clouds"][cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ticket": cloudticket}
+            if not ccusers:
+                ccusers = []
+            else:
+                ccusers = ccusers.split()
+            self.data["clouds"][cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket}
             self.quads_write_data()
 
         return
@@ -542,8 +559,10 @@ def main(argv):
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
     parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
     parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
+    parser.add_argument('--ls-cc-users', dest='lsccusers', action='store_true', default=None, help='List CC list')
     parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
+    parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
     parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
     parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
@@ -634,6 +653,10 @@ def main(argv):
         quads.quads_list_owners(args.cloudonly)
         exit(0)
 
+    if args.lsccusers:
+        quads.quads_list_cc(args.cloudonly)
+        exit(0)
+
     if args.lsticket:
         quads.quads_list_tickets(args.cloudonly)
         exit(0)
@@ -659,7 +682,7 @@ def main(argv):
         exit(0)
 
     if args.cloudresource:
-        quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.cloudticket)
+        quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket)
         exit(0)
 
     if (args.addschedule and args.rmschedule) or (args.addschedule and args.modschedule) or (args.rmschedule and args.modschedule):
