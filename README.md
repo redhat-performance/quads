@@ -389,6 +389,21 @@ INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
 
+* You can query all upcoming changes pending and what hosts are involved via the ```bin/quads-change-list.sh``` tool.
+
+```
+bin/quads-change-list.sh
+```
+```
+Next change in 3 days
+2016-12-22 05:00
+INFO: Moving c01-h01-r620.rdu.openstack.example.com from cloud04 to cloud08
+INFO: Moving c01-h02-r620.rdu.openstack.example.com from cloud04 to cloud08
+INFO: Moving c01-h03-r620.rdu.openstack.example.com from cloud04 to cloud08
+INFO: Moving c01-h05-r620.rdu.openstack.example.com from cloud04 to cloud08
+INFO: Moving c01-h06-r620.rdu.openstack.example.com from cloud04 to cloud08
+```
+
 * We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
 
 ## Contributing
