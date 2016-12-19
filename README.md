@@ -24,6 +24,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Common Administration Tasks](#common-administration-tasks)
          * [Extending the <strong>Schedule</strong> of an Existing
            Cloud](#extending-the-schedule-of-an-existing-cloud)
+         * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
+           Active Schedules](#extending-the-schedule-of-an-existing-cloud-with-differing-active-schedules)
          * [Extending Machine Allocation to an existing
            Cloud](#extending-machine-allocation-to-an-existing-cloud)
       * [Additional Tools and Commands](#additional-tools-and-commands)
@@ -317,6 +319,36 @@ On the QUADS host you'll want to remove these files if they exist, in this case 
 ```
 rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-5-423624'? y
 rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
+```
+
+### Extending the __Schedule__ of Existing Cloud with Differing Active Schedules
+
+When in heavy usage some machines primary, active schedule may differ from one another, e.g. 0 versus 1, versus 2, etc.  Because schedules operate on a per-host basis sometimes the same schedule used within a cloud may differ in schedule number.  Here's how you modify them across the board for the current active schedule if the ID differs.
+
+* Example: extend all machines in cloud10 to end on 2016-01-09 05:00 UTC, these have differing primary active schedule IDs.
+
+  - Check your commands via echo first
+
+```
+for h in $(bin/quads.py --cloud-only cloud10) ; do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
+```
+
+Note the difference in commands needed with the ```--mod-schedule``` flag that is required.
+
+```
+bin/quads.py --mod-schedule 0 --host b10-h11-r620.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+Done.
+bin/quads.py --mod-schedule 3 --host c08-h21-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+Done.
+bin/quads.py --mod-schedule 3 --host c08-h22-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+Done.
+bin/quads.py --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+```
+
+  - If all looks good you can apply schedule changes
+
+```
+for h in $(bin/quads.py --cloud-only cloud10) ; do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ;  bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
 ```
 
 ### Extending Machine Allocation to an existing Cloud
