@@ -25,7 +25,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [Extending the <strong>Schedule</strong> of an Existing
            Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
-           Active Schedules](#extending-the-schedule-of-an-existing-cloud-with-differing-active-schedules)
+           Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
          * [Extending Machine Allocation to an existing
            Cloud](#extending-machine-allocation-to-an-existing-cloud)
       * [Additional Tools and Commands](#additional-tools-and-commands)
