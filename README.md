@@ -22,6 +22,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
       * [QUADS Usage Documentation](#quads-usage-documentation)
       * [Common Administration Tasks](#common-administration-tasks)
+         * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
          * [Extending the <strong>Schedule</strong> of an Existing
            Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
@@ -98,7 +99,7 @@ http://wiki.example.com/assignments/#cloud06
 
 ```
    - Lastly we send notifications 7, 5, 3, 1 days out from when assignments expire (or any number of machines are set to be removed during the current assignment schedule).
-
+   - You can use the fields ```--cloud-owner``` and ```--cc-users``` to define who gets notifications.
 ```
 This is a message to alert you that in 7 days
 your allocated environment:
@@ -109,12 +110,13 @@ cloud08 : 29 (JBOSS Data Grid)
 http://wiki.example.com/assignments/#cloud08
 
 will have some or all of the hosts expire.  Some or all of your
-hosts will automatically be reprovisioned and returned to
-the pool of available hosts.
+hosts will automatically be reprovisioned and returned to the
+machine pool.
 
-This does not necessarily mean all your hosts are going away,
-only that some of them may have been re-allocated.  Please
-check the assignments wiki URL above for details.
+b01-h05-r620.example.com
+b01-h06-r620.example.com
+b02-h01-r620.example.com
+
 ```
 
 ## QUADS Usage Documentation
@@ -228,6 +230,45 @@ bin/quads.py --move-hosts --path-to-command /usr/bin/movecommand.sh
 ```
 
 ## Common Administration Tasks
+
+### Creating a New Cloud Assignment and Schedule
+
+Creating a new schedule and assigning machines is currently done through the QUADS CLI.  There are a few options you'll want to utilize.
+
+   - description (this will appear on the assignments dynamic wiki)
+   -  force (needed for re-using an existing cloud)
+   -  cloud-owner (for associating ownership and usage notifications)
+   -  cc-users (Add additional people to notifications)
+   -  cloud-ticket (RT ticket used for the work, also appears in the assignments dynamic wiki)
+
+```
+bin/quads.py --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625
+```
+
+   - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
+     - We're going to find the first 20 Dell r620's and assign them as an example.
+
+```
+bin/quads.py --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
+```
+
+   - Now we'll allocate all of these hosts with a schedule, by default our system times use UTC.
+
+```
+for h in $(cat /tmp/RT423624) ; do bin/quads.py --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
+```
+
+That's it.  At this point your hosts will be queued to provisioned and moved, we check once a minute if there are any pending provisioning tasks.  To check manually:
+
+```
+for h in $(./quads.py  --cloud-only cloud03) ; do echo -n ==== $h   :" " ; cat /etc/lab/state/$h ; done
+```
+
+After your hosts are provisioned and moved you should see them populate under the cloud list.
+
+```
+bin/quads.py --cloud-only cloud03
+```
 
 ### Extending the __Schedule__ of an Existing Cloud
 
@@ -434,6 +475,41 @@ INFO: Moving c01-h02-r620.rdu.openstack.example.com from cloud04 to cloud08
 INFO: Moving c01-h03-r620.rdu.openstack.example.com from cloud04 to cloud08
 INFO: Moving c01-h05-r620.rdu.openstack.example.com from cloud04 to cloud08
 INFO: Moving c01-h06-r620.rdu.openstack.example.com from cloud04 to cloud08
+```
+
+* When managing notification recipients you can use the ```--ls-cc-users``` and ```--cc-users``` arguments.
+
+```
+bin/quads.py --ls-cc-users --cloud-only cloud04
+```
+```
+epresley
+```
+   - To add or remove recipients they need to be added or removed with space separation and you'll need to redefine the cloud definition.
+   - Get a list of all the atributes and redefine
+
+```
+bin/quads.py --full-summary | grep cloud04 ; bin/quads.py --ls-owner | grep cloud04 ; bin/quads.py --ls-ticket | grep cloud04 ; bin/quads.py --ls-cc-users --cloud-only cloud04
+```
+```
+cloud04 : 52 (Ceph deployment)
+cloud04 : jhoffa
+cloud04 : 423424
+epresley
+```
+   - Redefine
+
+```
+bin/quads.py --define-cloud cloud04 --description "Ceph Deployment" --force --cloud-owner jhoffa --cc-users "epresley rnixon" --cloud-ticket 423424
+```
+   - Now you can see the updated cc notifications
+
+```
+bin/quads.py --ls-cc-users --cloud-only cloud04
+```
+```
+epresley
+rnixon
 ```
 
 * We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
