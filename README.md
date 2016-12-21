@@ -85,7 +85,10 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 ```
 <lucius> QUADS: cloud02 : 9 (OSP Newton Testing) is now active, choo choo! - http://wiki.example.com/assignments/#cloud02
 ```
-   - We also send email notifications when new environments are provisioned.
+   - We send email notifications when new environments is defined.
+   - We also send email notifications 7 days prior to activation with the host list for the environment.
+   - We further send email notifications when new environments are provisioned.
+   - Finally we send notifications, 7, 5, 3 and 1 day(s) prior to reclaiming allocated hosts.
 
 ```
 Greetings Citizen,
