@@ -141,6 +141,23 @@
       "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_26466a4f",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T18:07:25Z",
+      "side": 1,
+      "message": "Here we want to add something like:\n\nYou can also view and manage your hosts in Foreman here:\n\nhttps://$FOREMANURL\nusername: $cloud\npassword: $RT_TICKET",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
