@@ -50,6 +50,97 @@
       "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_66122259",
+        "filename": "ansible/racadm-setup-boot-r730xd-director.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:58:46Z",
+      "side": 1,
+      "message": "whitespace nit.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_461b9e73",
+        "filename": "ansible/racadm-setup-boot-r730xd-foreman.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:58:46Z",
+      "side": 1,
+      "message": "whitespace.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_2618aa74",
+        "filename": "ansible/racadm-setup-boot-r930-director.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:58:46Z",
+      "side": 1,
+      "message": "whitespace.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_06280685",
+        "filename": "ansible/racadm-setup-boot-r930-foreman.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:58:46Z",
+      "side": 1,
+      "message": "whitespace.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_c61d6e63",
+        "filename": "bin/move-and-rebuild-host.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:58:46Z",
+      "side": 1,
+      "message": "we may want to variablize this in the future for like \"default_os\"",
+      "range": {
+        "startLine": 253,
+        "startChar": 71,
+        "endLine": 253,
+        "endChar": 77
+      },
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
