@@ -83,7 +83,7 @@ function craft_future_initial_message() {
     ircbot_ipaddr=${quads["ircbot_ipaddr"]}
     ircbot_port=${quads["ircbot_port"]}
     ircbot_channel=${quads["ircbot_channel"]}
-    cloudinfo="$($quads --summary | grep $env_to_report)"
+    cloudinfo="$($quads --full-summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-pre-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}
@@ -200,7 +200,7 @@ function craft_future_message() {
     env_to_report=$3
     current_list_file=$4
     future_list_file=$5
-    cloudinfo="$($quads --summary | grep $env_to_report)"
+    cloudinfo="$($quads --full-summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-pre-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}

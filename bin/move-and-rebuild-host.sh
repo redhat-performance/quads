@@ -62,16 +62,22 @@ fi
 
 expect_script=$bindir/juniper-set-port.exp
 
-declare -A cloud01=( ["em2"]="1101" ["em3"]="1102" ["em4"]="1103")
-declare -A cloud02=( ["em2"]="1111" ["em3"]="1112" ["em4"]="1113")
-declare -A cloud03=( ["em2"]="1121" ["em3"]="1122" ["em4"]="1123")
-declare -A cloud04=( ["em2"]="1131" ["em3"]="1132" ["em4"]="1133")
-declare -A cloud05=( ["em2"]="1141" ["em3"]="1142" ["em4"]="1143")
-declare -A cloud06=( ["em2"]="1151" ["em3"]="1152" ["em4"]="1153")
-declare -A cloud07=( ["em2"]="1161" ["em3"]="1162" ["em4"]="1163")
-declare -A cloud08=( ["em2"]="1171" ["em3"]="1172" ["em4"]="1173")
-declare -A cloud09=( ["em2"]="1181" ["em3"]="1182" ["em4"]="1183")
-declare -A cloud10=( ["em2"]="1191" ["em3"]="1192" ["em4"]="1193")
+declare -A cloud01=( ["em1"]="1100" ["em2"]="1101" ["em3"]="1102" ["em4"]="1103")
+declare -A cloud02=( ["em1"]="1110" ["em2"]="1111" ["em3"]="1112" ["em4"]="1113")
+declare -A cloud03=( ["em1"]="1120" ["em2"]="1121" ["em3"]="1122" ["em4"]="1123")
+declare -A cloud04=( ["em1"]="1130" ["em2"]="1131" ["em3"]="1132" ["em4"]="1133")
+declare -A cloud05=( ["em1"]="1140" ["em2"]="1141" ["em3"]="1142" ["em4"]="1143")
+declare -A cloud06=( ["em1"]="1150" ["em2"]="1151" ["em3"]="1152" ["em4"]="1153")
+declare -A cloud07=( ["em1"]="1160" ["em2"]="1161" ["em3"]="1162" ["em4"]="1163")
+declare -A cloud08=( ["em1"]="1170" ["em2"]="1171" ["em3"]="1172" ["em4"]="1173")
+declare -A cloud09=( ["em1"]="1180" ["em2"]="1181" ["em3"]="1182" ["em4"]="1183")
+declare -A cloud10=( ["em1"]="1190" ["em2"]="1191" ["em3"]="1192" ["em4"]="1193")
+declare -A cloud11=( ["em1"]="1200" ["em2"]="1201" ["em3"]="1202" ["em4"]="1203")
+declare -A cloud12=( ["em1"]="1210" ["em2"]="1211" ["em3"]="1212" ["em4"]="1213")
+declare -A cloud13=( ["em1"]="1220" ["em2"]="1221" ["em3"]="1222" ["em4"]="1223")
+declare -A cloud14=( ["em1"]="1230" ["em2"]="1231" ["em3"]="1232" ["em4"]="1233")
+declare -A cloud15=( ["em1"]="1240" ["em2"]="1241" ["em3"]="1242" ["em4"]="1243")
+declare -A cloud16=( ["em1"]="1250" ["em2"]="1251" ["em3"]="1252" ["em4"]="1253")
 
 configdir=$data_dir/ports
 
@@ -123,6 +129,24 @@ for line in $(cat $configdir/$host_to_move); do
     cloud10)
         old_vlan=${cloud10[$interface]}
         ;;
+    cloud11)
+        old_vlan=${cloud11[$interface]}
+        ;;
+    cloud12)
+        old_vlan=${cloud12[$interface]}
+        ;;
+    cloud13)
+        old_vlan=${cloud13[$interface]}
+        ;;
+    cloud14)
+        old_vlan=${cloud14[$interface]}
+        ;;
+    cloud15)
+        old_vlan=${cloud15[$interface]}
+        ;;
+    cloud16)
+        old_vlan=${cloud16[$interface]}
+        ;;
     *)
         echo unknown cloud $old_cloud
         exit 1
@@ -160,6 +184,24 @@ for line in $(cat $configdir/$host_to_move); do
     cloud10)
         new_vlan=${cloud10[$interface]}
         ;;
+    cloud11)
+        new_vlan=${cloud11[$interface]}
+        ;;
+    cloud12)
+        new_vlan=${cloud12[$interface]}
+        ;;
+    cloud13)
+        new_vlan=${cloud13[$interface]}
+        ;;
+    cloud14)
+        new_vlan=${cloud14[$interface]}
+        ;;
+    cloud15)
+        new_vlan=${cloud15[$interface]}
+        ;;
+    cloud16)
+        new_vlan=${cloud16[$interface]}
+        ;;
     *)
         echo unknown cloud $new_cloud
         exit 1
@@ -177,11 +219,42 @@ done
 # update the instackenv.json files
 $bindir/make-instackenv-json.sh
 
+# create/modify foreman views here
+# approach:
+#
+# (on run)
+# 1)   strip the Foreman cloudXX user of all prior roles
+# 2)   reset the foreman cloudXX user password to the --cloud-ticket of the cloud
+# 3)   apply the matching roles to correspond to the views that belong to cloudXX
+# (on interval)
+# 4)   watch the user-to-role mappings on a schedule to ensure they match in case there was a change during the lifetime of the schedule (hosts added or removed).
+
+#### BEGIN FOREMAN VIEWS
+hammer user remove-role --login $old_cloud --role $host_to_move
+hammer user add-role --login $new_cloud --role $host_to_move
+
+foreman_user_password=$($quads --ls-ticket --cloud-only $new_cloud)
+if [ -z "$foreman_user_password" ]; then
+    foreman_user_password=$ipmi_password
+fi
+
+hammer user update --login $new_cloud --password $foreman_user_password
+
+#### END FOREMAN VIEWS
+
 if $rebuild ; then
+
+  # also first ensure PXE enabled on the host .... for foreman
+  $bindir/pxe-foreman-config.sh $host_to_move
+
+  # also determine whether or not to leverage post snipper for PXE disablement
+  $bindir/pxe-director-config.sh $host_to_move
+
   hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7"
   ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
   sleep 30
   ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power on
+
 fi
 
 # DONT update the wiki here.  This is costly and slows down the
