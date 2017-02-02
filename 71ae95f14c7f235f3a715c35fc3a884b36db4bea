@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_06012605",
+        "filename": "ansible/racadm-setup-boot-r620-director.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:56:32Z",
+      "side": 1,
+      "message": "whitespace nit.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_e6051211",
+        "filename": "ansible/racadm-setup-boot-r620-foreman.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:56:32Z",
+      "side": 1,
+      "message": "whitespace.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_c6068e1b",
+        "filename": "ansible/racadm-setup-boot-r630-director.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T17:56:32Z",
+      "side": 1,
+      "message": "whitespace nit.",
+      "revId": "71ae95f14c7f235f3a715c35fc3a884b36db4bea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
