@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_c6f0ceff",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-02T18:23:06Z",
+      "side": 1,
+      "message": "let\u0027s add /hosts here.",
+      "range": {
+        "startLine": 62,
+        "startChar": 20,
+        "endLine": 62,
+        "endChar": 21
+      },
+      "revId": "f028f1d37d3184df2abdca2458877df3f410e306",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
