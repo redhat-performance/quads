@@ -39,6 +39,9 @@ rt_url: https://engineering.example.com/rt/Ticket/Display.html
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
 
+# foreman URL
+foreman_url: http://foreman.example.com/hosts/
+
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
 # want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'
