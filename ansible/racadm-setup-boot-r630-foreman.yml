@@ -1,0 +1,215 @@
+---
+- gather_facts: False
+  name: check for racadm
+  vars:
+    untouchables: mgmt-foreman.example.com
+  hosts: all:!{{untouchables}}
+  tasks:
+
+# reset the drac
+    - name: racadm racreset
+      raw: racadm racreset hard -f
+      args:
+        executable: ''
+      register: result_racreset
+    - debug: var=result_racreset
+
+# pause
+    - name: pause for reset
+      pause:
+          minutes: 3
+
+# Delete the jobqueue so we can search it reliably later
+    - name: racadm jobqueue delete
+      raw: racadm jobqueue delete --all
+      args:
+        executable: ''
+      register: result_jobqueue
+    - debug: var=result_jobqueue
+
+# use the hammer
+    - name: racadm JID_CLEARALL_FORCE
+      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
+      args:
+        executable: ''
+      register: result_clearall_force
+    - debug: var=result_clearall_force
+
+# pause
+    - name: pause for reset
+      pause:
+          minutes: 1
+
+# ensure 1st interface cant PXE
+    - name: racadm setup NIC1
+      raw: racadm set NIC.NICConfig.1.LegacyBootProto NONE
+      args:
+        executable: ''
+      register: result_nicconfig
+    - debug: var=result_nicconfig
+
+# Commit the changes to the 1st NIC
+    - name: racadm NIC reconfig
+      raw: racadm jobqueue create NIC.Integrated.1-1-1 -r pwrcycle -s TIME_NOW
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# Now wait for the jobqueue to finish
+    - name: racadm check complete
+      raw: racadm jobqueue view
+      args:
+        executable: ''
+      register: result_check_complete
+      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
+      retries: 25
+      delay: 10
+    - debug: var=result_check_complete
+
+# Delete the jobqueue so we can search it reliably later
+    - name: racadm jobqueue delete
+      raw: racadm jobqueue delete --all
+      args:
+        executable: ''
+      register: result_jobqueue
+    - debug: var=result_jobqueue
+ 
+# use the hammer
+    - name: racadm JID_CLEARALL_FORCE
+      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
+      args:
+        executable: ''
+      register: result_clearall_force
+    - debug: var=result_clearall_force
+
+# pause
+    - name: pause for reset
+      pause:
+          minutes: 1
+
+# ensure 2nd interface cant PXE
+    - name: racadm setup NIC2
+      raw: racadm set NIC.NICConfig.2.LegacyBootProto NONE
+      args:
+        executable: ''
+      register: result_nicconfig
+    - debug: var=result_nicconfig
+
+# Commit the changes to the 2nd NIC
+    - name: racadm NIC reconfig
+      raw: racadm jobqueue create NIC.Integrated.1-2-1 -r pwrcycle -s TIME_NOW
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# Now wait for the jobqueue to finish
+    - name: racadm check complete
+      raw: racadm jobqueue view
+      args:
+        executable: ''
+      register: result_check_complete
+      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
+      retries: 25
+      delay: 10
+    - debug: var=result_check_complete
+
+# Delete the jobqueue so we can search it reliably later
+    - name: racadm jobqueue delete
+      raw: racadm jobqueue delete --all
+      args:
+        executable: ''
+      register: result_jobqueue
+    - debug: var=result_jobqueue
+
+# use the hammer
+    - name: racadm JID_CLEARALL_FORCE
+      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
+      args:
+        executable: ''
+      register: result_clearall_force
+    - debug: var=result_clearall_force
+
+# pause
+    - name: pause for reset
+      pause:
+          minutes: 1
+
+# ensure 3nd interface can PXE
+    - name: racadm setup NIC3
+      raw: racadm set NIC.NICConfig.5.LegacyBootProto PXE
+      args:
+        executable: ''
+      register: result_nicconfig
+    - debug: var=result_nicconfig
+
+# Commit the changes to the 3rd NIC
+    - name: racadm NIC reconfig
+      raw: racadm jobqueue create NIC.Slot.2-1-1 -r pwrcycle -s TIME_NOW
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# Now wait for the jobqueue to finish
+    - name: racadm check complete
+      raw: racadm jobqueue view
+      args:
+        executable: ''
+      register: result_check_complete
+      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
+      retries: 25
+      delay: 10
+    - debug: var=result_check_complete
+
+# Delete the jobqueue so we can search it reliably later
+    - name: racadm jobqueue delete
+      raw: racadm jobqueue delete --all
+      args:
+        executable: ''
+      register: result_jobqueue
+    - debug: var=result_jobqueue
+
+# use the hammer
+    - name: racadm JID_CLEARALL_FORCE
+      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
+      args:
+        executable: ''
+      register: result_clearall_force
+    - debug: var=result_clearall_force
+
+# pause
+    - name: pause for reset
+      pause:
+          minutes: 1
+
+# setup the new boot order to ensure 1st nic is before disk
+    - name: racadm setup boot
+      raw: racadm set BIOS.BiosBootSettings.BootSeq NIC.Slot.2-1-1,HardDisk.List.1-1
+      args:
+        executable: ''
+      register: result_boot_setup
+    - debug: var=result_boot_setup
+
+# Commit the changes to the bios
+    - name: racadm bios reconfigure powercycle
+      raw: racadm jobqueue create BIOS.Setup.1-1 -r pwrcycle -s TIME_NOW
+      ignore_errors: yes
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# Now wait for the jobqueue to finish
+    - name: racadm check complete
+      raw: racadm jobqueue view
+      ignore_errors: yes
+      args:
+        executable: ''
+      register: result_check_complete
+      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
+      retries: 25
+      delay: 10
+    - debug: var=result_check_complete
+
