@@ -241,14 +241,26 @@ fi
 hammer user update --login $new_cloud --password $foreman_user_password
 
 #### END FOREMAN VIEWS
+#### BEGIN FOREMAN REBUILD
 
 if $rebuild ; then
 
-  # also first ensure PXE enabled on the host .... for foreman
+  # first ensure PXE enabled on the host .... for foreman
   $bindir/pxe-foreman-config.sh $host_to_move
 
   # also determine whether or not to leverage post snipper for PXE disablement
   $bindir/pxe-director-config.sh $host_to_move
+
+  # either puppet facts or Foreman sometimes collect additional interface info
+  # this is needed sometimes as a workaround: clean all non-primary interfaces previously collected
+  skip_id=$(hammer host info --name $host_to_move | grep -B 3 "nterface .primary, provision" | grep Id: | awk '{ print $NF }')
+  TMPIFFILE=$(mktemp /tmp/IFXXXXXXX)
+  hammer host info --name $host_to_move > $TMPIFFILE
+
+  # remove extraneous interfaces collected prior to previous host usage
+  for interface in $(grep Id $TMPIFFILE  | grep ')' | grep -v $skip_id | awk '{ print $NF }') ; do
+      hammer host interface delete --host $host_to_move --id $interface
+  done
 
   hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7"
   ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
@@ -265,4 +277,3 @@ fi
 # $bindir/regenerate-wiki.sh 1>/dev/null 2>&1
 
 exit 0
-
