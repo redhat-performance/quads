@@ -56,6 +56,15 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
+# power cycle the host
+    - name: racadm serveraction powercycle
+      raw: racadm serveraction powercycle
+      ignore_errors: yes
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
 # Now wait for the jobqueue to finish
     - name: racadm check complete
       raw: racadm jobqueue view
@@ -99,6 +108,15 @@
 # Commit the changes to the 2nd NIC
     - name: racadm NIC reconfig
       raw: racadm jobqueue create NIC.Integrated.1-2-1 -r pwrcycle -s TIME_NOW
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# power cycle the host
+    - name: racadm serveraction powercycle
+      raw: racadm serveraction powercycle
+      ignore_errors: yes
       args:
         executable: ''
       register: result_pwrcycle
@@ -152,6 +170,15 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
+# power cycle the host
+    - name: racadm serveraction powercycle
+      raw: racadm serveraction powercycle
+      ignore_errors: yes
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
 # Now wait for the jobqueue to finish
     - name: racadm check complete
       raw: racadm jobqueue view
@@ -195,6 +222,15 @@
 # Commit the changes to the bios
     - name: racadm bios reconfigure powercycle
       raw: racadm jobqueue create BIOS.Setup.1-1 -r pwrcycle -s TIME_NOW
+      ignore_errors: yes
+      args:
+        executable: ''
+      register: result_pwrcycle
+    - debug: var=result_pwrcycle
+
+# power cycle the host
+    - name: racadm serveraction powercycle
+      raw: racadm serveraction powercycle
       ignore_errors: yes
       args:
         executable: ''
