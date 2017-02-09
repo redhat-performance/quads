@@ -29,6 +29,8 @@ function reconfigure() {
         return
     fi
 
+    echo ==== $target
+    echo == checking for $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
     if [ -f $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml ] ; then
         playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
     else
@@ -43,7 +45,7 @@ function reconfigure() {
         if [ -d /proc/$(cat $PIDFILE) ]; then
             echo Another instance already running. Try again later.
             rm -f $host_inventory
-            exit 1
+            return
         fi
     fi
 
@@ -66,7 +68,11 @@ if [ ! -d $data_dir/ansible ]; then
     mkdir $data_dir/ansible
 fi
 
+echo QUADS == $quads
+$quads --ls-hosts
+echo ""
 for h in $($quads --ls-hosts) ; do
+    echo === MAIN : $h
     if [ -f $data_dir/boot/$h ]; then
         reconfigure $h
     fi
