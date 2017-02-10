@@ -258,7 +258,7 @@ if $rebuild ; then
   hammer host info --name $host_to_move > $TMPIFFILE
 
   # remove extraneous interfaces collected prior to previous host usage
-  for interface in $(grep Id $TMPIFFILE  | grep '\)' | grep -v $skip_id | awk '{ print $NF }') ; do
+  for interface in $(grep Id $TMPIFFILE  | grep ')' | grep -v $skip_id | awk '{ print $NF }') ; do
       hammer host interface delete --host $host_to_move --id $interface
   done
   rm -f $TMPIFFILE
