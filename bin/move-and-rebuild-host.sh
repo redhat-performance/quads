@@ -93,114 +93,135 @@ for redalert in $untouchable_hosts ; do
     fi
 done
 
+qinq=$($quads --cloud-only $new_cloud --ls-qinq)
+
+if [ -z "$qinq" ]; then
+    qinq=0
+fi
+
 for line in $(cat $configdir/$host_to_move); do
     interface=$(echo $line | awk -F, '{ print $1 }')
     switchip=$(echo $line | awk -F, '{ print $3 }')
     switchtype=$(echo $line | awk -F, '{ print $4 }')
     switchport=$(echo $line | awk -F, '{ print $5 }')
-    case $old_cloud in
-    cloud01)
-        old_vlan=${cloud01[$interface]}
-        ;;
-    cloud02)
-        old_vlan=${cloud02[$interface]}
-        ;;
-    cloud03)
-        old_vlan=${cloud03[$interface]}
-        ;;
-    cloud04)
-        old_vlan=${cloud04[$interface]}
-        ;;
-    cloud05)
-        old_vlan=${cloud05[$interface]}
-        ;;
-    cloud06)
-        old_vlan=${cloud06[$interface]}
-        ;;
-    cloud07)
-        old_vlan=${cloud07[$interface]}
-        ;;
-    cloud08)
-        old_vlan=${cloud08[$interface]}
-        ;;
-    cloud09)
-        old_vlan=${cloud09[$interface]}
-        ;;
-    cloud10)
-        old_vlan=${cloud10[$interface]}
-        ;;
-    cloud11)
-        old_vlan=${cloud11[$interface]}
-        ;;
-    cloud12)
-        old_vlan=${cloud12[$interface]}
-        ;;
-    cloud13)
-        old_vlan=${cloud13[$interface]}
-        ;;
-    cloud14)
-        old_vlan=${cloud14[$interface]}
-        ;;
-    cloud15)
-        old_vlan=${cloud15[$interface]}
-        ;;
-    cloud16)
-        old_vlan=${cloud16[$interface]}
-        ;;
-    *)
-        echo unknown cloud $old_cloud
+    old_vlan=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show vlans interface ${switchport}.0 2>/dev/null| egrep ^VLAN | sed 's/VLAN Name: vlan\(.*\), Index.*/\1/g')
+    if [ -z "$old_vlan" ]; then
+        echo "Could not determine the previous VLAN for $host_to_move"
         exit 1
-    esac
-
+    fi
 
     case $new_cloud in
     cloud01)
-        new_vlan=${cloud01[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud01["em1"]}
+        else
+            new_vlan=${cloud01[$interface]}
+        fi
         ;;
     cloud02)
-        new_vlan=${cloud02[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud02["em1"]}
+        else
+            new_vlan=${cloud02[$interface]}
+        fi
         ;;
     cloud03)
-        new_vlan=${cloud03[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud03["em1"]}
+        else
+            new_vlan=${cloud03[$interface]}
+        fi
         ;;
     cloud04)
-        new_vlan=${cloud04[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud04["em1"]}
+        else
+            new_vlan=${cloud04[$interface]}
+        fi
         ;;
     cloud05)
-        new_vlan=${cloud05[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud05["em1"]}
+        else
+            new_vlan=${cloud05[$interface]}
+        fi
         ;;
     cloud06)
-        new_vlan=${cloud06[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud06["em1"]}
+        else
+            new_vlan=${cloud06[$interface]}
+        fi
         ;;
     cloud07)
-        new_vlan=${cloud07[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud07["em1"]}
+        else
+            new_vlan=${cloud07[$interface]}
+        fi
         ;;
     cloud08)
-        new_vlan=${cloud08[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud08["em1"]}
+        else
+            new_vlan=${cloud08[$interface]}
+        fi
         ;;
     cloud09)
-        new_vlan=${cloud09[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud09["em1"]}
+        else
+            new_vlan=${cloud09[$interface]}
+        fi
         ;;
     cloud10)
-        new_vlan=${cloud10[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud10["em1"]}
+        else
+            new_vlan=${cloud10[$interface]}
+        fi
         ;;
     cloud11)
-        new_vlan=${cloud11[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud11["em1"]}
+        else
+            new_vlan=${cloud11[$interface]}
+        fi
         ;;
     cloud12)
-        new_vlan=${cloud12[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud12["em1"]}
+        else
+            new_vlan=${cloud12[$interface]}
+        fi
         ;;
     cloud13)
-        new_vlan=${cloud13[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud13["em1"]}
+        else
+            new_vlan=${cloud13[$interface]}
+        fi
         ;;
     cloud14)
-        new_vlan=${cloud14[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud14["em1"]}
+        else
+            new_vlan=${cloud14[$interface]}
+        fi
         ;;
     cloud15)
-        new_vlan=${cloud15[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud15["em1"]}
+        else
+            new_vlan=${cloud15[$interface]}
+        fi
         ;;
     cloud16)
-        new_vlan=${cloud16[$interface]}
+        if [ "$qinq" = "1" ]; then
+            new_vlan=${cloud16["em1"]}
+        else
+            new_vlan=${cloud16[$interface]}
+        fi
         ;;
     *)
         echo unknown cloud $new_cloud

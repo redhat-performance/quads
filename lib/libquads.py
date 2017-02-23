@@ -256,6 +256,23 @@ class Quads(object):
 
         return
 
+    # list qinq status
+    def quads_list_qinq(self, cloudonly):
+        # list the environment qinq state
+        if cloudonly is not None:
+            if cloudonly not in self.quads.clouds.data:
+                return
+            if 'qinq' not in self.quads.clouds.data[cloudonly]:
+                return
+            print self.quads.clouds.data[cloudonly]['qinq']
+            return
+
+        for c in sorted(self.quads.clouds.data.iterkeys()):
+            if 'qinq' in self.quads.clouds.data[c]:
+                print c + " : " + self.quads.clouds.data[c]['qinq']
+
+        return
+
     # remove a host
     def quads_remove_host(self, rmhost):
         # remove a specific host
@@ -315,7 +332,7 @@ class Quads(object):
         return
 
     # update a cloud resource
-    def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket):
+    def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket, qinq):
         # define or update a cloud resource
         if description is None:
             print "--description is required when using --define-cloud"
@@ -328,11 +345,13 @@ class Quads(object):
                 cloudowner = "nobody"
             if not cloudticket:
                 cloudticket = "00000"
+            if not qinq:
+                qinq = "0"
             if not ccusers:
                 ccusers = []
             else:
                 ccusers = ccusers.split()
-            self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket}
+            self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket, "qinq": qinq}
             self.quads_write_data()
 
         return
