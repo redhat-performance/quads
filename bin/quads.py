@@ -57,8 +57,10 @@ def main(argv):
     parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
     parser.add_argument('--ls-cc-users', dest='lsccusers', action='store_true', default=None, help='List CC list')
     parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
+    parser.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
+    parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
     parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
     parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
@@ -157,6 +159,10 @@ def main(argv):
         quads.quads_list_tickets(args.cloudonly)
         exit(0)
 
+    if args.lsqinq:
+        quads.quads_list_qinq(args.cloudonly)
+        exit(0)
+
     if args.rmhost and args.rmcloud:
         print "--rm-host and --rm-cloud are mutually exclusive"
         exit(1)
@@ -178,7 +184,7 @@ def main(argv):
         exit(0)
 
     if args.cloudresource:
-        quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket)
+        quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
     if (args.addschedule and args.rmschedule) or (args.addschedule and args.modschedule) or (args.rmschedule and args.modschedule):
