@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_81c6d947",
+        "filename": "bin/quads-verify-switchconf.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-23T17:42:17Z",
+      "side": 1,
+      "message": "extraneous space.",
+      "revId": "af84c50b2a195b2c32947684c6aa04ab3187d465",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
