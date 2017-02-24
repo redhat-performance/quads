@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_0b7d42e7",
+        "filename": "bin/test-quads-local.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-24T19:30:19Z",
+      "side": 1,
+      "message": "small drifting whitespace here.",
+      "revId": "fde65c6aa90ed87977782261f63d48b5d4f904c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fabf19d9_eb81eec4",
+        "filename": "bin/test-quads-local.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-02-24T19:30:19Z",
+      "side": 1,
+      "message": "You\u0027ll want to rebase this against the current test-quads.sh as we\u0027ve since added to that to include the --qinq vlan argparse options.",
+      "revId": "fde65c6aa90ed87977782261f63d48b5d4f904c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
