@@ -242,9 +242,12 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  cloud-owner (for associating ownership and usage notifications)
    -  cc-users (Add additional people to notifications)
    -  cloud-ticket (RT ticket used for the work, also appears in the assignments dynamic wiki)
+   -  VLAN design (optional, will default to 0 below)
+     - ```qinq: 0``` (default) all interfaces *besides primary* in same qinq VLAN
+     - ```qinq: 1``` all interfaces in same qinq VLAN
 
 ```
-bin/quads.py --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625
+bin/quads.py --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 0
 ```
 
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
@@ -371,6 +374,7 @@ When in heavy usage some machines primary, active schedule may differ from one a
 * Example: extend all machines in cloud10 to end on 2016-01-09 05:00 UTC, these have differing primary active schedule IDs.
 
   - Check your commands via echo first
+  - **Approach: 1** Modify the latest assignment
 
 ```
 for h in $(bin/quads.py --cloud-only cloud10) ; do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
@@ -388,11 +392,19 @@ Done.
 bin/quads.py --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 ```
 
-  - If all looks good you can apply schedule changes
+  - **Approach: 2** Reschedule aginst a certain existing cloud:
 
 ```
-for h in $(bin/quads.py --cloud-only cloud10) ; do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ;  bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
+for h in $(cat /tmp/CLOUD05TMP); do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep cloud05 | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-27 05:00" ; echo Done. ; done
 ```
+
+  - **Approach: 3** Reschedule against a certain cloud **and** start date **(RECOMMENDED)**
+
+```
+for h in $(bin/quads.py --cloud-only cloud05); do echo bin/quads.py --mod-schedule $(bin/quads.py --ls-schedule --host $h | grep cloud05 | grep start=2017-02-09 | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-06 05:00" ; echo Done. ; done
+```
+
+  * If all looks good you can remove **remove the echo lines** and apply.
 
 ### Extending Machine Allocation to an existing Cloud
 
