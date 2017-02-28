@@ -243,8 +243,8 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  cc-users (Add additional people to notifications)
    -  cloud-ticket (RT ticket used for the work, also appears in the assignments dynamic wiki)
    -  VLAN design (optional, will default to 0 below)
-     - ```qinq: 0``` (default) qinq VLAN separation by interface, corresponding primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other corresponding hosts in the same cloud allocation.
-     - ```qinq: 1``` all QUADS-managed interfaces in same qinq VLAN
+     - ```qinq: 0``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
+     - ```qinq: 1``` all QUADS-managed interfaces in the same qinq VLAN
 
 ```
 bin/quads.py --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 0
@@ -263,7 +263,7 @@ bin/quads.py --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
 for h in $(cat /tmp/RT423624) ; do bin/quads.py --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
 ```
 
-That's it.  At this point your hosts will be queued to provisioned and moved, we check once a minute if there are any pending provisioning tasks.  To check manually:
+That's it.  At this point your hosts will be queued for provision and move operations, we check once a minute if there are any pending provisioning tasks.  To check manually:
 
 ```
 for h in $(./quads.py  --cloud-only cloud03) ; do echo -n ==== $h   :" " ; cat /etc/lab/state/$h ; done
@@ -443,6 +443,20 @@ bin/quads.py --host c03-h17-r620.rdu.openstack.example.com --add-schedule --sche
 * Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
 
 ## Additional Tools and Commands
+
+* You can display the allocation schedule on any given date via the ```--date``` flag.
+
+```
+bin/quads.py --date "2017-03-06"
+```
+```
+cloud01:
+  - b09-h01-r620.rdu.openstack.engineering.example.com
+  - b09-h02-r620.rdu.openstack.engineering.example.com
+  - b09-h03-r620.rdu.openstack.engineering.example.com
+  - b09-h05-r620.rdu.openstack.engineering.example.com
+  - b09-h06-r620.rdu.openstack.engineering.example.com
+```
 
 * You can use find-available.py to search for free machines for a timerange for allocation.
   - Use the optional ```-l``` option to filter results
