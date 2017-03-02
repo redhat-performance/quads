@@ -16,7 +16,7 @@ quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_cloud_username"]}
-ipmi_password=${quads["ipmi_cloud_password"]}
+ipmi_password=${quads["ipmi_password"]}
 json_web_path=${quads["json_web_path"]}
 
 SCHEDULER=$quads
@@ -36,6 +36,10 @@ rm -f json_web_path/*.json
 
 for cloud in $CLOUD_LIST ; do
     echo "macaddress,ipmi url,ipmi user, ipmi password, ipmi tool" > $TMPCSVFILE
+    foreman_user_password=$($quads --ls-ticket --cloud-only $cloud)
+    if [ -z "$foreman_user_password" ]; then
+        foreman_user_password=$ipmi_password
+    fi
 
     # if $data_dir/overcloud/$cloud exists it should contain a subset for hosts to
     # use in the instackenv.json
@@ -72,11 +76,9 @@ for cloud in $CLOUD_LIST ; do
         fi
         mac=$(egrep ^em2 $configdir/$h | awk -F, '{ print $2 }')
         ipmi_url=mgmt-$h
-        ipmi_user=$ipmi_username
-        ipmi_password=$ipmi_password
         ipmi_tool=pxe_ipmitool
         if [ "$h" != "$undercloud" ]; then
-            echo $mac,$ipmi_url,$ipmi_user,$ipmi_password,$ipmi_tool >> $TMPCSVFILE
+            echo $mac,$ipmi_url,$ipmi_username,$foreman_user_password,$ipmi_tool >> $TMPCSVFILE
         fi
     done
     python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $json_web_path/${cloud}_${undercloud}_instackenv.json
