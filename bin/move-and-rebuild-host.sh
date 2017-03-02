@@ -275,7 +275,7 @@ if $rebuild ; then
   $bindir/pxe-foreman-config.sh $host_to_move
 
   # also determine whether or not to leverage post snipper for PXE disablement
-  $bindir/pxe-director-config.sh $host_to_move
+  $bindir/pxe-director-config.sh $host_to_move $new_cloud
 
   # either puppet facts or Foreman sometimes collect additional interface info
   # this is needed sometimes as a workaround: clean all non-primary interfaces previously collected
