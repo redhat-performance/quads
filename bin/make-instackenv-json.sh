@@ -18,10 +18,13 @@ data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_cloud_username"]}
 ipmi_password=${quads["ipmi_password"]}
 json_web_path=${quads["json_web_path"]}
+foreman_parameter=${quads["foreman_director_parameter"]}
+domain=${quads["domain"]}
 
 SCHEDULER=$quads
 JSON_MAKER=$bindir/csv-to-instack.py
 TMPCSVFILE=$(mktemp /tmp/csvfileXXXXXX)
+TMPJSONFILE=$(mktemp /tmp/jsonXXXXXXX)
 
 configdir=$data_dir/ports
 
@@ -32,7 +35,9 @@ CLOUD_LIST=$($SCHEDULER --ls-clouds)
 
 rm -f json_web_path/*.json
 
-# first host should be the undercloud
+# undercloud just means the hosts that are ignored from the instackenv.
+# This is the list of hosts that have nullos=false.  The default is
+# the first host in an environment when it is first created.
 
 for cloud in $CLOUD_LIST ; do
     echo "macaddress,ipmi url,ipmi user, ipmi password, ipmi tool" > $TMPCSVFILE
@@ -41,47 +46,30 @@ for cloud in $CLOUD_LIST ; do
         foreman_user_password=$ipmi_password
     fi
 
-    # if $data_dir/overcloud/$cloud exists it should contain a subset for hosts to
-    # use in the instackenv.json
-    # But it cannot contain arbitrary hostnames. Instead it can only contain
-    # hosts that are already defined in the schedule for the $cloud env.
-
-    if [ -f $data_dir/overcloud/$cloud ]; then
-        TEMP_HOST_LIST=$(cat $data_dir/overcloud/$cloud | sort -u)
-        FULL_HOST_LIST=$($SCHEDULER --cloud-only $cloud)
-        HOST_LIST=""
-        for h in $TEMP_HOST_LIST ; do
-            for f in $FULL_HOST_LIST ; do
-                if [ "$h" == "$f" ]; then
-                    HOST_LIST="$HOST_LIST $h"
-                fi
-            done
-        done
-    else
-        HOST_LIST=$($SCHEDULER --cloud-only $cloud)
-    fi
-    undercloud=""
-    if [ -f $data_dir/undercloud/$cloud ]; then
-        UC_HOST=$(cat $data_dir/undercloud/$cloud)
-        FULL_HOST_LIST=$($SCHEDULER --cloud-only $cloud)
-        for f in $FULL_HOST_LIST ; do
-            if [ "$UC_HOST" == "$f" ]; then
-                undercloud=$UC_HOST
+    HOST_LIST=$($SCHEDULER --cloud-only $cloud)
+    undercloud="$(hammer host list --search params.${foreman_param}=false | grep $domain  | awk '{ print $3 }' )"
+    for h in $HOST_LIST ; do
+        is_undercloud=false
+        for uc in $undercloud ; do
+            if [ "$h" = "$uc" ]; then
+                is_undercloud=true
             fi
         done
-    fi
-    for h in $HOST_LIST ; do
-        if [ "$undercloud" == "" ]; then
-            undercloud=$h
-        fi
         mac=$(egrep ^em2 $configdir/$h | awk -F, '{ print $2 }')
         ipmi_url=mgmt-$h
         ipmi_tool=pxe_ipmitool
-        if [ "$h" != "$undercloud" ]; then
+        if ! $is_undercloud ; then
             echo $mac,$ipmi_url,$ipmi_username,$foreman_user_password,$ipmi_tool >> $TMPCSVFILE
         fi
     done
-    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $json_web_path/${cloud}_${undercloud}_instackenv.json
-    chmod 644 $json_web_path/${cloud}_${undercloud}_instackenv.json
+    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $TMPJSONFILE
+    if cmp -s $TMPJSONFILE $json_web_path/${cloud}_instackenv.json ; then
+        :
+    else
+        # possibly figure out if a notification can go out
+        /bin/cp -p $json_web_path/${cloud}_instackenv.json $json_web_path/${cloud}_instackenv.json_$(date +"%Y-%m-%d_%H:%M:%S")
+        /bin/cp $TMPJSONFILE $json_web_path/${cloud}_instackenv.json
+    fi
+    chmod 644 $json_web_path/${cloud}_instackenv.json
 done
-rm -f $TMPCSVFILE
+rm -f $TMPCSVFILE $TMPJSONFILE
