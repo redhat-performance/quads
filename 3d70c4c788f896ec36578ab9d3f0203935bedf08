@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_f1f543cb",
+        "filename": "bin/pxe-director-config.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-03-02T21:17:40Z",
+      "side": 1,
+      "message": "whitespace here.",
+      "range": {
+        "startLine": 40,
+        "startChar": 28,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "3d70c4c788f896ec36578ab9d3f0203935bedf08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
