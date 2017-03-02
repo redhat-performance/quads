@@ -62,9 +62,16 @@ untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 phpical_dir: /srv/cal
 ical_web_location: /var/www/html/ical/schedule.ics
 
-# ipmi user/pass
+# ipmi QUADS admin user/pass
+# this is the IPMI account QUADS uses
 ipmi_username: root
 ipmi_password: password
+# ipmi user account
+# this is the account you create for users
+# to interact with the ipmi
+ipmi_cloud_username: quads
+ipmi_cloud_password: password
+ipmi_cloud_username_id: 4
 
 # visual web dir is where the visual HTML representation of the lab usage goes
 visual_web_dir: /var/www/html/visual

@@ -15,8 +15,8 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
-ipmi_username=${quads["ipmi_username"]}
-ipmi_password=${quads["ipmi_password"]}
+ipmi_username=${quads["ipmi_cloud_username"]}
+ipmi_password=${quads["ipmi_cloud_password"]}
 json_web_path=${quads["json_web_path"]}
 
 SCHEDULER=$quads
@@ -79,8 +79,7 @@ for cloud in $CLOUD_LIST ; do
             echo $mac,$ipmi_url,$ipmi_user,$ipmi_password,$ipmi_tool >> $TMPCSVFILE
         fi
     done
-    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $json_web_path/${cloud}_${undercloud}_instackenv.json 
+    python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $json_web_path/${cloud}_${undercloud}_instackenv.json
     chmod 644 $json_web_path/${cloud}_${undercloud}_instackenv.json
 done
 rm -f $TMPCSVFILE
-

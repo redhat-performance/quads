@@ -262,6 +262,11 @@ fi
 hammer user update --login $new_cloud --password $foreman_user_password
 
 #### END FOREMAN VIEWS
+#### BEGIN IPMI ACCOUNT RESET
+# this resets the user IPMI account password to the foreman password.
+# this is typically the ticket number.
+ipmitool -I lanplus -H  -U $ipmi_username -P $ipmi_password user set password $ipmi_cloud_username_id $foreman_user_password
+#### END IPMI ACCOUNT RESET
 #### BEGIN FOREMAN REBUILD
 
 if $rebuild ; then
