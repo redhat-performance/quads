@@ -8,3 +8,4 @@
 # 0 0 * * * /opt/quads/bin/simple-table-web.sh 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-boot-order.sh 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-validate-boot-order.sh 1>/dev/null 2>&1
+# * * * * * /opt/quads/bin/make-instackenv-json.sh 1>/dev/null 2>&1

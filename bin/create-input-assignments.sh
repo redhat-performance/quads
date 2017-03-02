@@ -38,12 +38,7 @@ function print_summary() {
           link=""
       fi
       $quads --cloud-only ${name} > $tmpsummary
-      if [ -f $data_dir/undercloud/$name ]; then
-          uc=$(cat $data_dir/undercloud/$name)
-      else
-          uc=$(head -1 $tmpsummary)
-      fi
-      echo "| [$name](#${name}) | $desc | $owner | $link | <a href=${quads_url}/cloud/${name}_${uc}_instackenv.json target=_blank>$name</a> |"
+      echo "| [$name](#${name}) | $desc | $owner | $link | <a href=${quads_url}/cloud/${name}_instackenv.json target=_blank>$name</a> |"
       rm -f $tmpsummary
   done
   echo ""
