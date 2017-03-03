@@ -416,7 +416,8 @@ class Quads(object):
                 print "   End: " + s_end
                 exit(1)
 
-        self.quads.hosts.data[host]["schedule"][len(self.quads.hosts.data[host]["schedule"].keys())] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
+        # the next available schedule index should be the max index + 1
+        self.quads.hosts.data[host]["schedule"][max(self.quads.hosts.data[host]["schedule"].keys() or [0])+1] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
         self.quads_write_data()
 
         return data
