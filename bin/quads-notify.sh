@@ -119,7 +119,7 @@ $cloudinfo
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
 
 You can view your machine list, duration and other
-details above.  Once the environment is active you 
+details above.  Once the environment is active you
 will receive an additional notification.
 
 For additional information regarding the Scale Lab usage
@@ -220,7 +220,7 @@ function craft_future_message() {
             cat > $msg_file <<EOM
 To: $owner@${quads["domain"]}
 Cc: $cc_field
-Subject: QUADS upcoming expiration notification
+Subject: QUADS upcoming assignment notification
 From: QUADS <quads@${quads["domain"]}>
 Reply-To: dev-null@${quads["domain"]}
 
