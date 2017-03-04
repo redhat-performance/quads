@@ -25,6 +25,26 @@ host_color_file = args.host_color_file
 days = args.days
 gentime = args.gentime
 
+# Load QUADS yaml config
+def quads_load_config(quads_config):
+    try:
+        stream = open(quads_config, 'r')
+        try:
+            quads_config_yaml = yaml.load(stream)
+            stream.close()
+        except Exception, ex:
+            print "quads: Invalid YAML config: " + quads_config
+            exit(1)
+    except Exception, ex:
+        print ex
+        exit(1)
+    return(quads_config_yaml)
+
+# set variables for number of max clouds defined
+# this is needed for visuals generation
+mincloud = (quads_config["min_cloud_defined"])
+maxcloud = (quads_config["max_cloud_defined"])
+
 def get_spaced_colors():
     return [(190,193,212),(2,63,165),(216,19, 19),(187,119,132),(142,6,59),(74,111,227),(230,175,185),(211,63,106),(17,198,56),(239,151,8),(15,207,192),(247,156,212)]
 
@@ -54,7 +74,9 @@ def print_simple_table(data, data_colors, days):
     print "<th>Name</th>"
     print "<th>Color</th>"
     print "</tr>"
-    for i in range(0, 10):
+    # mincloud/maxcloud are set in conf/quads.yml
+    # these should match your defined start and end clouds
+    for i in range(int(mincloud), int(maxcloud)):
         print "<tr>"
         print "<td> cloud" + ('0' if i < 9 else '') + str(i+1) + " </td>"
         print "<td bgcolor=\"" + str(color_array[i]) + "\"></td>"
