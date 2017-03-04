@@ -58,6 +58,12 @@ json_web_path: /var/www/html/cloud
 # use this to define hosts QUADS should never move.
 untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 
+# visuals
+# define the defined cloud range here
+# we start with 0 and end with whatever your last cloud index is
+min_cloud_defined: 0
+max_cloud_defined: 16
+
 # phpical
 phpical_dir: /srv/cal
 ical_web_location: /var/www/html/ical/schedule.ics
