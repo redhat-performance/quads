@@ -35,6 +35,7 @@ lockdir=$data_dir/lock
 untouchable_hosts=${quads["untouchable_hosts"]}
 ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
+ipmi_cloud_username_id=${quads["ipmi_cloud_username_id"]}
 
 [ ! -d $lockdir ] && mkdir -p $lockdir
 
@@ -265,7 +266,7 @@ hammer user update --login $new_cloud --password $foreman_user_password
 #### BEGIN IPMI ACCOUNT RESET
 # this resets the user IPMI account password to the foreman password.
 # this is typically the ticket number.
-ipmitool -I lanplus -H  -U $ipmi_username -P $ipmi_password user set password $ipmi_cloud_username_id $foreman_user_password
+ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password user set password $ipmi_cloud_username_id $foreman_user_password
 #### END IPMI ACCOUNT RESET
 #### BEGIN FOREMAN REBUILD
 
