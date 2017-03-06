@@ -35,6 +35,7 @@ lockdir=$data_dir/lock
 untouchable_hosts=${quads["untouchable_hosts"]}
 ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
+ipmi_cloud_username_id=${quads["ipmi_cloud_username_id"]}
 
 [ ! -d $lockdir ] && mkdir -p $lockdir
 
