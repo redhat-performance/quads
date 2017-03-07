@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "8e339a35_19b4b8c5",
+        "filename": "bin/quads.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-03-07T15:57:18Z",
+      "side": 1,
+      "message": "Perhaps:\n\nch \u003d logging.StreamHandler(sys.stdout)",
+      "range": {
+        "startLine": 15,
+        "startChar": 26,
+        "endLine": 15,
+        "endChar": 28
+      },
+      "revId": "bd33057212d485bbd399f5b2cbe70064edfacdbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be10d11a_e9a8ed19",
         "filename": "bin/quads.py",
         "patchSetId": 1
