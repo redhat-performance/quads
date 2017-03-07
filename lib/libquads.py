@@ -5,6 +5,7 @@ import yaml
 import argparse
 import os
 import sys
+import logging
 from subprocess import call
 from subprocess import check_call
 
@@ -14,8 +15,10 @@ class Hosts(object):
         Initialize a Hosts object. This is a subset of
         data required by the Quads object.
         """
+        self.logger = logging.getLogger("quads.Hosts")
+        self.logger.setLevel(logging.DEBUG)
         if 'hosts' not in data:
-            print "data missing required \"hosts\" section."
+            self.logger.error("data missing required \"hosts\" section.")
             exit(1)
 
         self.data = data["hosts"]
@@ -32,8 +35,10 @@ class Clouds(object):
         Initialize a Clouds object. This is a subset of
         data required by the Quads object.
         """
+        self.logger = logging.getLogger("quads.Clouds")
+        self.logger.setLevel(logging.DEBUG)
         if 'clouds' not in data:
-            print "data missing required \"clouds\" section."
+            self.logger.error("data missing required \"clouds\" section.")
             exit(1)
 
         self.data = data["clouds"]
@@ -61,7 +66,6 @@ class QuadsData(object):
         """
         Initialize the QuadsData object.
         """
-
         self.hosts = Hosts(data)
         self.clouds = Clouds(data)
         self.history = History(data)
@@ -76,6 +80,8 @@ class Quads(object):
         self.statedir = statedir
         self.movecommand = movecommand
         self.datearg = datearg
+        self.logger = logging.getLogger("quads.Quads")
+        self.logger.setLevel(logging.DEBUG)
 
         if initialize:
             self.quads_init_data(force)
@@ -84,15 +90,10 @@ class Quads(object):
             self.data = yaml.load(stream)
             stream.close()
         except Exception, ex:
-            print ex
+            self.logger.error(ex)
             exit(1)
 
         self.quads = QuadsData(self.data)
-
-        # self.hosts = Hosts(self.data)
-        # self.clouds = Clouds(self.data)
-        # self.history = History(self.data)
-
         self._quads_history_init()
 
         if syncstate or not datearg:
@@ -121,7 +122,7 @@ class Quads(object):
             if doexit:
                 exit(0)
         except Exception, ex:
-            print "There was a problem with your file %s" % ex
+            self.logger.error("There was a problem with your file %s" % ex)
             if doexit:
                 exit(1)
 
@@ -130,7 +131,7 @@ class Quads(object):
     def quads_init_data(self, force):
         if not force:
             if os.path.isfile(self.config):
-                print "Warning: " + self.config + " exists. Use --force to initialize."
+                self.logger.warn("Warning: " + self.config + " exists. Use --force to initialize.")
                 exit(1)
         try:
             stream = open(self.config, 'w')
@@ -138,7 +139,7 @@ class Quads(object):
             stream.write( yaml.dump(data, default_flow_style=False))
             exit(0)
         except Exception, ex:
-            print "There was a problem with your file %s" % ex
+            self.logger.error("There was a problem with your file %s" % ex)
             exit(1)
 
     # helper function called from other methods.  Never called from main()
@@ -158,7 +159,7 @@ class Quads(object):
                 try:
                     requested_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
                 except Exception, ex:
-                    print "Data format error : %s" % ex
+                    self.logger.error("Data format error : %s" % ex)
                     exit(1)
 
             if "schedule" in hosts[host].keys():
@@ -186,7 +187,7 @@ class Quads(object):
     def quads_sync_state(self):
         # sync state
         if self.datearg is not None:
-            print "--sync and --date are mutually exclusive."
+            self.logger.error("--sync and --date are mutually exclusive.")
             exit(1)
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self._quads_find_current(h, self.datearg)
@@ -196,20 +197,20 @@ class Quads(object):
                     stream.write(current_cloud + '\n')
                     stream.close()
                 except Exception, ex:
-                    print "There was a problem with your file %s" % ex
+                    self.logger.error("There was a problem with your file %s" % ex)
         return
 
     # list the hosts
     def quads_list_hosts(self):
         # list just the hostnames
-		self.quads.hosts.host_list()
+	self.quads.hosts.host_list()
 
-     # list the hosts
+    # list the hosts
     def quads_list_clouds(self):
         # list just the hostnames
-		self.quads.clouds.cloud_list()
+	self.quads.clouds.cloud_list()
 
-   # list the owners
+    # list the owners
     def quads_list_owners(self, cloudonly):
         # list the owners
         if cloudonly is not None:
@@ -309,7 +310,7 @@ class Quads(object):
     def quads_update_host(self, hostresource, hostcloud, forceupdate):
         # define or update a host resouce
         if hostcloud is None:
-            print "--default-cloud is required when using --define-host"
+            self.logger.error("--default-cloud is required when using --define-host")
             exit(1)
         else:
             if hostcloud not in self.quads.clouds.data:
@@ -317,7 +318,7 @@ class Quads(object):
                 print "Define it first using:  --define-cloud"
                 exit(1)
             if hostresource in self.quads.hosts.data and not forceupdate:
-                print "Host \"%s\" already defined. Use --force to replace" % hostresource
+                self.logger.error("Host \"%s\" already defined. Use --force to replace" % hostresource)
                 exit(1)
 
             if hostresource in self.quads.hosts.data:
@@ -335,11 +336,11 @@ class Quads(object):
     def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket, qinq):
         # define or update a cloud resource
         if description is None:
-            print "--description is required when using --define-cloud"
+            self.logger.error("--description is required when using --define-cloud")
             exit(1)
         else:
             if cloudresource in self.quads.clouds.data and not forceupdate:
-                print "Cloud \"%s\" already defined. Use --force to replace" % cloudresource
+                self.logger.error("Cloud \"%s\" already defined. Use --force to replace" % cloudresource)
                 exit(1)
             if not cloudowner:
                 cloudowner = "nobody"
@@ -362,21 +363,21 @@ class Quads(object):
         try:
             datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
         except Exception, ex:
-            print "Data format error : %s" % ex
+            self.logger.error("Data format error : %s" % ex)
             exit(1)
 
         try:
             datetime.strptime(schedend, '%Y-%m-%d %H:%M')
         except Exception, ex:
-            print "Data format error : %s" % ex
+            self.logger.error("Data format error : %s" % ex)
             exit(1)
 
         if schedcloud not in self.quads.clouds.data:
-            print "cloud \"" + schedcloud + "\" is not defined."
+            self.logger.error("cloud \"" + schedcloud + "\" is not defined.")
             exit(1)
 
         if host not in self.quads.hosts.data:
-            print "host \"" + host + "\" is not defined."
+            self.logger.error("host \"" + host + "\" is not defined.")
             exit(1)
 
         # before updating the schedule (adding the new override), we need to
@@ -426,15 +427,15 @@ class Quads(object):
     def quads_rm_host_schedule(self, rmschedule, host):
         # remove a scheduled override for a given host
         if host is None:
-            print "Missing --host option required for --rm-schedule"
+            self.logger.error("Missing --host option required for --rm-schedule")
             exit(1)
 
         if host not in self.quads.hosts.data:
-            print "host \"" + host + "\" is not defined."
+            self.logger.error("host \"" + host + "\" is not defined.")
             exit(1)
 
         if rmschedule not in self.quads.hosts.data[host]["schedule"].keys():
-            print "Could not find schedule for host"
+            self.logger.error("Could not find schedule for host")
             exit(1)
 
         del(self.quads.hosts.data[host]["schedule"][rmschedule])
@@ -449,31 +450,31 @@ class Quads(object):
             try:
                 datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
             except Exception, ex:
-                print "Data format error : %s" % ex
+                self.logger.error("Data format error : %s" % ex)
                 exit(1)
 
         if schedend:
             try:
                 datetime.strptime(schedend, '%Y-%m-%d %H:%M')
             except Exception, ex:
-                print "Data format error : %s" % ex
+                self.logger.error("Data format error : %s" % ex)
                 exit(1)
 
         if schedcloud:
             if schedcloud not in self.quads.clouds.data:
-                print "cloud \"" + schedcloud + "\" is not defined."
+                self.logger.error("cloud \"" + schedcloud + "\" is not defined.")
                 exit(1)
 
         if host not in self.quads.hosts.data:
-            print "host \"" + host + "\" is not defined."
+            self.logger.error("host \"" + host + "\" is not defined.")
             exit(1)
 
         if modschedule not in self.quads.hosts.data[host]["schedule"].keys():
-            print "Could not find schedule for host"
+            self.logger.error("Could not find schedule for host")
             exit(1)
 
         # before updating the schedule (modifying the new override), we need to
-        # ensure the host does not have existing schedules that overlap the 
+        # ensure the host does not have existing schedules that overlap the
         # schedule being updated
 
 
@@ -540,18 +541,18 @@ class Quads(object):
                     stream.write(current_cloud + '\n')
                     stream.close()
                 except Exception, ex:
-                    print "There was a problem with your file %s" % ex
+                    self.logger.error("There was a problem with your file %s" % ex)
             else:
                 stream = open(statedir + "/" + h, 'r')
                 current_state = stream.readline().rstrip()
                 stream.close()
                 if current_state != current_cloud:
-                    print "INFO: Moving " + h + " from " + current_state + " to " + current_cloud
+                    self.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
                     if not dryrun:
                         try:
                             check_call([movecommand, h, current_state, current_cloud])
                         except Exception, ex:
-                            print "Move command failed: %s" % ex
+                            self.logger.error("Move command failed: %s" % ex)
                             exit(1)
                         stream = open(statedir + "/" + h, 'w')
                         stream.write(current_cloud + '\n')

@@ -7,9 +7,16 @@ import yaml
 import argparse
 import os
 import sys
+import logging
 from subprocess import call
 from subprocess import check_call
 
+logger = logging.getLogger('quads')
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
@@ -29,6 +36,15 @@ def quads_load_config(quads_config):
 def main(argv):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
+
+    if not os.path.exists(quads_config["log"]) :
+        logger.error("Log file does not exist : {}".format(quads_config["log"]))
+        exit(1)
+
+    fh = logging.FileHandler(quads_config["log"])
+    fh.setFormatter(formatter)
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
 
     if "data_dir" not in quads_config:
         print "quads: Missing \"data_dir\" in " + quads_config_file
