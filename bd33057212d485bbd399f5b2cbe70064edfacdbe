@@ -39,6 +39,29 @@
       "revId": "bd33057212d485bbd399f5b2cbe70064edfacdbe",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ed22580_cbaf2b6b",
+        "filename": "lib/libquads.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-07T16:21:25Z",
+      "side": 1,
+      "message": "When I run this patchset with \"--dry-run --move-hosts\" I expect to see the INFO lines to stdout for what hosts should be moved.  This doesn\u0027t happen.  \n\nI\u0027ve tried to change the bin/quads.py setlevel as such:\n\nch.setLevel(logging.DEBUG)\n\nand now see the WARN calls, but not the INFO level output. I\u0027d like to review this with you and find out how this patch can be modified to ensure the INFO lines are not eaten.  Specifically I run through (when large number of changes are pending entry), disabling the cronjob that forces the moves, and then I run:\n\n   quads --dry-run --move-hosts \n\nand look for the INFO lines for what should move.  This patch however isn\u0027t quite right in that the stdout is not being emitted where expected.",
+      "range": {
+        "startLine": 547,
+        "startChar": 20,
+        "endLine": 547,
+        "endChar": 24
+      },
+      "revId": "bd33057212d485bbd399f5b2cbe70064edfacdbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
