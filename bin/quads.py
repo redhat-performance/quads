@@ -7,9 +7,16 @@ import yaml
 import argparse
 import os
 import sys
+import logging
 from subprocess import call
 from subprocess import check_call
 
+logger = logging.getLogger('quads-logging')
+ch = logging.StreamHandler()
+ch.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
