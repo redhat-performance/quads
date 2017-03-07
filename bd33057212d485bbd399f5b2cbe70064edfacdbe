@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be10d11a_e9a8ed19",
+        "filename": "bin/quads.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-03-07T15:54:52Z",
+      "side": 1,
+      "message": "I think we need to add a handler here for stdout?\n\ne.g. \n\nout_hdlr.setLevel(logging.INFO)\nlog.addHandler(out_hdlr)",
+      "revId": "bd33057212d485bbd399f5b2cbe70064edfacdbe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
