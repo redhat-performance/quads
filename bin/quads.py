@@ -7,9 +7,24 @@ import yaml
 import argparse
 import os
 import sys
+import logging
 from subprocess import call
 from subprocess import check_call
 
+_quads_cli_log = "/var/log/quads/quads-cli"
+logger = logging.getLogger('quads')
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+if not os.path.exists(_quads_cli_log) :
+    logger.error("Log file does not exist : {}".format(_quads_cli_log))
+    exit(1)
+fh.setFormatter(formatter)
+fh = logging.FileHandler(_quads_cli_log)
+fh.setLevel(logging.DEBUG)
+logger.addHandler(fh)
 
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
