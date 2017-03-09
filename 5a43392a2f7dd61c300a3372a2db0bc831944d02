@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80086a32_81cc485d",
+        "filename": "bin/quads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-09T10:29:50Z",
+      "side": 1,
+      "message": "_quads_cli_log should be defined in the conf/quads.yml in order to facilitate easy testing in a sandbox.  Hardcoding this to a root only directory makes verification locally difficult / impossible.",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28e2282c_5ffa901c",
+        "filename": "bin/quads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-09T10:29:50Z",
+      "side": 1,
+      "message": "I think the define of fh needs to happen before the setFormatter() method is called.",
+      "range": {
+        "startLine": 24,
+        "startChar": 25,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43030c74_ff6cf239",
+        "filename": "lib/libquads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-09T10:29:50Z",
+      "side": 1,
+      "message": "Testing the logger.info when hosts are set to move (e.g. when the current schedule triggers the move of the host because it\u0027s not in sync with the current state), this does not seem to emit anything to stdout or the defined log file.  I\u0027m not sure if this is an issue with info() method.\n\nThis needs to be verbose to stdout, and extremely useful when testing updated schedule changes.  I can show you how to test this but not sure what the right fix is.",
+      "range": {
+        "startLine": 547,
+        "startChar": 20,
+        "endLine": 547,
+        "endChar": 24
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
