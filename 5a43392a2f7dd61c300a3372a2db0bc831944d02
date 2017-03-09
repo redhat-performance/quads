@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "2cb7ff6a_bdd3db0b",
+        "filename": "bin/quads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-09T15:47:10Z",
+      "side": 1,
+      "message": "Sure.  It\u0027s actually done right in main().  Look for where you see:\n\n    quads_config_file \u003d os.path.dirname(__file__) + \"/../conf/quads.yml\"\n    quads_config \u003d quads_load_config(quads_config_file)\n\nand then I reference the values, e.g.:\n\n    sys.path.append(quads_config[\"install_dir\"] + \"/lib\")\n    sys.path.append(os.path.dirname(__file__) + \"/../lib\")\n    import libquads\n\nor:\n\n    defaultconfig \u003d quads_config[\"data_dir\"] + \"/schedule.yaml\"\n    defaultstatedir \u003d quads_config[\"data_dir\"] + \"/state\"\n\nSo if your patch includes something like the following in the conf/quads.yml:\n\nquads_cli_log: /var/log/quads/quads-cli.log\n\nor whatever, then we can just reference:\n\n   quads_config[\"quads_cli_log\"] in main() to allow for the logfile to be overridden in the config file.",
+      "parentUuid": "68fec6e4_ba7f14c0",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28e2282c_5ffa901c",
         "filename": "bin/quads.py",
         "patchSetId": 3
