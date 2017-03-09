@@ -1,2 +1,3 @@
+hello this is isaac's change to test.txt
 this is me practicing and learning conflicts in github
 Lord DarkSeeker
