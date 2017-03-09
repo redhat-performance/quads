@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "68fec6e4_ba7f14c0",
+        "filename": "bin/quads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-03-09T12:45:41Z",
+      "side": 1,
+      "message": "Do you guys have a method to pull the values out of quads.yml?\n\nI set this here for testing not so much static keepsake. Mind showing me where the method is to pull from the config file?",
+      "parentUuid": "80086a32_81cc485d",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28e2282c_5ffa901c",
         "filename": "bin/quads.py",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-09T10:29:50Z",
       "side": 1,
       "message": "I think the define of fh needs to happen before the setFormatter() method is called.",
+      "range": {
+        "startLine": 24,
+        "startChar": 25,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "5a43392a2f7dd61c300a3372a2db0bc831944d02",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0263d582_88e59944",
+        "filename": "bin/quads.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-03-09T12:45:41Z",
+      "side": 1,
+      "message": "line18 doesn\u0027t suit the needs of this here?",
+      "parentUuid": "28e2282c_5ffa901c",
       "range": {
         "startLine": 24,
         "startChar": 25,
