@@ -7,6 +7,7 @@ import yaml
 import argparse
 import os
 import sys
+import requests
 from subprocess import call
 from subprocess import check_call
 
@@ -85,6 +86,10 @@ def main(argv):
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
+
+    parser.add_argument('--hil-api-action', dest='hilapiaction', type=str, default=None, help='HIL API Action');
+    parser.add_argument('--hil-api-call', dest='hilapicall', type=str, default=None, help='HIL API Call');
+
 
     args = parser.parse_args()
 
@@ -229,6 +234,28 @@ def main(argv):
             print "--move-hosts and --date are mutually exclusive unless using --dry-run."
             exit(1)
         quads.quads_move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
+        exit(0)
+
+    #added for EC528 HIL-QUADS Demo
+    #hardcoded to work on localhost port 5000, but can be reconfigured to work on another server
+    hil_url = 'http://127.0.0.1:5000'
+    if args.hilapiaction is not None and args.hilapicall is not None:
+        if args.hilapiaction == "GET":
+            r = requests.get(hil_url + args.hilapicall)
+            print r.text
+
+        if args.hilapiaction == 'POST':
+            #r = requests.post()
+            print "got a POST request!"
+
+        if args.hilapiaction == 'PUT':
+            #r = requests.put()
+            print "got a PUT request!"
+
+        if args.hilapiaction == 'DELETE':
+            #r = requests.delete()
+            print "got a DELETE request!"
+
         exit(0)
 
     # finally, this part is just reporting ...
