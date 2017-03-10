@@ -5,6 +5,7 @@ import yaml
 import argparse
 import os
 import sys
+import requests
 from subprocess import call
 from subprocess import check_call
 
@@ -473,7 +474,7 @@ class Quads(object):
             exit(1)
 
         # before updating the schedule (modifying the new override), we need to
-        # ensure the host does not have existing schedules that overlap the 
+        # ensure the host does not have existing schedules that overlap the
         # schedule being updated
 
 
@@ -608,4 +609,10 @@ class Quads(object):
                             ",cloud=" + self.quads.hosts.data[host]["schedule"][override]["cloud"]
             else:
                 print current_cloud
+
+    # add for EC528 HIL-QUADS integration project
+    def quads_rest_call(self, method, url, request, hil_data=None):
+        r = requests.request(method, url + request, data= hil_data)
+        print r.text
+
 

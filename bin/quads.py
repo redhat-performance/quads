@@ -240,6 +240,8 @@ def main(argv):
     #hardcoded to work on localhost port 5000, but can be reconfigured to work on another server
     hil_url = 'http://127.0.0.1:5000'
     if args.hilapiaction is not None and args.hilapicall is not None:
+        quads.quads_rest_call(args.hilapiaction, hil_url, args.hilapicall)
+        '''
         if args.hilapiaction == "GET":
             r = requests.get(hil_url + args.hilapicall)
             print r.text
@@ -255,6 +257,7 @@ def main(argv):
         if args.hilapiaction == 'DELETE':
             #r = requests.delete()
             print "got a DELETE request!"
+        '''
 
         exit(0)
 
