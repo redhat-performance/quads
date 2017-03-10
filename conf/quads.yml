@@ -5,6 +5,7 @@
 install_dir: /opt/quads
 data_dir: /opt/quads/data
 domain: example.com
+log: /opt/quads/log/quads.log
 
 # used for reporting
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
