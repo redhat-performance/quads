@@ -249,8 +249,8 @@ def main(argv):
             print "got a POST request!"
 
         if args.hilapiaction == 'PUT':
-            #r = requests.put()
-            print "got a PUT request!"
+            r = requests.put(hil_url + args.hilapicall)
+            print r.text
 
         if args.hilapiaction == 'DELETE':
             #r = requests.delete()
