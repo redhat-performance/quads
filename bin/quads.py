@@ -31,6 +31,7 @@ def main(argv):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
+
     if "data_dir" not in quads_config:
         print "quads: Missing \"data_dir\" in " + quads_config_file
         exit(1)
@@ -46,6 +47,10 @@ def main(argv):
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
     defaultmovecommand = "/bin/echo"
+
+
+    # added for EC528 HIL-QUADS integration project - not a good place for this variable - should be moved eventually
+    hil_url = 'http://127.0.0.1:5000'
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
@@ -150,6 +155,7 @@ def main(argv):
 
     if args.lsclouds:
         quads.quads_list_clouds()
+        quads.quads_rest_call('GET', hil_url, '/projects')
         exit(0)
 
     if args.lsowner:
@@ -189,6 +195,8 @@ def main(argv):
         exit(0)
 
     if args.cloudresource:
+        quads.quads_rest_call('PUT', hil_url, '/project/' + args.cloudresource)
+        quads.quads_rest_call('GET', hil_url, '/projects')
         quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
@@ -238,7 +246,6 @@ def main(argv):
 
     #added for EC528 HIL-QUADS Demo
     #hardcoded to work on localhost port 5000, but can be reconfigured to work on another server
-    hil_url = 'http://127.0.0.1:5000'
     if args.hilapiaction is not None and args.hilapicall is not None:
         quads.quads_rest_call(args.hilapiaction, hil_url, args.hilapicall)
         '''
