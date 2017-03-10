@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "667db3ff_9b9fbfea",
+        "filename": "testing/quads-sandbox.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-03-10T14:01:08Z",
+      "side": 1,
+      "message": "If you are using @ to separate the elements, then why are you escaping the spaces and / characters?  Also it seems that install_dir: should not include \"data\" in the sandbox.",
+      "range": {
+        "startLine": 16,
+        "startChar": 79,
+        "endLine": 16,
+        "endChar": 83
+      },
+      "revId": "b4b5975347ddb048e67c4367d4f3f88485943702",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
