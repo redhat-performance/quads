@@ -543,7 +543,8 @@ rnixon
 * We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
 
 ## Contributing
-We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch perform the following:
+  - You can use the ```testing/quads-sandbox.sh``` tool to create a local sandbox for testing and development.
+  - We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch perform the following:
 
 * Clone our repository:
 
