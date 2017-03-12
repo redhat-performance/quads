@@ -5,11 +5,8 @@ import yaml
 import argparse
 import os
 import sys
-<<<<<<< HEAD
 import requests
-=======
 import logging
->>>>>>> master
 from subprocess import call
 from subprocess import check_call
 
