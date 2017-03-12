@@ -8,9 +8,16 @@ import argparse
 import os
 import sys
 import requests
+import logging
 from subprocess import call
 from subprocess import check_call
 
+logger = logging.getLogger('quads')
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
@@ -91,12 +98,28 @@ def main(argv):
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
+    parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
 
     parser.add_argument('--hil-api-action', dest='hilapiaction', type=str, default=None, help='HIL API Action');
     parser.add_argument('--hil-api-call', dest='hilapicall', type=str, default=None, help='HIL API Call');
 
 
     args = parser.parse_args()
+
+    if args.logpath :
+        quads_config["log"] = args.logpath
+
+    if not os.path.exists(quads_config["log"]) :
+        try :
+            open(quads_config["log"],'a').close()
+        except Exception:
+            logger.error("Log file does not exist : {}".format(quads_config["log"]))
+            exit(1)
+
+    fh = logging.FileHandler(quads_config["log"])
+    fh.setFormatter(formatter)
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
 
     if not os.path.exists(args.statedir):
         try:

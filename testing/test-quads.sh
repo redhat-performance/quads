@@ -52,7 +52,8 @@ git log --no-decorate -n 1
 TMPDIR=$(mktemp -d /tmp/quadsXXXXXXX)
 DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
-quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR"
+LOGFILE=$TMPDIR/logfile
+quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
 
 tests="
 init
