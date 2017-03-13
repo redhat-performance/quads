@@ -34,6 +34,7 @@ function reconfigure() {
     if [ -f $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml ] ; then
         playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
     else
+        rm -f $data_dir/boot/$target
         return
     fi
     host_inventory=$(mktemp /tmp/hostfileXXXXXX)
@@ -43,9 +44,11 @@ function reconfigure() {
 
     if [ -f $PIDFILE ]; then
         if [ -d /proc/$(cat $PIDFILE) ]; then
-            echo Another instance already running. Try again later.
-            rm -f $host_inventory
-            return
+            if [ "$(cat /proc/$(cat $PIDFILE)/cmdline | strings -1 | grep $0)" ]; then
+                echo Another instance already running. Try again later.
+                rm -f $host_inventory
+                return
+            fi
         fi
     fi
 
