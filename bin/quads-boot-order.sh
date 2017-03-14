@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/bash
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then
     echo "$(basename $0): could not find load-config.sh"
@@ -9,7 +9,6 @@ source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads.py
 install_dir=${quads["install_dir"]}
-bin_dir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 
 function reconfigure() {
