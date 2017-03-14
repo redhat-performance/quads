@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# QUADS Simulator 5000
-# Test quads using CI or in a sandbox.
-# We use this in a Jenkins instance  with the Gerrit
-# trigger plugin to be run on all patchsets.
+# Test quads using a test location.  Run this using:
+#
+#   ./test-quads.sh 2>&1 | less
+#
 ############################################
 
 if [ -z "$1" ]; then
@@ -54,7 +54,7 @@ DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
 LOGFILE=$TMPDIR/logfile
 quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
-
+shellbin="$(dirname $0/)"
 tests="
 init
 declare_cloud01
@@ -145,6 +145,16 @@ for test in $tests ; do
   cat $DATA
 done
 rm -rf $TMPDIR
+
+echo ====== Initializing shellcheck with style-related exclusions
+shellcheck $shellbin/*.sh --exclude=SC2086 --exclude=SC2046 --exclude=SC2143 --exclude=SC1068 --exclude=SC2112 --exclude=SC2002 --exclude=SC2039 --exclude=SC2155 --exclude=SC2015 --exclude=SC2012 --exclude=SC2013 --exclude=SC2034 --exclude=SC2006 --exclude=SC2059 --exclude=SC2148 --exclude=SC2154 --exclude=SC2121 --exclude=SC2154 --exclude=SC2028 --exclude=SC2003 --exclude=SC2035 --exclude=SC2005 --exclude=SC2027 --exclude=SC2018 --exclude=SC2019 --exclude=SC2116
+
+if [ "$?" = "0" ]; then
+	:
+else
+	echo "FATAL error with one of the shell tools"
+	exit 1
+fi
 
 ## Jenkins post data here
 echo ========== FINISH == `date` ====================
