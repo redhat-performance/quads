@@ -7,6 +7,10 @@ fi
 
 source $(dirname $0)/load-config.sh
 
+# this is an error on purpose
+function testing() {
+
+
 quads=${quads["install_dir"]}/bin/quads.py
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
