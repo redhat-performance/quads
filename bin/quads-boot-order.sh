@@ -9,7 +9,6 @@ source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads.py
 install_dir=${quads["install_dir"]}
-bin_dir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 
 function reconfigure() {
