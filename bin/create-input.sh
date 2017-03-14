@@ -47,7 +47,7 @@ function add_row() {
     uloc=$2
     #echo $arg $uloc
     nodename=$(echo $arg | sed 's/mgmt-//')
-    if [ ! -d $data_dir/ipmi/$nodename ]; then 
+    if [ ! -d $data_dir/ipmi/$nodename ]; then
         mkdir -p $data_dir/ipmi/$nodename
     fi
     svctag=$(cat $data_dir/ipmi/$nodename/svctag 2>/dev/null)
