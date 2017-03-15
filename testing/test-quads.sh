@@ -6,10 +6,13 @@
 # We use this in a Jenkins instance  with the Gerrit
 # trigger plugin to be run on all patchsets.
 #
+# Requires: shellcheck, flake8
+#
 #  ./test-quads.sh 2>&1 | less
 #
 # If you're looking for a full sandbox setup
 # please use quads-sandbox.sh instead.
+#
 ############################################
 
 if [ -z "$1" ]; then
@@ -160,6 +163,17 @@ if [ "$?" = "0" ]; then
 else
 	echo "FATAL error with one of the shell tools"
 	exit 1
+fi
+
+echo ====== Initializing flake8 Python tests with style-related exclusions
+
+flake8 $shellbin/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+
+if [ "$?" = "0" ]; then
+    :
+else
+    echo "FATAL error with one of the Python tools"
+    exit 1
 fi
 
 ## Jenkins post data here

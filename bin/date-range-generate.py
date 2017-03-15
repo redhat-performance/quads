@@ -42,7 +42,7 @@ def daterange( start_date, end_date ):
             yield start_date - datetime.timedelta( n )
 
 
-for date in daterange( datetime.datetime.strptime(startdate, '%Y-%m-%d %H:%M'), 
+for date in daterange( datetime.datetime.strptime(startdate, '%Y-%m-%d %H:%M'),
                        datetime.datetime.strptime(enddate, '%Y-%m-%d %H:%M')
                       ):
     print date
