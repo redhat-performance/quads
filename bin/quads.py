@@ -203,10 +203,16 @@ def main(argv):
         exit(1)
 
     if args.rmhost:
+        print "Detaching HIL node " + args.rmhost + " from project " + args.hostcloud
+        quads.quads_rest_call('POST', hil_url, '/project/' + args.hostcloud + '/detach_node', json.dumps({'node': args.rmhost}))     #EC528 addition)
         quads.quads_remove_host(args.rmhost)
         exit(0)
 
     if args.rmcloud:
+        print "Deleting network in HIL named " + args.rmcloud
+        quads.quads_rest_call('DELETE', hil_url, '/network/' + args.rmcloud)     #EC528 addition
+        print "Deleting project in HIL named " + args.rmcloud
+        quads.quads_rest_call('DELETE', hil_url, '/project/' + args.rmcloud)     #EC528 addition
         quads.quads_remove_cloud(args.rmcloud)
         exit(0)
 
