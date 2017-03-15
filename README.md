@@ -580,7 +580,7 @@ yum install git-review
 git review -s
 ```
 
-* Now submit your patchset with git review (future patches you only need to run ```git review```
+* Now submit your patchset with git review (future patches you only need to run ```git review```)
 
 ```
 git review
@@ -594,4 +594,9 @@ git commit --amend
 git review
 ```
 
-For each patchset our CI will run QUADS through all of the possible command variations, manipulate data and simulate running against systems and then vote on your change.  We will be constantly expanding CI checks in the future to possibly include testing against bare-metal hardware and switches as we improve QUADS.
+Jenkins CI currently checks the following for every submitted patchset:
+  - shellcheck - checks for common shell syntax errors and issues
+  - flake8 - checks Python tools for common syntax errors and issues
+  - quads sandbox test - instantiates and runs common QUADS operations with fake data
+    * This is all run from ```testing/test-quads.sh```
+    * We currently do not expose CI logs externally, please reply on your patchset comments if you'd like a paste of it.
