@@ -11,7 +11,6 @@ from collections import defaultdict
 
 def main(argv):
     inputfile = None
-
     try:
         opts, args = getopt.getopt(argv,"c",["csv="])
     except :
@@ -54,4 +53,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
