@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d167eae_37a86470",
+        "filename": "testing/test-quads.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-03-15T11:19:47Z",
+      "side": 1,
+      "message": "Should you just check for anything but zero?",
+      "revId": "def843576b6dcf8da75518cac1d3a6b747273d1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
