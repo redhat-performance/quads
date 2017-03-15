@@ -16,6 +16,24 @@
       "revId": "def843576b6dcf8da75518cac1d3a6b747273d1a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "211669c3_40b9325d",
+        "filename": "testing/test-quads.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-03-15T11:37:04Z",
+      "side": 1,
+      "message": "That works too, it\u0027s all the same to me.",
+      "parentUuid": "1d167eae_37a86470",
+      "revId": "def843576b6dcf8da75518cac1d3a6b747273d1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
