@@ -540,7 +540,7 @@ epresley
 rnixon
 ```
 
-* We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/example/test-quads.sh) CI test script.
+* We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/testing/test-quads.sh) CI test script.
 
 ## Contributing
   - You can use the ```testing/quads-sandbox.sh``` tool to create a local sandbox for testing and development.
