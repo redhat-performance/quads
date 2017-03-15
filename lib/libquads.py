@@ -612,8 +612,9 @@ class Quads(object):
                 print current_cloud
 
     # add for EC528 HIL-QUADS integration project
-    def quads_rest_call(self, method, url, request, hil_data=None):
-        r = requests.request(method, url + request, data=hil_data)
-        print r.text
+    def quads_rest_call(self, method, url, request, json_data=None):
+        r = requests.request(method, url + request, data=json_data)
+        if method == 'GET':
+            print r.text
 
 

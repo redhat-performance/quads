@@ -7,7 +7,8 @@ import yaml
 import argparse
 import os
 import sys
-import requests
+import requests # EC528 addition
+import json     # EC528 addition
 import logging
 from subprocess import call
 from subprocess import check_call
@@ -214,12 +215,23 @@ def main(argv):
         exit(1)
 
     if args.hostresource:
+        print "attaching HIL node " + args.hostresource + " to project " + args.hostcloud
+        quads.quads_rest_call('POST', hil_url, '/project/' + args.hostcloud + '/connect_node', json.dumps({'node': args.hostresource}))     #EC528 addition
         quads.quads_update_host(args.hostresource, args.hostcloud, args.force)
         exit(0)
 
     if args.cloudresource:
-        quads.quads_rest_call('PUT', hil_url, '/project/' + args.cloudresource)
-        quads.quads_rest_call('GET', hil_url, '/projects')
+        print "Print statements added for demo"
+        print "creating project in HIL named " + args.cloudresource
+        quads.quads_rest_call('PUT', hil_url, '/project/' + args.cloudresource)     #EC528 addition
+        print "listing all projects in HIL to show " +args.cloudresource+ " has been added"
+        quads.quads_rest_call('GET', hil_url, '/projects')      #EC528 addition
+        print "adding network to HIL and attaching it to " + args.cloudresource
+        quads.quads_rest_call('PUT', hil_url, '/network/' + args.cloudresource, json.dumps({"owner": args.cloudresource, "access": args.cloudresource, "net_id": ""}))  #EC528 addition
+        print "listing all networks in HIL to show " + args.cloudresource + " network has been added correctly"
+        quads.quads_rest_call('GET', hil_url, '/networks')      #EC528 addition
+
+        print "adding " + args.cloudresource + " to quads data"
         quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
