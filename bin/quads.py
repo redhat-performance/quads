@@ -215,13 +215,18 @@ def main(argv):
         exit(1)
 
     if args.hostresource:
+
+        quads.quads_rest_call('POST', hil_url, '/project/' + args.hostcloud + '/connect_node', json.dumps({'node': args.hostresource}))     #EC528 addition
         quads.quads_update_host(args.hostresource, args.hostcloud, args.force)
         exit(0)
 
     if args.cloudresource:
+
         quads.quads_rest_call('PUT', hil_url, '/project/' + args.cloudresource)     #EC528 addition
         quads.quads_rest_call('GET', hil_url, '/projects')      #EC528 addition
-        quads.quads_rest_call('PUT', hil_url, '/network/' + args.cloudresource, json.dumps({"owner": args.cloudresource, "access": args.cloudresource, "net_id": ""}))
+        quads.quads_rest_call('PUT', hil_url, '/network/' + args.cloudresource, json.dumps({"owner": args.cloudresource, "access": args.cloudresource, "net_id": ""}))  #EC528 addition
+        quads.quads_rest_call('GET', hil_url, '/networks')      #EC528 addition
+
         quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
