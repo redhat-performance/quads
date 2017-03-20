@@ -41,6 +41,9 @@ function reconfigure() {
 
     PIDFILE=$data_dir/ansible/$target
 
+    # check to see if there is already a process running that is dealing with
+    # boot order for this host.  If so, return.
+
     if [ -f $PIDFILE ]; then
         if [ -d /proc/$(cat $PIDFILE) ]; then
             if [ "$(cat /proc/$(cat $PIDFILE)/cmdline | strings -1 | grep $0)" ]; then
@@ -51,7 +54,26 @@ function reconfigure() {
         fi
     fi
 
+    # safety check to avoid too many processes running at once
+    if [ "$(ps auxww | grep ansible-playbook | grep -v grep | wc -l)" -gt 60 ]; then
+        echo Too many ansible-playbook processes running.  Try again later.
+        rm -f $host_inventory
+        return
+    fi
+
     echo ============ starting ansible @ $(date) >> /var/log/quads/$target 2>&1
+    # note that when you run a subshell using this construct:
+    #     command1 && command2 &
+    # then $! is really a fork of $0, and hence /proc/<pid>/cmdline will have
+    # the same name as $0, as opposed to the backgrounded command.  e.g.
+    # if this script is called quads-boot-order.sh, then when you call:
+    #    ansible-playbook -i blah $playbook && echo blab blah &
+    # followed by :
+    #    echo $! > $PIDFILE
+    # then the /proc/$(cat $PIDFILE)/cmdline will include "quads-boot-order.sh"
+    # as opposed to "ansible-playook".  This is due to the && construct forcing
+    # the subshell.
+
     ansible-playbook -i $host_inventory $playbook 1>>/var/log/quads/$target 2>&1 && echo $playbook_type > $data_dir/bootstate/$target || echo $playbook_type > $data_dir/boot/$target &
     echo $! > $PIDFILE
     sleep 60
@@ -79,4 +101,3 @@ for h in $($quads --ls-hosts) ; do
         reconfigure $h
     fi
 done
-
