@@ -553,11 +553,15 @@ git clone https://github.com/redhat-performance/quads
 ```
 
 * Setup username/email for git and gerrithub:
+  - Ensure Github and Gerrithub are linked by [signing into Gerrithub via Github](https://review.gerrithub.io/login)
+  - match ```gitreview.username``` to your Github username
+  - match ```user.name``` to your real name or how you want credit for commits to display in Git history.
+  - match ```user.email``` to your email address associated with Github.
 
 ```
-git config --global user.email "example@example.com"
-git config --global user.name "example"
-git config --global --add gitreview.username "example"
+git config --global user.email "venril@karnors-castle.com"
+git config --global user.name "Venril Sathir"
+git config --global --add gitreview.username "vsathir"
 ```
 
 * Make your changes
