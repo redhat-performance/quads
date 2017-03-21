@@ -1,4 +1,10 @@
 #!/bin/sh
+# This is only used for Dell servers that require toggling
+# the PXE flag and interface order on the provisioning
+# interface to accomodate # OpenStack Directory-deployed clouds.
+# See:
+# https://github.com/redhat-performance/quads/tree/master/templates
+# https://github.com/redhat-performance/quads/tree/master/ansible
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then
     echo "$(basename $0): could not find load-config.sh"
@@ -10,6 +16,7 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads.py
 install_dir=${quads["install_dir"]}
 data_dir=${quads["data_dir"]}
+ansible_max_proc=${quads["ansible_max_proc"]}
 
 function reconfigure() {
     target=$1
@@ -55,7 +62,7 @@ function reconfigure() {
     fi
 
     # safety check to avoid too many processes running at once
-    if [ "$(pgrep -f ansible-playbook -c)" -gt 60 ]; then
+    if [ "$(pgrep -f ansible-playbook -c)" -gt $ansible_max_proc ]; then
         echo Too many ansible-playbook processes running.  Try again later.
         rm -f $host_inventory
         return
