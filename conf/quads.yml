@@ -88,3 +88,11 @@ visual_web_dir: /var/www/html/visual
 # traditional default 1st host in an assignment is put back
 # in the pile and included in instackenv.json
 foreman_director_parameter: nullos
+
+# ansible boot order playbook settings
+# this determines maximum number of running ansible-playbook
+# processes.  We use ansible for toggling PXE and boot order
+# on Dell servers via racadm specifically for accomodating
+# OpenStack # Director-deployed machines but
+# this isn't used for other purposes.
+ansible_max_proc: 60
