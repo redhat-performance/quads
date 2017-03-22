@@ -15,3 +15,21 @@
 # Duck typing will be used to dynamically assign to a variable in libquads.py a concrete instance of the specified
 # subclass (using the "class mapper" dictionary). The quads library will thus be decoupled from any knowledge of
 # the specific hardware service being used, as it can now make calls based on this generic interface.
+
+
+# abstract methods to be overwritten by concrete subclasses:
+# note: these are only examples and do not describe the actual prototypes
+
+
+#   remove_host():
+#   remove_cloud():
+#   update_host():
+#   update_cloud():
+#   move_hosts():
+#   list_hosts():
+#   list_clouds():
+
+# this list may need to expand to accommodate for scheduling behavior, but for now we assume that scheduling
+# be able to continue with minimal changes (only thing that this will change is where QUADS pulls its data from)
+
+# assuming for now that scheduling services will not have to be
