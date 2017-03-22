@@ -33,7 +33,7 @@ function craft_initial_message() {
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
-        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
@@ -95,7 +95,7 @@ function craft_future_initial_message() {
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
-        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
@@ -134,7 +134,10 @@ EOI
         fi
         if ${quads["irc_notify"]} ; then
             # send IRC notification
-            printf "$ircbot_channel QUADS: $cloudinfo is defined and upcoming! - http://${quads["wp_wiki"]}/assignments/#$env_to_report" | nc -w 1 $ircbot_ipaddr $ircbot_port
+            # We are disabling this as it's noisy when we define a lot of
+            # assignments, you may find it useful however.
+            #printf "$ircbot_channel QUADS: $cloudinfo is defined and upcoming! - http://${quads["wp_wiki"]}/assignments/#$env_to_report" | nc -w 1 $ircbot_ipaddr $ircbot_port
+            :
         fi
     fi
     cat $msg_file
@@ -154,7 +157,7 @@ function craft_message() {
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
-        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
 
     if [ ! -f ${data_dir}/report/${report_file} ]; then
@@ -220,7 +223,7 @@ function craft_future_message() {
     additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
-        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/')"
+        cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
         touch ${data_dir}/report/${report_file}
