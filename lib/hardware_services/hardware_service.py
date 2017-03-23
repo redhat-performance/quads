@@ -1,7 +1,7 @@
 # EC528 change
 #
 # This will be an abstract class (perhaps can use abc) that will serve as a generic interface
-# for QUADS to interact with its hardware. It will allow QUADS to substitute different hardware
+# for QUADS to interact with and isolate its hardware. It will allow QUADS to substitute different hardware
 # isolation services while making minimal changes to the current implementation of QUADS.
 
 # This class will declare methods corresponding to the functions defined in lib/libquads.py so that QUADS can
@@ -30,6 +30,4 @@
 #   list_clouds():
 
 # this list may need to expand to accommodate for scheduling behavior, but for now we assume that scheduling
-# be able to continue with minimal changes (only thing that this will change is where QUADS pulls its data from)
-
-# assuming for now that scheduling services will not have to be
+# will be able to continue with minimal changes (only thing that this will change is where QUADS pulls its data from)
