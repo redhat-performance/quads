@@ -22,11 +22,17 @@
 
 
 #   remove_host():
+
 #   remove_cloud():
+
 #   update_host():
+
 #   update_cloud():
+
 #   move_hosts():
+
 #   list_hosts():
+
 #   list_clouds():
 
 # this list may need to expand to accommodate for scheduling behavior, but for now we assume that scheduling
