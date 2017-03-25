@@ -35,30 +35,44 @@
 import sys
 from abc import ABCMeta, abstractmethod
 
-class Hardware_Service(object):
+class HardwareService(object):
 
-    _metaclass_ABCMeta
+    __metaclass__ = ABCMeta
 
     @abstractmethod
     def update_cloud(self, **kwargs):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def update_host(self, **kwargs):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def remove_cloud(self, **kwargs):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def remove_host(self, **kwargs):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def move_hosts(self, **kwargs):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def list_clouds(self):
+        """ TODO add documentation
+        """
 
     @abstractmethod
     def list_hosts(self):
+        """ TODO add documentation
+        """
 
 _hardware_service = None
 
