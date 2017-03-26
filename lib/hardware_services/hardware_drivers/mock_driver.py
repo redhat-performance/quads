@@ -11,11 +11,10 @@ import logging
 from subprocess import call
 from subprocess import check_call
 
-from hardware_service import HardwareService
+from hardware_services.hardware_service import HardwareService
 
-class MockDriver(object):
-    
-    
+class MockDriver(HardwareService):
+
     def update_cloud(self, **kwargs):
         print "updated cloud"
 
@@ -33,8 +32,8 @@ class MockDriver(object):
 
     def list_clouds(self):
         print "list clouds"
-    
+
     def list_hosts(self):
         print "list hosts"
-    
-    
+
+
