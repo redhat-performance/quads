@@ -1,9 +1,11 @@
 #!/bin/python
 import sys
-from hardware_services.hardware_service import HardwareService, _hardware_service, set_hardware_service
+from hardware_services.hardware_service import get_hardware_service, set_hardware_service
 from hardware_services.hardware_drivers.mock_driver import MockDriver
 
-cls = MockDriver()
+set_hardware_service(MockDriver())
+
+cls = get_hardware_service()
 
 cls.update_cloud()
 cls.update_host()

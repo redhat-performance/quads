@@ -74,7 +74,9 @@ class HardwareService(object):
         """ TODO add documentation
         """
 
+
 _hardware_service = None
+
 
 def set_hardware_service(hardware_service):
 
@@ -83,6 +85,7 @@ def set_hardware_service(hardware_service):
         sys.exit("Error: _hardware_service already set")
 
     _hardware_service = hardware_service
+
 
 def get_hardware_service():
     return _hardware_service
