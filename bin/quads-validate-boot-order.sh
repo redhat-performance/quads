@@ -1,4 +1,7 @@
 #!/bin/sh
+# This is only used for managing boot order and PXE
+# flags for Dell hardware utilized for Director-deployed
+# OpenStack machines.
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then
     echo "$(basename $0): could not find load-config.sh"
@@ -51,11 +54,7 @@ for h in $(hammer host list --search params.${foreman_param}=false | grep redhat
     if [ -f $data_dir/bootstate/$h ]; then
         current_state=$(cat $data_dir/bootstate/$h)
         if [ "$current_state" != "foreman" ]; then
-            build_state=$(hammer host info --name $h | grep Build | awk '{ print $NF }')
-            if [ "$build_state" = "no" ]; then
-                echo foreman > $data_dir/boot/$h
-            fi
+            echo foreman > $data_dir/boot/$h
         fi
     fi
 done
-
