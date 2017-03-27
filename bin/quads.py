@@ -9,9 +9,11 @@ import os
 import sys
 import requests # EC528 addition
 import json     # EC528 addition
+import importlib #EC528 addition
 import logging
 from subprocess import call
 from subprocess import check_call
+
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
