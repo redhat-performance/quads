@@ -33,6 +33,9 @@ wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
 wp_wiki_assignments_title: assignments
 wp_wiki_assignments_page_id: 357
+# optional management of wordpress content via git repo
+wp_wiki_git_manage: false
+wp_wiki_git_repo_path: /opt/quads/git/wiki
 
 # (optional RT location)
 rt_url: https://engineering.example.com/rt/Ticket/Display.html
