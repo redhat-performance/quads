@@ -56,13 +56,22 @@ function print_unmanaged() {
 |--------------------|---------------|
 EOF
 
-TMPHAMMERFILE=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
+TMPHAMMERFILE1=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
 TMPHAMMERFILE2=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-hammer host list --per-page 10000 | grep mgmt | egrep -v "$exclude_hosts" | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
-hammer host list --search params.broken_state=true | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
-for h in $(cat $TMPHAMMERFILE) ; do
+TMPHAMMERFILE3=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
+hammer host list --per-page 10000 1>$TMPHAMMERFILE1 2>&1
+if [ $? -gt 0 ]; then
+    exit 1
+fi
+cat $TMPHAMMERFILE1 | grep mgmt | egrep -v "$exclude_hosts" | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
+hammer host list --search params.broken_state=true 1>$TMPHAMMERFILE1 2>&1
+if [ $? -gt 0 ]; then
+    exit 1
+fi
+cat $TMPHAMMERFILE1 | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE3 2>&1
+for h in $(cat $TMPHAMMERFILE2) ; do
     nodename=$(echo $h | sed 's/mgmt-//')
-    if grep -q $nodename $TMPHAMMERFILE2 ; then
+    if grep -q $nodename $TMPHAMMERFILE3 ; then
         :
     else
         u=$(echo $h | awk -F- '{ print $3 }' | sed 's/^h//')
@@ -72,7 +81,7 @@ for h in $(cat $TMPHAMMERFILE) ; do
         fi
     fi
 done
-rm -f $TMPHAMMERFILE $TMPHAMMERFILE2
+rm -f $TMPHAMMERFILE1 $TMPHAMMERFILE2 $TMPHAMMERFILE3
 }
 
 function print_faulty() {
@@ -84,15 +93,20 @@ function print_faulty() {
 |--------------------|---------------|
 EOF
 
-TMPHAMMERFILE=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-hammer host list --search params.broken_state=true | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE 2>&1
-for h in $(cat $TMPHAMMERFILE) ; do
+TMPHAMMERFILE1=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
+TMPHAMMERFILE2=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
+hammer host list --search params.broken_state=true 1>$TMPHAMMERFILE1 2>&1
+if [ $? -gt 0 ]; then
+    exit 1
+fi
+cat $TMPHAMMERFILE1 | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
+for h in $(cat $TMPHAMMERFILE2) ; do
     nodename=$(echo $h | sed 's/mgmt-//')
     u=$(echo $h | awk -F- '{ print $3 }' | sed 's/^h//')
     short_host=$(echo $nodename | awk -F. '{ print $1 }')
     echo "| $short_host | <a href=http://mgmt-$h/ target=_blank>console</a> |"
 done
-rm -f $TMPHAMMERFILE
+rm -f $TMPHAMMERFILE1 $TMPHAMMERFILE2
 }
 
 function add_row() {
