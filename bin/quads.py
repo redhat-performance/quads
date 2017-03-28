@@ -14,6 +14,8 @@ import logging
 from subprocess import call
 from subprocess import check_call
 
+from lib.hardware_services.hardware_service
+
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
