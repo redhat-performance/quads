@@ -14,7 +14,7 @@ import logging
 from subprocess import call
 from subprocess import check_call
 
-from lib.hardware_services.hardware_service
+from lib.hardware_services.hardware_service import set_hardware_service
 
 
 logger = logging.getLogger('quads')
@@ -50,6 +50,11 @@ def main(argv):
 
     if "install_dir" not in quads_config:
         print "quads: Missing \"install_dir\" in " + quads_config_file
+        exit(1)
+
+
+    if "hardware_service" not in quads_config:
+        print "quads: Missing \"hardware_service\" in " + quads_config_file
         exit(1)
 
     sys.path.append(quads_config["install_dir"] + "/lib")
