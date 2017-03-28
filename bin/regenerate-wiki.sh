@@ -56,7 +56,7 @@ if $wp_wiki_git_manage ; then
         :
     else
         $bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "$wp_wiki_main_title" --page-id $wp_wiki_main_page_id
-        git push
+        git push origin master
     fi
     popd
 else
@@ -82,7 +82,7 @@ if $wp_wiki_git_manage ; then
         :
     else
         $bindir/racks-wiki.py --markdown $tmpfile --wp-url http://$wp_wiki/xmlrpc.php --wp-username  $wp_username --wp-password  $wp_password --page-title "$wp_wiki_assignments_title" --page-id $wp_wiki_assignments_page_id
-        git push
+        git push origin master
     fi
     popd
 else
