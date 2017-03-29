@@ -72,7 +72,7 @@ class QuadsData(object):
 
 class Quads(object):
 
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
+    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force, hardwareservice):
         """
         Initialize a quads object.
         """
@@ -83,6 +83,8 @@ class Quads(object):
         self.logger = logging.getLogger("quads.Quads")
         self.logger.setLevel(logging.DEBUG)
         set_hardware_service(JuniperDriver())
+
+        print hardwareservice
 
         if initialize:
             self.quads_init_data(force)

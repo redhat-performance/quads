@@ -66,6 +66,10 @@ def main(argv):
     defaultstatedir = quads_config["data_dir"] + "/state"
     defaultmovecommand = "/bin/echo"
 
+    # EC528 addition - sets hardware service
+    defaulthardwareservice = quads_config["hardware_service"]
+
+
 
     # added for EC528 HIL-QUADS integration project - not a good place for this variable - should be moved eventually
     hil_url = 'http://127.0.0.1:5000'
@@ -113,6 +117,8 @@ def main(argv):
 
     parser.add_argument('--hil-api-action', dest='hilapiaction', type=str, default=None, help='HIL API Action');
     parser.add_argument('--hil-api-call', dest='hilapicall', type=str, default=None, help='HIL API Call');
+
+    parser.add_argument('--set-hardware-service', dest='hardwareservice', type=str, default=defaulthardwareservice, help='Set Hardware Serve');
 
 
     args = parser.parse_args()
@@ -180,7 +186,7 @@ def main(argv):
     #            a cloud environment.
 
     quads = libquads.Quads(args.config, args.statedir, args.movecommand, args.datearg,
-                  args.syncstate, args.initialize, args.force)
+                  args.syncstate, args.initialize, args.force, args.hardwareservice)
 
     # should these be mutually exclusive?
     if args.lshosts:
