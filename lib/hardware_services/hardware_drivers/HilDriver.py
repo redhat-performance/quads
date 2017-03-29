@@ -25,9 +25,11 @@ class HilDriver(HardwareService):
     
     def update_cloud(self, quadsinstance, **kwargs):
         print "updated cloud"
+	#kyle has these defined in his local git repo but he didn't push it
 
     def update_host(self, quadsinstance, **kwargs):
         print "Updated host"
+	#kyle has these defined in his local git repo but he didn't push it
 
     def remove_cloud(self, quadsinstance, **kwargs):
         targetProject = kwargs['rmcloud']
@@ -41,6 +43,7 @@ class HilDriver(HardwareService):
 
     def move_hosts(self, quadsinstance, **kwargs):
         #print "moved hosts"
+	#DOESN'T WORK
 	targetProject = kwargs['movecommand']
 	current = kwargs['statedir']
 	quadsinstance.quads_rest_call("POST", hil_url, '/project/'+current+'/detach_node')
