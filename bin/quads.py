@@ -9,9 +9,14 @@ import os
 import sys
 import requests # EC528 addition
 import json     # EC528 addition
+import importlib #EC528 addition
 import logging
 from subprocess import call
 from subprocess import check_call
+
+sys.path.append(os.path.dirname(__file__) + "/../")
+from lib.hardware_services.hardware_service import set_hardware_service
+
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -48,13 +53,23 @@ def main(argv):
         print "quads: Missing \"install_dir\" in " + quads_config_file
         exit(1)
 
+
+    if "hardware_service" not in quads_config:
+        print "quads: Missing \"hardware_service\" in " + quads_config_file
+        exit(1)
+
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
+    sys.path.append(os.path.dirname(__file__) + "/../lib/hardware_services/hardware_drivers/")
     import libquads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
     defaultmovecommand = "/bin/echo"
+
+    # EC528 addition - sets hardware service
+    defaulthardwareservice = quads_config["hardware_service"]
+
 
 
     # added for EC528 HIL-QUADS integration project - not a good place for this variable - should be moved eventually
@@ -103,6 +118,8 @@ def main(argv):
 
     parser.add_argument('--hil-api-action', dest='hilapiaction', type=str, default=None, help='HIL API Action');
     parser.add_argument('--hil-api-call', dest='hilapicall', type=str, default=None, help='HIL API Call');
+
+    parser.add_argument('--set-hardware-service', dest='hardwareservice', type=str, default=defaulthardwareservice, help='Set Hardware Serve');
 
 
     args = parser.parse_args()
@@ -170,7 +187,7 @@ def main(argv):
     #            a cloud environment.
 
     quads = libquads.Quads(args.config, args.statedir, args.movecommand, args.datearg,
-                  args.syncstate, args.initialize, args.force)
+                  args.syncstate, args.initialize, args.force, args.hardwareservice)
 
     # should these be mutually exclusive?
     if args.lshosts:
