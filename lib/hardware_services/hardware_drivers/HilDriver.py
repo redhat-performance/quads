@@ -40,7 +40,7 @@ class HilDriver(HardwareService):
 	quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost) 
 
     def move_hosts(self, **kwargs):
-        print "moved hosts"
+        #print "moved hosts"
 
     def list_clouds(self, quadsinstance):
         #print "list clouds"
