@@ -1,4 +1,7 @@
 #!/bin/sh
+# This generates an OpenStack instackenv.json
+# template on demand or when a the machine allocation
+# changes or their Overcloud membership is altered.
 #
 # Dependencies: quads
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads.py
@@ -38,6 +41,7 @@ rm -f json_web_path/*.json
 # undercloud just means the hosts that are ignored from the instackenv.
 # This is the list of hosts that have nullos=false.  The default is
 # the first host in an environment when it is first created.
+undercloud="$(hammer host list --search params.${foreman_parameter}=false | grep $domain  | awk '{ print $3 }' )"
 
 for cloud in $CLOUD_LIST ; do
     echo "macaddress,ipmi url,ipmi user, ipmi password, ipmi tool" > $TMPCSVFILE
@@ -47,7 +51,6 @@ for cloud in $CLOUD_LIST ; do
     fi
 
     HOST_LIST=$($SCHEDULER --cloud-only $cloud)
-    undercloud="$(hammer host list --search params.${foreman_param}=false | grep $domain  | awk '{ print $3 }' )"
     for h in $HOST_LIST ; do
         is_undercloud=false
         for uc in $undercloud ; do

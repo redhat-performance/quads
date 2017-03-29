@@ -1,7 +1,5 @@
 # this class will inherit from hardware_service.py and overwrite all of its methods
 # with hil-specific behaviors - mostly through api calls to the HIL server
-# this class will inherit from hardware_service.py and overwrite all of its methods
-# with hil-specific behaviors - mostly through api calls to the HIL server
 
 from datetime import datetime
 import calendar
@@ -56,3 +54,4 @@ class HilDriver(HardwareService):
     def list_hosts(self, quadsinstance):
         #print "list hosts"
 	quadsinstance.quads_rest_call("GET", hil_url, '/nodes/all') #Testing 
+

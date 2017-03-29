@@ -4,10 +4,12 @@ import yaml
 import os
 import requests
 import logging
+import sys
+import importlib
 from subprocess import check_call
 from hardware_services.hardware_service import get_hardware_service, set_hardware_service
-from hardware_services.hardware_drivers.juniper_driver import JuniperDriver
-from hardware_services.hardware_drivers.hil_driver import HilDriver #HIL Driver importing
+sys.path.append(os.path.dirname(__file__) + "/hardware_services.hardware_drivers/")
+
 
 class Hosts(object):
     def __init__(self, data):
@@ -72,8 +74,8 @@ class QuadsData(object):
 
 
 class Quads(object):
-    
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
+
+    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force, hardwareservice):
         """
         Initialize a quads object.
         """
@@ -83,9 +85,11 @@ class Quads(object):
         self.datearg = datearg
         self.logger = logging.getLogger("quads.Quads")
         self.logger.setLevel(logging.DEBUG)
-        #set_hardware_service(JuniperDriver())
-	set_hardware_service(HilDriver())  #HIL driver addition
 
+        #EC528 addition - dynamically import driver module and set hardware service
+        importlib.import_module(hardwareservice)
+        set_hardware_service(getattr(sys.modules[hardwareservice], hardwareservice)())
+        self.hardware_service = get_hardware_service()
 
         if initialize:
             self.quads_init_data(force)
@@ -207,12 +211,12 @@ class Quads(object):
     # list the hosts
     def quads_list_hosts(self):
         # list just the hostnames
-        get_hardware_service().list_hosts(self)
+        self.hardware_service.list_hosts(self)
 
     # list the hosts
     def quads_list_clouds(self):
         # list just the hostnames
-        get_hardware_service().list_clouds(self)
+        self.hardware_service.list_clouds(self)
 
     # list the owners
     def quads_list_owners(self, cloudonly):
@@ -283,8 +287,8 @@ class Quads(object):
         # remove a specific host
 
         kwargs = {'rmhost': rmhost}
-        
-        get_hardware_service().remove_host(self, **kwargs)
+
+        self.hardware_service.remove_host(self, **kwargs)
 
         return
 
@@ -293,8 +297,8 @@ class Quads(object):
         # remove a cloud (only if no hosts use it)
 
         kwargs = {'rmcloud': rmcloud}
-        
-        get_hardware_service().remove_cloud(self, **kwargs)
+
+        self.hardware_service.remove_cloud(self, **kwargs)
 
         return
 
@@ -303,19 +307,19 @@ class Quads(object):
         # define or update a host resouce
 
         kwargs = {'hostresource': hostresource, 'hostcloud': hostcloud, 'forceupdate': forceupdate}
-        
-        get_hardware_service().update_host(self, **kwargs)
+
+        self.hardware_service.update_host(self, **kwargs)
 
         return
 
     # update a cloud resource
     def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket, qinq):
         # define or update a cloud resource
-            
+
         kwargs = {'cloudresource': cloudresource, 'description': description, 'forceupdate': forceupdate,
                   'cloudowner': cloudowner, 'ccusers': ccusers, 'cloudticket': cloudticket, 'qinq': qinq}
-        
-        get_hardware_service().update_cloud(self, **kwargs)
+
+        self.hardware_service.update_cloud(self, **kwargs)
 
         return
 
@@ -498,8 +502,8 @@ class Quads(object):
 
         kwargs = {'movecommand': movecommand, 'dryrun': dryrun, 'statedir': statedir,
                   'datearg': datearg}
-        
-        get_hardware_service().move_hosts(self, **kwargs)
+
+        self.hardware_service.move_hosts(self, **kwargs)
 
         exit(0)
 
