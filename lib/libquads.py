@@ -10,6 +10,7 @@ from subprocess import check_call
 from hardware_services.hardware_service import get_hardware_service, set_hardware_service
 sys.path.append(os.path.dirname(__file__) + "/hardware_services.hardware_drivers/")
 
+
 class Hosts(object):
     def __init__(self, data):
         """
