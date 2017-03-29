@@ -39,8 +39,12 @@ class HilDriver(HardwareService):
 	targetHost = kwargs['rmhost']
 	quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost) 
 
-    def move_hosts(self, **kwargs):
+    def move_hosts(self, quadsinstance, **kwargs):
         #print "moved hosts"
+	targetProject = kwargs['movecommand']
+	current = kwargs['statedir']
+	quadsinstance.quads_rest_call("POST", hil_url, '/project/'+current+'/detach_node')
+	quadsinstance.quads_rest_call("POST", hil_url, '/project/'+targetProject+'/connect_node')
 
     def list_clouds(self, quadsinstance):
         #print "list clouds"
