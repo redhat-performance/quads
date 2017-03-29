@@ -84,8 +84,6 @@ class Quads(object):
         self.logger.setLevel(logging.DEBUG)
         set_hardware_service(JuniperDriver())
 
-        print hardwareservice
-
         if initialize:
             self.quads_init_data(force)
         try:
