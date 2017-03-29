@@ -8,7 +8,6 @@ import sys
 import importlib
 from subprocess import check_call
 from hardware_services.hardware_service import get_hardware_service, set_hardware_service
-from hardware_services.hardware_drivers.juniper_driver import JuniperDriver
 sys.path.append(os.path.dirname(__file__) + "/hardware_services.hardware_drivers/")
 
 class Hosts(object):
