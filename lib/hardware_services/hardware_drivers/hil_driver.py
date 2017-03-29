@@ -21,6 +21,8 @@ from hardware_services.hardware_service import HardwareService
 hil_url = 'http://127.0.0.1:5000'
 
 class HilDriver(HardwareService):
+    
+    
     def update_cloud(self, quadsinstance, **kwargs):
         print "updated cloud"
 
@@ -28,12 +30,16 @@ class HilDriver(HardwareService):
         print "Updated host"
 
     def remove_cloud(self, quadsinstance, **kwargs):
-        print "removed cloud"
+        targetProject = kwargs['rmcloud']
+	quadsinstance.quads_rest_call("DELETE", hil_url, '/project/'+ targetProject)        
+	#print "removed cloud"
 
-    def remove_host(self, quadsinstance, **kwargs):
-        print "removed host"
+    def remove_host(self,quadsinstance, **kwargs):
+        #print "removed host"
+	targetHost = kwargs['rmhost']
+	quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost) 
 
-    def move_hosts(self, quadsinstance, **kwargs):
+    def move_hosts(self, **kwargs):
         print "moved hosts"
 
     def list_clouds(self, quadsinstance):
