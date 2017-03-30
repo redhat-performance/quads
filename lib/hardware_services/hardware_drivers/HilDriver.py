@@ -19,39 +19,36 @@ from hardware_services.hardware_service import HardwareService
 hil_url = 'http://127.0.0.1:5000'
 
 class HilDriver(HardwareService):
-    
-    
+
+
     def update_cloud(self, quadsinstance, **kwargs):
-        print "updated cloud"
-	#kyle has these defined in his local git repo but he didn't push it
+
 
     def update_host(self, quadsinstance, **kwargs):
-        print "Updated host"
-	#kyle has these defined in his local git repo but he didn't push it
+
 
     def remove_cloud(self, quadsinstance, **kwargs):
         targetProject = kwargs['rmcloud']
-	quadsinstance.quads_rest_call("DELETE", hil_url, '/project/'+ targetProject)        
-	#print "removed cloud"
+        quadsinstance.quads_rest_call("DELETE", hil_url, '/project/'+ targetProject)
+
 
     def remove_host(self,quadsinstance, **kwargs):
-        #print "removed host"
-	targetHost = kwargs['rmhost']
-	quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost) 
+        targetHost = kwargs['rmhost']
+        quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost)
+
 
     def move_hosts(self, quadsinstance, **kwargs):
-        #print "moved hosts"
-	#DOESN'T WORK
-	targetProject = kwargs['movecommand']
-	current = kwargs['statedir']
-	quadsinstance.quads_rest_call("POST", hil_url, '/project/'+current+'/detach_node')
-	quadsinstance.quads_rest_call("POST", hil_url, '/project/'+targetProject+'/connect_node')
+        targetProject = kwargs['movecommand']
+        current = kwargs['statedir']
+        quadsinstance.quads_rest_call("POST", hil_url, '/project/'+current+'/detach_node')
+        quadsinstance.quads_rest_call("POST", hil_url, '/project/'+targetProject+'/connect_node')
+
 
     def list_clouds(self, quadsinstance):
-        #print "list clouds"
-	quadsinstance.quads_rest_call("GET", hil_url, '/projects') 
+        quadsinstance.quads_rest_call("GET", hil_url, '/projects')
+
 
     def list_hosts(self, quadsinstance):
-        #print "list hosts"
-	quadsinstance.quads_rest_call("GET", hil_url, '/nodes/all') #Testing 
+        quadsinstance.quads_rest_call("GET", hil_url, '/nodes/all')
+
 
