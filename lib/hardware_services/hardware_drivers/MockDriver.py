@@ -17,6 +17,7 @@ class MockDriver(HardwareService):
 
     def update_cloud(self, quadsinstance, **kwargs):
         print "updating cloud"
+        print "just kidding - it's the Mock Driver! Going to list all keyword arguments for testing"
         for key in kwargs:
             print key, ": ", kwargs[key]
 
@@ -40,6 +41,7 @@ class MockDriver(HardwareService):
 
     def list_clouds(self, quadsinstance):
         print "listing clouds"
+        print "just kidding - no clouds here, it's the Mock Driver!"
 
     def list_hosts(self, quadsinstance):
         print "listing hosts"

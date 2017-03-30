@@ -251,7 +251,7 @@ def main(argv):
        # quads.quads_rest_call('PUT', hil_url, '/project/' + args.cloudresource)     #EC528 addition
         #print "adding network to HIL and attaching it to " + args.cloudresource
         #quads.quads_rest_call('PUT', hil_url, '/network/' + args.cloudresource, json.dumps({"owner": args.cloudresource, "access": args.cloudresource, "net_id": ""}))  #EC528 addition
-        print "adding " + args.cloudresource + " to quads data"
+        #print "adding " + args.cloudresource + " to quads data"
         quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
