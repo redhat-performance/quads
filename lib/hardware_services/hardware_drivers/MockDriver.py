@@ -16,24 +16,32 @@ from hardware_services.hardware_service import HardwareService
 class MockDriver(HardwareService):
 
     def update_cloud(self, quadsinstance, **kwargs):
-        print "updated cloud"
+        print "updating cloud"
+        for key in kwargs:
+            print key, ": ", kwargs[key]
 
     def update_host(self, quadsinstance, **kwargs):
-        print "Updated host"
+        print "Updating host"
+        for key in kwargs:
+            print key, ": ", kwargs[key]
 
     def remove_cloud(self, quadsinstance, **kwargs):
-        print "removed cloud"
+        print "removing cloud"
+        for key in kwargs:
+            print key, ": ", kwargs[key]
 
     def remove_host(self, quadsinstance, **kwargs):
-        print "removed host"
+        print "removing host from cloud"
 
     def move_hosts(self, quadsinstance, **kwargs):
-        print "moved hosts"
+        print "moving hosts"
+        for key in kwargs:
+            print key, ": ", kwargs[key]
 
     def list_clouds(self, quadsinstance):
-        print "list clouds"
+        print "listing clouds"
 
     def list_hosts(self, quadsinstance):
-        print "list hosts"
+        print "listing hosts"
 
 
