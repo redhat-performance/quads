@@ -16,7 +16,7 @@ from subprocess import check_call
 
 from hardware_services.hardware_service import HardwareService
 
-# added for EC528 HIL-QUADS integration project - not a good place for this variable - should be moved eventually
+# added for EC528 HIL-QUADS integration project
 hil_url = 'http://127.0.0.1:5000'
 
 class HilDriver(HardwareService):
@@ -33,6 +33,7 @@ class HilDriver(HardwareService):
 
     def remove_cloud(self, quadsinstance, **kwargs):
         targetProject = kwargs['rmcloud']
+        quadsinstance.quads_rest_call("DELETE", hil_url, '/network/'+ targetProject)
         quadsinstance.quads_rest_call("DELETE", hil_url, '/project/'+ targetProject)
 
 
