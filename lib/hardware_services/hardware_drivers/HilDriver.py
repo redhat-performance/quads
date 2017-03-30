@@ -10,6 +10,7 @@ import os
 import sys
 import requests
 import logging
+import json
 from subprocess import call
 from subprocess import check_call
 
@@ -22,9 +23,12 @@ class HilDriver(HardwareService):
 
 
     def update_cloud(self, quadsinstance, **kwargs):
+        quadsinstance.quads_rest_call('PUT', hil_url, '/project/' + kwargs['cloudresource'])
+        quadsinstance.quads_rest_call('PUT', hil_url, '/network/' + kwargs['cloudresource'], json.dumps({"owner": kwargs['cloudresource'], "access": kwargs['cloudresource'], "net_id": ""}))
 
 
     def update_host(self, quadsinstance, **kwargs):
+        quadsinstance.quads_rest_call('POST', hil_url, '/project/' + args.hostcloud + '/connect_node', json.dumps({'node': args.hostresource}))
 
 
     def remove_cloud(self, quadsinstance, **kwargs):
