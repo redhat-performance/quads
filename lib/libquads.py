@@ -562,6 +562,6 @@ class Quads(object):
     def quads_rest_call(self, method, url, request, json_data=None):
         r = requests.request(method, url + request, data=json_data)
         if method == 'GET':
-            print r.text
+            return r
 
 

@@ -28,7 +28,12 @@ class HilDriver(HardwareService):
 
 
     def update_host(self, quadsinstance, **kwargs):
-        quadsinstance.quads_rest_call('POST', hil_url, '/project/' + args.hostcloud + '/connect_node', json.dumps({'node': args.hostresource}))
+        quadsinstance.quads_rest_call('POST', hil_url, '/project/' + kwargs['hostcloud'] + '/connect_node', json.dumps({'node': kwargs['hostresource']}))
+        node_info = quadsinstance.quads_rest_call('GET', hil_url, '/node/' + kwargs['hostresource'])
+        node = node_info.json()
+        for nic in node['nics']:        # a node in quads will only have one nic per network
+            quadsinstance.quads_rest_call('POST', hil_url, '/node/' + kwargs['hostresource'] + '/nic/' + nic['label'] + '/connect_network', json.dumps({'network': kwargs['hostcloud']}))
+
 
 
     def remove_cloud(self, quadsinstance, **kwargs):
@@ -50,10 +55,14 @@ class HilDriver(HardwareService):
 
 
     def list_clouds(self, quadsinstance):
-        quadsinstance.quads_rest_call("GET", hil_url, '/projects')
+        projects = quadsinstance.quads_rest_call("GET", hil_url, '/projects')
+        print projects.text
 
 
     def list_hosts(self, quadsinstance):
-        quadsinstance.quads_rest_call("GET", hil_url, '/nodes/all')
+        hosts = quadsinstance.quads_rest_call("GET", hil_url, '/nodes/all')
+        #hosts_yml = yaml.dump(json.loads(hosts.text), default_flow_style=False)
+        print hosts.text
+
 
 
