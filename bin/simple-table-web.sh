@@ -14,10 +14,24 @@ declare -A month=()
 declare -A year=()
 declare -A days=()
 
-for i in $(seq 0 $months_out) ; do
-    month[$i]="$(date -d "now + $i months" +%m)"
-    year[$i]="$(date -d "now + $i months"  +%Y)"
-    days[$i]="$(date -d "${month[$i]}/01/${year[$i]} + 1 month - 1day" +%d)"
+month[0]=$(date -d "now" +%m)
+year[0]=$(date -d "now" +%Y)
+if [ $month[0] == 12 ]; then
+    days[0]=31
+else
+    days[0]="$(date -d "$(expr ${month[0]} + 1)/01/${year[0]} - 1day" +%d)"
+fi
+
+for i in $(seq 1 $months_out) ; do
+    month[$i]=$(expr ${month[0]} + $i)
+    year[$i]=${year[$(expr $i - 1)]}
+    if [ ${month[$i]} -gt 12 ]; then
+        month[$i]=$(expr ${month[$i]} - 12)
+        year[$i]=$(expr ${year[$i]} + 1)
+    fi
+    if [ ${month[$i]} -lt 10 ]; then
+        month[$i]=0${month[$i]}
+    fi
 done
 
 source $(dirname $0)/load-config.sh
