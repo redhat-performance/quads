@@ -1,9 +1,18 @@
 #!/bin/sh
 #
+############################################
 # QUADS Simulator 5000
 # Test quads using CI or in a sandbox.
 # We use this in a Jenkins instance  with the Gerrit
 # trigger plugin to be run on all patchsets.
+#
+# Requires: shellcheck, python-flake8
+#
+#  ./test-quads.sh 2>&1 | less
+#
+# If you're looking for a full sandbox setup
+# please use quads-sandbox.sh instead.
+#
 ############################################
 
 if [ -z "$1" ]; then
@@ -52,8 +61,9 @@ git log --no-decorate -n 1
 TMPDIR=$(mktemp -d /tmp/quadsXXXXXXX)
 DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
-quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR"
-
+LOGFILE=$TMPDIR/logfile
+quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
+bindir="$(dirname $0/)"
 tests="
 init
 declare_cloud01
@@ -144,6 +154,28 @@ for test in $tests ; do
   cat $DATA
 done
 rm -rf $TMPDIR
+
+echo ====== Initializing shellcheck with style-related exclusions
+
+shellcheck $bindir/*.sh --exclude=SC2086,SC2046,SC2143,SC1068,SC2112,SC2002,SC2039,SC2155,SC2015,SC2012,SC2013,SC2034,SC2006,SC2059,SC2148,SC2154,SC2121,SC2154,SC2028,SC2003,SC2035,SC2005,SC2027,SC2018,SC2019,SC2116
+
+if [ "$?" = "0" ]; then
+   :
+else
+   echo "FATAL error with one of the shell tools"
+   exit 1
+fi
+
+echo ====== Initializing flake8 Python tests with style-related exclusions
+
+flake8 $bindir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+
+if [ "$?" = "0" ]; then
+    :
+else
+    echo "FATAL error with one of the Python tools"
+    exit 1
+fi
 
 ## Jenkins post data here
 echo ========== FINISH == `date` ====================

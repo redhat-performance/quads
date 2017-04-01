@@ -5,6 +5,7 @@
 install_dir: /opt/quads
 data_dir: /opt/quads/data
 domain: example.com
+log: /opt/quads/log/quads.log
 
 # used for reporting
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
@@ -32,6 +33,9 @@ wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
 wp_wiki_assignments_title: assignments
 wp_wiki_assignments_page_id: 357
+# optional management of wordpress content via git repo
+wp_wiki_git_manage: false
+wp_wiki_git_repo_path: /opt/quads/git/wiki
 
 # (optional RT location)
 rt_url: https://engineering.example.com/rt/Ticket/Display.html
@@ -87,3 +91,11 @@ visual_web_dir: /var/www/html/visual
 # traditional default 1st host in an assignment is put back
 # in the pile and included in instackenv.json
 foreman_director_parameter: nullos
+
+# ansible boot order playbook settings
+# this determines maximum number of running ansible-playbook
+# processes.  We use ansible for toggling PXE and boot order
+# on Dell servers via racadm specifically for accomodating
+# OpenStack # Director-deployed machines but
+# this isn't used for other purposes.
+ansible_max_proc: 60
