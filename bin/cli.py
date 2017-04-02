@@ -1,3 +1,5 @@
+#!/bin/python
+
 # Copyright 2013-2014 Massachusetts Open Cloud Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +21,8 @@ import os
 import requests
 import sys
 import urllib
-import schema
 import abc
+import yaml
 
 from functools import wraps
 
@@ -831,3 +833,6 @@ def main():
             sys.exit(1)
         except InvalidAPIArgumentsException:
             sys.exit(2)
+
+if __name__ == "__main__":
+   main()
