@@ -6,7 +6,7 @@ parent_dir="$(dirname "$quads_dir")"
 hil_dir=${parent_dir}/hil
 
 if [ ! -d "$hil_dir" ]; then
-	echo "Couldn't find HIL directory. HIL directory should be ./../hil."
+	echo "Couldn't find HIL directory. HIL directory should be ./../../hil or equivalently quads/../hil ."
 	exit
 fi
 start_hil_server(){
