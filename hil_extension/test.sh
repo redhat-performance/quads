@@ -13,7 +13,7 @@ fi
 start_hil_server(){
 	cd $hil_dir
 	rm haas/haas.db
-	ps aux | grep '[h]aas serve 5000' | awk '{print $2}' | xargs kill -9 
+	ps aux | grep '[h]aas' | awk '{print $2}' | xargs kill -9 
 	source .venv/bin/activate
 	haas-admin db create
 	haas serve 5000
