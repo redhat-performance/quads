@@ -23,6 +23,7 @@ import sys
 import urllib
 import abc
 import yaml
+import json
 
 from functools import wraps
 
@@ -233,8 +234,7 @@ def check_status_code(response):
         raise FailedAPICallException()
     else:
         sys.stdout.write(response.text + "\n")
-    return response.json()
-
+    return response
 
 # TODO: This function's name is no longer very accurate.  As soon as it is
 # safe, we should change it to something more generic.
@@ -272,17 +272,59 @@ def do_post(url, data={}):
 
 
 def do_get(url, params=None):
-    return check_status_code(requests.request('GET', url, params=params))
-
+    return check_status_code(requests.get(url, params=params)).json()
 
 def do_delete(url):
     check_status_code(requests.request('DELETE', url))
 
 
 @cmd
+def serve(port):
+    try:
+        port = schema.And(
+            schema.Use(int),
+            lambda n: MIN_PORT_NUMBER <= n <= MAX_PORT_NUMBER).validate(port)
+    except schema.SchemaError:
+        raise InvalidAPIArgumentsException(
+            'Error: Invaid port. Must be in the range 1-65535.'
+        )
+    except Exception as e:
+        sys.exit('Unxpected Error!!! \n %s' % e)
+
+    """Start the HaaS API server"""
+    if cfg.has_option('devel', 'debug'):
+        debug = cfg.getboolean('devel', 'debug')
+    else:
+        debug = False
+    # We need to import api here so that the functions within it get registered
+    # (via `rest_call`), though we don't use it directly:
+    from haas import model, api, rest
+    server.init()
+    migrations.check_db_schema()
+    server.stop_orphan_consoles()
+    rest.serve(port, debug=debug)
+
+@cmd
+def serve_networks():
+    """Start the HaaS networking server"""
+    from haas import model, deferred
+    from time import sleep
+    server.init()
+    server.register_drivers()
+    server.validate_state()
+    model.init_db()
+    migrations.check_db_schema()
+    while True:
+        # Empty the journal until it's empty; then delay so we don't tight
+        # loop.
+        while deferred.apply_networking():
+            pass
+        sleep(2)
+
+
+@cmd
 def user_create(username, password, is_admin):
     """Create a user <username> with password <password>.
-
     <is_admin> may be either "admin" or "regular", and determines whether
     the user has administrative priveledges.
     """
@@ -477,7 +519,6 @@ def node_power_off(node):
 def node_set_bootdev(node, dev):
     """
     Sets <node> to boot from <dev> persistenly
-
     eg; haas node_set_bootdev dell-23 pxe
     for IPMI, dev can be set to disk, pxe, or none
     """
@@ -563,7 +604,6 @@ def switch_register(switch, subtype, *args):
     """Register a switch with name <switch> and
     <subtype>, <hostname>, <username>,  <password>
     eg. haas switch_register mock03 mock mockhost01 mockuser01 mockpass01
-
     FIXME: current design needs to change. CLI should not know about every
     backend. Ideally, this should be taken care of in the driver itself or
     client library (work-in-progress) should manage it.
@@ -681,7 +721,6 @@ def list_network_attachments(network, project):
 @cmd
 def list_nodes(is_free):
     """List all nodes or all free nodes
-
     <is_free> may be either "all" or "free", and determines whether
         to list all nodes or all free nodes.
     """
@@ -728,11 +767,10 @@ def show_network(network):
     do_get(url)
 
 
-@cmd
 def show_node(node):
     """Display information about a <node>"""
     url = object_url('node', node)
-    do_get(url)
+    return do_get(url)
 
 
 @cmd
@@ -780,16 +818,16 @@ def stop_console(node):
 @cmd
 def create_admin_user(username, password):
     """Create an admin user. Only valid for the database auth backend.
-
     This must be run on the HaaS API server, with access to haas.cfg and the
     database. It will create an user named <username> with password
     <password>, who will have administrator priviledges.
-
     This command should only be used for bootstrapping the system; once you
     have an initial admin, you can (and should) create additional users via
     the API.
     """
-
+    if not config.cfg.has_option('extensions', 'haas.ext.auth.database'):
+        sys.exit("'make_inital_admin' is only valid with the database auth"
+                 " backend.")
     from haas import model
     from haas.model import db
     from haas.ext.auth.database import User
@@ -816,7 +854,6 @@ def help(*commands):
 
 def main():
     """Entry point to the CLI.
-
     There is a script located at ${source_tree}/scripts/haas, which invokes
     this function.
     """
