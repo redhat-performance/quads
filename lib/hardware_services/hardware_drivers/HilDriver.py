@@ -43,8 +43,12 @@ class HilDriver(HardwareService):
 
 
     def remove_host(self,quadsinstance, **kwargs):
-        targetHost = kwargs['rmhost']
-        quadsinstance.quads_rest_call("DELETE", hil_url, '/node/'+ targetHost)
+        # first detach host from network
+        node_info = quadsinstance.quads_rest_call('GET', hil_url, '/node/' + kwargs['rmhost'])
+        node = node_info.json()
+        for nic in node['nics']:        # a node in quads will only have one nic per network
+            quadsinstance.quads_rest_call('POST', hil_url, '/node/' + kwargs['rmhost'] + '/nic/' + nic['label'] + '/detach_network', json.dumps({'network': node['project']}))
+
 
 
     def move_hosts(self, quadsinstance, **kwargs):
