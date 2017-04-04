@@ -1,0 +1,55 @@
+INFO:werkzeug: * Running on http://127.0.0.1:5000/
+INFO:haas.ext.auth.null:In request context 4c5f7dd3-8edc-443d-a154-a2ec48b1da49: successful authentication with null backend.
+INFO:haas.rest:In request context 4c5f7dd3-8edc-443d-a154-a2ec48b1da49: API call: node_register(node=u'host01.com', obm={u'host': u'host', u'password': u'password', u'type': u'http://schema.massopencloud.org/haas/v0/obm/mock', u'user': u'user'})
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:32] "PUT /node/host01.com HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 1936c94e-5ada-438b-aaf0-34712b548cec: successful authentication with null backend.
+INFO:haas.rest:In request context 1936c94e-5ada-438b-aaf0-34712b548cec: API call: node_register_nic(node=u'host01.com', nic=u'nic', macaddr=u'mac_address')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:32] "PUT /node/host01.com/nic/nic HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 27633c27-f0e3-40ee-8816-113d7f54ab02: successful authentication with null backend.
+INFO:haas.rest:In request context 27633c27-f0e3-40ee-8816-113d7f54ab02: API call: switch_register(username=u'user', switch=u'switch', password=u'password', type=u'http://schema.massopencloud.org/haas/v0/switches/mock', hostname=u'host')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "PUT /switch/switch HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context d50d9293-65db-49eb-b005-ea53529c1a46: successful authentication with null backend.
+INFO:haas.rest:In request context d50d9293-65db-49eb-b005-ea53529c1a46: API call: switch_register_port(switch=u'switch', port=u'port')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "PUT /switch/switch/port/port HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 424b058c-bbc8-45f5-a7a0-32f08a4b163e: successful authentication with null backend.
+INFO:haas.rest:In request context 424b058c-bbc8-45f5-a7a0-32f08a4b163e: API call: port_connect_nic(node=u'host01.com', nic=u'nic', switch=u'switch', port=u'port')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "POST /switch/switch/port/port/connect_nic HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context b8750e7f-d32c-46c7-b640-22e78b9c43d4: successful authentication with null backend.
+INFO:haas.rest:In request context b8750e7f-d32c-46c7-b640-22e78b9c43d4: API call: project_create(project=u'quads')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "PUT /project/quads HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 4ad9c8b2-4096-4e41-b2c3-c2f9abf93c88: successful authentication with null backend.
+INFO:haas.rest:In request context 4ad9c8b2-4096-4e41-b2c3-c2f9abf93c88: API call: network_create(owner=u'quads', access=u'quads', net_id=u'', network=u'cloud01')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "PUT /network/cloud01 HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context cbecec3e-dfdc-42c6-9a3a-f5ea31c816a3: successful authentication with null backend.
+INFO:haas.rest:In request context cbecec3e-dfdc-42c6-9a3a-f5ea31c816a3: API call: network_create(owner=u'quads', access=u'quads', net_id=u'', network=u'cloud02')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "PUT /network/cloud02 HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 089d6613-2c99-4b96-bc55-18d519b89ad6: successful authentication with null backend.
+INFO:haas.rest:In request context 089d6613-2c99-4b96-bc55-18d519b89ad6: API call: project_connect_node(node=u'host01.com', project=u'quads')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:33] "POST /project/quads/connect_node HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 079554fb-50ac-4f0a-822d-37aacda297f2: successful authentication with null backend.
+INFO:haas.rest:In request context 079554fb-50ac-4f0a-822d-37aacda297f2: API call: node_connect_network(node=u'host01.com', nic=u'nic', network=u'cloud01', channel=u'null')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:34] "POST /node/host01.com/nic/nic/connect_network HTTP/1.1" 202 -
+INFO:haas.ext.auth.null:In request context 5f815ca0-6b77-4065-b26d-01bd7dc79a06: successful authentication with null backend.
+INFO:haas.rest:In request context 5f815ca0-6b77-4065-b26d-01bd7dc79a06: API call: show_node(nodename=u'host01.com')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:34] "GET /node/host01.com HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 98a8f626-ef15-4166-ae19-cd9db370d8c4: successful authentication with null backend.
+INFO:haas.rest:In request context 98a8f626-ef15-4166-ae19-cd9db370d8c4: API call: node_detach_network(node=u'host01.com', nic=u'nic', network=u'cloud01')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:35] "POST /node/host01.com/nic/nic/detach_network HTTP/1.1" 202 -
+INFO:haas.ext.auth.null:In request context f8873782-b954-4357-a882-12afa404bdbe: successful authentication with null backend.
+INFO:haas.rest:In request context f8873782-b954-4357-a882-12afa404bdbe: API call: node_connect_network(node=u'host01.com', nic=u'nic', network=u'cloud02', channel=u'null')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:37] "POST /node/host01.com/nic/nic/connect_network HTTP/1.1" 202 -
+INFO:haas.ext.auth.null:In request context fb5d8253-836e-4e9f-b385-ac4587c5687b: successful authentication with null backend.
+INFO:haas.rest:In request context fb5d8253-836e-4e9f-b385-ac4587c5687b: API call: show_node(nodename=u'host01.com')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:38] "GET /node/host01.com HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 1edd5e5e-336d-4ddd-a210-04b712f0fdd3: successful authentication with null backend.
+INFO:haas.rest:In request context 1edd5e5e-336d-4ddd-a210-04b712f0fdd3: API call: show_node(nodename=u'host01.com')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:39] "GET /node/host01.com HTTP/1.1" 200 -
+INFO:haas.ext.auth.null:In request context 1d3ecfac-432a-4735-afe2-4db10fc0c8bd: successful authentication with null backend.
+INFO:haas.rest:In request context 1d3ecfac-432a-4735-afe2-4db10fc0c8bd: API call: node_detach_network(node=u'host01.com', nic=u'nic', network=u'cloud02')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:40] "POST /node/host01.com/nic/nic/detach_network HTTP/1.1" 202 -
+INFO:haas.ext.auth.null:In request context a5f94226-89d3-46ec-b93a-11a01f29dcff: successful authentication with null backend.
+INFO:haas.rest:In request context a5f94226-89d3-46ec-b93a-11a01f29dcff: API call: node_connect_network(node=u'host01.com', nic=u'nic', network=u'cloud01', channel=u'null')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:42] "POST /node/host01.com/nic/nic/connect_network HTTP/1.1" 202 -
+INFO:haas.ext.auth.null:In request context 65df76cd-2897-46c2-88e2-9339f7918893: successful authentication with null backend.
+INFO:haas.rest:In request context 65df76cd-2897-46c2-88e2-9339f7918893: API call: show_node(nodename=u'host01.com')
+INFO:werkzeug:127.0.0.1 - - [03/Apr/2017 06:08:43] "GET /node/host01.com HTTP/1.1" 200 -
