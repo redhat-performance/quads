@@ -248,9 +248,9 @@ def main(argv):
         exit(0)
 
     if args.movehosts:
-        if args.datearg is not None and not args.dryrun:
-            print "--move-hosts and --date are mutually exclusive unless using --dry-run."
-            exit(1)
+        # if args.datearg is not None and not args.dryrun:
+        #     print "--move-hosts and --date are mutually exclusive unless using --dry-run."
+        #     exit(1)
         quads.quads_move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
         exit(0)
 
