@@ -11,9 +11,9 @@ import logging
 from subprocess import call
 from subprocess import check_call
 
-from hardware_services.hardware_service import HardwareService
+from hardware_services.inventory_service import InventoryService
 
-class MockDriver(HardwareService):
+class MockInventoryDriver(InventoryService):
 
     def update_cloud(self, quadsinstance, **kwargs):
         print "updating cloud"
@@ -34,10 +34,6 @@ class MockDriver(HardwareService):
     def remove_host(self, quadsinstance, **kwargs):
         print "removing host from cloud"
 
-    def move_hosts(self, quadsinstance, **kwargs):
-        print "moving hosts"
-        for key in kwargs:
-            print key, ": ", kwargs[key]
 
     def list_clouds(self, quadsinstance):
         print "listing clouds"
