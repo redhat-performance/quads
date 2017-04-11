@@ -1,7 +1,8 @@
 # cronjobs go in here.
 #
 # example:
-# * * * * * /ops/quads/bin/schedule.py --move-hosts --move-command /opt/quads/bin/move-and-rebuild-host.sh 1>>/dev/null 2>&1
+# * * * * * /opt/quads/bin/quads.py --move-hosts --move-command /opt/quads/bin/move-and-rebuild-host.sh 1>>/dev/null 2>&1
+# * * * * * /opt/quads/bin/quads-validate-env.sh 1>>/dev/null 2>&1
 # */5 * * * * /opt/quads/bin/regenerate-wiki.sh 1>/dev/null 2>&1
 # 0 0 * * * /opt/quads/bin/quads-notify.sh 1>/dev/null 2>&1
 # 0 * * * * /opt/quads/bin/ical-generate-cron.sh 1>/dev/null 2>&1
