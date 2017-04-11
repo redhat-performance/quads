@@ -69,6 +69,37 @@ class InventoryService(object):
         """ TODO add documentation
         """
 
+    @abstractmethod
+    def load_data(self, quads, force):
+        # this code goes here for Juniper
+        # try:
+        #     stream = open(config, 'r')
+        #     self.data = yaml.load(stream)
+        #     stream.close()
+        # except Exception, ex:
+        #     self.logger.error(ex)
+        #     exit(1)
+        """ TODO add documentation
+            """
+    
+    @abstractmethod
+    def init_data(self, quads, force):
+        # quads_init_data
+        """ TODO add documentation
+            """
+    
+    @abstractmethod
+    def sync_state(self, quads):
+        # quads_sync_data
+        """ TODO add documentation
+            """
+    
+    @abstractmethod
+    def write_data(self, quads, doexit = True):
+        # quads_write_data
+        """ TODO add documentation
+            """
+
 
 _inventory_service = None
 
