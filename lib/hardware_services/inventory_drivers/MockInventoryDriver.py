@@ -51,7 +51,7 @@ class MockInventoryDriver(InventoryService):
     def sync_state(self, quadsinstance):
         print("data is synchronized")
 
-    def init_data(self, quadsinstance):
+    def init_data(self, quadsinstance, force):
         print("data is initialized")
 
 
