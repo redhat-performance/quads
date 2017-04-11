@@ -21,7 +21,24 @@ future_days="7"
 env_list=$($quads --summary | awk '{ print $1 }')
 env_full_list=$($quads --full-summary | awk '{ print $1 }')
 
+function environment_released() {
+    owner=$1
+    env_to_check=$2
+    ticket="$($quads --ls-ticket --cloud-only $env_to_check)"
+    release_file=${data_dir}/release/${env_to_report}-${owner}-${ticket}
+
+    if [ ! -d ${data_dir}/release ]; then
+        mkdir ${data_dir}/release
+    fi
+    if [ -f $release_file ]; then
+        return true
+    else
+        return false
+    fi
+}
+
 function craft_initial_message() {
+    # This is where the initial message goes out once an environment is active.
     msg_file=$(mktemp /tmp/ImsgXXXXXXXXXX)
     owner=$1
     env_to_report=$2
@@ -36,9 +53,10 @@ function craft_initial_message() {
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
-        touch ${data_dir}/report/${report_file}
-        if ${quads["email_notify"]} ; then
-            cat > $msg_file <<EOI
+        if environment_released $owner $env_to_report ; then
+            touch ${data_dir}/report/${report_file}
+            if ${quads["email_notify"]} ; then
+                cat > $msg_file <<EOI
 To: $owner@${quads["domain"]}
 Cc: $cc_field
 Subject: New QUADS Assignment Allocated
@@ -72,7 +90,11 @@ http://${quads["wp_wiki"]}/faq/
 DevOps Team
 
 EOI
-            /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+            fi
+        else
+            rm -f $msg_file
+            return
         fi
         if ${quads["irc_notify"]} ; then
             # send IRC notification
@@ -84,6 +106,8 @@ EOI
 }
 
 function craft_future_initial_message() {
+    # the first time an environment is defined, to be activated at some
+    # future time, we send a notification to the user letting them know
     msg_file=$(mktemp /tmp/ImsgXXXXXXXXXX)
     owner=$1
     env_to_report=$2
@@ -273,6 +297,10 @@ for e in $env_list ; do
     if [ "$($quads --ls-owner --cloud-only $e)" == "nobody" ]; then
         :
     else
+        # initial message that occurs when an active and current
+        # environment is made.  These notifications go out once
+        # starting at the time the schedule reflects the env is
+        # made
         echo =============== Initial Message
         craft_initial_message $($quads --cloud-only $e --ls-owner) $e
     fi
@@ -293,6 +321,9 @@ for e in $env_list ; do
                 if cmp -s $tmpcurlist $tmpfuturelist ; then
                     :
                 else
+                    # additional messaging goes out if there is a change in the
+                    # allocation at some future point in time. a "heads up"
+                    # message basically.
                     echo ============= Additional message
                     craft_message $($quads --cloud-only $e --ls-owner) $d $e $tmpcurlist $tmpfuturelist
                     alerted=true
@@ -311,6 +342,7 @@ for e in $env_full_list ; do
         if [ "$($quads --ls-owner --cloud-only $e)" == "nobody" ]; then
             :
         else
+            # This is when a future allocation is first defined
             echo ============= Future initial message
             craft_future_initial_message $($quads --cloud-only $e --ls-owner) $e
         fi
