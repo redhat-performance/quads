@@ -7,8 +7,10 @@ import logging
 import sys
 import importlib
 from subprocess import check_call
-from hardware_services.hardware_service import get_hardware_service, set_hardware_service
-sys.path.append(os.path.dirname(__file__) + "/hardware_services.hardware_drivers/")
+from hardware_services.inventory_service import get_inventory_service, set_inventory_service
+from hardware_services.network_service import get_network_service, set_network_service
+sys.path.append(os.path.dirname(__file__) + "/hardware_services/inventory_drivers/")
+sys.path.append(os.path.dirname(__file__) + "/hardware_services/network_drivers/")
 
 
 class Hosts(object):
@@ -86,10 +88,18 @@ class Quads(object):
         self.logger = logging.getLogger("quads.Quads")
         self.logger.setLevel(logging.DEBUG)
 
-        #EC528 addition - dynamically import driver module and set hardware service
-        importlib.import_module(hardwareservice)
-        set_hardware_service(getattr(sys.modules[hardwareservice], hardwareservice)())
-        self.hardware_service = get_hardware_service()
+        #EC528 addition - dynamically import driver module and set inventory and network services
+        inventoryservice = hardwareservice + "InventoryDriver"
+        networkservice = hardwareservice + "NetworkDriver"
+
+        importlib.import_module(inventoryservice)
+        importlib.import_module(networkservice)
+
+        set_inventory_service(getattr(sys.modules[inventoryservice], inventoryservice)())
+        set_network_service(getattr(sys.modules[networkservice], networkservice)())
+
+        self.inventory_service = get_inventory_service()
+        self.network_service = get_network_service()
 
         if initialize:
             self.quads_init_data(force)
@@ -211,12 +221,12 @@ class Quads(object):
     # list the hosts
     def quads_list_hosts(self):
         # list just the hostnames
-        self.hardware_service.list_hosts(self)
+        self.inventory_service.list_hosts(self)
 
     # list the hosts
     def quads_list_clouds(self):
         # list just the hostnames
-        self.hardware_service.list_clouds(self)
+        self.inventory_service.list_clouds(self)
 
     # list the owners
     def quads_list_owners(self, cloudonly):
@@ -288,7 +298,7 @@ class Quads(object):
 
         kwargs = {'rmhost': rmhost}
 
-        self.hardware_service.remove_host(self, **kwargs)
+        self.inventory_service.remove_host(self, **kwargs)
 
         return
 
@@ -298,7 +308,7 @@ class Quads(object):
 
         kwargs = {'rmcloud': rmcloud}
 
-        self.hardware_service.remove_cloud(self, **kwargs)
+        self.inventory_service.remove_cloud(self, **kwargs)
 
         return
 
@@ -308,7 +318,7 @@ class Quads(object):
 
         kwargs = {'hostresource': hostresource, 'hostcloud': hostcloud, 'forceupdate': forceupdate}
 
-        self.hardware_service.update_host(self, **kwargs)
+        self.inventory_service.update_host(self, **kwargs)
 
         return
 
@@ -319,7 +329,7 @@ class Quads(object):
         kwargs = {'cloudresource': cloudresource, 'description': description, 'forceupdate': forceupdate,
                   'cloudowner': cloudowner, 'ccusers': ccusers, 'cloudticket': cloudticket, 'qinq': qinq}
 
-        self.hardware_service.update_cloud(self, **kwargs)
+        self.inventory_service.update_cloud(self, **kwargs)
 
         return
 
@@ -503,7 +513,7 @@ class Quads(object):
         kwargs = {'movecommand': movecommand, 'dryrun': dryrun, 'statedir': statedir,
                   'datearg': datearg}
 
-        self.hardware_service.move_hosts(self, **kwargs)
+        self.network_service.move_hosts(self, **kwargs)
 
         exit(0)
 
