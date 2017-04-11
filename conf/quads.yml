@@ -12,7 +12,7 @@ log: /opt/quads/log/quads.log
 # set hardware service (inventory and network services) - currently 3 options: Mock, Hil, and QuadsNative 
 #hardware_service: Hil 
 #hardware_service: QuadsNative 
-#hardware_service: Mock 
+hardware_service: Mock 
 
 
 # used for reporting
