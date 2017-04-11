@@ -110,7 +110,7 @@ class QuadsNativeInventoryDriver(InventoryService):
         if initialize:
             quadsinstance.quads_init_data(force)
         try:
-            stream = open(config, 'r')
+            stream = open(quadsinstance.config, 'r')
             quadsinstance.data = yaml.load(stream)
             stream.close()
         except Exception, ex:
