@@ -42,4 +42,16 @@ class MockInventoryDriver(InventoryService):
     def list_hosts(self, quadsinstance):
         print "listing hosts"
 
+    def load_data(self, quadsinstance, force):
+        print("data is loaded")
+
+    def write_data(self, quadsinstance, doexit = True):
+        print("data is written")
+
+    def sync_state(self, quadsinstance):
+        print("data is synchronized")
+
+    def init_data(self, quadsinstance, force):
+        print("data is initialized")
+
 

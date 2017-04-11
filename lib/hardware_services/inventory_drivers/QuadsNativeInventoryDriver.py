@@ -106,4 +106,23 @@ class QuadsNativeInventoryDriver(InventoryService):
     def list_hosts(self,quadsinstance):
         quadsinstance.quads.hosts.host_list()
 
+    def load_data(self, quadsinstance, force):
+        if initialize:
+            quadsinstance.quads_init_data(force)
+        try:
+            stream = open(quadsinstance.config, 'r')
+            quadsinstance.data = yaml.load(stream)
+            stream.close()
+        except Exception, ex:
+            quadsinstance.logger.error(ex)
+            exit(1)
+    
+    def write_data(self, quadsinstance, doexit = True):
+        quadsinstance.quads_write_data(doexit)
+
+    def sync_state(self, quadsinstance):
+        quadsinstance.quads_sync_state()
+    
+    def init_data(self, quadsinstance, force):
+        quadsinstance.quads_init_data(force)
 
