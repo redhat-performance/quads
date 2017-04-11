@@ -106,7 +106,7 @@ class QuadsNativeInventoryDriver(InventoryService):
     def list_hosts(self,quadsinstance):
         quadsinstance.quads.hosts.host_list()
 
-    def load_data(self, quadsinstance):
+    def load_data(self, quadsinstance, force):
         if initialize:
             quadsinstance.quads_init_data(force)
         try:

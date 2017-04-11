@@ -42,7 +42,7 @@ class MockInventoryDriver(InventoryService):
     def list_hosts(self, quadsinstance):
         print "listing hosts"
 
-    def load_data(self, quadsinstance):
+    def load_data(self, quadsinstance, force):
         print("data is loaded")
 
     def write_data(self, quadsinstance, doexit = True):
