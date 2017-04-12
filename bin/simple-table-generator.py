@@ -17,7 +17,7 @@ requiredArgs=parser.add_argument_group('Required Arguments')
 requiredArgs.add_argument('-d', '--days', dest='days', type=int, required=True, default=None, help='number of days to generate')
 requiredArgs.add_argument('-m', '--month', dest='month', type=str, required=True, default=None, help='Month to generate')
 requiredArgs.add_argument('-y', '--year', dest='year', type=str, required=True, default=None, help='Year to generate')
-requiredArgs.add_argument('--host-file', dest='host_file', type=str, required=True, default=None, help='file with list of hosts')
+requiredArgs.add_argument('--host-file', dest='host_file', type=str, required=False, default=None, help='file with list of hosts')
 parser.add_argument('--gentime', '-g', dest='gentime', type=str, required=False, default=None, help='generate timestamp when created')
 
 args = parser.parse_args()
@@ -143,10 +143,15 @@ def print_simple_table(data, data_colors, days):
     return
 
 import csv
-with open(host_file, 'r') as f:
-    reader = csv.reader(f)
-    your_list = list(reader)
 
+if host_file:
+    with open(host_file, 'r') as f:
+        reader = csv.reader(f)
+        your_list = list(reader)
+else:
+    your_list = []
+    for h in sorted(quads.quads.hosts.data.iterkeys()):
+        your_list.append([h])
 
 your_list_colors = []
 for h in your_list:
