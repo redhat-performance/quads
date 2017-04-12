@@ -47,5 +47,5 @@ class MockNetworkDriver(NetworkService):
                 stream.close()
                 if current_state != current_cloud:
                     quadsinstance.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
-	    print "Moving "+ h+ " from " + default_cloud + " to " + current_cloud
+	print "Moving "+ h+ " from " + default_cloud + " to " + current_cloud
         return
