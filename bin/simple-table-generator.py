@@ -15,14 +15,16 @@ from subprocess import check_call
 parser = argparse.ArgumentParser(description='Generate a simple HTML table with color depicting resource usage for the month')
 requiredArgs=parser.add_argument_group('Required Arguments')
 requiredArgs.add_argument('-d', '--days', dest='days', type=int, required=True, default=None, help='number of days to generate')
+requiredArgs.add_argument('-m', '--month', dest='month', type=str, required=True, default=None, help='Month to generate')
+requiredArgs.add_argument('-y', '--year', dest='year', type=str, required=True, default=None, help='Year to generate')
 requiredArgs.add_argument('--host-file', dest='host_file', type=str, required=True, default=None, help='file with list of hosts')
-requiredArgs.add_argument('--host-color-file', dest='host_color_file', type=str, required=True, default=None, help='file with list of colors to use across days per host')
 parser.add_argument('--gentime', '-g', dest='gentime', type=str, required=False, default=None, help='generate timestamp when created')
 
 args = parser.parse_args()
 host_file = args.host_file
-host_color_file = args.host_color_file
 days = args.days
+month = args.month
+year = args.year
 gentime = args.gentime
 
 # Load QUADS yaml config
@@ -145,8 +147,18 @@ with open(host_file, 'r') as f:
     reader = csv.reader(f)
     your_list = list(reader)
 
-with open(host_color_file, 'r') as f:
-    reader = csv.reader(f)
-    your_list_colors = list(reader)
+
+your_list_colors = []
+for h in your_list:
+    one_host = []
+    for d in range(0, days):
+        day = d + 1
+        if day < 10:
+            daystring = "0" + str(day)
+        else:
+            daystring = str(day)
+        default, current, override = quads._quads_find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
+        one_host.append(current.lstrip("cloud"))
+    your_list_colors.append(one_host)
 
 print_simple_table(your_list, your_list_colors, days)
