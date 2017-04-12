@@ -226,7 +226,7 @@ def main(argv):
         else :
             schedule = quads.quads_hosts_schedule(month=args.schedquery)
 
-        print "Host Schedule for {}/{}".format(args.schedquery,args.year)
+        print "Host Schedule for {}/{}".format(args.year,args.schedquery)
         print "Note: This is a per-day view. Every entry is a day in a given month."
         print "      This only shows the cloud number per entry"
         for host in sorted(schedule.iterkeys()) :
