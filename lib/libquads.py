@@ -61,6 +61,18 @@ class History(object):
         else:
             self.data = data["history"]
 
+class CloudHistory(object):
+    def __init__(self, data):
+        """
+        Initialize a CloudHistory object. This is a subset of
+        data required by the Quads object. (used for cloud
+        history tracking)
+        """
+        if 'cloud_history' not in data:
+            self.data = {}
+        else:
+            self.data = data["cloud_history"]
+
 class QuadsData(object):
     def __init__(self, data):
         """
@@ -69,6 +81,7 @@ class QuadsData(object):
         self.hosts = Hosts(data)
         self.clouds = Clouds(data)
         self.history = History(data)
+        self.cloud_history = CloudHistory(data)
 
 
 class Quads(object):
@@ -110,6 +123,39 @@ class Quads(object):
                 self.quads.history.data[h][0] = current_cloud
                 updateyaml = True
 
+        for c in sorted(self.quads.clouds.data.iterkeys()):
+            if c not in self.quads.cloud_history.data:
+                self.quads.cloud_history.data[c] = {}
+                if 'ccusers' in self.quads.clouds.data[c]:
+                    savecc = []
+                    for cc in self.quads.clouds.data[c]['ccusers']:
+                        savecc.append(cc)
+                    ccusers = savecc
+                else:
+                    ccusers = []
+                if 'description' in self.quads.clouds.data[c]:
+                    description = self.quads.clouds.data[c]['description']
+                else:
+                    description = ""
+                if 'owner' in self.quads.clouds.data[c]:
+                    owner = self.quads.clouds.data[c]['owner']
+                else:
+                    owner = "nobody"
+                if 'qinq' in self.quads.clouds.data[c]:
+                    qinq = self.quads.clouds.data[c]['qinq']
+                else:
+                    qinq = '0'
+                if 'ticket' in self.quads.clouds.data[c]:
+                    ticket = self.quads.clouds.data[c]['ticket']
+                else:
+                    ticket = '000000'
+                self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
+                                                       'description':description,
+                                                       'owner':owner,
+                                                       'qinq':qinq,
+                                                       'ticket':ticket}
+                updateyaml = True
+
         if updateyaml:
             self.quads_write_data(False)
 
@@ -117,7 +163,7 @@ class Quads(object):
     def quads_write_data(self, doexit = True):
         try:
             stream = open(self.config, 'w')
-            self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data}
+            self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
             stream.write( yaml.dump(self.data, default_flow_style=False))
             if doexit:
                 exit(0)
@@ -135,7 +181,7 @@ class Quads(object):
                 exit(1)
         try:
             stream = open(self.config, 'w')
-            data = {"clouds":{}, "hosts":{}, "history":{}}
+            data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
             stream.write( yaml.dump(data, default_flow_style=False))
             exit(0)
         except Exception, ex:
@@ -367,6 +413,34 @@ class Quads(object):
                 ccusers = []
             else:
                 ccusers = ccusers.split()
+            if cloudresource in self.quads.clouds.data:
+                if 'ccusers' in self.quads.clouds.data[cloudresource]:
+                    savecc = []
+                    for cc in self.quads.clouds.data[cloudresource]['ccusers']:
+                        savecc.append(cc)
+                else:
+                    savecc = []
+                if 'description' in self.quads.clouds.data[cloudresource]:
+                    save_description = self.quads.clouds.data[cloudresource]['description']
+                else:
+                    save_description = ""
+                if 'owner' in self.quads.clouds.data[cloudresource]:
+                    save_owner = self.quads.clouds.data[cloudresource]['owner']
+                else:
+                    save_owner = "nobody"
+                if 'qinq' in self.quads.clouds.data[cloudresource]:
+                    save_qinq = self.quads.clouds.data[cloudresource]['qinq']
+                else:
+                    save_qinq = '0'
+                if 'ticket' in self.quads.clouds.data[cloudresource]:
+                    save_ticket = self.quads.clouds.data[cloudresource]['ticket']
+                else:
+                    save_ticket = '000000'
+                self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':savecc,
+                                                       'description':save_description,
+                                                       'owner':save_owner,
+                                                       'qinq':save_qinq,
+                                                       'ticket':save_ticket}
             self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket, "qinq": qinq}
             self.quads_write_data()
 
@@ -588,14 +662,37 @@ class Quads(object):
                 default_cloud, current_cloud, current_override = self._quads_find_current(h, datearg)
                 summary[current_cloud].append(h)
 
+            cloud_history = self.quads.cloud_history.data
+            current_time = datetime.now()
+            if datearg is None:
+                requested_time = current_time
+            else:
+                try:
+                    requested_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                except Exception, ex:
+                    self.logger.error("Data format error : %s" % ex)
+                    exit(1)
+
             if summaryreport or fullsummaryreport:
                 if fullsummaryreport:
                     for cloud in sorted(self.quads.clouds.data.iterkeys()):
-                        print cloud + " : " + str(len(summary[cloud])) + " (" + self.quads.clouds.data[cloud]["description"] + ")"
+                        if requested_time < current_time:
+                            for c in sorted(cloud_history[cloud]):
+                                if datetime.fromtimestamp(c) <= requested_time:
+                                    requested_description = cloud_history[cloud][c]["description"]
+                        else:
+                            requested_description = self.quads.clouds.data[cloud]["description"]
+                        print cloud + " : " + str(len(summary[cloud])) + " (" + requested_description + ")"
                 else:
                     for cloud in sorted(self.quads.clouds.data.iterkeys()):
                         if len(summary[cloud]) > 0:
-                            print cloud + " : " + str(len(summary[cloud])) + " (" + self.quads.clouds.data[cloud]["description"] + ")"
+                            if requested_time < current_time:
+                                for c in sorted(cloud_history[cloud]):
+                                    if datetime.fromtimestamp(c) <= requested_time:
+                                        requested_description = cloud_history[cloud][c]["description"]
+                            else:
+                                requested_description = self.quads.clouds.data[cloud]["description"]
+                            print cloud + " : " + str(len(summary[cloud])) + " (" + requested_description + ")"
             else:
                 for cloud in sorted(self.quads.clouds.data.iterkeys()):
                     if cloudonly is None:
