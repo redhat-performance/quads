@@ -201,6 +201,21 @@ class Quads(object):
         else:
             return None, None, None
 
+    # Provide schedule for a given month and year
+    def quads_hosts_schedule(self,
+                             month=datetime.now().month,
+                             year=datetime.now().year):
+        hosts = self.quads.hosts.data
+        schedule = {}
+        for host in hosts :
+            schedule[host] = {}
+            schedule[host][year] = {}
+            schedule[host][year][month] = {}
+            for day in range(1,calendar.monthrange(int(year),int(month))[1]):
+              schedule[host][year][month][day] = self._quads_find_current(host,"{}-{}-{} 00:00".format(year,month,day))
+
+        return schedule
+
     # sync the statedir db for hosts with schedule
     def quads_sync_state(self):
         # sync state
