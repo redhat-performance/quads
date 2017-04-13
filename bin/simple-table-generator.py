@@ -11,6 +11,7 @@ import array
 import yaml
 from subprocess import call
 from subprocess import check_call
+from datetime import datetime
 
 parser = argparse.ArgumentParser(description='Generate a simple HTML table with color depicting resource usage for the month')
 requiredArgs=parser.add_argument_group('Required Arguments')
@@ -128,14 +129,28 @@ def print_simple_table(data, data_colors, days):
     print "<tr>"
     print "<th>Name</th>"
     for i in range(0, days):
-        print "<th>" + ('0' if i < 9 else '') + str(i+1) + "</th>"
+        print "<th width=20>" + ('0' if i < 9 else '') + str(i+1) + "</th>"
     print "</tr>"
     for i in range(0, len(data)):
         print "<tr>"
         print "<td>" + str(data[i][0]) + "</td>"
         for j in range(0, days):
             chosen_color = data_colors[i][j]
-            print "<td bgcolor=\"" + color_array[int(chosen_color)-1] + "\"></td>"
+            cell_date = year + "-" + month + "-" + str(j + 1) + " 00:00"
+            cell_time = datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
+            for c in sorted(quads.quads.cloud_history.data["cloud" + str(chosen_color)]):
+                if datetime.fromtimestamp(c) <= cell_time:
+                    display_description = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["description"]
+                    display_owner = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["owner"]
+                    display_ticket = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["ticket"]
+            print "<td bgcolor=\"" + \
+                color_array[int(chosen_color)-1] + \
+                "\" data-toggle=\"tooltip\" title=\"" + \
+                "Description: " + display_description + "\n" +\
+                "Env: cloud" + str(chosen_color) + "\n" + \
+                "Owner: " + display_owner + "\n" + \
+                "RT: " + display_ticket + "\n" + \
+                "\"></td>"
         print "</tr>"
     print "</table>"
     print "</body>"
