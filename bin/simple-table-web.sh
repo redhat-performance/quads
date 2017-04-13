@@ -61,7 +61,7 @@ fi
 [ ! -d $visual_web_dir ] && mkdir -p $visual_web_dir
 
 for i in $(seq 0 $months_out) ; do
-    $bindir/simple-table-generator.sh ${year[$i]}-${month[$i]} ${days[$i]} > $visual_tmp_file
+    $bindir/simple-table-generator.py -d ${days[$i]} -m ${month[$i]} -y ${year[$i]} --gentime "Allocation Map for ${year[$i]}-${month[$i]}" > $visual_tmp_file
     cp $visual_tmp_file $visual_web_dir/${year[$i]}-${month[$i]}.html
     chmod 644 $visual_web_dir/${year[$i]}-${month[$i]}.html
 done
