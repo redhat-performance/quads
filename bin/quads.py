@@ -78,7 +78,8 @@ def main(argv):
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
     parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
     parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
-    parser.add_argument('--schedule-query', dest='schedquery', type=str, nargs='?', const=datetime.now().month, default=datetime.now().month, help='Query the schedule for a specific month')
+    parser.add_argument('--schedule-query', dest='schedquery', action='store_true', help='Query the schedule for a specific month')
+    parser.add_argument('--month', dest='month', type=str, default=datetime.now().month, help='Query the schedule for a specific month and year')
     parser.add_argument('--year', dest='year', type=str, default=datetime.now().year, help='Query the schedule for a specific month and year')
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
@@ -219,20 +220,17 @@ def main(argv):
         print "    --mod-schedule"
         exit(1)
 
-    if args.schedquery :
+    if args.schedquery:
         schedule = None
-        if args.year:
-            schedule = quads.quads_hosts_schedule(month=args.schedquery,year=args.year)
-        else :
-            schedule = quads.quads_hosts_schedule(month=args.schedquery)
+        schedule = quads.quads_hosts_schedule(month=args.month,year=args.year)
 
         print "Host Schedule for {}/{}".format(args.schedquery,args.year)
         print "Note: This is a per-day view. Every entry is a day in a given month."
         print "      This only shows the cloud number per entry"
         for host in sorted(schedule.iterkeys()) :
             _daily=""
-            for day in schedule[host][args.year][args.schedquery]:
-                _daily = "{} {}".format(_daily,schedule[host][args.year][args.schedquery][day][1].strip('cloud'))
+            for day in schedule[host][args.year][args.month]:
+                _daily = "{} {}".format(_daily,schedule[host][args.year][args.month][day][1].strip('cloud'))
             print "{}\t {}".format(host.split('.')[0],_daily)
         exit(0)
 
