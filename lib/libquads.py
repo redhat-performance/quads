@@ -1,13 +1,17 @@
 from datetime import datetime
-import calendar
 import time
 import yaml
-import argparse
 import os
-import sys
+import requests
 import logging
-from subprocess import call
+import sys
+import importlib
 from subprocess import check_call
+from hardware_services.inventory_service import get_inventory_service, set_inventory_service
+from hardware_services.network_service import get_network_service, set_network_service
+sys.path.append(os.path.dirname(__file__) + "/hardware_services/inventory_drivers/")
+sys.path.append(os.path.dirname(__file__) + "/hardware_services/network_drivers/")
+
 
 class Hosts(object):
     def __init__(self, data):
@@ -85,7 +89,8 @@ class QuadsData(object):
 
 
 class Quads(object):
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
+
+    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force, hardwareservice):
         """
         Initialize a quads object.
         """
@@ -95,6 +100,19 @@ class Quads(object):
         self.datearg = datearg
         self.logger = logging.getLogger("quads.Quads")
         self.logger.setLevel(logging.DEBUG)
+
+        #EC528 addition - dynamically import driver module and set inventory and network services
+        inventoryservice = hardwareservice + "InventoryDriver"
+        networkservice = hardwareservice + "NetworkDriver"
+
+        importlib.import_module(inventoryservice)
+        importlib.import_module(networkservice)
+
+        set_inventory_service(getattr(sys.modules[inventoryservice], inventoryservice)())
+        set_network_service(getattr(sys.modules[networkservice], networkservice)())
+
+        self.inventory_service = get_inventory_service()
+        self.network_service = get_network_service()
 
         if initialize:
             self.quads_init_data(force)
@@ -264,12 +282,12 @@ class Quads(object):
     # list the hosts
     def quads_list_hosts(self):
         # list just the hostnames
-	self.quads.hosts.host_list()
+        self.inventory_service.list_hosts(self)
 
     # list the hosts
     def quads_list_clouds(self):
         # list just the hostnames
-	self.quads.clouds.cloud_list()
+        self.inventory_service.list_clouds(self)
 
     # list the owners
     def quads_list_owners(self, cloudonly):
@@ -338,112 +356,40 @@ class Quads(object):
     # remove a host
     def quads_remove_host(self, rmhost):
         # remove a specific host
-        if rmhost not in self.quads.hosts.data:
-            print rmhost + " not found"
-            return
-        del(self.quads.hosts.data[rmhost])
-        self.quads_write_data()
+
+        kwargs = {'rmhost': rmhost}
+
+        self.inventory_service.remove_host(self, **kwargs)
 
         return
 
     # remove a cloud
     def quads_remove_cloud(self, rmcloud):
         # remove a cloud (only if no hosts use it)
-        if rmcloud not in self.quads.clouds.data:
-            print rmcloud + " not found"
-            return
-        for h in self.quads.hosts.data:
-            if self.quads.hosts.data[h]["cloud"] == rmcloud:
-                print rmcloud + " is default for " + h
-                print "Change the default before deleting this cloud"
-                return
-            for s in self.quads.hosts.data[h]["schedule"]:
-                if self.quads.hosts.data[h]["schedule"][s]["cloud"] == rmcloud:
-                    print rmcloud + " is used in a schedule for "  + h
-                    print "Delete schedule before deleting this cloud"
-                    return
-        del(self.quads.clouds.data[rmcloud])
-        self.quads_write_data()
+
+        kwargs = {'rmcloud': rmcloud}
+
+        self.inventory_service.remove_cloud(self, **kwargs)
 
         return
 
     # update a host resource
     def quads_update_host(self, hostresource, hostcloud, forceupdate):
         # define or update a host resouce
-        if hostcloud is None:
-            self.logger.error("--default-cloud is required when using --define-host")
-            exit(1)
-        else:
-            if hostcloud not in self.quads.clouds.data:
-                print "Unknown cloud : %s" % hostcloud
-                print "Define it first using:  --define-cloud"
-                exit(1)
-            if hostresource in self.quads.hosts.data and not forceupdate:
-                self.logger.error("Host \"%s\" already defined. Use --force to replace" % hostresource)
-                exit(1)
 
-            if hostresource in self.quads.hosts.data:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud, "interfaces": self.quads.hosts.data[hostresource]["interfaces"], "schedule": self.quads.hosts.data[hostresource]["schedule"] }
-                self.quads.history.data[hostresource][int(time.time())] = hostcloud
-            else:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud, "interfaces": {}, "schedule": {}}
-                self.quads.history.data[hostresource] = {}
-                self.quads.history.data[hostresource][0] = hostcloud
-            self.quads_write_data()
+        kwargs = {'hostresource': hostresource, 'hostcloud': hostcloud, 'forceupdate': forceupdate}
+
+        self.inventory_service.update_host(self, **kwargs)
 
         return
 
     # update a cloud resource
     def quads_update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket, qinq):
         # define or update a cloud resource
-        if description is None:
-            self.logger.error("--description is required when using --define-cloud")
-            exit(1)
-        else:
-            if cloudresource in self.quads.clouds.data and not forceupdate:
-                self.logger.error("Cloud \"%s\" already defined. Use --force to replace" % cloudresource)
-                exit(1)
-            if not cloudowner:
-                cloudowner = "nobody"
-            if not cloudticket:
-                cloudticket = "00000"
-            if not qinq:
-                qinq = "0"
-            if not ccusers:
-                ccusers = []
-            else:
-                ccusers = ccusers.split()
-            if cloudresource in self.quads.clouds.data:
-                if 'ccusers' in self.quads.clouds.data[cloudresource]:
-                    savecc = []
-                    for cc in self.quads.clouds.data[cloudresource]['ccusers']:
-                        savecc.append(cc)
-                else:
-                    savecc = []
-                if 'description' in self.quads.clouds.data[cloudresource]:
-                    save_description = self.quads.clouds.data[cloudresource]['description']
-                else:
-                    save_description = ""
-                if 'owner' in self.quads.clouds.data[cloudresource]:
-                    save_owner = self.quads.clouds.data[cloudresource]['owner']
-                else:
-                    save_owner = "nobody"
-                if 'qinq' in self.quads.clouds.data[cloudresource]:
-                    save_qinq = self.quads.clouds.data[cloudresource]['qinq']
-                else:
-                    save_qinq = '0'
-                if 'ticket' in self.quads.clouds.data[cloudresource]:
-                    save_ticket = self.quads.clouds.data[cloudresource]['ticket']
-                else:
-                    save_ticket = '000000'
-                self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':savecc,
-                                                       'description':save_description,
-                                                       'owner':save_owner,
-                                                       'qinq':save_qinq,
-                                                       'ticket':save_ticket}
-            self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket, "qinq": qinq}
-            self.quads_write_data()
+        kwargs = {'cloudresource': cloudresource, 'description': description, 'forceupdate': forceupdate,
+                  'cloudowner': cloudowner, 'ccusers': ccusers, 'cloudticket': cloudticket, 'qinq': qinq}
 
+        self.inventory_service.update_cloud(self, **kwargs)
         return
 
     # define a schedule for a given host
@@ -622,30 +568,12 @@ class Quads(object):
     # as needed move host(s) based on defined schedules
     def quads_move_hosts(self, movecommand, dryrun, statedir, datearg):
         # move a host
-        for h in sorted(self.quads.hosts.data.iterkeys()):
-            default_cloud, current_cloud, current_override = self._quads_find_current(h, datearg)
-            if not os.path.isfile(statedir + "/" + h):
-                try:
-                    stream = open(statedir + "/" + h, 'w')
-                    stream.write(current_cloud + '\n')
-                    stream.close()
-                except Exception, ex:
-                    self.logger.error("There was a problem with your file %s" % ex)
-            else:
-                stream = open(statedir + "/" + h, 'r')
-                current_state = stream.readline().rstrip()
-                stream.close()
-                if current_state != current_cloud:
-                    self.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
-                    if not dryrun:
-                        try:
-                            check_call([movecommand, h, current_state, current_cloud])
-                        except Exception, ex:
-                            self.logger.error("Move command failed: %s" % ex)
-                            exit(1)
-                        stream = open(statedir + "/" + h, 'w')
-                        stream.write(current_cloud + '\n')
-                        stream.close()
+
+        kwargs = {'movecommand': movecommand, 'dryrun': dryrun, 'statedir': statedir,
+                  'datearg': datearg}
+
+        self.network_service.move_hosts(self, **kwargs)
+
         exit(0)
 
     # generally the last thing that happens is reporting results
@@ -721,4 +649,12 @@ class Quads(object):
                             ",cloud=" + self.quads.hosts.data[host]["schedule"][override]["cloud"]
             else:
                 print current_cloud
+
+
+    # add for EC528 HIL-QUADS integration project
+    def quads_rest_call(self, method, url, request, json_data=None):
+        r = requests.request(method, url + request, data=json_data)
+        if method == 'GET':
+            return r
+
 

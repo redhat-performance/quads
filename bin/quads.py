@@ -11,6 +11,10 @@ import logging
 from subprocess import call
 from subprocess import check_call
 
+sys.path.append(os.path.dirname(__file__) + "/../")
+#from lib.hardware_services.hardware_service import set_hardware_service
+
+
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
@@ -45,13 +49,23 @@ def main(argv):
         print "quads: Missing \"install_dir\" in " + quads_config_file
         exit(1)
 
+
+    if "hardware_service" not in quads_config:
+        print "quads: Missing \"hardware_service\" in " + quads_config_file
+        exit(1)
+
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
+    sys.path.append(os.path.dirname(__file__) + "/../lib/hardware_services/hardware_drivers/")
     import libquads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
     defaultmovecommand = "/bin/echo"
+
+    # EC528 addition - sets hardware service
+    defaulthardwareservice = quads_config["hardware_service"]
+
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
@@ -96,6 +110,9 @@ def main(argv):
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
+
+    parser.add_argument('--set-hardware-service', dest='hardwareservice', type=str, default=defaulthardwareservice, help='Set Hardware Serve');
+
 
     args = parser.parse_args()
 
@@ -162,7 +179,7 @@ def main(argv):
     #            a cloud environment.
 
     quads = libquads.Quads(args.config, args.statedir, args.movecommand, args.datearg,
-                  args.syncstate, args.initialize, args.force)
+                  args.syncstate, args.initialize, args.force, args.hardwareservice)
 
     # should these be mutually exclusive?
     if args.lshosts:
@@ -265,9 +282,9 @@ def main(argv):
         exit(0)
 
     if args.movehosts:
-        if args.datearg is not None and not args.dryrun:
-            print "--move-hosts and --date are mutually exclusive unless using --dry-run."
-            exit(1)
+        # if args.datearg is not None and not args.dryrun:
+        #     print "--move-hosts and --date are mutually exclusive unless using --dry-run."
+        #     exit(1)
         quads.quads_move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
         exit(0)
 

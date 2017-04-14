@@ -7,6 +7,14 @@ data_dir: /opt/quads/data
 domain: example.com
 log: /opt/quads/log/quads.log
 
+
+# EC528 addition - demo 4
+# set hardware service (inventory and network services) - currently 3 options: Mock, Hil, and QuadsNative 
+#hardware_service: Hil 
+#hardware_service: QuadsNative 
+hardware_service: Mock 
+
+
 # used for reporting
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
 
