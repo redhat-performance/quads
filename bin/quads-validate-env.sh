@@ -29,14 +29,14 @@ function report_failure() {
     resultfile=$4
     msgfile=$(mktemp /tmp/reportFailXXXXXXX)
     cat > $msgfile <<EOM
-To: $cc_field
+To: $report_cc
 Subject: Validation check failed for $env / $owner / $ticket
 From: QUADS <quads@${quads["domain"]}>
 Reply-To: dev-null@${quads["domain"]}
 
 A post allocation test has failed for:
 
-   cloud: $cloudinfo
+   cloud: $env
    owner: $owner
    ticket: $ticket
 
@@ -50,7 +50,7 @@ DevOps Team
 EOM
     echo "Results:" >> $msgfile
     cat $resultfile >> $msgfile
-    /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+    /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
     rm -f $msgfile
 }
 
@@ -60,14 +60,14 @@ function report_success() {
     ticket=$3
     msgfile=$(mktemp /tmp/reportFailXXXXXXX)
     cat > $msgfile <<EOM
-To: $cc_field
+To: $report_cc
 Subject: Validation check succeeded for $env / $owner / $ticket
 From: QUADS <quads@${quads["domain"]}>
 Reply-To: dev-null@${quads["domain"]}
 
 A post allocation check previously failed for:
 
-   cloud: $cloudinfo
+   cloud: $env
    owner: $owner
    ticket: $ticket
 
@@ -78,7 +78,7 @@ for use.
 DevOps Team
 
 EOM
-    /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+    /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
     rm -f $msgfile
 }
 
@@ -88,9 +88,9 @@ function env_allocation_time_exceeded() {
     first_host=$($quads --cloud-only $env | head -1)
     start_time=$($quads --ls-schedule --host $first_host | grep $env | tail -1 | sed 's/.*start=\(.*\),end=.*/\1/')
     if [ $(expr $(date +%s) - $(date -d "$start_time" +%s)) -gt $tolerance ]; then
-        return true
+        return 0
     else
-        return false
+        return 1
     fi
 }
 
