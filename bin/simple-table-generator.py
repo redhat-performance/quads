@@ -9,9 +9,11 @@ import os
 import sys
 import array
 import yaml
+import csv
 from subprocess import call
 from subprocess import check_call
 from datetime import datetime
+from libquads import quads
 
 parser = argparse.ArgumentParser(description='Generate a simple HTML table with color depicting resource usage for the month')
 requiredArgs=parser.add_argument_group('Required Arguments')
@@ -58,9 +60,6 @@ if "install_dir" not in quads_config:
 sys.path.append(quads_config["install_dir"] + "/lib")
 sys.path.append(os.path.dirname(__file__) + "/../lib")
 
-# Load QUADS object
-import libquads
-
 defaultstatedir = quads_config["data_dir"] + "/state"
 defaultmovecommand = "/bin/echo"
 
@@ -69,7 +68,7 @@ quads = libquads.Quads(quads_config["data_dir"] + "/schedule.yaml",
                        None, None, False, False)
 
 # Set maxcloud to maximum defined clouds
-maxcloud = len(quads.quads.clouds.data)
+maxcloud = len(quads.clouds.data)
 
 # define color palette
 # https://www.google.com/#q=rgb+color+picker&*
@@ -138,11 +137,11 @@ def print_simple_table(data, data_colors, days):
             chosen_color = data_colors[i][j]
             cell_date = year + "-" + month + "-" + str(j + 1) + " 00:00"
             cell_time = datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
-            for c in sorted(quads.quads.cloud_history.data["cloud" + str(chosen_color)]):
+            for c in sorted(quads.cloud_history.data["cloud" + str(chosen_color)]):
                 if datetime.fromtimestamp(c) <= cell_time:
-                    display_description = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["description"]
-                    display_owner = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["owner"]
-                    display_ticket = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["ticket"]
+                    display_description = quads.cloud_history.data["cloud" + str(chosen_color)][c]["description"]
+                    display_owner = quads.cloud_history.data["cloud" + str(chosen_color)][c]["owner"]
+                    display_ticket = quads.cloud_history.data["cloud" + str(chosen_color)][c]["ticket"]
             print "<td bgcolor=\"" + \
                 color_array[int(chosen_color)-1] + \
                 "\" data-toggle=\"tooltip\" title=\"" + \
@@ -157,15 +156,13 @@ def print_simple_table(data, data_colors, days):
     print "</html>"
     return
 
-import csv
-
 if host_file:
     with open(host_file, 'r') as f:
         reader = csv.reader(f)
         your_list = list(reader)
 else:
     your_list = []
-    for h in sorted(quads.quads.hosts.data.iterkeys()):
+    for h in sorted(quads.hosts.data.iterkeys()):
         your_list.append([h])
 
 your_list_colors = []
