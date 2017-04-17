@@ -1,6 +1,15 @@
 #!/bin/sh
 #  Send email and IRC notifications when hosts are assigned
 #  Send email notifications when hosts are expiring.
+#
+#  craft_initial_message -
+#      message that goes out when the env is live
+#  craft_initial_future_message -
+#      message that goes out when the env is defined
+#  craft_message -
+#      future decommissioning of hosts
+#  craft_future_message -
+#      future addition of hosts
 #######
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then
@@ -31,9 +40,9 @@ function environment_released() {
         mkdir ${data_dir}/release
     fi
     if [ -f $release_file ]; then
-        return true
+        return 0
     else
-        return false
+        return 1
     fi
 }
 
@@ -185,15 +194,16 @@ function craft_message() {
     fi
 
     if [ ! -f ${data_dir}/report/${report_file} ]; then
-        touch ${data_dir}/report/${report_file}
-        # sanity check here, do not send any notifications if zero hosts are being
-        # removed.  Let's check here if the list of hosts is empty first:
-        hostlistexpire=$(comm -23 $current_list_file $future_list_file)
-        if [ -z "$hostlistexpire" ]; then
-            rm -f ${data_dir}/report/${report_file}
-        else
-            if ${quads["email_notify"]} ; then
-                cat > $msg_file <<EOM
+        if environment_released $owner $env_to_report ; then
+            touch ${data_dir}/report/${report_file}
+            # sanity check here, do not send any notifications if zero hosts are being
+            # removed.  Let's check here if the list of hosts is empty first:
+            hostlistexpire=$(comm -23 $current_list_file $future_list_file)
+            if [ -z "$hostlistexpire" ]; then
+                rm -f ${data_dir}/report/${report_file}
+            else
+                if ${quads["email_notify"]} ; then
+                    cat > $msg_file <<EOM
 To: $owner@${quads["domain"]}
 Cc: $cc_field
 Subject: QUADS upcoming expiration notification
@@ -213,8 +223,8 @@ hosts will automatically be reprovisioned and returned to
 the pool of available hosts.
 
 EOM
-                comm -23 $current_list_file $future_list_file >> $msg_file
-                cat >> $msg_file <<EOM
+                    comm -23 $current_list_file $future_list_file >> $msg_file
+                    cat >> $msg_file <<EOM
 
 For additional information regarding the Scale Lab usage
 please see the following documentation:
@@ -226,7 +236,8 @@ Thank you for your attention.
 DevOps Team
 
 EOM
-                /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                    /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                fi
             fi
         fi
     fi
@@ -250,9 +261,10 @@ function craft_future_message() {
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
     if [ ! -f ${data_dir}/report/${report_file} ]; then
-        touch ${data_dir}/report/${report_file}
-        if ${quads["email_notify"]} ; then
-            cat > $msg_file <<EOM
+        if environment_released $owner $env_to_report ; then
+            touch ${data_dir}/report/${report_file}
+            if ${quads["email_notify"]} ; then
+                cat > $msg_file <<EOM
 To: $owner@${quads["domain"]}
 Cc: $cc_field
 Subject: QUADS upcoming assignment notification
@@ -272,8 +284,8 @@ hosts will automatically be reprovisioned and moved to
 your environment.  Specifically:
 
 EOM
-            comm -13 $current_list_file $future_list_file >> $msg_file
-            cat >> $msg_file <<EOM
+                comm -13 $current_list_file $future_list_file >> $msg_file
+                cat >> $msg_file <<EOM
 
 For additional information regarding the Scale Lab usage
 please see the following documentation:
@@ -285,7 +297,8 @@ Thank you for your attention.
 DevOps Team
 
 EOM
-            /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+            fi
         fi
     fi
     cat $msg_file
