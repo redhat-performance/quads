@@ -21,15 +21,6 @@ data_dir=${quads["data_dir"]}
 lockdir=$data_dir/lock
 expect_script=$bindir/juniper-set-port.exp
 
-PIDFILE=$lockdir/quads-move.pid
-
-if [ -f $PIDFILE ]; then
-    while [ -d /proc/$(cat $PIDFILE) ]; do
-        echo waiting on move to finish...
-        sleep 1
-    done
-fi
-
 args=`getopt -o c -l change -- "$@"`
 
 function usage() {
@@ -54,8 +45,16 @@ while true ; do
         esac
 done
 
+PIDFILE=$lockdir/quads-move.pid
+
 if $change ; then
     echo === INFO: change requested
+    if [ -f $PIDFILE ]; then
+        while [ -d /proc/$(cat $PIDFILE) ]; do
+            echo waiting on move to finish...
+            sleep 1
+        done
+    fi
 fi
 
 echo $$ > $PIDFILE
@@ -217,9 +216,9 @@ for h in $($quads --cloud-only $env) ; do
                 fi
                 ;;
         esac
-        #echo "    check $switchip - interface $switchport - vlan $vlan"
         qinqsetting=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show configuration interfaces ${switchport} 2>/dev/null | sed 's/^apply-groups QinQ_vl\(.*\);/\1/g')
         vlanmember=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show vlans interface ${switchport}.0 2>/dev/null| egrep ^VLAN | sed 's/VLAN Name: vlan\(.*\), Index.*/\1/g')
+        sleep 2
         if [ "$qinqsetting" != "$vlan" ]; then
             echo "WARNING: interface ${switchport} not using QinQ_vl${vlan}"
         fi
@@ -227,8 +226,16 @@ for h in $($quads --cloud-only $env) ; do
             echo "WARNING: interface ${switchport} appears to be a member of VLAN $vlanmember, should be $vlan"
         fi
         if $change ; then
-            # call script to modify switch
-            $expect_script $switchip $switchport $vlanmember $vlan
+            # call script to modify switch but only if all args present
+            if [ "$vlanmember" != "$vlan" ] ; then
+                if [ -z "$vlanmember" ]; then
+                    echo "WARNING: currently unknown which VLAN is set"
+                    echo "WARNING: setting to 1101"
+                    vlanmember=1101
+                fi
+                echo CALLING: $expect_script $switchip $switchport $vlanmember $vlan
+                $expect_script $switchip $switchport $vlanmember $vlan
+            fi
         fi
     done
 done
