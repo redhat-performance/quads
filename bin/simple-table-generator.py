@@ -9,6 +9,7 @@ import os
 import sys
 import array
 import yaml
+import csv
 from subprocess import call
 from subprocess import check_call
 from datetime import datetime
@@ -43,7 +44,7 @@ def quads_load_config(quads_config):
         exit(1)
     return(quads_config_yaml)
 
-quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
+quads_config_file = os.path.dirname(__file__) + "../conf/quads.yml"
 quads_config = quads_load_config(quads_config_file)
 
 # Sanity checks to determine QUADS dir structure is intact
@@ -56,20 +57,19 @@ if "install_dir" not in quads_config:
     exit(1)
 
 sys.path.append(quads_config["install_dir"] + "/lib")
-sys.path.append(os.path.dirname(__file__) + "/../lib")
+sys.path.append(os.path.dirname(__file__) + "../lib")
 
-# Load QUADS object
-import libquads
+from Quads import Quads
 
 defaultstatedir = quads_config["data_dir"] + "/state"
 defaultmovecommand = "/bin/echo"
 
-quads = libquads.Quads(quads_config["data_dir"] + "/schedule.yaml",
+quads = Quads(quads_config["data_dir"] + "/schedule.yaml",
                        defaultstatedir, defaultmovecommand,
                        None, None, False, False)
 
 # Set maxcloud to maximum defined clouds
-maxcloud = len(quads.quads.clouds.data)
+maxcloud = len(quads.get_clouds())
 
 # define color palette
 # https://www.google.com/#q=rgb+color+picker&*
@@ -138,11 +138,12 @@ def print_simple_table(data, data_colors, days):
             chosen_color = data_colors[i][j]
             cell_date = year + "-" + month + "-" + str(j + 1) + " 00:00"
             cell_time = datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
-            for c in sorted(quads.quads.cloud_history.data["cloud" + str(chosen_color)]):
+            history = quads.get_history()
+            for c in sorted(history["cloud" + str(chosen_color)]):
                 if datetime.fromtimestamp(c) <= cell_time:
-                    display_description = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["description"]
-                    display_owner = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["owner"]
-                    display_ticket = quads.quads.cloud_history.data["cloud" + str(chosen_color)][c]["ticket"]
+                    display_description = history["cloud" + str(chosen_color)][c]["description"]
+                    display_owner = history["cloud" + str(chosen_color)][c]["owner"]
+                    display_ticket = history["cloud" + str(chosen_color)][c]["ticket"]
             print "<td bgcolor=\"" + \
                 color_array[int(chosen_color)-1] + \
                 "\" data-toggle=\"tooltip\" title=\"" + \
@@ -157,15 +158,13 @@ def print_simple_table(data, data_colors, days):
     print "</html>"
     return
 
-import csv
-
 if host_file:
     with open(host_file, 'r') as f:
         reader = csv.reader(f)
         your_list = list(reader)
 else:
     your_list = []
-    for h in sorted(quads.quads.hosts.data.iterkeys()):
+    for h in sorted(quads.hosts.data.iterkeys()):
         your_list.append([h])
 
 your_list_colors = []
@@ -177,8 +176,10 @@ for h in your_list:
             daystring = "0" + str(day)
         else:
             daystring = str(day)
+        print quads._quads_find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
         default, current, override = quads._quads_find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
-        one_host.append(current.lstrip("cloud"))
+        if current:
+          one_host.append(current.lstrip("cloud"))
     your_list_colors.append(one_host)
 
 print_simple_table(your_list, your_list_colors, days)

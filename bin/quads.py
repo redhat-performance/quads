@@ -47,7 +47,7 @@ def main(argv):
 
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
-    import libquads
+    from Quads import Quads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
@@ -161,7 +161,7 @@ def main(argv):
     #   force -  Some operations require --force.  E.g. if you want to redefine
     #            a cloud environment.
 
-    quads = libquads.Quads(args.config, args.statedir, args.movecommand, args.datearg,
+    quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
 
     # should these be mutually exclusive?
