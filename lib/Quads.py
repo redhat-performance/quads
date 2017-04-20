@@ -363,34 +363,13 @@ class Quads(object):
                 ccusers = []
             else:
                 ccusers = ccusers.split()
-            if cloudresource in self.quads.clouds.data:
-                if 'ccusers' in self.quads.clouds.data[cloudresource]:
-                    savecc = []
-                    for cc in self.quads.clouds.data[cloudresource]['ccusers']:
-                        savecc.append(cc)
-                else:
-                    savecc = []
-                if 'description' in self.quads.clouds.data[cloudresource]:
-                    save_description = self.quads.clouds.data[cloudresource]['description']
-                else:
-                    save_description = ""
-                if 'owner' in self.quads.clouds.data[cloudresource]:
-                    save_owner = self.quads.clouds.data[cloudresource]['owner']
-                else:
-                    save_owner = "nobody"
-                if 'qinq' in self.quads.clouds.data[cloudresource]:
-                    save_qinq = self.quads.clouds.data[cloudresource]['qinq']
-                else:
-                    save_qinq = '0'
-                if 'ticket' in self.quads.clouds.data[cloudresource]:
-                    save_ticket = self.quads.clouds.data[cloudresource]['ticket']
-                else:
-                    save_ticket = '000000'
-                self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':savecc,
-                                                       'description':save_description,
-                                                       'owner':save_owner,
-                                                       'qinq':save_qinq,
-                                                       'ticket':save_ticket}
+            if cloudresource not in self.quads.cloud_history.data:
+                self.quads.cloud_history.data[cloudresource] = {}
+            self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':ccusers,
+                                                       'description':description,
+                                                       'owner':cloudowner,
+                                                       'qinq':qinq,
+                                                       'ticket':cloudticket}
             self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket, "qinq": qinq}
             self.quads_write_data()
 
