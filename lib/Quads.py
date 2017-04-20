@@ -572,6 +572,9 @@ class Quads(object):
     # as needed move host(s) based on defined schedules
     def quads_move_hosts(self, movecommand, dryrun, statedir, datearg):
         # move a host
+        if self.datearg is not None and not dryrun :
+            self.logger.error("--move-hosts and --date are mutually exclusive unless using --dry-run.")
+            exit(1)
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self._quads_find_current(h, datearg)
             if not os.path.isfile(statedir + "/" + h):
