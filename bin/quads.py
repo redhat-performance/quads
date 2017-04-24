@@ -1,15 +1,11 @@
 #!/bin/python
 
-from datetime import datetime
-import calendar
-import time
-import yaml
 import argparse
+import datetime
+import logging
 import os
 import sys
-import logging
-from subprocess import call
-from subprocess import check_call
+import yaml
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -79,8 +75,8 @@ def main(argv):
     parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
     parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
     parser.add_argument('--schedule-query', dest='schedquery', action='store_true', help='Query the schedule for a specific month')
-    parser.add_argument('--month', dest='month', type=str, default=datetime.now().month, help='Query the schedule for a specific month and year')
-    parser.add_argument('--year', dest='year', type=str, default=datetime.now().year, help='Query the schedule for a specific month and year')
+    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month, help='Query the schedule for a specific month and year')
+    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year, help='Query the schedule for a specific month and year')
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
