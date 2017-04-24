@@ -13,20 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-import calendar
-import time
-import yaml
 import argparse
-import os
-import sys
+import calendar
+import datetime
+import time
 import logging
-from subprocess import call
-from subprocess import check_call
-from Clouds import Clouds
-from History import History
-from QuadsData import QuadsData
-from CloudHistory import CloudHistory
+import os
+import subprocess
+import sys
+import yaml
+
+import QuadsData
 
 class Quads(object):
     def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
@@ -50,7 +47,7 @@ class Quads(object):
             self.logger.error(ex)
             exit(1)
 
-        self.quads = QuadsData(self.data)
+        self.quads = QuadsData.QuadsData(self.data)
         self._quads_history_init()
 
         if syncstate or not datearg:
@@ -571,7 +568,7 @@ class Quads(object):
                     self.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
                     if not dryrun:
                         try:
-                            check_call([movecommand, h, current_state, current_cloud])
+                            subprocess.check_call([movecommand, h, current_state, current_cloud])
                         except Exception, ex:
                             self.logger.error("Move command failed: %s" % ex)
                             exit(1)
