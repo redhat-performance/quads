@@ -13,20 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-import calendar
-import time
-import yaml
 import argparse
-import os
-import sys
+import calendar
+import datetime
+import time
 import logging
-from subprocess import call
-from subprocess import check_call
-from Clouds import Clouds
-from History import History
-from QuadsData import QuadsData
-from CloudHistory import CloudHistory
+import os
+import subprocess
+import sys
+import yaml
+
+import QuadsData
 
 class Quads(object):
     def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
@@ -50,7 +47,7 @@ class Quads(object):
             self.logger.error(ex)
             exit(1)
 
-        self.quads = QuadsData(self.data)
+        self.quads = QuadsData.QuadsData(self.data)
         self._quads_history_init()
 
         if syncstate or not datearg:
@@ -147,21 +144,21 @@ class Quads(object):
             default_cloud = hosts[host]["cloud"]
             current_cloud = default_cloud
             current_override = None
-            current_time = datetime.now()
+            current_time = datetime.datetime.now()
 
             if datearg is None:
                 requested_time = current_time
             else:
                 try:
-                    requested_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                    requested_time =datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
                 except Exception, ex:
                     self.logger.error("Data format error : %s" % ex)
                     exit(1)
 
             if "schedule" in hosts[host].keys():
                 for override in hosts[host]["schedule"]:
-                    start_obj = datetime.strptime(hosts[host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
-                    end_obj = datetime.strptime(hosts[host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
+                    start_obj = datetime.datetime.strptime(hosts[host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
+                    end_obj = datetime.datetime.strptime(hosts[host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
 
                     if start_obj <= requested_time and requested_time < end_obj:
                         current_cloud = hosts[host]["schedule"][override]["cloud"]
@@ -171,7 +168,7 @@ class Quads(object):
             # only consider history data when looking at past data
             if requested_time < current_time:
                 for h in sorted(history[host]):
-                    if datetime.fromtimestamp(h) <= requested_time:
+                    if datetime.datetime.fromtimestamp(h) <= requested_time:
                         current_cloud = history[host][h]
 
             return default_cloud, current_cloud, current_override
@@ -181,8 +178,8 @@ class Quads(object):
 
     # Provide schedule for a given month and year
     def quads_hosts_schedule(self,
-                             month=datetime.now().month,
-                             year=datetime.now().year):
+                             month=datetime.datetime.now().month,
+                             year=datetime.datetime.now().year):
         hosts = self.quads.hosts.data
         schedule = {}
         for host in hosts :
@@ -379,13 +376,13 @@ class Quads(object):
     def quads_add_host_schedule(self, schedstart, schedend, schedcloud, host):
         # add a scheduled override for a given host
         try:
-            datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+            datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
         except Exception, ex:
             self.logger.error("Data format error : %s" % ex)
             exit(1)
 
         try:
-            datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+            datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
         except Exception, ex:
             self.logger.error("Data format error : %s" % ex)
             exit(1)
@@ -402,15 +399,15 @@ class Quads(object):
         # ensure the host does not have existing schedules that overlap the new
         # schedule being requested
 
-        schedstart_obj = datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
-        schedend_obj = datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+        schedstart_obj = datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+        schedend_obj = datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
 
         for s in self.quads.hosts.data[host]["schedule"]:
             s_start     = self.quads.hosts.data[host]["schedule"][s]["start"]
             s_end       = self.quads.hosts.data[host]["schedule"][s]["end"]
 
-            s_start_obj = datetime.strptime(s_start, '%Y-%m-%d %H:%M')
-            s_end_obj   = datetime.strptime(s_end, '%Y-%m-%d %H:%M')
+            s_start_obj = datetime.datetime.strptime(s_start, '%Y-%m-%d %H:%M')
+            s_end_obj   = datetime.datetime.strptime(s_end, '%Y-%m-%d %H:%M')
 
             # need code to see if schedstart or schedend is between s_start and
             # s_end
@@ -466,14 +463,14 @@ class Quads(object):
         # add a scheduled override for a given host
         if schedstart:
             try:
-                datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+                datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
             except Exception, ex:
                 self.logger.error("Data format error : %s" % ex)
                 exit(1)
 
         if schedend:
             try:
-                datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+                datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
             except Exception, ex:
                 self.logger.error("Data format error : %s" % ex)
                 exit(1)
@@ -502,20 +499,20 @@ class Quads(object):
         if not schedstart:
             schedstart = self.quads.hosts.data[host]["schedule"][modschedule]["start"]
 
-        schedstart_obj = datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
+        schedstart_obj = datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
 
         if not schedend:
             schedend = self.quads.hosts.data[host]["schedule"][modschedule]["end"]
 
-        schedend_obj = datetime.strptime(schedend, '%Y-%m-%d %H:%M')
+        schedend_obj = datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
 
         for s in self.quads.hosts.data[host]["schedule"]:
             if s != modschedule:
                 s_start = self.quads.hosts.data[host]["schedule"][s]["start"]
                 s_end   = self.quads.hosts.data[host]["schedule"][s]["end"]
 
-                s_start_obj = datetime.strptime(s_start, '%Y-%m-%d %H:%M')
-                s_end_obj   = datetime.strptime(s_end, '%Y-%m-%d %H:%M')
+                s_start_obj = datetime.datetime.strptime(s_start, '%Y-%m-%d %H:%M')
+                s_end_obj   = datetime.datetime.strptime(s_end, '%Y-%m-%d %H:%M')
 
                 # need code to see if schedstart or schedend is between s_start and
                 # s_end
@@ -571,7 +568,7 @@ class Quads(object):
                     self.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
                     if not dryrun:
                         try:
-                            check_call([movecommand, h, current_state, current_cloud])
+                            subprocess.check_call([movecommand, h, current_state, current_cloud])
                         except Exception, ex:
                             self.logger.error("Move command failed: %s" % ex)
                             exit(1)
@@ -595,12 +592,12 @@ class Quads(object):
                 summary[current_cloud].append(h)
 
             cloud_history = self.quads.cloud_history.data
-            current_time = datetime.now()
+            current_time =datetime.datetime.now()
             if datearg is None:
                 requested_time = current_time
             else:
                 try:
-                    requested_time = datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                    requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
                 except Exception, ex:
                     self.logger.error("Data format error : %s" % ex)
                     exit(1)
@@ -610,7 +607,7 @@ class Quads(object):
                     for cloud in sorted(self.quads.clouds.data.iterkeys()):
                         if requested_time < current_time:
                             for c in sorted(cloud_history[cloud]):
-                                if datetime.fromtimestamp(c) <= requested_time:
+                                if datetime.datetime.fromtimestamp(c) <= requested_time:
                                     requested_description = cloud_history[cloud][c]["description"]
                         else:
                             requested_description = self.quads.clouds.data[cloud]["description"]
@@ -620,7 +617,7 @@ class Quads(object):
                         if len(summary[cloud]) > 0:
                             if requested_time < current_time:
                                 for c in sorted(cloud_history[cloud]):
-                                    if datetime.fromtimestamp(c) <= requested_time:
+                                    if datetime.datetime.fromtimestamp(c) <= requested_time:
                                         requested_description = cloud_history[cloud][c]["description"]
                             else:
                                 requested_description = self.quads.clouds.data[cloud]["description"]
