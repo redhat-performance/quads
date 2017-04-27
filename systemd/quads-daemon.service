@@ -1,0 +1,19 @@
+# copy to: /etc/systemd/system/quads-daemon.service
+# and run: systemctl reload-daemon
+# enable: systemctl enable quads-daemon
+# start: systemctl start quads-daemon
+
+[Unit]
+Description = QUADS Daemon
+
+[Service]
+Type = simple
+ExecStart = /opt/quads/bin/quads-daemon
+ExecStop = /usr/bin/pkill quads-daemon
+Restart = on-abort
+StartLimitInterval = 60
+StartLimitBurst = 10
+
+[Install]
+WantedBy = multi-user.target
+
