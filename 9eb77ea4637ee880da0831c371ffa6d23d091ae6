@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "6bc3855d_808dde97",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-04-27T15:10:32Z",
+      "side": 1,
+      "message": "http://www.dictionary.com/browse/esthetics\n\nIt\u0027s fine as it is.",
+      "range": {
+        "startLine": 12,
+        "startChar": 17,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "9eb77ea4637ee880da0831c371ffa6d23d091ae6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4da88e6b_ab8097d6",
         "filename": "bin/simple-table-generator.py",
         "patchSetId": 1
