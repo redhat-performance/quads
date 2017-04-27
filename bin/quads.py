@@ -206,11 +206,15 @@ def main(argv):
         exit(1)
 
     if args.hostresource:
-        quads.update_host(args.hostresource, args.hostcloud, args.force)
+        result = quads.update_host(args.hostresource, args.hostcloud, args.force)
+        for r in result:
+            print r
         exit(0)
 
     if args.cloudresource:
-        quads.update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
+        result = quads.update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
+        for r in result:
+            print r
         exit(0)
 
     if (args.addschedule and args.rmschedule) or (args.addschedule and args.modschedule) or (args.rmschedule and args.modschedule):

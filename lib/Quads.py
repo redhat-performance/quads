@@ -130,6 +130,7 @@ class Quads(object):
                 self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
                 stream.write( yaml.dump(self.data, default_flow_style=False))
                 stream.close()
+                self.read_data()
                 return True
             except Exception, ex:
                 self.logger.error("There was a problem with your file %s" % ex)
