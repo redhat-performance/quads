@@ -121,7 +121,7 @@ for env in $($quads --summary | awk '{ print $1 }') ; do
     owner=$($quads --ls-owner --cloud-only $env)
     ticket=$($quads --ls-ticket --cloud-only $env)
 
-    if [ "$owner" != "nobody" ]; then
+    if [ "$owner" != "nobody" -a "$owner" -a "$ticket" ]; then
         if [ ! -f $data_dir/release/${env}-${owner}-${ticket} ]; then
             validate_environment $env $owner $ticket
         fi

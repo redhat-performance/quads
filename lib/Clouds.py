@@ -30,7 +30,11 @@ class Clouds(object):
         self.data = data["clouds"]
 
    # list the clouds
-    def cloud_list(self):
+    def print_clouds(self):
         # list just the clouds
         for c in sorted(self.data.iterkeys()):
             print c
+
+    # return list of clouds
+    def get(self):
+        return sorted(self.data.iterkeys())
