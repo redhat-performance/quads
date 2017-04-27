@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33994cb0_22953786",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-04-27T14:29:05Z",
+      "side": 1,
+      "message": "Change this to aesthetics.",
+      "range": {
+        "startLine": 12,
+        "startChar": 17,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "9eb77ea4637ee880da0831c371ffa6d23d091ae6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4da88e6b_ab8097d6",
+        "filename": "bin/simple-table-generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-04-27T14:29:05Z",
+      "side": 1,
+      "message": "Do we want to just remove this entirely instead of leaving it commented out?",
+      "revId": "9eb77ea4637ee880da0831c371ffa6d23d091ae6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fdec4b8_c1a3a277",
+        "filename": "systemd/quads-daemon.service",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-04-27T14:29:05Z",
+      "side": 1,
+      "message": "We should look at using a quads user/group for the systemd service.\n\ne.g.\n\n[Service]\n+User\u003dquads\n+Group\u003dquads",
+      "revId": "9eb77ea4637ee880da0831c371ffa6d23d091ae6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
