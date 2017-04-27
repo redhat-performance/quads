@@ -166,27 +166,27 @@ def main(argv):
 
     # should these be mutually exclusive?
     if args.lshosts:
-        quads.quads_list_hosts()
+        quads.print_hosts()
         exit(0)
 
     if args.lsclouds:
-        quads.quads_list_clouds()
+        quads.print_clouds()
         exit(0)
 
     if args.lsowner:
-        quads.quads_list_owners(args.cloudonly)
+        quads.print_owners(args.cloudonly)
         exit(0)
 
     if args.lsccusers:
-        quads.quads_list_cc(args.cloudonly)
+        quads.print_cc(args.cloudonly)
         exit(0)
 
     if args.lsticket:
-        quads.quads_list_tickets(args.cloudonly)
+        quads.print_tickets(args.cloudonly)
         exit(0)
 
     if args.lsqinq:
-        quads.quads_list_qinq(args.cloudonly)
+        quads.print_qinq(args.cloudonly)
         exit(0)
 
     if args.rmhost and args.rmcloud:
@@ -194,7 +194,7 @@ def main(argv):
         exit(1)
 
     if args.rmhost:
-        quads.quads_remove_host(args.rmhost)
+        quads.remove_host(args.rmhost)
         exit(0)
 
     if args.rmcloud:
@@ -206,11 +206,11 @@ def main(argv):
         exit(1)
 
     if args.hostresource:
-        quads.quads_update_host(args.hostresource, args.hostcloud, args.force)
+        quads.update_host(args.hostresource, args.hostcloud, args.force)
         exit(0)
 
     if args.cloudresource:
-        quads.quads_update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
+        quads.update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
         exit(0)
 
     if (args.addschedule and args.rmschedule) or (args.addschedule and args.modschedule) or (args.rmschedule and args.modschedule):
@@ -222,7 +222,7 @@ def main(argv):
 
     if args.schedquery:
         schedule = None
-        schedule = quads.quads_hosts_schedule(month=args.month,year=args.year)
+        schedule = quads.hosts_schedule_query(month=args.month,year=args.year)
 
         print "Host Schedule for {}/{}".format(args.schedquery,args.year)
         print "Note: This is a per-day view. Every entry is a day in a given month."
@@ -242,11 +242,11 @@ def main(argv):
             print "    --schedule-end"
             print "    --schedule-cloud"
             exit(1)
-        quads.quads_add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
+        quads.add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
         exit(0)
 
     if args.rmschedule is not None:
-        quads.quads_rm_host_schedule(args.rmschedule, args.host)
+        quads.rm_host_schedule(args.rmschedule, args.host)
         exit(0)
 
     if args.modschedule is not None:
@@ -261,18 +261,20 @@ def main(argv):
             print "    --schedule-cloud"
             exit(1)
 
-        quads.quads_mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
+        quads.mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
         exit(0)
 
     if args.movehosts:
         if args.datearg is not None and not args.dryrun:
             print "--move-hosts and --date are mutually exclusive unless using --dry-run."
             exit(1)
-        quads.quads_move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
+        quads.move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
         exit(0)
 
     # finally, this part is just reporting ...
-    quads.quads_print_result(args.host, args.cloudonly, args.datearg, args.summary, args.fullsummary, args.lsschedule)
+    result = quads.query(args.host, args.cloudonly, args.datearg, args.summary, args.fullsummary, args.lsschedule)
+    for r in result:
+        print r
 
     exit(0)
 

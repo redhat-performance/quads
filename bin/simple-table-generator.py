@@ -113,18 +113,7 @@ def print_simple_table(data, data_colors, days):
     print "<body>"
     if gentime:
         print "<b>" + gentime + "</b><br>"
-    print "<table>"
-    print "<tr>"
-    print "<th>Name</th>"
-    print "<th>Color</th>"
-    print "</tr>"
-    # Here we generate the range of defined clouds for visuals
-    for i in range(0, int(maxcloud)):
-        print "<tr>"
-        print "<td> cloud" + ('0' if i < 9 else '') + str(i+1) + " </td>"
-        print "<td bgcolor=\"" + str(color_array[i]) + "\"></td>"
-    print "</table>"
-    print "<br>"
+        print "<br>"
     print "<table>"
     print "<tr>"
     print "<th>Name</th>"
@@ -176,8 +165,8 @@ for h in your_list:
             daystring = "0" + str(day)
         else:
             daystring = str(day)
-        print quads._quads_find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
-        default, current, override = quads._quads_find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
+        print quads.find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
+        default, current, override = quads.find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
         if current:
           one_host.append(current.lstrip("cloud"))
     your_list_colors.append(one_host)
