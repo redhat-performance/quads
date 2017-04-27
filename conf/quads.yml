@@ -5,7 +5,7 @@
 install_dir: /opt/quads
 data_dir: /opt/quads/data
 domain: example.com
-log: /var/log/quads-daemon.log
+log: /opt/quads/log/quads.log
 quads_base_url: http://127.0.0.1:8080/
 
 # used for reporting
