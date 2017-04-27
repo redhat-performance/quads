@@ -30,7 +30,11 @@ class Hosts(object):
         self.data = data["hosts"]
 
     # list the hosts
-    def host_list(self):
-        # list just the hostnames
+    def print_hosts(self):
+        # print just the hostnames
         for h in sorted(self.data.iterkeys()):
             print h
+
+    # return list of hosts
+    def get(self):
+        return sorted(self.data.iterkeys())
