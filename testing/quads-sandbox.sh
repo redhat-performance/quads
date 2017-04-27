@@ -15,7 +15,7 @@ function init_sandbox() {
     echo "Editing QUADS configuration [$sandbox_dir/quads/conf/quads.yml]"
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@data_dir: /opt/quads/data@data_dir: $sandbox_dir/quads/data@g" $sandbox_dir/quads/conf/quads.yml
-    sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads.log@g" $sandbox_dir/quads/conf/quads.yml
+    sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads-daemon.log@g" $sandbox_dir/quads/conf/quads.yml
     echo "Creating QUADS data structure [$sandbox_dir/quads/data]"
     if ! [ -d $sandbox_dir/quads/data ]; then
         mkdir -p $sandbox_dir/quads/data
@@ -25,7 +25,9 @@ function init_sandbox() {
     echo "Defining example environments [cloud01, cloud02]"
     $quads_cmd --define-cloud cloud01 --description "spare pool"
     $quads_cmd --define-cloud cloud02 --description "quads test cloud"
+    $quads_cmd --define-cloud cloud02 --description "quads test cloud"
     echo "Defining example hosts [host01, host02, host03, host04]"
+    $quads_cmd --define-host host01.example.com --default-cloud cloud01
     $quads_cmd --define-host host01.example.com --default-cloud cloud01
     $quads_cmd --define-host host02.example.com --default-cloud cloud01
     $quads_cmd --define-host host03.example.com --default-cloud cloud01
