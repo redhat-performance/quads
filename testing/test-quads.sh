@@ -64,6 +64,7 @@ STATEDIR=$TMPDIR/state
 LOGFILE=$TMPDIR/logfile
 quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
 bindir="$(dirname $0/)"
+libdir=$bindir/../lib
 tests="
 init
 declare_cloud01
@@ -168,7 +169,13 @@ fi
 
 echo ====== Initializing flake8 Python tests with style-related exclusions
 
+# primary python tools
 flake8 $bindir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+# now we include libdir as well
+flake8 $libdir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+# individual checks for daemon and client
+flake8 $shellbin/quads-daemon --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+flake8 $shellbin/quads-cli --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
 
 if [ "$?" = "0" ]; then
     :

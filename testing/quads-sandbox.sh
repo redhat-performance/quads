@@ -15,7 +15,7 @@ function init_sandbox() {
     echo "Editing QUADS configuration [$sandbox_dir/quads/conf/quads.yml]"
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@data_dir: /opt/quads/data@data_dir: $sandbox_dir/quads/data@g" $sandbox_dir/quads/conf/quads.yml
-    sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads.log@g" $sandbox_dir/quads/conf/quads.yml
+    sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads/quads.log@g" $sandbox_dir/quads/conf/quads.yml
     echo "Creating QUADS data structure [$sandbox_dir/quads/data]"
     if ! [ -d $sandbox_dir/quads/data ]; then
         mkdir -p $sandbox_dir/quads/data
