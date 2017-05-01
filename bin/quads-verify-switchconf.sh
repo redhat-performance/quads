@@ -228,7 +228,7 @@ for h in $($quads --cloud-only $env) ; do
         if $change ; then
             # call script to modify switch but only if all args present
             if [ "$vlanmember" != "$vlan" ] ; then
-                if [ -z "$vlanmember" ]; then
+            if [ -z "$vlanmember" -o "$(expr "$vlanmember" + 0 2>/dev/null)" != "$vlanmember" ]; then
                     echo "WARNING: currently unknown which VLAN is set"
                     echo "WARNING: setting to 1101"
                     vlanmember=1101
