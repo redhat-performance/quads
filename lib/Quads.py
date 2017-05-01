@@ -87,12 +87,19 @@ class Quads(object):
                     ticket = '000000'
                 if 'post_config' in self.quads.clouds.data[c]:
                     post_config = copy.deepcopy(self.quads.clouds.data[c]['post_config'])
-                self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
+                    self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
                                                        'description':description,
                                                        'owner':owner,
                                                        'qinq':qinq,
                                                        'ticket':ticket,
                                                        'post_config': post_config}
+                else:
+                    self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
+                                                           'description':description,
+                                                           'owner':owner,
+                                                           'qinq':qinq,
+                                                           'ticket':ticket}
+
                 updateyaml = True
 
         if updateyaml:
@@ -422,36 +429,15 @@ class Quads(object):
                         #config options should come here, service_description is
                         #defined here for the post config option
                         pass
-            if cloudresource in self.quads.clouds.data:
-                if 'ccusers' in self.quads.clouds.data[cloudresource]:
-                    savecc = []
-                    for cc in self.quads.clouds.data[cloudresource]['ccusers']:
-                        savecc.append(cc)
-                else:
-                    savecc = []
-                if 'description' in self.quads.clouds.data[cloudresource]:
-                    save_description = self.quads.clouds.data[cloudresource]['description']
-                else:
-                    save_description = ""
-                if 'owner' in self.quads.clouds.data[cloudresource]:
-                    save_owner = self.quads.clouds.data[cloudresource]['owner']
-                else:
-                    save_owner = "nobody"
-                if 'qinq' in self.quads.clouds.data[cloudresource]:
-                    save_qinq = self.quads.clouds.data[cloudresource]['qinq']
-                else:
-                    save_qinq = '0'
-                if 'ticket' in self.quads.clouds.data[cloudresource]:
-                    save_ticket = self.quads.clouds.data[cloudresource]['ticket']
-                else:
-                    save_ticket = '000000'
-                save_post_config = copy.deepcopy(post_config)
-                self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':savecc,
-                                                       'description': save_description,
-                                                       'owner': save_owner,
-                                                       'qinq': save_qinq,
-                                                       'ticket': save_ticket,
-                                                       'post_config': save_post_config}
+
+            if cloudresource not in self.quads.cloud_history.data:
+                self.quads.cloud_history.data[cloudresource] = {}
+            self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':copy.deepcopy(ccusers),
+                                                                    'description':description,
+                                                                    'post_config':copy.deepcopy(post_config),
+                                                                    'owner':cloudowner,
+                                                                    'qinq':qinq,
+                                                                    'ticket':cloudticket}
             self.quads.clouds.data[cloudresource] = { "description": description,
                                                      "networks":{},
                                                      "owner": cloudowner,
@@ -706,6 +692,20 @@ class Quads(object):
                     result.append({"host":h, "current":current_state, "new":current_cloud})
         return result
 
+    # Method to get make of the host
+    def get_host_type(self, hostname):
+        hosttype = self.quads.hosts.data[hostname]['type']
+        return hosttype
+
+    # Method to get the number of hosts of each type to be returned as a
+    # dictionary
+    def get_host_count(self, hostnames):
+        host_type_count = {}
+        for host in hostnames:
+            host_type = self.get_host_type(host)
+            host_type_count[host_type] = host_type_count.get(host_type, 0) + 1
+        return host_type_count
+
     def query_host_schedule(self, host, datearg):
         result = []
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
@@ -729,9 +729,31 @@ class Quads(object):
             summary[current_cloud].append(h)
         return summary
 
+    def query_cloud_host_types(self, datearg, cloudonly):
+        cloud_summary = self.query_cloud_hosts(datearg)
+        hostnames = cloud_sumary[cloudonly]
+        host_type_count = self.get_host_count(hostnames)
+        return host_type_count
+
+    def query_cloud_postconfig(self, datearg, activesummary, postconfig):
+        result = []
+        cloud_summary = self.query_cloud_summary(datearg, activesummary)
+        for item in cloud_summary:
+            for cloudname, details in item.iteritems():
+                for param, description in details.iteritems():
+                    if param == 'post_config':
+                        post_list = []
+                        for service in description:
+                            if service in postconfig:
+                                post_list.append(service)
+                        if sorted(post_list) == sorted(postconfig):
+                            result.append(cloudname)
+        return result
+
     def query_cloud_summary(self, datearg, activesummary):
         result = []
         cloud_summary = {}
+        clouds = self.quads.clouds.data
         cloud_history = self.quads.cloud_history.data
         current_time =datetime.datetime.now()
         if datearg is None:
@@ -745,17 +767,27 @@ class Quads(object):
         summary = self.query_cloud_hosts(datearg)
         for cloud in sorted(self.quads.clouds.data.iterkeys()):
             if activesummary:
-                if len(summary[cloud]):
-                    for c in sorted(cloud_history[cloud]):
-                        if requested_time < current_time:
+                if len(summary[cloud]) > 0:
+                    if requested_time < current_time:
+                        for c in sorted(cloud_history[cloud]):
                             if datetime.datetime.fromtimestamp(c) <= requested_time:
-                                requested_description = cloud_history[cloud][c]["description"]
+                                requested_description = cloud_history[cloud][c]['description']
                                 cloud_summary = {cloud: {'description': requested_description,
                                                 'hosts': len(summary[cloud])}}
-                        else:
-                            requested_description = self.quads.clouds.data[cloud]["description"]
-                            cloud_summary = {cloud: {'description': requested_description,
-                                          'hosts': len(summary[cloud])}}
+                                service_list = []
+                                if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
+                                    for service in cloud_history[cloud][c]['post_config']:
+                                        service_list.append(service['name'])
+                                    cloud_summary[cloud]['post_config'] = service_list
+                    else:
+                        requested_description = clouds[cloud]['description']
+                        cloud_summary = {cloud: {'description': requested_description,
+                                        'hosts': len(summary[cloud])}}
+                        service_list = []
+                        if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
+                            for service in clouds[cloud]['post_config']:
+                                service_list.append(service['name'])
+                            cloud_summary[cloud]['post_config'] = service_list
                     result.append(cloud_summary)
             else:
                 for c in sorted(cloud_history[cloud]):
@@ -764,10 +796,19 @@ class Quads(object):
                             requested_description = cloud_history[cloud][c]["description"]
                             cloud_summary = {cloud: {'description': requested_description,
                                          'hosts': len(summary[cloud])}}
-                            result.append(cloud_summary)
+                            service_list = []
+                            if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
+                                for service in cloud_history[cloud][c]['post_config']:
+                                    service_list.append(service['name'])
+                                cloud_summary[cloud]['post_config'] = service_list
                     else:
                         requested_description = self.quads.clouds.data[cloud]["description"]
                         cloud_summary = {cloud: {'description': requested_description,
                                          'hosts': len(summary[cloud])}}
+                        service_list = []
+                        if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
+                            for service in clouds[cloud]['post_config']:
+                                service_list.append(service['name'])
+                            cloud_summary[cloud]['post_config'] = service_list
                 result.append(cloud_summary)
         return result
