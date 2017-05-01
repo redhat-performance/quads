@@ -101,8 +101,13 @@ def print_cloud_summary(quads, datearg, activesummary):
                 for param, description in details.iteritems():
                     if param == 'hosts':
                         print(description),
-                    else:
+                    elif param == 'description':
                         print("({})".format(description))
+
+def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
+    clouds = quads.query_cloud_postconfig(datearg, activesummary, postconfig)
+    for cloud in clouds:
+        print cloud
 
 def main(argv):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
@@ -166,7 +171,8 @@ def main(argv):
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig',type=str,default=None, nargs='+', choices=['openstack'], help='Post provisioning configuration to apply')
+    parser.add_argument('--post-config', dest='postconfig',type=str, default =
+                        None, nargs='*', choices= ['openstack'], help='Post provisioning configuration to apply')
     parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
     parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
     parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
@@ -238,7 +244,6 @@ def main(argv):
 
     quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
-
     if args.lshosts:
         print_hosts(quads)
         exit(0)
@@ -356,11 +361,11 @@ def main(argv):
     if args.fullsummary and args.summary:
         print "--summary and --full-summary are mutually exclusive."
         exit(1)
-    if args.summary:
+    if args.summary or args.fullsummary:
         print_cloud_summary(quads, args.datearg, args.summary)
         exit(0)
-    if args.fullsummary:
-        print_cloud_summary(quads, args.datearg, args.fullsummary)
+    if args.postconfig:
+        print_cloud_postconfig(quads, args.datearg, args.summary, args.postconfig)
         exit(0)
 
     print_cloud_hosts(quads, args.datearg, args.cloudonly)
