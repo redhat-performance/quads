@@ -575,12 +575,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if len(cloud_summary) > 0:
                     for item in cloud_summary:
                         for cloudname, details in item.iteritems():
-                            result.append("{} :".format(cloudname))
+                            r = cloudname + " "
                             for param, description in details.iteritems():
                                 if param == 'hosts':
-                                    result.append(description)
+                                    r += str(description) + " "
                                 else:
-                                    result.append("({})".format(description))
+                                    r += "({})".format(description)
+                            result.append(r)
             else:
                 cloud_hosts = quads.query_cloud_hosts(data['date'][0])
                 if data['cloud'][0] is not None:
