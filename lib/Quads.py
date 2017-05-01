@@ -732,6 +732,22 @@ class Quads(object):
                     result.append({"host":h, "current":current_state, "new":current_cloud})
         return result
 
+    # Method to get make of the host (Assumes hostname is of the format
+    # foo-bar-machinemake.dummy.com)
+    def get_host_type(self, hostname):
+        host_type = hostname.split('.')[0]
+        return host_type.split('-')[2]
+
+    # Method to get the number of hosts of each type to be returned as a
+    # dictionary
+    def get_host_count(self, hostnames):
+        host_type_count = {}
+        for host in hostnames:
+            host_type = get_host_type(host)
+            host_type_count[host_type] = host_type_count.get(host_type, 0) + 1
+        return host_type_count
+
+
     # generally the last thing that happens is reporting results
     def query(self, host, cloudonly, datearg, summaryreport, fullsummaryreport, lsschedule):
         # If we're here, we're done with all other options and just need to
