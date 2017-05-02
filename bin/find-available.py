@@ -43,7 +43,7 @@ def load_quads_config():
 
     try:
         stream = open(quads_config, 'r')
-        quads = yaml.load(stream)
+        quads = yaml.safe_load(stream)
         stream.close()
     except Exception, ex:
         print ex
