@@ -105,7 +105,7 @@ class Quads(object):
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
             stream = open(self.config, 'r')
-            self.data = yaml.load(stream)
+            self.data = yaml.safe_load(stream)
             stream.close()
         except Exception, ex:
             self.logger.error(ex)

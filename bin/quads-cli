@@ -23,7 +23,7 @@ def quads_load_config(quads_config):
     try:
         stream = open(quads_config, 'r')
         try:
-            quads_config_yaml = yaml.load(stream)
+            quads_config_yaml = yaml.safe_load(stream)
             stream.close()
         except Exception, ex:
             print "quads: Invalid YAML config: " + quads_config
