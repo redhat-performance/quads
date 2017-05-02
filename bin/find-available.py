@@ -42,9 +42,8 @@ def load_quads_config():
     global quads
 
     try:
-        stream = open(quads_config, 'r')
-        quads = yaml.safe_load(stream)
-        stream.close()
+        with open(quads_config, 'r') as config_file:
+            quads = yaml.safe_load(config_file)
     except Exception, ex:
         print ex
         exit(1)
