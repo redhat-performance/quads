@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dc14a17_377811ec",
+        "filename": "lib/Quads.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-05-02T13:45:44Z",
+      "side": 1,
+      "message": "I\u0027m concerned that having a method that relies on hostname convention following what we happen to do will not be well received.  People have their own organizational naming conventions.  Perhaps the host-type can be metadata stored somewhere under the host definition(s)?",
+      "range": {
+        "startLine": 735,
+        "startChar": 24,
+        "endLine": 735,
+        "endChar": 25
+      },
+      "revId": "ada0498f00ed657b635be723f95cd8486e9fce99",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
