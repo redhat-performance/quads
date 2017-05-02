@@ -96,17 +96,15 @@ class Quads(object):
 
     def read_data(self):
         if not os.path.isfile(self.config):
+            data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
             try:
-                stream = open(self.config, 'w')
-                data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
-                stream.write( yaml.dump(data, default_flow_style=False))
-                stream.close()
+                with open (self.config, 'w') as config_file:
+                    config_file.write(yaml.dump(data, default_flow_style=False))
             except Exception, ex:
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
-            stream = open(self.config, 'r')
-            self.data = yaml.safe_load(stream)
-            stream.close()
+            with open (self.config, 'r') as config_file:
+            self.data = yaml.safe_load(config_file)
         except Exception, ex:
             self.logger.error(ex)
             exit(1)
