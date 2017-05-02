@@ -15,6 +15,7 @@
 
 import argparse
 import calendar
+import copy
 import datetime
 import time
 import logging
@@ -65,7 +66,7 @@ class Quads(object):
                     savecc = []
                     for cc in self.quads.clouds.data[c]['ccusers']:
                         savecc.append(cc)
-                    ccusers = savecc
+                    ccusers = copy.deepcopy(savecc)
                 else:
                     ccusers = []
                 if 'description' in self.quads.clouds.data[c]:
