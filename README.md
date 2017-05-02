@@ -30,6 +30,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Using the QUADS JSON API](#using-the-quads-json-api)
          * [API GET Operations](#api-get-operations)
          * [API POST Operations](#api-post-operations)
+         * [Working Examples](#working-examples)
+         * [More Examples with API POST](#more-examples-with-api-post)
       * [Contributing](#contributing)
 
 ## What does it do?
@@ -504,7 +506,7 @@ You'll then see a JSON response back.
 
 ```curl -X POST -H 'Content-Type: application/json'``` ```-d``` ```quadsvariable=value``` ```-d``` ```quadsvariable=value``` ```http://127.0.0.1:8080/api/v1/object```
 
-* Working Examples:
+### Working Examples:
   - Query the owners of cloud02 only
 ```
 curl -X POST -H 'Content-Type: application/json' -d cloudonly=cloud02  http://127.0.0.1:8080/api/v1/lsowners ; echo
@@ -534,7 +536,7 @@ curl -X POST -H 'Content-Type: application/json' -d 'date=2018-01-01 22:00' -d s
 {"result": [{"current": "cloud14", "new": "cloud01", "host": "b08-h13-r620.rdu.openstack.engineering.redhat.com"}, {"current": "cloud14", "new": "cloud01"}]}
 ```
 
-* More Examples with API POST
+### More Examples with API POST
 
   - Define a Host via API POST
 ```
