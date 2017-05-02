@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "039791d4_9ea11f78",
+        "filename": "lib/Quads.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-05-02T12:00:58Z",
+      "side": 1,
+      "message": "This seems like a good improvement overall and nice that it might be catching strange characters (not sure how they get snuck in though).\n\nhttp://stackoverflow.com/questions/6866600/yaml-parsing-and-python",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 38
+      },
+      "revId": "d608305da5fedabb4a1a964a3a5c5f45efa4013d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
