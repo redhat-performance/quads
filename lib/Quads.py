@@ -295,10 +295,11 @@ class Quads(object):
                 return
             for u in self.quads.clouds.data[cloudonly]['ccusers']:
                 print u
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'ccusers' in self.quads.clouds.data[c]:
-                print c + " : " + " ".join(self.quads.clouds.data[c]['ccusers'])
-        return
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'ccusers' in self.quads.clouds.data[c]:
+                    print c + " : " + " ".join(self.quads.clouds.data[c]['ccusers'])
+            return
 
     # get the cc users
     def get_cc(self, cloudonly):
@@ -311,10 +312,11 @@ class Quads(object):
                 return []
             for u in self.quads.clouds.data[cloudonly]['ccusers']:
                 result.append(u)
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'ccusers' in self.quads.clouds.data[c]:
-                result.append(c + " : " + " ".join(self.quads.clouds.data[c]['ccusers']))
-        return result
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'ccusers' in self.quads.clouds.data[c]:
+                    result.append(c + " : " + " ".join(self.quads.clouds.data[c]['ccusers']))
+            return result
 
     # list the tickets
     def print_tickets(self, cloudonly):
@@ -326,25 +328,27 @@ class Quads(object):
                 return
             print self.quads.clouds.data[cloudonly]['ticket']
             return
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'ticket' in self.quads.clouds.data[c]:
-                print c + " : " + self.quads.clouds.data[c]['ticket']
-        return
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'ticket' in self.quads.clouds.data[c]:
+                    print c + " : " + self.quads.clouds.data[c]['ticket']
+            return
 
     # get the tickets
     def get_tickets(self, cloudonly):
         # get the service request tickets
+        result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
                 return []
             if 'ticket' not in self.quads.clouds.data[cloudonly]:
                 return []
             return [self.quads.clouds.data[cloudonly]['ticket']]
-        result = []
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'ticket' in self.quads.clouds.data[c]:
-                result.append(c + " : " + self.quads.clouds.data[c]['ticket'])
-        return result
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'ticket' in self.quads.clouds.data[c]:
+                    result.append(c + " : " + self.quads.clouds.data[c]['ticket'])
+            return result
 
     # print qinq status
     def print_qinq(self, cloudonly):
@@ -357,29 +361,31 @@ class Quads(object):
                 return
             print self.quads.clouds.data[cloudonly]['qinq']
             return
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'qinq' in self.quads.clouds.data[c]:
-                print c + " : " + self.quads.clouds.data[c]['qinq']
-            else:
-                print c + " : 0"
-        return
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'qinq' in self.quads.clouds.data[c]:
+                    print c + " : " + self.quads.clouds.data[c]['qinq']
+                else:
+                    print c + " : 0"
+            return
 
     # get qinq status
     def get_qinq(self, cloudonly):
         # get the environment qinq state
+        result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
                 return []
             if 'qinq' not in self.quads.clouds.data[cloudonly]:
                 return ["0"]
             return [self.quads.clouds.data[cloudonly]['qinq']]
-        result = []
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'qinq' in self.quads.clouds.data[c]:
-                result.append(c + " : " + self.quads.clouds.data[c]['qinq'])
-            else:
-                result.append(c + " : 0")
-        return result
+        else:
+            for c in sorted(self.quads.clouds.data.iterkeys()):
+                if 'qinq' in self.quads.clouds.data[c]:
+                    result.append(c + " : " + self.quads.clouds.data[c]['qinq'])
+                else:
+                    result.append(c + " : 0")
+            return result
 
     # remove a host
     def remove_host(self, rmhost):
