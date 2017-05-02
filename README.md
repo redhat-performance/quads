@@ -6,8 +6,6 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 * Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
 * We also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
 
-![jenkins](/image/jenkins.png?raw=true)
-
 ![quads](/image/quads.jpg?raw=true)
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
@@ -27,14 +25,17 @@ Automate scheduling and end-to-end provisioning of servers and networks.
            Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
            Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
-         * [Extending Machine Allocation to an existing
-           Cloud](#extending-machine-allocation-to-an-existing-cloud)
+         * [Extending Machine Allocation to an existing Cloud](#extending-machine-allocation-to-an-existing-cloud)
       * [Additional Tools and Commands](#additional-tools-and-commands)
+      * [Using the QUADS JSON API](#using-the-quads-json-api)
+         * [API GET Operations](#api-get-operations)
+         * [API POST Operations](#api-post-operations)
       * [Contributing](#contributing)
 
 ## What does it do?
    - Create and manage a date/time based YAML schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment via external commands
+   - Automated network and provisioning validation prior to delivering sets of machines/networks to users.
    - Generates instackenv.json for each OpenStack environment.
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
      * Current system details
@@ -122,6 +123,7 @@ b02-h01-r620.example.com
 ```
 
 ## QUADS Usage Documentation
+   - Note: we will be documenting the switch/network design components at a later date or will be building tools to do this for you.
    - Initialize the schedule structure
 
 ```
@@ -442,6 +444,80 @@ bin/quads.py --host c03-h17-r620.rdu.openstack.example.com --add-schedule --sche
 
 * Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
 
+## Using the QUADS JSON API
+* We've recently introduced a JSON API into QUADS comprised of a systemd service ```quads-daemon``` and a ```quads-cli```
+* This is an optional local systemd service you can start and interact with and listens on localhost ```TCP/8080```
+
+```
+cp quads-daemon.service /etc/systemd/system/quads-daemon.service
+systemctl enable quads-daemon.service
+systemctl start quads-daemon.service
+```
+
+  - All of the argparse and normal QUADS sub-commands are supported and will accept http ```GET``` and ```POST``` actions in a JSON response body.
+    - Example: getting the equivalent of ```quads --ls-hosts``` via curl
+
+```
+curl -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080/api/v1/lshosts
+```
+
+You'll then see a JSON response back.
+```
+{"hosts": ["b08-h13-r620.rdu.openstack.engineering.example.com", "b08-h14-r620.rdu.openstack.engineering.example.com", "b08-h15-r620.rdu.openstack.engineering.example.com", "b08-h17-r620.rdu.openstack.engineering.example.com", "b08-h18-r620.rdu.openstack.engineering.example.com", "b08-h19-r620.rdu.openstack.engineering.example.com", "b08-h21-r620.rdu.openstack.engineering.example.com"]}
+```
+
+### API GET Operations
+* The following commands can be queried via curl or some other http mechanism to do basic metadata queries:
+  * ```curl -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080```
+    - ```/api/v1/lsclouds```
+    - ```/api/v1/lshosts```
+    - ```/api/v1/lsowner```
+    - ```/api/v1/lstickets```
+
+### API POST Operations
+* The following construct can be used via http ```POST``` to receive more detailed data by providing granular criteria to return JSON body data:
+  * You can combine one of many POST query types with multiple POST metadata objects.
+  * Valid POST queries
+    - ```/api/v1/host```
+    - ```/api/v1/lsqinq```
+    - ```/api/v1/lstickets```
+    - ```/api/v1/query```
+    - ```/api/v1/fullquery```
+    - ```/api/v1/moves```
+    - ```/api/v1/lsowner```
+    - ```/api/v1/lsclouds```
+
+  * Valid POST object filters:
+    - ```-d cloud=cloud0X```
+    - ```-d cloudonly=cloud0X```
+    - ```-d 'date=2018-08-08 22:00'```
+    - ```-d statedir=/path/to/quads/datadir```
+    - ```-d fullsummary=True/False```
+    - ```-d host=c10-h33-r630.rdu.openstack.engineering.example.com```
+
+* Constructing an http POST example with multiple metadata objects:
+
+```curl -X POST -H 'Content-Type: application/json'``` ```-d``` ```quadsvariable=value``` ```-d``` ```quadsvariable=value``` ```http://127.0.0.1:8080/api/v1/object```
+
+* Working Examples:
+  - Query the owners of cloud02 only
+```
+curl -X POST -H 'Content-Type: application/json' -d cloudonly=cloud02  http://127.0.0.1:8080/api/v1/lsowners ; echo
+```
+
+```
+{"owner": ["dmacpher"]}
+```
+
+  - Query all of the future move actions on the day and time ```2018-01-01 22:00```
+```
+curl -X POST -H 'Content-Type: application/json' -d 'date=2018-01-01 22:00' -d statedir=/opt/quads/data http://127.0.0.1:8080/api/v1/moves ; echo
+```
+
+```
+{"result": [{"current": "cloud14", "new": "cloud01", "host": "b08-h13-r620.rdu.openstack.engineering.redhat.com"}, {"current": "cloud14", "new": "cloud01"}]}
+```
+
 ## Additional Tools and Commands
 
 * You can display the allocation schedule on any given date via the ```--date``` flag.
@@ -552,7 +628,11 @@ rnixon
 git clone https://github.com/redhat-performance/quads
 ```
 
-* Setup username/email for git and gerrithub:
+* Create a [Github issue](https://github.com/redhat-performance/quads/issues/new) to track your work.
+  - Provide a meaningful explanation, citing code lines when relevant.
+  - Explain what you are trying to fix, or what you're trying to contribute.
+
+* Setup username/email for git and gerrithub (one time only):
   - Ensure Github and Gerrithub are linked by [signing into Gerrithub via Github](https://review.gerrithub.io/login)
   - match ```gitreview.username``` to your Github username
   - match ```user.name``` to your real name or how you want credit for commits to display in Git history.
@@ -571,6 +651,8 @@ cd quads
 vi bin/quads.py
 ```
 * Add a local commit with a meaningful, short title followed by a space and a summary (you can check our commit history for examples).
+* Add a line that relates to a new or existing github issue, e.g. ```fixes: https://github.com/redhat-performance/quads/issues/5``` or ```related-to: https://github.com/redhat-performance/quads/issues/25```
+
 
 ```
 git add bin/quads.py
@@ -585,6 +667,7 @@ git review -s
 ```
 
 * Now submit your patchset with git review (future patches you only need to run ```git review```)
+  - A Change-ID will be generated when you create your first patchset, make sure this is the last line in the commit message preceded by an empty line.
 
 ```
 git review
