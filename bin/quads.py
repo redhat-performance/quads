@@ -18,9 +18,9 @@ logger.addHandler(ch)
 def quads_load_config(quads_config):
     try:
         with open(quads_config, 'r') as config_file:
-           try:
+            try:
                 quads_config_yaml = yaml.safe_load(config_file)
-           except Exception, ex:
+            except Exception, ex:
                 print "quads: Invalid YAML config: " + quads_config
                 exit(1)
     except Exception, ex:
@@ -91,6 +91,16 @@ def main(argv):
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
+    parser.add_argument('--post-config', dest='postconfig',type=str,default=None, nargs='+',  help='Post provisioning configuration to apply')
+    parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
+    parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
+    parser.add_argument('--control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
+    parser.add_argument('--compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
+    parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
+
+
+
+
 
     args = parser.parse_args()
 
@@ -201,13 +211,18 @@ def main(argv):
         exit(1)
 
     if args.hostresource:
-        result = quads.update_host(args.hostresource, args.hostcloud, args.force)
+        result = quads.update_host(args.hostresource, args.hostcloud,
+                                   args.hosttype, args.force)
         for r in result:
             print r
         exit(0)
 
     if args.cloudresource:
-        result = quads.update_cloud(args.cloudresource, args.description, args.force, args.cloudowner, args.ccusers, args.cloudticket, args.qinq)
+        result = quads.update_cloud(args.cloudresource, args.description,
+                                    args.force, args.cloudowner, args.ccusers,
+                                    args.cloudticket, args.qinq,
+                                    args.postconfig, args.version, args.puddle,
+                                    args.controlscale, args.computescale)
         for r in result:
             print r
         exit(0)

@@ -85,11 +85,14 @@ class Quads(object):
                     ticket = self.quads.clouds.data[c]['ticket']
                 else:
                     ticket = '000000'
+                if 'post_config' in self.quads.clouds.data[c]:
+                    post_config = self.quads.clouds.data[c]['post_config']
                 self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
                                                        'description':description,
                                                        'owner':owner,
                                                        'qinq':qinq,
-                                                       'ticket':ticket}
+                                                       'ticket':ticket,
+                                                       'post_config': post_config}
                 updateyaml = True
 
         if updateyaml:
@@ -122,10 +125,9 @@ class Quads(object):
             return False
         else:
             try:
-                stream = open(self.config, 'w')
                 self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
-                stream.write( yaml.dump(self.data, default_flow_style=False))
-                stream.close()
+                with open(self.config, 'w') as yaml_file:
+                    yaml_file.write(yaml.dump(self.data, default_flow_style=False))
                 self.read_data()
                 return True
             except Exception, ex:
@@ -294,11 +296,10 @@ class Quads(object):
                 return
             for u in self.quads.clouds.data[cloudonly]['ccusers']:
                 print u
-        else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'ccusers' in self.quads.clouds.data[c]:
-                    print c + " : " + " ".join(self.quads.clouds.data[c]['ccusers'])
-            return
+        for c in sorted(self.quads.clouds.data.iterkeys()):
+            if 'ccusers' in self.quads.clouds.data[c]:
+                print c + " : " + " ".join(self.quads.clouds.data[c]['ccusers'])
+        return
 
     # get the cc users
     def get_cc(self, cloudonly):
@@ -417,11 +418,15 @@ class Quads(object):
             return ["ERROR"]
 
     # update a host resource
-    def update_host(self, hostresource, hostcloud, forceupdate):
+    def update_host(self, hostresource, hostcloud, hosttype, forceupdate):
         # define or update a host resouce
         if hostcloud is None:
             self.logger.error("--default-cloud is required when using --define-host")
             return ["--default-cloud is required when using --define-host"]
+        elif hosttype is None:
+            self.logger.error("--host-type is required when using --define-host")
+            return ["--host-type is required when using --define-host"]
+
         else:
             if hostcloud not in self.quads.clouds.data:
                 return ["Unknown cloud : %s" % hostcloud,
@@ -431,10 +436,19 @@ class Quads(object):
                 return ["Host \"%s\" already defined. Use --force to replace" % hostresource]
 
             if hostresource in self.quads.hosts.data:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud, "interfaces": self.quads.hosts.data[hostresource]["interfaces"], "schedule": self.quads.hosts.data[hostresource]["schedule"] }
+                self.quads.hosts.data[hostresource] = { "cloud": hostcloud,
+                                                       "interfaces":
+                                                       self.quads.hosts.data[hostresource]["interfaces"],
+                                                       "schedule":
+                                                       self.quads.hosts.data[hostresource]["schedule"],
+                                                       "type": hosttype,
+                                                     }
                 self.quads.history.data[hostresource][int(time.time())] = hostcloud
             else:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud, "interfaces": {}, "schedule": {}}
+                self.quads.hosts.data[hostresource] = { "cloud": hostcloud,
+                                                       "interfaces": {},
+                                                       "schedule": {},
+                                                       "type": hosttype}
                 self.quads.history.data[hostresource] = {}
                 self.quads.history.data[hostresource][0] = hostcloud
             if self.write_data():
@@ -443,7 +457,9 @@ class Quads(object):
                 return ["ERROR"]
 
     # update a cloud resource
-    def update_cloud(self, cloudresource, description, forceupdate, cloudowner, ccusers, cloudticket, qinq):
+    def update_cloud(self, cloudresource, description, forceupdate, cloudowner,
+                     ccusers, cloudticket, qinq, postconfig, version, puddle,
+                     controlscale, computescale):
         # define or update a cloud resource
         if description is None:
             self.logger.error("--description is required when using --define-cloud")
@@ -462,6 +478,21 @@ class Quads(object):
                 ccusers = []
             else:
                 ccusers = ccusers.split()
+            post_config = []
+            if postconfig is not None:
+                for service in postconfig:
+                    if service == 'openstack':
+                        if version is None or controlscale is None or computescale is None:
+                            self.logger.error("Missing required arguments for openstack deployment")
+                            return ["Missing OpenStack specific arguments"]
+                        else:
+                            service_description = {'name': 'openstack',
+                                                   'version': version,
+                                                   'puddle': puddle,
+                                                   'controllers': controlscale,
+                                                   'computes': computescale
+                                                  }
+                    post_config.append(service_description)
             if cloudresource in self.quads.clouds.data:
                 if 'ccusers' in self.quads.clouds.data[cloudresource]:
                     savecc = []
@@ -485,12 +516,22 @@ class Quads(object):
                     save_ticket = self.quads.clouds.data[cloudresource]['ticket']
                 else:
                     save_ticket = '000000'
+                save_post_config = copy.deepcopy(post_config)
                 self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':savecc,
-                                                       'description':save_description,
-                                                       'owner':save_owner,
-                                                       'qinq':save_qinq,
-                                                       'ticket':save_ticket}
-            self.quads.clouds.data[cloudresource] = { "description": description, "networks": {}, "owner": cloudowner, "ccusers": ccusers, "ticket": cloudticket, "qinq": qinq}
+                                                       'description': save_description,
+                                                       'owner': save_owner,
+                                                       'qinq': save_qinq,
+                                                       'ticket': save_ticket,
+                                                       'post_config': save_post_config}
+            print post_config
+            self.quads.clouds.data[cloudresource] = { "description": description,
+                                                     "networks":{},
+                                                     "owner": cloudowner,
+                                                     "ccusers": ccusers,
+                                                     "ticket": cloudticket,
+                                                     "qinq": qinq,
+                                                     "post_config": post_config
+                                                    }
             if self.write_data():
                 return ["OK"]
             else:
