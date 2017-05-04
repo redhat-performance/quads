@@ -233,23 +233,11 @@ class Quads(object):
                     self.logger.error("There was a problem with your file %s" % ex)
         return
 
-    # list the hosts
-    def print_hosts(self):
-        # print just the hostnames
-        self.quads.hosts.print_hosts()
-
+    #return hosts
     def get_hosts(self):
-        # return hosts
         if self.config_newer_than_data():
             self.read_data()
         return self.quads.hosts.get()
-
-    # list the hosts
-    def print_clouds(self):
-        # print just the hostnames
-        if self.config_newer_than_data():
-            self.read_data()
-        self.quads.clouds.print_clouds()
 
     def get_clouds(self):
         # return clouds
@@ -257,83 +245,40 @@ class Quads(object):
             self.read_data()
         return self.quads.clouds.get()
 
-    # list the owners
-    def print_owners(self, cloudonly):
-        # list the owners
-        if cloudonly is not None:
-            if cloudonly not in self.quads.clouds.data:
-                return
-            print self.quads.clouds.data[cloudonly]['owner']
-            return
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'owner' in self.quads.clouds.data[c]:
-                print c + " : " + self.quads.clouds.data[c]['owner']
-        return
-
-    # get the owners
+    # get the owners, returns a list of dictionaries
     def get_owners(self, cloudonly):
         # return the owners
-        if cloudonly is not None:
-            if cloudonly not in self.quads.clouds.data:
-                return []
-            if 'owner' in self.quads.clouds.data[cloudonly]:
-                return [self.quads.clouds.data[cloudonly]['owner']]
-            return []
         result = []
-        for c in sorted(self.quads.clouds.data.iterkeys()):
-            if 'owner' in self.quads.clouds.data[c]:
-                result.append(c + " : " + self.quads.clouds.data[c]['owner'])
-
-        return result
-
-    # list the cc users
-    def print_cc(self, cloudonly):
-        # list the cc users
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
-                return
-            if 'ccusers' not in self.quads.clouds.data[cloudonly]:
-                return
-            for u in self.quads.clouds.data[cloudonly]['ccusers']:
-                print u
+                return result
+            if 'owner' in self.quads.clouds.data[cloudonly]:
+                result.append({cloudonly : self.quads.clouds.data[cloudonly]['owner']})
         else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'ccusers' in self.quads.clouds.data[c]:
-                    print c + " : " + " ".join(self.quads.clouds.data[c]['ccusers'])
-            return
+            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+                if 'owner' in self.quads.clouds.data[cloud]:
+                    result.append({cloud : self.quads.clouds.data[cloud]['owner']})
+        return result
 
     # get the cc users
     def get_cc(self, cloudonly):
         # return the cc users
         result = []
+        cc_list = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
-                return []
-            if 'ccusers' not in self.quads.clouds.data[cloudonly]:
-                return []
-            for u in self.quads.clouds.data[cloudonly]['ccusers']:
-                result.append(u)
+                return result
+            for user in self.quads.clouds.data[cloudonly]['ccusers']:
+                cc_list.append(user)
+            result.append({cloudonly: cc_list})
         else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'ccusers' in self.quads.clouds.data[c]:
-                    result.append(c + " : " + " ".join(self.quads.clouds.data[c]['ccusers']))
-            return result
-
-    # list the tickets
-    def print_tickets(self, cloudonly):
-        # list the service request tickets
-        if cloudonly is not None:
-            if cloudonly not in self.quads.clouds.data:
-                return
-            if 'ticket' not in self.quads.clouds.data[cloudonly]:
-                return
-            print self.quads.clouds.data[cloudonly]['ticket']
-            return
-        else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'ticket' in self.quads.clouds.data[c]:
-                    print c + " : " + self.quads.clouds.data[c]['ticket']
-            return
+            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+                cc_list = []
+                if 'ccusers' in self.quads.clouds.data[cloud]:
+                    for user in self.quads.clouds.data[cloud]['ccusers']:
+                        cc_list.append(user)
+                    result.append({cloud: cc_list})
+        return result
 
     # get the tickets
     def get_tickets(self, cloudonly):
@@ -341,34 +286,14 @@ class Quads(object):
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
-                return []
-            if 'ticket' not in self.quads.clouds.data[cloudonly]:
-                return []
-            return [self.quads.clouds.data[cloudonly]['ticket']]
+                return result
+            if 'ticket' in self.quads.clouds.data[cloudonly]:
+                result.append({cloudonly : self.quads.clouds.data[cloudonly]['ticket']})
         else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'ticket' in self.quads.clouds.data[c]:
-                    result.append(c + " : " + self.quads.clouds.data[c]['ticket'])
-            return result
-
-    # print qinq status
-    def print_qinq(self, cloudonly):
-        # list the environment qinq state
-        if cloudonly is not None:
-            if cloudonly not in self.quads.clouds.data:
-                return
-            if 'qinq' not in self.quads.clouds.data[cloudonly]:
-                print "0"
-                return
-            print self.quads.clouds.data[cloudonly]['qinq']
-            return
-        else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'qinq' in self.quads.clouds.data[c]:
-                    print c + " : " + self.quads.clouds.data[c]['qinq']
-                else:
-                    print c + " : 0"
-            return
+            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+                if 'ticket' in self.quads.clouds.data[cloud]:
+                    result.append({cloud : self.quads.clouds.data[cloud]['ticket']})
+        return result
 
     # get qinq status
     def get_qinq(self, cloudonly):
@@ -376,17 +301,14 @@ class Quads(object):
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
-                return []
-            if 'qinq' not in self.quads.clouds.data[cloudonly]:
-                return ["0"]
-            return [self.quads.clouds.data[cloudonly]['qinq']]
+                return result
+            if 'qinq' in self.quads.clouds.data[cloudonly]:
+                result.append({cloudonly : self.quads.clouds.data[cloudonly]['qinq']})
         else:
-            for c in sorted(self.quads.clouds.data.iterkeys()):
-                if 'qinq' in self.quads.clouds.data[c]:
-                    result.append(c + " : " + self.quads.clouds.data[c]['qinq'])
-                else:
-                    result.append(c + " : 0")
-            return result
+            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+                if 'qinq' in self.quads.clouds.data[cloud]:
+                    result.append({cloud : self.quads.clouds.data[cloud]['qinq']})
+        return result
 
     # remove a host
     def remove_host(self, rmhost):
@@ -474,7 +396,7 @@ class Quads(object):
             if not cloudticket:
                 cloudticket = "00000"
             if not qinq:
-                qinq = "0"
+                qinq = 0
             if not ccusers:
                 ccusers = []
             else:
@@ -784,80 +706,68 @@ class Quads(object):
                     result.append({"host":h, "current":current_state, "new":current_cloud})
         return result
 
-    # generally the last thing that happens is reporting results
-    def query(self, host, cloudonly, datearg, summaryreport, fullsummaryreport, lsschedule):
-        # If we're here, we're done with all other options and just need to
-        # print either summary, full report if no host is specified
+    def query_host_schedule(self, host, datearg):
         result = []
-        if host is None:
-            summary = {}
+        default_cloud, current_cloud, current_override = self.find_current(host, datearg)
+        if host in self.quads.hosts.data.keys():
+            for override in self.quads.hosts.data[host]["schedule"]:
+                schedule_override = {override: {'start': self.quads.hosts.data[host]["schedule"][override]["start"],
+                                    'end': self.quads.hosts.data[host]["schedule"][override]["end"]}}
+                result.append(schedule_override)
+        return default_cloud, current_cloud, current_override, result
 
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
-                summary[cloud] = []
+    def query_host_cloud(self, host, datearg):
+        default_cloud, current_cloud, current_override = self.find_current(host, datearg)
+        return current_cloud
 
-            for h in sorted(self.quads.hosts.data.iterkeys()):
-                default_cloud, current_cloud, current_override = self.find_current(h, datearg)
-                summary[current_cloud].append(h)
+    def query_cloud_hosts(self, datearg):
+        summary = {}
+        for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            summary[cloud] = []
+        for h in sorted(self.quads.hosts.data.iterkeys()):
+            default_cloud, current_cloud, current_override = self.find_current(h, datearg)
+            summary[current_cloud].append(h)
+        return summary
 
-            cloud_history = self.quads.cloud_history.data
-            current_time =datetime.datetime.now()
-            if datearg is None:
-                requested_time = current_time
-            else:
-                try:
-                    requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
-                except Exception, ex:
-                    self.logger.error("Data format error : %s" % ex)
-                    result.append("Data format error : %s" % ex)
-                    return result
-
-            if summaryreport or fullsummaryreport:
-                if fullsummaryreport:
-                    for cloud in sorted(self.quads.clouds.data.iterkeys()):
+    def query_cloud_summary(self, datearg, activesummary):
+        result = []
+        cloud_summary = {}
+        cloud_history = self.quads.cloud_history.data
+        current_time =datetime.datetime.now()
+        if datearg is None:
+            requested_time = current_time
+        else:
+            try:
+                requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+            except Exception, ex:
+                self.logger.error("Data format error : %s" % ex)
+                return result
+        summary = self.query_cloud_hosts(datearg)
+        for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            if activesummary:
+                if len(summary[cloud]):
+                    for c in sorted(cloud_history[cloud]):
                         if requested_time < current_time:
-                            for c in sorted(cloud_history[cloud]):
-                                if datetime.datetime.fromtimestamp(c) <= requested_time:
-                                    requested_description = cloud_history[cloud][c]["description"]
+                            if datetime.datetime.fromtimestamp(c) <= requested_time:
+                                requested_description = cloud_history[cloud][c]["description"]
+                                cloud_summary = {cloud: {'description': requested_description,
+                                                'hosts': len(summary[cloud])}}
                         else:
                             requested_description = self.quads.clouds.data[cloud]["description"]
-                        result.append(cloud + " : " + str(len(summary[cloud])) + " (" + requested_description + ")")
-                else:
-                    for cloud in sorted(self.quads.clouds.data.iterkeys()):
-                        if len(summary[cloud]) > 0:
-                            if requested_time < current_time:
-                                for c in sorted(cloud_history[cloud]):
-                                    if datetime.datetime.fromtimestamp(c) <= requested_time:
-                                        requested_description = cloud_history[cloud][c]["description"]
-                            else:
-                                requested_description = self.quads.clouds.data[cloud]["description"]
-                            result.append(cloud + " : " + str(len(summary[cloud])) + " (" + requested_description + ")")
+                            cloud_summary = {cloud: {'description': requested_description,
+                                          'hosts': len(summary[cloud])}}
+                    result.append(cloud_summary)
             else:
-                for cloud in sorted(self.quads.clouds.data.iterkeys()):
-                    if cloudonly is None:
-                        result.append(cloud + ":")
-                        for h in summary[cloud]:
-                            result.append("  - " + h)
+                for c in sorted(cloud_history[cloud]):
+                    if requested_time < current_time:
+                        if datetime.datetime.fromtimestamp(c) <= requested_time:
+                            requested_description = cloud_history[cloud][c]["description"]
+                            cloud_summary = {cloud: {'description': requested_description,
+                                         'hosts': len(summary[cloud])}}
+                            result.append(cloud_summary)
                     else:
-                        if cloud == cloudonly:
-                            for h in summary[cloud]:
-                                result.append(h)
-
-        # print the cloud a host belongs to
-        else:
-            default_cloud, current_cloud, current_override = self.find_current(host, datearg)
-
-            if lsschedule:
-                result.append("Default cloud: " + str(default_cloud))
-                result.append("Current cloud: " + str(current_cloud))
-                if current_override is not None:
-                    result.append("Current schedule: " + str(current_override))
-                result.append("Defined schedules:")
-                if host in self.quads.hosts.data.keys():
-                    for override in self.quads.hosts.data[host]["schedule"]:
-                        result.append("  " + str(override) + "| start=" + self.quads.hosts.data[host]["schedule"][override]["start"] +
-                            ",end=" + self.quads.hosts.data[host]["schedule"][override]["end"] +
-                            ",cloud=" + self.quads.hosts.data[host]["schedule"][override]["cloud"])
-            else:
-                result.append(current_cloud)
-
+                        requested_description = self.quads.clouds.data[cloud]["description"]
+                        cloud_summary = {cloud: {'description': requested_description,
+                                         'hosts': len(summary[cloud])}}
+                result.append(cloud_summary)
         return result
