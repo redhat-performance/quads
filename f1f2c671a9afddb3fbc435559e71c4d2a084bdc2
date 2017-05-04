@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d440ac70_32929714",
+        "filename": "bin/quads.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-05-04T15:24:30Z",
+      "side": 1,
+      "message": "As per our discussion, lets see if we can create specific values for post-config, e.g. currently \"openstack\", and as quads support for post-config is extended, we add other application types (e.g. \"openshift\")",
+      "range": {
+        "startLine": 94,
+        "startChar": 32,
+        "endLine": 94,
+        "endChar": 38
+      },
+      "revId": "f1f2c671a9afddb3fbc435559e71c4d2a084bdc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f851dcbb_87b19485",
+        "filename": "bin/quads.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-05-04T15:24:30Z",
+      "side": 1,
+      "message": "We should have application specific params, e.g. --os-version, --os-puddle, --os-control-scale, etc.",
+      "range": {
+        "startLine": 97,
+        "startChar": 27,
+        "endLine": 97,
+        "endChar": 34
+      },
+      "revId": "f1f2c671a9afddb3fbc435559e71c4d2a084bdc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36ee395f_ea39ec5a",
+        "filename": "lib/Quads.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-05-04T15:24:30Z",
+      "side": 1,
+      "message": "Do we need to worry about the deepcopy here?",
+      "range": {
+        "startLine": 89,
+        "startChar": 45,
+        "endLine": 89,
+        "endChar": 51
+      },
+      "revId": "f1f2c671a9afddb3fbc435559e71c4d2a084bdc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
