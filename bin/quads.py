@@ -28,6 +28,37 @@ def quads_load_config(quads_config):
         exit(1)
     return(quads_config_yaml)
 
+def print_hosts(quads):
+    for host in quads.get_hosts():
+        print host
+
+def print_clouds(quads):
+    for cloud in quads.get_clouds():
+        print cloud
+
+def print_owners(quads, cloudonly):
+    for item in quads.get_owners(cloudonly):
+        for cloud, owner in item.iteritems():
+            print cloud + ' : ' + owner
+
+def print_cc(quads, cloudonly):
+    for item in quads.get_cc(cloudonly):
+        for cloud, cc_list in item.iteritems():
+            if cc_list is not None:
+                print cloud + ' : ' + ''.join(cc_list)
+            else:
+                print cloud
+
+def print_tickets(quads, cloudonly):
+    for item in quads.get_tickets(cloudonly):
+        for cloud, ticket in item.iteritems():
+            print cloud + ' : ' + ticket
+
+def print_qinq(quads, cloudonly):
+    for item in quads.get_qinq(cloudonly):
+        for cloud, qinq in item.iteritems():
+            print cloud + ' : ' + qinq
+
 def main(argv):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
@@ -49,30 +80,34 @@ def main(argv):
     defaultmovecommand = "/bin/echo"
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
+    group.add_argument('--ls-cc-users', dest='lsccusers', action='store_true', default=None, help='List CC list')
+    group.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
+    group.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
+    group.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
+    group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
+    group.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
+    group.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
+    group.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
+    group.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
+    group.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
+    group.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
+    group.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
-    parser.add_argument('-c', '--config', dest='config',
-                                            help='YAML file with cluster data',
-                                            default=defaultconfig, type=str)
+    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig, type=str)
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
     parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
-    parser.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
-    parser.add_argument('--ls-cc-users', dest='lsccusers', action='store_true', default=None, help='List CC list')
-    parser.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
-    parser.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
-    parser.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
-    parser.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
     parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
     parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
     parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
     parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
-    parser.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
-    parser.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
     parser.add_argument('--schedule-query', dest='schedquery', action='store_true', help='Query the schedule for a specific month')
     parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month, help='Query the schedule for a specific month and year')
     parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year, help='Query the schedule for a specific month and year')
@@ -80,11 +115,6 @@ def main(argv):
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
     parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
-    parser.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
-    parser.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
-    parser.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
-    parser.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
-    parser.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
     parser.add_argument('--statedir', dest='statedir', type=str, default=defaultstatedir, help='Default state dir')
     parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
@@ -97,9 +127,6 @@ def main(argv):
     parser.add_argument('--control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
     parser.add_argument('--compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
-
-
-
 
 
     args = parser.parse_args()
@@ -166,37 +193,35 @@ def main(argv):
     #   force -  Some operations require --force.  E.g. if you want to redefine
     #            a cloud environment.
 
+
     quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
 
     # should these be mutually exclusive?
     if args.lshosts:
-        quads.print_hosts()
+        print_hosts(quads)
         exit(0)
 
     if args.lsclouds:
-        quads.print_clouds()
+        print_clouds(quads)
         exit(0)
 
     if args.lsowner:
-        quads.print_owners(args.cloudonly)
+        print_owners(quads, args.cloudonly)
         exit(0)
 
     if args.lsccusers:
-        quads.print_cc(args.cloudonly)
+        print_cc(quads, args.cloudonly)
         exit(0)
 
     if args.lsticket:
-        quads.print_tickets(args.cloudonly)
+        print_tickets(quads, args.cloudonly)
         exit(0)
 
     if args.lsqinq:
-        quads.print_qinq(args.cloudonly)
+        print_qinq(quads, args.cloudonly)
         exit(0)
 
-    if args.rmhost and args.rmcloud:
-        print "--rm-host and --rm-cloud are mutually exclusive"
-        exit(1)
 
     if args.rmhost:
         quads.remove_host(args.rmhost)
@@ -205,10 +230,6 @@ def main(argv):
     if args.rmcloud:
         quads.quads_remove_cloud(args.rmcloud)
         exit(0)
-
-    if args.hostresource is not None and args.cloudresource is not None:
-        print "--define-cloud and --define-host are mutually exclusive."
-        exit(1)
 
     if args.hostresource:
         result = quads.update_host(args.hostresource, args.hostcloud,
@@ -227,12 +248,6 @@ def main(argv):
             print r
         exit(0)
 
-    if (args.addschedule and args.rmschedule) or (args.addschedule and args.modschedule) or (args.rmschedule and args.modschedule):
-        print "Online one of the following is allowed:"
-        print "    --add-schedule"
-        print "    --rm-schedule"
-        print "    --mod-schedule"
-        exit(1)
 
     if args.schedquery:
         schedule = None
