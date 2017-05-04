@@ -28,6 +28,26 @@ def quads_load_config(quads_config):
         exit(1)
     return(quads_config_yaml)
 
+def print_hosts(quads):
+    for host in quads.get_hosts():
+        print host
+
+def print_clouds(quads):
+    for cloud in quads.get_clouds():
+        print cloud
+
+def print_owners(quads, cloudonly):
+    for item in quads.get_owners(cloudonly):
+        for cloud, owner in item.iteritems():
+            print cloud + ' : ' + owner
+def print_cc(quads, cloudonly):
+    for item in quads.get_cc(cloudonly):
+        for cloud, cc_list in item.iteritems():
+            if cc_list is not None:
+                print cloud + ' : ' + ''.join(cc_list)
+            else:
+                print cloud
+
 def main(argv):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
@@ -166,24 +186,25 @@ def main(argv):
     #   force -  Some operations require --force.  E.g. if you want to redefine
     #            a cloud environment.
 
+
     quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
 
     # should these be mutually exclusive?
     if args.lshosts:
-        quads.print_hosts()
+        print_hosts(quads)
         exit(0)
 
     if args.lsclouds:
-        quads.print_clouds()
+        print_clouds(quads)
         exit(0)
 
     if args.lsowner:
-        quads.print_owners(args.cloudonly)
+        print_owners(quads, args.cloudonly)
         exit(0)
 
     if args.lsccusers:
-        quads.print_cc(args.cloudonly)
+        print_cc(quads, args.cloudonly)
         exit(0)
 
     if args.lsticket:
