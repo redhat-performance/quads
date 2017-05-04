@@ -68,6 +68,29 @@
       "revId": "f1f2c671a9afddb3fbc435559e71c4d2a084bdc2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ecb8077_f41e1ec0",
+        "filename": "lib/Quads.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-05-04T15:33:06Z",
+      "side": 1,
+      "message": "in the for loop for the postconfig arguments, start with setting service_description dict to the empty dict {}, and also ensure you never append the empty dict onto the post_config array (i.e.) use:\n\nif len(service_description) \u003e 0:\n  post_config.append(service_description)",
+      "range": {
+        "startLine": 484,
+        "startChar": 19,
+        "endLine": 484,
+        "endChar": 20
+      },
+      "revId": "f1f2c671a9afddb3fbc435559e71c4d2a084bdc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
