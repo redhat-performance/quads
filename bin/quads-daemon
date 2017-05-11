@@ -169,11 +169,17 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             else:
                 if len(data['force']) == 0:
                        result.append("Could not parse force parameter")
+            if 'type' not in data:
+                result.append("Missing required parameter: type")
+            else:
+                if len(data['type']) == 0:
+                       result.append("Could not parse type parameter")
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
             result = quads.update_host(data['host'][0],
                                        data['cloud'][0],
+                                       data['type'][0],
                                        data['force'][0] == 'True')
             self.wfile.write(json.dumps({'result': result}))
             return
