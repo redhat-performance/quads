@@ -296,6 +296,10 @@ def main(argv):
                                    args.hosttype, args.force)
         for r in result:
             print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
     if args.cloudresource:
@@ -306,6 +310,10 @@ def main(argv):
                                     args.controlscale, args.computescale)
         for r in result:
             print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
 
