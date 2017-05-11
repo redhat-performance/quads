@@ -26,10 +26,10 @@ function init_sandbox() {
     $quads_cmd --define-cloud cloud01 --description "spare pool"
     $quads_cmd --define-cloud cloud02 --description "quads test cloud"
     echo "Defining example hosts [host01, host02, host03, host04]"
-    $quads_cmd --define-host host01.example.com --default-cloud cloud01
-    $quads_cmd --define-host host02.example.com --default-cloud cloud01
-    $quads_cmd --define-host host03.example.com --default-cloud cloud01
-    $quads_cmd --define-host host04.example.com --default-cloud cloud01
+    $quads_cmd --define-host host01.example.com --default-cloud cloud01 --host-type vendor
+    $quads_cmd --define-host host02.example.com --default-cloud cloud01 --host-type vendor
+    $quads_cmd --define-host host03.example.com --default-cloud cloud01 --host-type vendor
+    $quads_cmd --define-host host04.example.com --default-cloud cloud01 --host-type vendor
     echo "Syncing QUADS state"
     $quads_cmd --sync
     echo "Defining QUADS schedules [0, 1, 2, 3]"
