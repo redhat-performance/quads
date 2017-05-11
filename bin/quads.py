@@ -172,7 +172,6 @@ def main(argv):
     parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
     parser.add_argument('--os-compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
-    parser.add_argument('--query', dest='query', action='store_true', help='Query QUADS for information')
 
     args = parser.parse_args()
     if args.logpath :
@@ -239,20 +238,6 @@ def main(argv):
 
     quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
-
-    if args.query:
-        if args.host:
-            if args.lsschedule:
-                print_host_schedule(quads, args.host, args.datearg)
-            else:
-                print_host_cloud(quads, args.host, args.datearg)
-            exit(0)
-        if args.fullsummary or args.summary:
-            print_cloud_summary(quads, args.datearg, args.summary)
-            exit(0)
-        else:
-            print_cloud_hosts(quads, args.datearg, args.cloudonly)
-            exit(0)
 
     if args.lshosts:
         print_hosts(quads)
@@ -361,6 +346,25 @@ def main(argv):
             exit(1)
         quads.move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
         exit(0)
+
+    if args.host:
+        if args.lsschedule:
+            print_host_schedule(quads, args.host, args.datearg)
+        else:
+            print_host_cloud(quads, args.host, args.datearg)
+        exit(0)
+    if args.fullsummary and args.summary:
+        print "--summary and --full-summary are mutually exclusive."
+        exit(1)
+    if args.summary:
+        print_cloud_summary(quads, args.datearg, args.summary)
+        exit(0)
+    if args.fullsummary:
+        print_cloud_summary(quads, args.datearg, args.fullsummary)
+        exit(0)
+
+    print_cloud_hosts(quads, args.datearg, args.cloudonly)
+    exit(0)
 
     print("Please learn to use QUADS")
 
