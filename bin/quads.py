@@ -63,15 +63,15 @@ def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
 
 def print_cloud_hosts(quads, datearg, cloudonly):
-    clouds_hosts = quads.query_cloud_hosts(datearg)
+    cloud_hosts = quads.query_cloud_hosts(datearg)
     if cloudonly is not None:
-        if cloudonly in clouds_hosts:
+        if cloudonly in cloud_hosts:
             for host in cloud_hosts[cloudonly]:
                 print host
         else:
             print("Requested cloud does not exist")
     else:
-        for cloud, hostlist in clouds_hosts.iteritems():
+        for cloud, hostlist in cloud_hosts.iteritems():
                   print("{}:".format(cloud))
                   for host in hostlist:
                       print(" - {}".format(host))
@@ -86,7 +86,7 @@ def print_host_schedule(quads, host, datearg):
         for item in full_schedule:
             for override, schedule in item.iteritems():
                 print(" {}| ".format(override)),
-                for time, date  in schedule.iteritems():
+                for time, date in schedule.iteritems():
                     if time == 'start':
                         print("{}={},".format(time, date)),
                     else:
@@ -166,7 +166,7 @@ def main(argv):
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig',type=str,default=None, nargs='+', choices= ['openstack'], help='Post provisioning configuration to apply')
+    parser.add_argument('--post-config', dest='postconfig',type=str,default=None, nargs='+', choices=['openstack'], help='Post provisioning configuration to apply')
     parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
     parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
     parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
@@ -174,10 +174,7 @@ def main(argv):
     parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
     parser.add_argument('--query', dest='query', action='store_true', help='Query QUADS for information')
 
-
-
     args = parser.parse_args()
-
     if args.logpath :
         quads_config["log"] = args.logpath
 
@@ -240,7 +237,6 @@ def main(argv):
     #   force -  Some operations require --force.  E.g. if you want to redefine
     #            a cloud environment.
 
-
     quads = Quads(args.config, args.statedir, args.movecommand, args.datearg,
                   args.syncstate, args.initialize, args.force)
 
@@ -282,7 +278,6 @@ def main(argv):
         print_qinq(quads, args.cloudonly)
         exit(0)
 
-
     if args.rmhost:
         quads.remove_host(args.rmhost)
         exit(0)
@@ -296,6 +291,10 @@ def main(argv):
                                    args.hosttype, args.force)
         for r in result:
             print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
     if args.cloudresource:
@@ -306,8 +305,11 @@ def main(argv):
                                     args.controlscale, args.computescale)
         for r in result:
             print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
-
 
     if args.schedquery:
         schedule = None

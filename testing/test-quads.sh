@@ -110,10 +110,10 @@ declare -A quads_tests=(
     ["declare_cloud02"]="$quads --define-cloud cloud02 --description cloud02 --cloud-owner bob"
     ["declare_cloud03"]="$quads --define-cloud cloud03 --description cloud03 --cloud-owner joe --cloud-ticket 12345"
     ["declare_cloud04"]="$quads --define-cloud cloud04 --description cloud04 --cloud-owner will --cloud-ticket 54321 --qinq 1"
-    ["decl_host01"]="$quads --define-host host01.example.com --default-cloud cloud01"
-    ["decl_host02"]="$quads --define-host host02.example.com --default-cloud cloud01"
-    ["decl_host03"]="$quads --define-host host03.example.com --default-cloud cloud01"
-    ["decl_host04"]="$quads --define-host host04.example.com --default-cloud cloud01"
+    ["decl_host01"]="$quads --define-host host01.example.com --default-cloud cloud01 --host-type vendor"
+    ["decl_host02"]="$quads --define-host host02.example.com --default-cloud cloud01 --host-type vendor"
+    ["decl_host03"]="$quads --define-host host03.example.com --default-cloud cloud01 --host-type vendor"
+    ["decl_host04"]="$quads --define-host host04.example.com --default-cloud cloud01 --host-type vendor"
     ["redefine_cloud02"]="$quads --define-cloud cloud02 --description cloud02_redefined --cloud-owner wfoster --force"
     ["ls_owner"]="$quads --ls-owner"
     ["ls_ticket"]="$quads --ls-ticket"
@@ -174,8 +174,8 @@ flake8 $bindir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W
 # now we include libdir as well
 flake8 $libdir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
 # individual checks for daemon and client
-flake8 $shellbin/quads-daemon --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
-flake8 $shellbin/quads-cli --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+flake8 $bindir/quads-daemon --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
+flake8 $bindir/quads-cli --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
 
 if [ "$?" = "0" ]; then
     :
