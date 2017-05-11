@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8807dd3_2f45c9e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-05-11T19:09:06Z",
+      "side": 1,
+      "message": "Please amend so your change-id is the last line with an empty space above it.",
+      "revId": "88bef47b2654acdaa444834b18697cc3aefa3eb3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
