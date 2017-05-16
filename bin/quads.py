@@ -83,14 +83,15 @@ def print_host_schedule(quads, host, datearg):
     if current_schedule is not None:
         print("Current schedule: {}".format(current_schedule))
     if len(full_schedule)>0:
+        print("Defined schedules:")
         for item in full_schedule:
             for override, schedule in item.iteritems():
-                print(" {}| ".format(override)),
-                for time, date in schedule.iteritems():
-                    if time == 'start':
-                        print("{}={},".format(time, date)),
+                sys.stdout.write("  {}| ".format(override))
+                for schedkey, schedval in schedule.iteritems():
+                    if schedkey == 'start' or schedkey == 'end':
+                        sys.stdout.write("{}={},".format(schedkey, schedval))
                     else:
-                        print("{}={}".format(time, date))
+                        print("{}={}".format(schedkey, schedval))
 
 def print_cloud_summary(quads, datearg, activesummary):
     cloud_summary = quads.query_cloud_summary(datearg, activesummary)
@@ -318,11 +319,22 @@ def main(argv):
             print "    --schedule-end"
             print "    --schedule-cloud"
             exit(1)
-        quads.add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
+        result = quads.add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
-
     if args.rmschedule is not None:
-        quads.rm_host_schedule(args.rmschedule, args.host)
+        result = quads.rm_host_schedule(args.rmschedule, args.host)
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
     if args.modschedule is not None:
@@ -336,8 +348,13 @@ def main(argv):
             print "    --schedule-end"
             print "    --schedule-cloud"
             exit(1)
-
-        quads.mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
+        result = quads.mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
     if args.movehosts:

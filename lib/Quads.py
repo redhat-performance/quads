@@ -712,7 +712,8 @@ class Quads(object):
         if host in self.quads.hosts.data.keys():
             for override in self.quads.hosts.data[host]["schedule"]:
                 schedule_override = {override: {'start': self.quads.hosts.data[host]["schedule"][override]["start"],
-                                    'end': self.quads.hosts.data[host]["schedule"][override]["end"]}}
+                                    'end': self.quads.hosts.data[host]["schedule"][override]["end"],
+                                    'cloud': self.quads.hosts.data[host]["schedule"][override]["cloud"]}}
                 result.append(schedule_override)
         return default_cloud, current_cloud, current_override, result
 
