@@ -280,6 +280,8 @@ def main(argv):
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
+            for r in result:
+                logger.error(r)
             exit(1)
         exit(0)
 
@@ -294,6 +296,8 @@ def main(argv):
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
+            for r in result:
+                logger.error(r)
             exit(1)
         exit(0)
 
@@ -325,6 +329,8 @@ def main(argv):
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
+            for r in result:
+                logger.error(r)
             exit(1)
         exit(0)
     if args.rmschedule is not None:
@@ -334,6 +340,8 @@ def main(argv):
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
+            for r in result:
+                logger.error(r)
             exit(1)
         exit(0)
 
@@ -354,6 +362,8 @@ def main(argv):
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
+            for r in result:
+                logger.error(r)
             exit(1)
         exit(0)
 
@@ -372,6 +382,7 @@ def main(argv):
         exit(0)
     if args.fullsummary and args.summary:
         print "--summary and --full-summary are mutually exclusive."
+        logger.error("--summary and --full-summary are mutually exclusive.")
         exit(1)
     if args.summary:
         print_cloud_summary(quads, args.datearg, args.summary)
