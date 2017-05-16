@@ -319,10 +319,21 @@ def main(argv):
             print "    --schedule-cloud"
             exit(1)
         quads.add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
-
     if args.rmschedule is not None:
         quads.rm_host_schedule(args.rmschedule, args.host)
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         exit(0)
 
     if args.modschedule is not None:
@@ -336,7 +347,12 @@ def main(argv):
             print "    --schedule-end"
             print "    --schedule-cloud"
             exit(1)
-
+        for r in result:
+            print r
+        if len(result) == 0:
+            exit(1)
+        if result[0] != "OK":
+            exit(1)
         quads.mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
         exit(0)
 
