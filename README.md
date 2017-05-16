@@ -4,7 +4,7 @@ QUADS (quick and dirty scheduler)
 Automate scheduling and end-to-end provisioning of servers and networks.
 
 * Please use our [Gerrit Review](https://review.gerrithub.io/#/q/project:redhat-performance/quads) to submit patches.
-* We also have a [Trello board](https://trello.com/b/inFZ2nbD/quads) for tracking development.
+* We use [Waffle.io](https://waffle.io/redhat-performance/quads) for additional development tracking and priorities.
 
 ![quads](/image/quads.jpg?raw=true)
 
