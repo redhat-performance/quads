@@ -23,6 +23,8 @@ import os
 import subprocess
 import sys
 import yaml
+import fcntl
+import errno
 
 import QuadsData
 
@@ -110,12 +112,24 @@ class Quads(object):
             data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
             try:
                 with open(self.config, 'w') as config_file:
+                    fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     config_file.write(yaml.dump(data, default_flow_style=False))
+                    fcntl.flock(config_file, fcntl.LOCK_UN)
             except Exception, ex:
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
             with open(self.config, 'r') as config_file:
+                while True:
+                    try:
+                        fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except IOError as e:
+                        if e.errno != errno.EAGAIN:
+                            raise
+                        else:
+                            time.sleep(1)
                 self.data = yaml.safe_load(config_file)
+                fcntl.flock(config_file, fcntl.LOCK_UN)
         except Exception, ex:
             self.logger.error(ex)
             exit(1)
@@ -134,7 +148,9 @@ class Quads(object):
             try:
                 self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
                 with open(self.config, 'w') as yaml_file:
+                    fcntl.flock(yaml_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     yaml_file.write(yaml.dump(self.data, default_flow_style=False))
+                    fcntl.flock(yaml_file, fcntl.LOCK_UN)
                 self.read_data()
                 return True
             except Exception, ex:
