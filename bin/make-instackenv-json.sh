@@ -62,7 +62,8 @@ for cloud in $CLOUD_LIST ; do
         ipmi_url=mgmt-$h
         ipmi_tool=pxe_ipmitool
         if ! $is_undercloud ; then
-            echo $mac,$ipmi_url,$ipmi_username,$foreman_user_password,$ipmi_tool >> $TMPCSVFILE
+            echo
+            $mac,$ipmi_url,$ipmi_username,$foreman_user_password,$ipmi_tool,node >> $TMPCSVFILE
         fi
     done
     python $JSON_MAKER --csv=$TMPCSVFILE 2>/dev/null > $TMPJSONFILE
