@@ -119,17 +119,7 @@ class Quads(object):
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
             with open(self.config, 'r') as config_file:
-                while True:
-                    try:
-                        fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                        break
-                    except IOError as e:
-                        if e.errno != errno.EAGAIN:
-                            raise
-                        else:
-                            time.sleep(1)
                 self.data = yaml.safe_load(config_file)
-                fcntl.flock(config_file, fcntl.LOCK_UN)
         except Exception, ex:
             self.logger.error(ex)
             exit(1)
@@ -658,6 +648,22 @@ class Quads(object):
         # move a host
         if self.datearg is not None and not dryrun :
             self.logger.error("--move-hosts and --date are mutually exclusive unless using --dry-run.")
+            exit(1)
+        try:
+            with open(self.config, 'r') as config_file:
+                while True:
+                    try:
+                        fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except IOError as e:
+                        if e.errno != errno.EAGAIN:
+                            raise
+                        else:
+                            time.sleep(0.1)
+                self.read_data()
+                fcntl.flock(config_file, fcntl.LOCK_UN)
+        except Exception, ex:
+            self.logger.error(ex)
             exit(1)
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
