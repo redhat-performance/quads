@@ -13,12 +13,15 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Notes](#notes)
       * [Requirements](#requirements)
       * [QUADS Workflow](#quads-workflow)
+      * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
+      * [Example: Automated Scheduling](#example-automated-scheduling)
       * [Example: Systems Wiki](#example-systems-wiki)
       * [Example: Workload Assignments](#example-workload-assignments)
       * [Example: Calendar View](#example-calendar-view)
       * [Example: Systems Visualization Map](#example-systems-visualization-map)
       * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
       * [QUADS Usage Documentation](#quads-usage-documentation)
+      * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
          * [Extending the <strong>Schedule</strong> of an Existing
@@ -33,6 +36,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [Working Examples](#working-examples)
          * [More Examples with API POST](#more-examples-with-api-post)
       * [Contributing](#contributing)
+      * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
    - Create and manage a date/time based YAML schedule for machine allocations
@@ -65,6 +69,13 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 
 ![quadsworkflow](/image/quads-workflow.png?raw=true)
 
+## QUADS Foreman Provisioning Workflow
+
+![quadsforemanarch](/image/quads-foreman-workflow.png?raw=true)
+
+## Example: Automated Scheduling
+
+![quads-schedule](/image/quads-example-scheduling.png?raw=true)
 
 ## Example: Systems Wiki
 
@@ -124,9 +135,11 @@ b02-h01-r620.example.com
 
 ```
 
+## QUADS Switch and Host Setup
+   - To ensure you have setup your switch properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md) 
+
 ## QUADS Usage Documentation
-   - Note: we will be documenting the switch/network design components at a later date or will be building tools to do this for you.
-   - Initialize the schedule structure
+   - After your switch environment and hosts are setup you can proceed with initializing QUADS
 
 ```
 mkdir /etc/lab
@@ -677,6 +690,7 @@ rnixon
 ## Contributing
   - You can use the ```testing/quads-sandbox.sh``` tool to create a local sandbox for testing and development.
   - We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch perform the following:
+  - You can also find us on IRC at **#quads** on ```irc.freenode.net```
 
 * Clone our repository:
 
@@ -743,3 +757,7 @@ Jenkins CI currently checks the following for every submitted patchset:
   - quads sandbox test - instantiates and runs common QUADS operations with fake data
     * This is all run from ```testing/test-quads.sh```
     * We currently do not expose CI logs externally, please reply on your patchset comments if you'd like a paste of it.
+
+## QUADS Talks and Media
+  - [![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
+  - [Skynet your Infrastructure with QUADS @ Europython 2017 Slides](https://hobosource.files.wordpress.com/2016/11/skynet_quads_europython_2017_wfoster.pdf) 
