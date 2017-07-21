@@ -110,7 +110,7 @@ def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
     for cloud in clouds:
         print cloud
 
-def main(argv):
+def main():
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
@@ -397,4 +397,4 @@ def main(argv):
     exit(0)
 
 if __name__ == "__main__":
-       main(sys.argv[1:])
+       main()
