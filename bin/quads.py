@@ -384,11 +384,13 @@ def main(argv):
         else:
             print_host_cloud(quads, args.host, args.datearg)
         exit(0)
-    if args.summary or args.fullsummary:
-        print_cloud_summary(quads, args.datearg, args.summary)
-        exit(0)
+
     if args.postconfig:
         print_cloud_postconfig(quads, args.datearg, args.summary, args.postconfig)
+        exit(0)
+
+    if args.summary or args.fullsummary:
+        print_cloud_summary(quads, args.datearg, args.summary)
         exit(0)
 
     print_cloud_hosts(quads, args.datearg, args.cloudonly)
