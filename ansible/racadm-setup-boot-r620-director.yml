@@ -6,6 +6,11 @@
   hosts: all:!{{untouchables}}
   tasks:
 
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh connectimeout=3 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
 # reset the drac
     - name: racadm racreset
       raw: racadm racreset hard -f
@@ -47,7 +52,7 @@
         executable: ''
       register: result_nicconfig
     - debug: var=result_nicconfig
-#
+
 # Commit the changes to the 1st NIC
     - name: racadm NIC reconfig
       raw: racadm jobqueue create NIC.Integrated.1-2-1 -r pwrcycle -s TIME_NOW
