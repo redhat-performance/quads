@@ -1,0 +1,14 @@
+---
+- gather_facts: False
+  name: check for racadm
+  vars:
+    untouchables: mgmt-foreman.example.com
+  hosts: all:!{{untouchables}}
+  tasks:
+
+# try to gracefully shutdown target server
+    - name: enable pxe
+      local_action: command ipmitool -I lanplus -H {{ inventory_hostname }} -U ADMIN -P ADMIN chassis bootdev pxe options=persistent
+      ignore_errors: True
+
+
