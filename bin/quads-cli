@@ -129,7 +129,8 @@ def main(argv):
             response = urllib.urlopen(url)
             data = json.loads(response.read())
             for k in data['owners']:
-                print k
+                for key in sorted(k.iterkeys()):
+                    print key + ": " + k[key]
             exit(0)
         else:
             #post
@@ -143,11 +144,12 @@ def main(argv):
                        print "ERROR"
                        exit(1)
                 for owner in js['owner']:
-                    print owner
+                    print owner[args.cloudonly]
                 exit(0)
             if 'owners' in js:
                 for k in js['owners']:
-                    print k
+                    for key in sorted(k.iterkeys()):
+                        print key + ": " + k[key]
             exit(0)
 
     if args.lsccusers:
@@ -157,7 +159,8 @@ def main(argv):
             response = urllib.urlopen(url)
             data = json.loads(response.read())
             for k in data['ccusers']:
-                print k
+                for key in sorted(k.iterkeys()):
+                    print key + ": " + ",".join(k[key])
             exit(0)
         else:
             #post
@@ -171,11 +174,12 @@ def main(argv):
                        print "ERROR"
                        exit(1)
                 for cc in js['ccuser']:
-                    print cc
+                    print ",".join(cc[args.cloudonly])
                 exit(0)
             if 'ccusers' in js:
                 for k in js['ccusers']:
-                    print k
+                    for key in sorted(k.iterkeys()):
+                        print key + ": " + ",".join(k[key])
             exit(0)
 
     if args.lsticket:
@@ -185,7 +189,8 @@ def main(argv):
             response = urllib.urlopen(url)
             data = json.loads(response.read())
             for k in data['tickets']:
-                print k
+                for key in sorted(k.iterkeys()):
+                    print key + ": " + k[key]
             exit(0)
         else:
             #post
@@ -196,14 +201,14 @@ def main(argv):
             js = r.json()
             if 'ticket' in js:
                 if len(js['ticket']) == 0:
-                       print "ERROR"
                        exit(1)
                 for owner in js['ticket']:
-                    print owner
+                    print owner[args.cloudonly]
                 exit(0)
             if 'tickets' in js:
                 for k in js['tickets']:
-                    print k
+                    for key in sorted(k.iterkeys()):
+                        print key + ": " + k[key]
             exit(0)
 
     if args.lsqinq:
@@ -213,7 +218,8 @@ def main(argv):
             response = urllib.urlopen(url)
             data = json.loads(response.read())
             for k in data['qinqs']:
-                print k
+                for key in sorted(k.iterkeys()):
+                    print key + ": " + k[key]
             exit(0)
         else:
             #post
@@ -227,11 +233,12 @@ def main(argv):
                        print "ERROR"
                        exit(1)
                 for qinq in js['qinq']:
-                    print qinq
+                    print qinq[args.cloudonly]
                 exit(0)
             if 'qinqs' in js:
                 for k in js['qinqs']:
-                    print k
+                    for key in sorted(k.iterkeys()):
+                        print key + ": " + k[key]
             exit(0)
 
     if args.hostresource:

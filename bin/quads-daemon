@@ -569,13 +569,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             if data['summary'][0] == 'True' or data['fullsummary'][0] == 'True':
                 if data['fullsummary'][0] == 'True':
-                    cloud_summary = quads.query_cloud_summary(data['date'][0], True)
-                else:
                     cloud_summary = quads.query_cloud_summary(data['date'][0], False)
+                else:
+                    cloud_summary = quads.query_cloud_summary(data['date'][0], True)
                 if len(cloud_summary) > 0:
                     for item in cloud_summary:
                         for cloudname, details in item.iteritems():
-                            r = cloudname + " "
+                            r = cloudname + " : "
                             for param, description in details.iteritems():
                                 if param == 'hosts':
                                     r += str(description) + " "
