@@ -28,7 +28,19 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
+
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 lockdir=$data_dir/lock

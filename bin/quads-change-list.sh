@@ -10,7 +10,17 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads=${quads["install_dir"]}/bin/quads-cli
 maxdays="183"
 
 function quads_next_change() {
@@ -30,4 +40,5 @@ function quads_next_change() {
     $quads --move-hosts --dry-run --date "$(date -d "today + $n days" +"%Y-%m-%d 05:00")"
 }
 
+quads_check_daemon
 quads_next_change

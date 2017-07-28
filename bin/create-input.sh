@@ -7,7 +7,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}
@@ -15,6 +15,18 @@ exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
 # define your racks
 racks=${quads["racks"]}
+
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
 
 # output might look like ....
 cat > /dev/null <<EOF

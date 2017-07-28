@@ -9,10 +9,22 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
     exit 1
 fi
 
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
+
 source $(dirname $0)/load-config.sh
 
 data_dir=${quads["data_dir"]}
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 
 function usage() {
     echo "Usage: `basename $0` [ -c cloudname | --cloud cloudname ] [ -1 ][ -2 ][ -3 ][ -4 ]"

@@ -8,12 +8,24 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
+
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
 
 function print_header() {
     cat <<EOF
@@ -134,10 +146,10 @@ function add_row() {
         totalminutesleft=$(date -d "1970-01-01 + $totalsecleft seconds" "+%M")
         totaltime="$totaldays day(s)"
         totaltimeleft="$totaldaysleft day(s)"
-        if [ $totalhours -gt 0 ]; then 
+        if [ $totalhours -gt 0 ]; then
             totaltime="$totaltime, $totalhours hour(s)"
         fi
-        if [ $totalhoursleft -gt 0 ]; then 
+        if [ $totalhoursleft -gt 0 ]; then
             totaltimeleft="$totaltimeleft, $totalhoursleft hour(s)"
         fi
     fi
@@ -172,4 +184,3 @@ done
 
 print_unmanaged
 print_faulty
-
