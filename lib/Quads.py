@@ -27,6 +27,9 @@ import fcntl
 import errno
 import threading
 import QuadsData
+from strip import PowerManagement
+from strip import ServerTech
+from strip import Apc
 
 class Quads(object):
     def __init__(self, config, statedir, movecommand, datearg, syncstate,
@@ -112,7 +115,7 @@ class Quads(object):
 
     def read_data(self):
         if not os.path.isfile(self.config):
-            data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
+            data = {"clouds":{}, "strips": {}, "hosts":{}, "history":{}, "cloud_history":{}}
             try:
                 with open(self.config, 'w') as config_file:
                     fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -147,7 +150,7 @@ class Quads(object):
             return False
         else:
             try:
-                self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
+                self.data = {"clouds":self.quads.clouds.data,"strips":self.quads.strips.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
                 with open(self.config, 'w') as yaml_file:
                     fcntl.flock(yaml_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     yaml_file.write(yaml.dump(self.data, default_flow_style=False))
@@ -175,7 +178,7 @@ class Quads(object):
             else:
                 try:
                     stream = open(self.config, 'w')
-                    data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
+                    data = {"clouds":{},"strips": {}, "hosts":{}, "history":{}, "cloud_history":{}}
                     stream.write( yaml.dump(data, default_flow_style=False))
                     return True
                 except Exception, ex:
@@ -268,6 +271,19 @@ class Quads(object):
         if self.config_newer_than_data():
             self.read_data()
         return self.quads.clouds.get()
+
+    def get_strips(self, strip_hostname=None):
+        # return strips
+        if self.config_newer_than_data():
+            self.read_data()
+        if strip_hostname == None:
+            return self.quads.strips.get()
+        if strip_hostname not in self.quads.strips.data :
+            self.logger.error("Powerstrip not found")
+            return ["ERROR"]
+        return ["brand: " + self.quads.strips.data[strip_hostname]["brand"],
+                "user: " + self.quads.strips.data[strip_hostname]["user"],
+                "password: " + self.quads.strips.data[strip_hostname]["password"]]
 
     # get the owners, returns a list of dictionaries
     def get_owners(self, cloudonly):
@@ -382,7 +398,13 @@ class Quads(object):
             return ["ERROR"]
 
     # update a host resource
-    def update_host(self, hostresource, hostcloud, hosttype, forceupdate):
+    def update_host(self, hostresource, hostcloud, hosttype, forceupdate, outlet=[{"hostname": None, "port": None}]):
+        for o in outlet:
+            if o['hostname'] != None:
+                if o['hostname'] not in self.quads.strips.data:
+                    self.logger.error("Outlet does not exist")
+                    return ["ERROR"]
+
         # define or update a host resouce
         self.thread_lock.acquire()
         if hostcloud is None:
@@ -411,13 +433,16 @@ class Quads(object):
                                                        "schedule":
                                                        self.quads.hosts.data[hostresource]["schedule"],
                                                        "type": hosttype,
+                                                       "outlet": outlet
                                                      }
                 self.quads.history.data[hostresource][int(time.time())] = hostcloud
             else:
                 self.quads.hosts.data[hostresource] = { "cloud": hostcloud,
                                                        "interfaces": {},
                                                        "schedule": {},
-                                                       "type": hosttype}
+                                                       "type": hosttype,
+                                                       "outlet": outlet
+                                                       }
                 self.quads.history.data[hostresource] = {}
                 self.quads.history.data[hostresource][0] = hostcloud
             if self.write_data():
@@ -506,6 +531,105 @@ class Quads(object):
             else:
                 self.thread_lock.release()
                 return ["ERROR"]
+
+#    """
+#    """
+#    def get_strips(self,strip_hostname):
+#        if strip_hostname not in self.quads.strips.data :
+#            self.logger.error("Powerstrip not found")
+#            return ["ERROR"]
+#        strip = self.quads.strips.data[strip_hostname]
+#        pdu = globals()[strip.brand]
+#        outlets = pdu(strip.user,strip.password,strip.hostname)
+#        plugs = ouetlets.get_outlets()
+#        self.logger.info(plugs)
+#        return ["OK"]
+#
+#    """
+#    """
+#    def set_outlet_on(self,hostname):
+#        if hostname not in self.quads.hosts.data:
+#            self.logger.error("Hostname not found")
+#            return ["ERROR"]
+#        strip_name = self.quads.hosts.data[hostname]['outlet']['hostname']
+#        port = self.quads.hosts.data[hostname]['outlet']['port']
+#        if strip_hostname not in self.quads.strips.data :
+#            self.logger.error("Powerstrip not found")
+#            return ["ERROR"]
+#        strip = self.quads.strips.data[strip_hostname]
+#        pdu = globals()[strip.brand]
+#        outlets = pdu(strip.user,strip.password,strip.hostname)
+#        if outlets.on(port):
+#            return ["OK"]
+#        else :
+#            return ["ERROR"]
+#
+#    """
+#    """
+#    def set_outlet_off(self,hostname):
+#        if hostname not in self.quads.hosts.data:
+#            self.logger.error("Hostname not found")
+#            return ["ERROR"]
+#        strip_name = self.quads.hosts.data[hostname]['outlet']['hostname']
+#        port = self.quads.hosts.data[hostname]['outlet']['port']
+#        if strip_hostname not in self.quads.strips.data :
+#            self.logger.error("Powerstrip not found")
+#            return ["ERROR"]
+#        strip = self.quads.strips.data[strip_hostname]
+#        pdu = globals()[strip.brand]
+#        outlets = pdu(strip.user,strip.password,strip.hostname)
+#        if outlets.off(port):
+#            return ["OK"]
+#        else :
+#            return ["ERROR"]
+
+    """
+    """
+    def add_strips(self, brand, hostname, user, password, forceupdate=False):
+        if hostname not in self.quads.strips.data:
+            self.quads.strips.data[hostname] = {"hostname": hostname,
+                                                "user": user,
+                                                "password": password,
+                                                "brand": brand,
+                                                "last_update": "" }
+            if self.write_data():
+                return ["OK"]
+        else:
+            if forceupdate:
+                self.quads.strips.data[hostname] = {"hostname": hostname,
+                                                    "user": user,
+                                                    "password": password,
+                                                    "brand": brand,
+                                                    "last_update": "" }
+                if self.write_data():
+                    return ["OK"]
+                else:
+                    return ["ERROR"]
+            else:
+                self.logger.error("Hostname already defined")
+                return ["Strip already defined. Use --force to override"]
+
+    """
+    """
+    def rm_strips(self, hostname):
+        self.thread_lock.acquire()
+        if hostname not in self.quads.strips.data:
+            self.thread_lock.release()
+            return [hostname + " not found"]
+        for h in self.quads.hosts.data:
+            if "outlet" in self.quads.hosts.data[h]:
+                for o in self.quads.hosts.data[h]["outlet"]:
+                    if o["hostname"] == hostname:
+                        self.thread_lock.release()
+                        return [hostname + " is used by host " + h,
+                                "Redefine host without strip information before deleting this strip."]
+        del(self.quads.strips.data[hostname])
+        if self.write_data():
+            self.thread_lock.release()
+            return ["OK"]
+        else:
+            self.thread_lock.release()
+            return ["ERROR"]
 
     # define a schedule for a given host
     def add_host_schedule(self, schedstart, schedend, schedcloud, host):
@@ -710,6 +834,16 @@ class Quads(object):
                             "   Start: " + s_start,
                             "   End: " + s_end]
 
+                if s_start_obj >= schedstart_obj and s_end_obj <= schedend_obj:
+                    self.thread_lock.release()
+                    return ["Error. Updated schedule conflicts with existing schedule.",
+                            "Updated schedule: ",
+                            "   Start: " + schedstart,
+                            "   End: " + schedend,
+                            "Existing schedule: ",
+                            "   Start: " + s_start,
+                            "   End: " + s_end]
+
         self.quads.hosts.data[host]["schedule"][modschedule]["start"] = schedstart
         self.quads.hosts.data[host]["schedule"][modschedule]["end"] = schedend
         self.quads.hosts.data[host]["schedule"][modschedule]["cloud"] = schedcloud
@@ -833,6 +967,16 @@ class Quads(object):
             self.read_data()
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
         return current_cloud
+
+    def query_host_outlets(self, host):
+        if self.config_newer_than_data():
+            self.read_data()
+        result=[]
+        if "outlet" in self.quads.hosts.data[host].keys():
+            for outlet in self.quads.hosts.data[host]["outlet"]:
+                if outlet["hostname"] is not None:
+                    result.append({"hostname": outlet["hostname"], "port": outlet["port"]})
+        return result
 
     def query_cloud_hosts(self, datearg):
         if self.config_newer_than_data():
