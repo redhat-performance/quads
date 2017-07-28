@@ -13,18 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-import CloudHistory
-import Clouds
-import History
-import Hosts
+import abc
 
-class QuadsData(object):
-    def __init__(self, data):
-        """
-        Initialize the QuadsData object.
-        """
-        self.hosts = Hosts.Hosts(data)
-        self.clouds = Clouds.Clouds(data)
-        self.history = History.History(data)
-        self.cloud_history = CloudHistory.CloudHistory(data)
-        self.outlets = data['outlets']
+class PowerManagement(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def on(self):
+        pass
+
+    @abc.abstractmethod
+    def off(self):
+        pass
+
+    @abc.abstractmethod
+    def drain(self):
+        pass
