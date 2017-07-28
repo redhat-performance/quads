@@ -13,19 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-import CloudHistory
-import Clouds
-import History
-import Hosts
-import Strips
+import logging
 
-class QuadsData(object):
+class Strips(object):
     def __init__(self, data):
         """
-        Initialize the QuadsData object.
+        Initialize a Hosts object. This is a subset of
+        data required by the Quads object.
         """
-        self.hosts = Hosts.Hosts(data)
-        self.clouds = Clouds.Clouds(data)
-        self.history = History.History(data)
-        self.cloud_history = CloudHistory.CloudHistory(data)
-        self.strips = Strips.Strips(data)
+        self.logger = logging.getLogger("quads.Strips")
+        self.logger.setLevel(logging.DEBUG)
+        if 'strips' not in data:
+            self.logger.error("data missing required \"Strips\" section.")
+            exit(1)
+
+        self.data = data["strips"]
+
+    # return list of strips
+    def get(self):
+        return sorted(self.data.iterkeys())
