@@ -14,6 +14,7 @@ General guidelines of how to setup your network switches, servers and DNS for QU
       * [QUADS Host Network Setup](#quads-host-network-setup)
       * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
       * [Adding New QUADS Host](#adding-new-quads-host)
+      * [Setup Optional QUADS PDU Management (#pdu-management)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -191,3 +192,13 @@ ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> channel setaccess 1 4 ipm
 ```
 
 At this point you can proceed with initializing QUADS [from the main documentation](https://github.com/redhat-performance/quads#quads-usage-documentation)
+
+## PDU Management
+
+   * Add new PDU to the QUADS database
+```
+quads-cli --add-strip c08 --brand ServerTech --username admin --password password
+```
+   * Note: Currently there are two brands supported ServerTech and APC. If there are other vendors that wish to be implemented please work with the maintainer of the pip package : (Pypi Strip package)[https://pypi.python.org/pypi/Strip]
+
+Once the Power Strip is added to the QUADS database, the QUADS Hosts must be updated with what Power Strip, and Plug.
