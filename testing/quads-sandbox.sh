@@ -51,6 +51,7 @@ function init_sandbox() {
     $quads_cmd --host host02.example.com --add-schedule --schedule-cloud cloud02 --schedule-start "2017-01-01 05:00" --schedule-end "2017-12-31 05:00"
     $quads_cmd --host host03.example.com --add-schedule --schedule-cloud cloud02 --schedule-start "2017-01-01 05:00" --schedule-end "2017-12-31 05:00"
     $quads_cmd --host host04.example.com --add-schedule --schedule-cloud cloud02 --schedule-start "2017-01-01 05:00" --schedule-end "2017-12-31 05:00"
+    $quads_cmd --add-strip hostname.apc.com --brand ServerTech --username admin --password password
     echo "Sandbox Setup!"
     echo "--------------"
     echo " You can now try commands like bin/quads.py --move-hosts --dry-run to see the result"
