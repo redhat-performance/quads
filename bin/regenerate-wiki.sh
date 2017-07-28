@@ -7,7 +7,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 data_dir=${quads["data_dir"]}
 bindir=${quads["install_dir"]}/bin
 wp_wiki=${quads["wp_wiki"]}

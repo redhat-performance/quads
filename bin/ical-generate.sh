@@ -7,7 +7,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 
@@ -17,6 +17,18 @@ enddate=$2
 daterangecmd=$bindir/date-range-generate.py
 schedcmd=$quads
 summaryloc=$data_dir/summary
+
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
 
 $schedcmd --summary > $summaryloc/$(date +%Y-%m-%d)
 

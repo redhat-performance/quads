@@ -13,7 +13,7 @@ source $(dirname $0)/load-config.sh
 sleep 10
 
 data_dir=${quads["data_dir"]}
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 foreman_param=${quads["foreman_director_parameter"]}
 lockdir=$data_dir/lock
 

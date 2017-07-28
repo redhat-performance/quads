@@ -40,7 +40,7 @@ for i in $(seq 1 $months_out) ; do
 done
 
 source $(dirname $0)/load-config.sh
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 visual_web_dir=${quads["visual_web_dir"]}
 visual_tmp_file=$(mktemp /tmp/quads-visual-tmpXXXX)

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Dependencies: quads
-#                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads.py
+#                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads-cli
 #               csv-to-instack.py
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/csv-to-instack.py
 #
@@ -18,8 +18,20 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
     exit 1
 fi
 
+# check that quads-daemon is running before we proceed
+function quads_check_daemon() {
+    if P=$(pgrep quads-daemon); then
+        :
+    else
+        printf "error: quads-daemon is not running.\n"
+        exit 1
+    fi
+}
+
+quads_check_daemon
+
 source $(dirname $0)/load-config.sh
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 foreman_director_parameter=${quads["foreman_director_parameter"]}
