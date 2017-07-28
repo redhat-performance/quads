@@ -37,6 +37,8 @@ virtualenv jenkins
 . jenkins/bin/activate
 pip install pyaml
 pip install requests
+# pexpect package for machine control
+pip install pexpect
 
 install_bin=$(dirname $0)
 

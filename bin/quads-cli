@@ -51,6 +51,7 @@ def main(argv):
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
     from Quads import Quads
+    from strip import PowerManagement
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
@@ -71,7 +72,11 @@ def main(argv):
     group.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
     group.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
     group.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
+    group.add_argument('--add-strip', dest='addstrip', type=str, default=None, help='Add powerstrip, pass hostname')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
+    parser.add_argument('--username', dest='username', type=str, default=None, help='Username for powerstrip')
+    parser.add_argument('--password', dest='password', type=str, default=None, help='Password for powerstrip')
+    parser.add_argument('--brand', dest='brand', type=str, choices=PowerManagement.PowerManagement.get_brands() ,default=None, help='Brand of powerstrip')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
     parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig, type=str)
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
@@ -269,6 +274,32 @@ def main(argv):
                 "ticket": args.cloudticket,
                 "force": args.force }
         r = requests.post(url, data, headers=headers, timeout=1200)
+        js = r.json()
+        if 'result' in js:
+            if len(js['result']) == 0:
+                print "Unexpected error"
+                exit(1)
+            for result in js['result']:
+                print result
+            exit(0)
+        print "No result received"
+        exit(0)
+
+    if args.addstrip:
+        if args.username is None or args.password is None or args.brand is None:
+            print "Missing option. At least one these options are required for --add-strip:"
+            print "    --username"
+            print "    --password"
+            print "    --brand"
+            exit(1)
+
+        url = quads_config["quads_base_url"] + "api/v1/addstrip"
+        headers = { 'Content-Type': 'application/json' }
+        data = {"hostname": args.addstrip,
+                "username": args.username,
+                "password": args.password,
+                "brand": args.brand}
+        r = requests.post(url, data, headers=headers)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:

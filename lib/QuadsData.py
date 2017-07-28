@@ -17,6 +17,7 @@ import CloudHistory
 import Clouds
 import History
 import Hosts
+import Strips
 
 class QuadsData(object):
     def __init__(self, data):
@@ -27,3 +28,4 @@ class QuadsData(object):
         self.clouds = Clouds.Clouds(data)
         self.history = History.History(data)
         self.cloud_history = CloudHistory.CloudHistory(data)
+        self.strips = Strips.Strips(data)
