@@ -12,7 +12,7 @@ fi
 source $(dirname $0)/load-config.sh
 
 data_dir=${quads["data_dir"]}
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 
 function usage() {
     echo "Usage: `basename $0` [ -c cloudname | --cloud cloudname ] [ -1 ][ -2 ][ -3 ][ -4 ]"
