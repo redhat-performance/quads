@@ -10,7 +10,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 maxdays="183"
 
 function quads_next_change() {

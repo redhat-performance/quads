@@ -4,7 +4,7 @@
 # changes or their Overcloud membership is altered.
 #
 # Dependencies: quads
-#                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads.py
+#                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads-cli
 #               csv-to-instack.py
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/csv-to-instack.py
 #
@@ -15,7 +15,7 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
 fi
 
 source $(dirname $0)/load-config.sh
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_cloud_username"]}

@@ -20,7 +20,7 @@ fi
 # load the ../conf/quads.yml values as associative array
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 data_dir=${quads["data_dir"]}
 
 days="1 3 5 7"

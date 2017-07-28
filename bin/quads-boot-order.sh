@@ -17,7 +17,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 install_dir=${quads["install_dir"]}
 data_dir=${quads["data_dir"]}
 ansible_max_proc=${quads["ansible_max_proc"]}
