@@ -11,4 +11,11 @@
       local_action: command ipmitool -I lanplus -H {{ inventory_hostname }} -U ADMIN -P ADMIN chassis bootdev pxe options=persistent
       ignore_errors: True
 
+# Record when we are finished
+    - name: Generate Time of Completion
+      local_action: command date +%Y-%m-%d-%H:%M
+      register: currentdate
 
+    - name: Print Time of Completion
+      debug:
+        msg="{{currentdate.stdout}} : Ansible Playbook {{role_path|basename}} for {{ansible_host}} completed"

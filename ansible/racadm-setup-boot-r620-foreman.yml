@@ -258,3 +258,11 @@
       delay: 10
     - debug: var=result_check_complete
 
+# Record when we are finished
+    - name: Generate Time of Completion
+      local_action: command date +%Y-%m-%d-%H:%M
+      register: currentdate
+
+    - name: Print Time of Completion
+      debug:
+        msg="{{currentdate.stdout}} : Ansible Playbook {{role_path|basename}} for {{ansible_host}} completed"
