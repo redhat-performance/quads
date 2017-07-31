@@ -56,7 +56,7 @@ function craft_initial_message() {
     ircbot_channel=${quads["ircbot_channel"]}
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
-    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
@@ -125,7 +125,7 @@ function craft_future_initial_message() {
     ircbot_channel=${quads["ircbot_channel"]}
     cloudinfo="$($quads --full-summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-pre-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
-    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
@@ -187,7 +187,7 @@ function craft_message() {
     future_list_file=$5
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
-    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
@@ -255,7 +255,7 @@ function craft_future_message() {
     future_list_file=$5
     cloudinfo="$($quads --full-summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-pre-${days_to_report}-$($quads --ls-ticket --cloud-only ${env_to_report})
-    additional_cc="$($quads --ls-cc-users --cloud-only ${env_to_report} | sed "s/$/@${quads["domain"]}/")"
+    additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
