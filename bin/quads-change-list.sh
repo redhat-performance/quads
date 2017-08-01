@@ -10,14 +10,14 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 maxdays="183"
 
 function quads_next_change() {
     n=0 ;
     while [ $($quads --move-hosts --dry-run --date \
                      "$(date -d "today + $n days" \
-                     +"%Y-%m-%d 05:00")" | wc -l) -eq 0 ] ; do
+                     +"%Y-%m-%d 22:00")" | egrep -v 'Nothing to do' |  wc -l) -eq 0 ] ; do
 
         n=$(expr $n + 1)
         if [ $n -gt $maxdays ]; then
@@ -26,8 +26,8 @@ function quads_next_change() {
         fi
     done
     echo "Next change in $n days"
-    date -d "today + $n days" +"%Y-%m-%d 05:00"
-    $quads --move-hosts --dry-run --date "$(date -d "today + $n days" +"%Y-%m-%d 05:00")"
+    date -d "today + $n days" +"%Y-%m-%d 22:00"
+    $quads --move-hosts --dry-run --date "$(date -d "today + $n days" +"%Y-%m-%d 22:00")"
 }
 
 quads_next_change
