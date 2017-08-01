@@ -29,6 +29,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
            Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
          * [Extending Machine Allocation to an existing Cloud](#extending-machine-allocation-to-an-existing-cloud)
+         * [Removing a Schedule](#removing-a-schedule)
+         * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
       * [Additional Tools and Commands](#additional-tools-and-commands)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
          * [API GET Operations](#api-get-operations)
@@ -176,7 +178,7 @@ bin/quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 ```
 for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do bin/quads-cli --define-host $h --default-cloud cloud01; done
 ```
-   
+
    - The command without Foreman would be simply:
 
 ```
@@ -431,13 +433,7 @@ Done.
 bin/quads-cli --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 ```
 
-  - **Approach: 2** Reschedule aginst a certain existing cloud:
-
-```
-for h in $(cat /tmp/CLOUD05TMP); do echo bin/quads-cli --mod-schedule $(bin/quads-cli --ls-schedule --host $h | grep cloud05 | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-27 05:00" ; echo Done. ; done
-```
-
-  - **Approach: 3** Reschedule against a certain cloud **and** start date **(RECOMMENDED)**
+  - **Approach: 2** Reschedule against a certain cloud **and** start date **(RECOMMENDED)**
 
 ```
 for h in $(bin/quads-cli --cloud-only cloud05); do echo bin/quads-cli --mod-schedule $(bin/quads-cli --ls-schedule --host $h | grep cloud05 | grep "start=2017-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-06 05:00" ; echo Done. ; done
@@ -480,6 +476,32 @@ bin/quads-cli --host c03-h17-r620.rdu.openstack.example.com --add-schedule --sch
 ```
 
 * Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
+
+### Removing a Schedule
+
+You can remove an existing schedule across a set of hosts using the ```--rm-schedule``` flag against the schedule ID for each particular machine of that assignment.
+
+   - Example: removing the schedule for three machines in cloud
+   - Obtain the schedule ID via ```bin/quads-cli --ls-schedule --host```
+   - These machines would happen to have the same cloud assignment as schedule id 2.
+```
+bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+```
+
+   - Example: removing schedule by searching for start date.
+   - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
+
+### Removing a Schedule across a large set of hosts
+
+You should search for either the start or end dates to select the right schedule ID to remove when performing schedule removals across a large set of hosts.
+
+   - If you are using QUADS in any serious capacity **always pick this option**.
+
+```
+for host in $(cat /tmp/452851); do bin/quads-cli --rm-schedule $(bin/quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
+```
 
 ## Using the QUADS JSON API
 * We've recently introduced a JSON API into QUADS comprised of a systemd service ```quads-daemon``` and a ```quads-cli```
@@ -568,14 +590,14 @@ curl -X POST -H 'Content-Type: application/json' -d 'date=2018-01-01 22:00' -d s
 ```
 
 ```
-{"result": [{"current": "cloud14", "new": "cloud01", "host": "b08-h13-r620.rdu.openstack.engineering.redhat.com"}, {"current": "cloud14", "new": "cloud01"}]}
+{"result": [{"current": "cloud14", "new": "cloud01", "host": "b08-h13-r620.rdu.openstack.example.com"}, {"current": "cloud14", "new": "cloud01"}]}
 ```
 
 ### More Examples with API POST
 
   - Define a Host via API POST
 ```
-curl -X POST http://localhost:8080/api/v1/host -d host=c10-h33-r630.rdu.openstack.engineering.redhat.com -d cloud=cloud01 -d force=False -H 'Content-Type: application/json'
+curl -X POST http://localhost:8080/api/v1/host -d host=c10-h33-r630.rdu.openstack.example.com -d cloud=cloud01 -d force=False -H 'Content-Type: application/json'
 ```
 
   - Add a new Cloud Assignment via API POST
@@ -590,19 +612,19 @@ curl -X POST http://localhost:8080/api/v1/cloud -d cloud=cloud03 -d description=
 
   - Add a new Host Schedule via API POST
 ```
-curl -X POST http://localhost:8080/api/v1/ahs -d host=c01-h01-r620.rdu.openstack.engineering.redhat.com -d 'start=2017-09-01 22:00' -d 'end=2017-09-30 22:00' -d 'cloud=cloud04' -H 'Content-Type: application/json'
+curl -X POST http://localhost:8080/api/v1/ahs -d host=c01-h01-r620.rdu.openstack.example.com -d 'start=2017-09-01 22:00' -d 'end=2017-09-30 22:00' -d 'cloud=cloud04' -H 'Content-Type: application/json'
 ```
 
   - Modify a Host Schedule via API POST
     - At least one of ```start=``` ```end=``` or ```cloud=``` are required with modifications.
 ```
-curl -X POST http://localhost:8080/api/v1/mhs -d host=c01-h01-r620.rdu.openstack.engineering.redhat.com -d 'start=2017-09-01 22:00' -d 'end=2017-09-30 22:00' -d 'cloud=cloud04' -H 'Content-  Type: application/json'
+curl -X POST http://localhost:8080/api/v1/mhs -d host=c01-h01-r620.rdu.openstack.example.com -d 'start=2017-09-01 22:00' -d 'end=2017-09-30 22:00' -d 'cloud=cloud04' -H 'Content-  Type: application/json'
 ```
 
   - Remove a Host Schedule via API POST
     - ```schedule=``` is the numeric value of the target schedule, you can use the ```query``` object to determine this (or ```--ls-schedule``` via cli or ```bin/quads-cli```
 ```
-curl -X POST http://localhost:8080/api/v1/rhs -d host=c01-h01-r620.rdu.openstack.engineering.redhat.com -d schedule=1
+curl -X POST http://localhost:8080/api/v1/rhs -d host=c01-h01-r620.rdu.openstack.example.com -d schedule=1
 ```
 
 * Using quads-cli
@@ -782,5 +804,5 @@ Jenkins CI currently checks the following for every submitted patchset:
 
 ## QUADS Talks and Media
 [![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
-  
+
    - [Skynet your Infrastructure with QUADS @ Europython 2017 Slides](https://hobosource.files.wordpress.com/2016/11/skynet_quads_europython_2017_wfoster.pdf)
