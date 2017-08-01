@@ -16,7 +16,7 @@ General guidelines of how to setup your network switches, servers and DNS for QU
       * [Adding New QUADS Host](#adding-new-quads-host)
 
 ## Network Architecture
-   - We use top-of-rack switches in a spine/leave topology (Juniper QFX5200 currently)
+   - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
    - Each TOR switch is uplinked to a pair of distribution (QFX5200 also) configured via MC-LAG
 
 ## Physical Switch Setup
@@ -106,7 +106,7 @@ set groups QinQ_vl1140 interfaces <*> unit 0 input-vlan-map push
 set groups QinQ_vl1140 interfaces <*> unit 0 output-vlan-map pop
 ```
    * QUADS will apply/unapply QinQ Group Settings for you when things are moved.
-   * **Do not paste this below, it's an example** 
+   * **Do not paste this below, it's an example**
    * _Done manually it would look like this for example_
 ```
 set interfaces xe-0/0/0:0 apply-groups QinQ_vl1140
