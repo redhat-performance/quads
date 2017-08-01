@@ -490,14 +490,14 @@ bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
 bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
 ```
 
-   - Example: removing schedule by searching for start date.
-   - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
-
 ### Removing a Schedule across a large set of hosts
 
 You should search for either the start or end dates to select the right schedule ID to remove when performing schedule removals across a large set of hosts.
 
    - If you are using QUADS in any serious capacity **always pick this option**.
+   - Example: removing schedule by searching for start date.
+   - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
+
 
 ```
 for host in $(cat /tmp/452851); do bin/quads-cli --rm-schedule $(bin/quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
