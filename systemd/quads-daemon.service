@@ -5,12 +5,13 @@
 
 [Unit]
 Description = QUADS Daemon
+Documentation = https://github.com/redhat-performance/quads
 
 [Service]
 Type = simple
 ExecStart = /opt/quads/bin/quads-daemon
 ExecStop = /usr/bin/pkill quads-daemon
-Restart = on-abort
+Restart = always
 StartLimitInterval = 60
 StartLimitBurst = 10
 

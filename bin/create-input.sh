@@ -7,7 +7,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 quads_url=${quads["quads_url"]}
 rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}

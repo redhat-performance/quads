@@ -17,7 +17,7 @@ fi
 
 source $(dirname $0)/load-config.sh
 
-quads=${quads["install_dir"]}/bin/quads.py
+quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 
 TMPHOSTFILE=$(mktemp /tmp/quadshostfileXXXXXXX)
