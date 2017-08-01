@@ -43,7 +43,7 @@ def quads_load_config(quads_config):
         exit(1)
     return(quads_config_yaml)
 
-quads_config_file = os.path.dirname(__file__) + "../conf/quads.yml"
+quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
 quads_config = quads_load_config(quads_config_file)
 
 # Sanity checks to determine QUADS dir structure is intact
@@ -152,7 +152,7 @@ if host_file:
         your_list = list(reader)
 else:
     your_list = []
-    for h in sorted(quads.hosts.data.iterkeys()):
+    for h in sorted(quads.data['hosts'].iterkeys()):
         your_list.append([h])
 
 your_list_colors = []
@@ -164,7 +164,6 @@ for h in your_list:
             daystring = "0" + str(day)
         else:
             daystring = str(day)
-        print quads.find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
         default, current, override = quads.find_current(h[0],"{}-{}-{} 00:00".format(year,month,daystring))
         if current:
           one_host.append(current.lstrip("cloud"))

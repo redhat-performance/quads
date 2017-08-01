@@ -119,8 +119,8 @@ function add_row() {
         totaltime="∞"
         totaltimeleft="∞"
     else
-        datestart=$($quads --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
-        dateend=$($quads --ls-schedule --host $1 | egrep "^[ ][ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
+        datestart=$($quads --ls-schedule --host $1 | egrep "^[ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $1 }' | awk -F= '{ print $2 }')
+        dateend=$($quads --ls-schedule --host $1 | egrep "^[ ]*$sched\|" | awk -F\| '{ print $2 }' | awk -F, '{ print $2 }' | awk -F= '{ print $2 }')
         datenowsec=$(date +%s)
         datestartsec=$(date -d "$datestart" +%s)
         dateendsec=$(date -d "$dateend" +%s)

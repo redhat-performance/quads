@@ -552,7 +552,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                             for override, schedule in item.iteritems():
                                 output = " {}| ".format(override)
                                 for t, date in schedule.iteritems():
-                                    if t == 'start':
+                                    if t == 'start' or t == 'end':
                                         output += "{}={},".format(t, date)
                                     else:
                                         output += "{}={}".format(t, date)
