@@ -36,8 +36,11 @@ echo "------"
 virtualenv jenkins
 . jenkins/bin/activate
 pip install pyaml
+pip install requests
 
-if [ ! -e $(dirname $0)/load-config.sh ]; then
+install_bin=$(dirname $0)
+
+if [ ! -e $install_bin/load-config.sh ]; then
     echo "$(basename $0): could not find load-config.sh"
     exit 1
 fi
@@ -62,19 +65,22 @@ TMPDIR=$(mktemp -d /tmp/quadsXXXXXXX)
 DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
 LOGFILE=$TMPDIR/logfile
-quads="$(dirname $0)/quads-cli --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
-bindir="$(dirname $0/)"
+
+quads="python $install_bin/quads-cli"
+bindir="$(dirname $0)"
 libdir=$bindir/../lib
 
 function quads_daemon_start() {
-    sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $TMPDIR/conf/quads.yml
-    quads_start="$TMPDIR/bin/quads-daemon --port 8082"
+    sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $install_bin/../conf/quads.yml
+    quads_start="python $(dirname $0)/quads-daemon --config $DATA --statedir $STATEDIR --log-path $LOGFILE --port 8082"
     $quads_start  1>/dev/null 2>&1 &
 }
 
 function quads_daemon_stop() {
-    quads_stop="kill $(pgrep quads-daemon)"
-    $quads_stop
+    pids="$(pgrep quads-daemon)"
+    if [ "$pids" ]; then
+	kill $pids
+    fi
 }
 
 tests="
@@ -164,6 +170,7 @@ for test in $tests ; do
   retvalue=$?
   if [ $retvalue -ne 0 ]; then
       echo "Failed test: $test"
+      quads_daemon_stop
       exit $retvalue
   fi
   echo ------ current data ------
@@ -171,7 +178,7 @@ for test in $tests ; do
 done
 rm -rf $TMPDIR
 
-echo ====== Stopping quads-daemin service
+echo ====== Stopping quads-daemon service
 
 quads_daemon_stop
 
