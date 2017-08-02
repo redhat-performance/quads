@@ -75,7 +75,6 @@ def main(argv):
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
     parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig, type=str)
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
-    parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')

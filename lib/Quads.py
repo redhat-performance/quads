@@ -394,8 +394,8 @@ class Quads(object):
 
     # update a cloud resource
     def update_cloud(self, cloudresource, description, forceupdate, cloudowner,
-                     ccusers, cloudticket, qinq, postconfig, version, puddle,
-                     controlscale, computescale):
+                     ccusers, cloudticket, qinq, postconfig=None, version=None, puddle=None,
+                     controlscale=None, computescale=None):
         # define or update a cloud resource
         if description is None:
             self.logger.error("--description is required when using --define-cloud")
