@@ -67,6 +67,87 @@ o3=$(echo $def_address | awk -F. '{ print $3 }')
 # use pipe awk line here as 4th octect, carriage return cause render issues
 o4=$(echo $def_address | awk -F. '{ print $4 }' | awk '{ print $1 }')
 
+# if the machine is an r620 and it has a p3p1 interface:
+
+<% if @host.shortname =~ /r620/ %>
+if ip a show p3p1 1>/dev/null 2>&1 ; then
+    for i in 1 2 3 4 ; do
+        if [ p3p$i != $def_interface ]; then
+            if ip a show p3p$i 1>/dev/null 2>&1 ; then
+                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i <<EOF
+DEVICE=p3p$i
+NAME=p3p$i
+TYPE=Ethernet
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 16 + $i - 1).$o3.$o4
+NETMASK=255.255.0.0
+EOF
+                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i.10$i <<EOF
+DEVICE=p3p$i.10$i
+NAME=p3p$i.10$i
+VLAN=yes
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 20 + $i - 1).$o3.$o4
+NETMASK=255.255.0.0
+EOF
+                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i.200 <<EOF
+DEVICE=p3p$i.200
+NAME=p3p$i.200
+VLAN=yes
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 24 + $i - 1).$o3.$o4
+NETMASK=255.252.0.0
+EOF
+            fi
+        fi
+    done
+else
+    for i in 1 2 3 4 ; do
+        if [ em$i != $def_interface ]; then
+            if ip a show em$i 1>/dev/null 2>&1 ; then
+                cat > /etc/sysconfig/network-scripts/ifcfg-em$i <<EOF
+DEVICE=em$i
+NAME=em$i
+TYPE=Ethernet
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 16 + $i - 1).$o3.$o4
+NETMASK=255.255.0.0
+EOF
+                cat > /etc/sysconfig/network-scripts/ifcfg-em$i.10$i <<EOF
+DEVICE=em$i.10$i
+NAME=em$i.10$i
+VLAN=yes
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 20 + $i - 1).$o3.$o4
+NETMASK=255.255.0.0
+EOF
+                cat > /etc/sysconfig/network-scripts/ifcfg-em$i.200 <<EOF
+DEVICE=em$i.200
+NAME=em$i.200
+VLAN=yes
+BOOTPROTO=static
+DEFROUTE=no
+ONBOOT=yes
+IPADDR=172.$(expr 24 + $i - 1).$o3.$o4
+NETMASK=255.252.0.0
+EOF
+            fi
+        fi
+    done
+fi
+
+<% else %>
+
 for i in 1 2 3 4 ; do
     if [ em$i != $def_interface ]; then
         if ip a show em$i 1>/dev/null 2>&1 ; then
@@ -103,6 +184,8 @@ EOF
         fi
     fi
 done
+
+<% end %>
 
 # this is for vms, and will never match on bare metal
 for i in 1 2 3 ; do
@@ -475,7 +558,18 @@ export HISTFILESIZE=100000
 # fix tmux/screen garbling for history
 shopt -s checkwinsize
 EOF
-<% end -%>
+
+<% else %>
+
+cat >> /root/.bashrc <<EOF
+export HISTTIMEFORMAT="%s "
+PROMPT_COMMAND="\${PROMPT_COMMAND:+\$PROMPT_COMMAND ; }"'echo \$\$ \$USER \
+               "\$(history 1)" >> ~/.bash_eternal_history'
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+EOF
+
+<% end %>
 
 # mask firewalld
 systemctl mask firewalld.service
