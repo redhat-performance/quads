@@ -62,9 +62,28 @@ TMPDIR=$(mktemp -d /tmp/quadsXXXXXXX)
 DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
 LOGFILE=$TMPDIR/logfile
-quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
+quads="$(dirname $0)/quads-cli --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
+quads_start="sudo /usr/bin/systemctl start quads-daemon"
+quads_stop="sudo /usr/bin/systemctl stop quads-daemon"
+quads_refresh="sudo cp $TMPDIR/systemd/quads-daemon.service /etc/systemd/system/quads-daemon.service"
+quads_reload="sudo /usr/bin/systemctl daemon-reload"
 bindir="$(dirname $0/)"
 libdir=$bindir/../lib
+
+# instantiate a fresh quads-daemon service
+# the following sudoers entries are needed if quads-ci not running as root
+# %quads-ci ALL= NOPASSWD: /usr/bin/systemctl start quads-daemon
+# %quads-ci ALL= NOPASSWD: /usr/bin/systemctl stop quads-daemon
+# %quads-ci ALL= NOPASSWD: /usr/bin/systemctl restart quads-daemon
+# %quads-ci ALL= NOPASSWD: /usr/bin/systemctl daemon-reload
+# %quads-ci ALL= (root) NOPASSWD: /bin/cp /tmp/*/systemd/quads-daemon.service /etc/systemd/system/quads-daemon.service
+
+function create_quads_daemon_service() {
+    $quads_refresh
+    $quads_reload
+    $quads_start
+}
+
 tests="
 init
 declare_cloud01
@@ -139,6 +158,10 @@ declare -A quads_tests=(
     ["check_move_2"]="$quads --move-hosts --dry-run --date \"2016-01-12 09:00\""
     )
 
+echo ====== Refreshing quads-daemin service in : $TMPDIR
+
+create_quads_daemon_service
+
 echo ====== Initializing sample data in :  $TMPDIR
 
 for test in $tests ; do
@@ -155,6 +178,10 @@ for test in $tests ; do
   cat $DATA
 done
 rm -rf $TMPDIR
+
+echo ====== QUADS internal tests finished, decoupling services
+
+$quads_stop
 
 echo ====== Initializing shellcheck with style-related exclusions
 
