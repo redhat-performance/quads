@@ -100,6 +100,19 @@ function validate_environment() {
     ticket=$3
     resultfile=$(mktemp /tmp/netcheckXXXXXXX)
 
+    if $bin_dir/quads-post-system-test.py --cloud 1>$resultfile 2>&1; then
+        :
+    else
+        if env_allocation_time_exceeded $env ; then
+            if [ ! -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
+                report_failure $env $owner $ticket $resultfile
+                cat $resultfile > $data_dir/release/.failreport.${env}-${owner}-${ticket}
+            fi
+        fi
+        rm -f $resultfile
+        return
+    fi
+
     if $bin_dir/quads-post-network-test.sh -c $env -2 1>$resultfile 2>&1; then
         touch $data_dir/release/${env}-${owner}-${ticket}
         if [ -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
