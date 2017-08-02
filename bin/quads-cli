@@ -368,7 +368,7 @@ def main(argv):
         if 'result' in js:
             if len(js['result']) == 0:
                 print "Nothing to do."
-                exit(1)
+                exit(0)
             for result in js['result']:
                 host = result["host"]
                 current = result["current"]
