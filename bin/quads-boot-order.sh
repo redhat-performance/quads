@@ -40,12 +40,17 @@ function reconfigure() {
     fi
 
     echo ==== $target
-    echo == checking for $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
-    if [ -f $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml ] ; then
-        playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
+    echo == checking for $install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml
+    if [ -f $install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml ]; then
+        playbook=$install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml
     else
-        rm -f $data_dir/boot/$target
-        return
+        echo == checking for $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
+        if [ -f $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml ] ; then
+            playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
+        else
+            rm -f $data_dir/boot/$target
+            return
+        fi
     fi
     host_inventory=$(mktemp /tmp/hostfileXXXXXX)
     echo mgmt-$target > $host_inventory
