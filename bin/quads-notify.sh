@@ -95,8 +95,9 @@ For additional information regarding system usage
 please see the following documentation:
 
 http://${quads["wp_wiki"]}/faq/
+http://${quads["wp_wiki"]}/usage/
 
-DevOps Team
+Perf/Scale DevOps Team
 
 EOI
                 /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
@@ -148,19 +149,19 @@ it is being prepared.
 
 $cloudinfo
 
-(Details)
-http://${quads["wp_wiki"]}/assignments/#$env_to_report
+When your environment is ready and your hardware/network has
+passed automated validation it will be released to you.
 
-You can view your machine list, duration and other
-details above.  Once the environment is active you
-will receive an additional notification.
+You'll receive another email with environment-specific
+information and additional system details when it's ready.
 
 For additional information regarding the Scale Lab usage
 please see the following documentation:
 
 http://${quads["wp_wiki"]}/faq/
+http://${quads["wp_wiki"]}/usage/
 
-DevOps Team
+Perf/Scale DevOps Team
 
 EOI
             /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
@@ -230,10 +231,11 @@ For additional information regarding the Scale Lab usage
 please see the following documentation:
 
 http://${quads["wp_wiki"]}/faq/
+http://${quads["wp_wiki"]}/usage/
 
 Thank you for your attention.
 
-DevOps Team
+Perf/Scale DevOps Team
 
 EOM
                     /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
@@ -291,10 +293,11 @@ For additional information regarding the Scale Lab usage
 please see the following documentation:
 
 http://${quads["wp_wiki"]}/faq/
+http://${quads["wp_wiki"]}/usage/
 
 Thank you for your attention.
 
-DevOps Team
+Perf/Scale DevOps Team
 
 EOM
                 /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
