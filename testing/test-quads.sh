@@ -62,9 +62,20 @@ TMPDIR=$(mktemp -d /tmp/quadsXXXXXXX)
 DATA=$TMPDIR/sample.yaml
 STATEDIR=$TMPDIR/state
 LOGFILE=$TMPDIR/logfile
-quads="python $(dirname $0)/quads.py --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
+quads="$(dirname $0)/quads-cli --config $DATA --statedir $STATEDIR --log-path $LOGFILE"
 bindir="$(dirname $0/)"
 libdir=$bindir/../lib
+
+function quads_daemon_start() {
+    quads_start="$TMPDIR/bin/quads-daemon --port 8082 >/dev/null 2>&1 &"
+    $quads_start
+}
+
+function quads_daemon_stop() {
+    quads_stop="pkill quads-daemon"
+    $quads_stop
+}
+
 tests="
 init
 declare_cloud01
@@ -139,6 +150,10 @@ declare -A quads_tests=(
     ["check_move_2"]="$quads --move-hosts --dry-run --date \"2016-01-12 09:00\""
     )
 
+echo ====== Starting quads-daemon service on TCP/8082 : $TMPDIR
+
+quads_daemon_start
+
 echo ====== Initializing sample data in :  $TMPDIR
 
 for test in $tests ; do
@@ -155,6 +170,10 @@ for test in $tests ; do
   cat $DATA
 done
 rm -rf $TMPDIR
+
+echo ====== Stopping quads-daemin service
+
+quads_daemon_stop
 
 echo ====== Initializing shellcheck with style-related exclusions
 

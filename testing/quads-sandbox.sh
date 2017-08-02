@@ -8,10 +8,13 @@
 sandbox_dir=$(mktemp -d /tmp/quadsXXXX)
 
 function init_sandbox() {
-    quads_cmd="python $sandbox_dir/quads/bin/quads.py"
+    quads_cmd="$sandbox_dir/quads/bin/quads-cli"
+    quads_daemon_start="$sandbox_dir/bin/quads-daemon --port 8082 >/dev/null 2>&1 &"
     cd $sandbox_dir
     git clone https://github.com/redhat-performance/quads
     cd quads
+    echo "Starting QUADS Daemon on TCP/8082"
+    $quads_daemon_start
     echo "Editing QUADS configuration [$sandbox_dir/quads/conf/quads.yml]"
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@data_dir: /opt/quads/data@data_dir: $sandbox_dir/quads/data@g" $sandbox_dir/quads/conf/quads.yml
@@ -43,6 +46,10 @@ function init_sandbox() {
     cd $sandbox_dir/quads
     echo ""
     echo " QUADS sandbox location: $sandbox_dir/quads"
+    echo ""
+    echo ""
+    echo " (run pkill quads-daemon to stop listening service"
+    echo ""
     echo ""
     echo "https://github.com/redhat-performance/quads#quads-usage-documentation"
     echo ""
