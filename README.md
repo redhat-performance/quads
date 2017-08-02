@@ -153,19 +153,16 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 vi /opt/quads/conf/quads.yml
 ```
    - Enable and start the QUADS systemd service (daemon)
+   - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
 ```
 cp /opt/quads/systemd/quads-daemon.service
 systemctl daemon-reload
 systemctl enable quads-daemon.service
 systemctl start quads-daemon.service
 ```
-   - Initialize QUADS
-
-```
-bin/quads-cli --init
-```
 
    - Define the various cloud environments
+   - These are the isolated environments QUADS will use and provision into for you.
 
 ```
 bin/quads-cli --define-cloud cloud01 --description "Primary Cloud Environment"
