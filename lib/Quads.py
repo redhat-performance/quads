@@ -754,7 +754,7 @@ class Quads(object):
 
     def query_cloud_host_types(self, datearg, cloudonly):
         cloud_summary = self.query_cloud_hosts(datearg)
-        hostnames = cloud_sumary[cloudonly]
+        hostnames = cloud_summary[cloudonly]
         host_type_count = self.get_host_count(hostnames)
         return host_type_count
 

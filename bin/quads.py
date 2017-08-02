@@ -172,7 +172,7 @@ def main():
     parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig',type=str, default=None, nargs='*', choices= ['openstack'], help='Post provisioning configuration to apply')
+    parser.add_argument('--post-config', dest='postconfig',type=str, default=None, nargs='*', choices=['openstack'], help='Post provisioning configuration to apply')
     parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
     parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
     parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
