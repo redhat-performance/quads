@@ -8,7 +8,8 @@
 sandbox_dir=$(mktemp -d /tmp/quadsXXXX)
 
 function init_sandbox() {
-    quads_cmd="python $sandbox_dir/quads/bin/quads.py"
+    quads_cmd="$sandbox_dir/quads/bin/quads-cli"
+    quads_daemon_start="$sandbox_dir/quads/bin/quads-daemon --port 8082"
     cd $sandbox_dir
     git clone https://github.com/redhat-performance/quads
     cd quads
@@ -16,12 +17,13 @@ function init_sandbox() {
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@data_dir: /opt/quads/data@data_dir: $sandbox_dir/quads/data@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads/quads.log@g" $sandbox_dir/quads/conf/quads.yml
+    sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $sandbox_dir/quads/conf/quads.yml
+    echo "Starting QUADS Daemon on TCP/8082"
+    $quads_daemon_start  1>/dev/null 2>&1 &
     echo "Creating QUADS data structure [$sandbox_dir/quads/data]"
     if ! [ -d $sandbox_dir/quads/data ]; then
         mkdir -p $sandbox_dir/quads/data
     fi
-    echo "Running quads.py --init"
-    $quads_cmd --init
     echo "Defining example environments [cloud01, cloud02]"
     $quads_cmd --define-cloud cloud01 --description "spare pool"
     $quads_cmd --define-cloud cloud02 --description "quads test cloud"
@@ -43,6 +45,10 @@ function init_sandbox() {
     cd $sandbox_dir/quads
     echo ""
     echo " QUADS sandbox location: $sandbox_dir/quads"
+    echo ""
+    echo ""
+    echo " run kill $(pgrep quads-daemon) to stop quads-daemon"
+    echo ""
     echo ""
     echo "https://github.com/redhat-performance/quads#quads-usage-documentation"
     echo ""
