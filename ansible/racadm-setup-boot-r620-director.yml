@@ -8,7 +8,7 @@
 
 # try to gracefully shutdown target server
     - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=3 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
       ignore_errors: True
 
 # reset the drac

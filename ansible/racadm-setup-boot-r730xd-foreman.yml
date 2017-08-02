@@ -8,7 +8,7 @@
 
 # try to gracefully shutdown target server
     - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=3 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
       ignore_errors: True
 
 # reset the drac
@@ -250,7 +250,7 @@
         executable: ''
       register: result_check_complete
       until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 25
+      retries: 80
       delay: 10
     - debug: var=result_check_complete
 
