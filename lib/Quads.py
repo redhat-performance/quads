@@ -335,7 +335,7 @@ class Quads(object):
             return ["ERROR"]
 
     # remove a cloud
-    def quads_remove_cloud(self, rmcloud):
+    def remove_cloud(self, rmcloud):
         # remove a cloud (only if no hosts use it)
         if rmcloud not in self.quads.clouds.data:
             return [rmcloud + " not found"]
