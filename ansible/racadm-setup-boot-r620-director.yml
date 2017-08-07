@@ -228,4 +228,4 @@
 
     - name: Print Time of Completion
       debug:
-        msg="{{currentdate.stdout}} : Ansible Playbook {{role_path|basename}} for {{ansible_host}} completed"
+        msg="{{ currentdate.stdout }} : Ansible Playbook for {{ ansible_host }} completed"
