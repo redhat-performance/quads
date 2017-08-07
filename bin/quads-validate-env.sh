@@ -100,7 +100,7 @@ function validate_environment() {
     ticket=$3
     resultfile=$(mktemp /tmp/netcheckXXXXXXX)
 
-    if $bin_dir/quads-post-system-test.py --cloud 1>$resultfile 2>&1; then
+    if $bin_dir/quads-post-system-test.py --cloud $env 1>$resultfile 2>&1; then
         :
     else
         if env_allocation_time_exceeded $env ; then
