@@ -10,8 +10,20 @@ sandbox_dir=$(mktemp -d /tmp/quadsXXXX)
 function init_sandbox() {
     quads_cmd="$sandbox_dir/quads/bin/quads-cli"
     quads_daemon_start="$sandbox_dir/quads/bin/quads-daemon --port 8082"
+    cwd=$(pwd)
     cd $sandbox_dir
-    git clone https://github.com/redhat-performance/quads
+    local=$1
+    if [ "$local" ]; then
+        if [ "$(basename $cwd)" = "quads" ]; then
+            mkdir quads
+            rsync -avH --exclude .git $cwd/ $sandbox_dir/quads
+        fi
+    else
+        if [ ! -d quads ]; then
+            git clone https://github.com/redhat-performance/quads
+        fi
+    fi
+
     cd quads
     echo "Editing QUADS configuration [$sandbox_dir/quads/conf/quads.yml]"
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
@@ -54,4 +66,4 @@ function init_sandbox() {
     echo ""
 }
 
-init_sandbox
+init_sandbox $*
