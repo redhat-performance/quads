@@ -39,7 +39,7 @@ def print_clouds(quads):
 def print_owners(quads, cloudonly):
     for item in quads.get_owners(cloudonly):
         for cloud, owner in item.iteritems():
-            print("{}: {}".format(cloud, owner))
+            print("{}".format(owner))
 
 def print_cc(quads, cloudonly):
     for item in quads.get_cc(cloudonly):
@@ -52,12 +52,12 @@ def print_cc(quads, cloudonly):
 def print_tickets(quads, cloudonly):
     for item in quads.get_tickets(cloudonly):
         for cloud, ticket in item.iteritems():
-            print("{}: {}".format(cloud, ticket))
+            print("{}".format(ticket))
 
 def print_qinq(quads, cloudonly):
     for item in quads.get_qinq(cloudonly):
         for cloud, qinq in item.iteritems():
-            print("{}: {}".format(cloud, qinq))
+            print("{}: {}".format(qinq))
 
 def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
@@ -108,7 +108,8 @@ def print_cloud_summary(quads, datearg, activesummary):
 def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
     clouds = quads.query_cloud_postconfig(datearg, activesummary, postconfig)
     for cloud in clouds:
-        print cloud
+        for name, details in cloud.iteritems():
+            print name
 
 def main():
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
