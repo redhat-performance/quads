@@ -100,3 +100,19 @@ foreman_director_parameter: nullos
 # OpenStack # Director-deployed machines but
 # this isn't used for other purposes.
 ansible_max_proc: 60
+
+# Private key location of Quads host for use by Infrared for OpenStack
+# deployments
+private_key_location: ~/.ssh/id_rsa
+
+
+# Location of templates for OpenStack deployment
+openstack_templates: /etc/templates
+
+# Location of logs for OpenStack Deployments
+openstack_logs: /var/log/deployment
+
+
+# Location of infrared directory
+infrared_dir: /etc/infrared
+
