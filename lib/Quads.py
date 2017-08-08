@@ -29,7 +29,8 @@ import errno
 import QuadsData
 
 class Quads(object):
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
+    def __init__(self, config, statedir, movecommand='/bin/echo', datearg=None,
+                 syncstate=None, initialize=False, force=False):
         """
         Initialize a quads object.
         """
@@ -119,12 +120,18 @@ class Quads(object):
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
             with open(self.config, 'r') as config_file:
-                self.data = yaml.safe_load(config_file)
-        except Exception, ex:
-            self.logger.error(ex)
-            exit(1)
+                try:
+                    fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    self.data = yaml.safe_load(config_file)
+                    self.loadtime = time.time()
+                    fcntl.flock(config_file, fcntl.LOCK_UN)
+                except IOError as e:
+                    if e.errno != errno.EAGAIN:
+                        raise
 
-        self.loadtime = time.time()
+        except Exception, ex:
+            self.logger.error("There was a problem with your file %s" % ex)
+
         self.quads = QuadsData.QuadsData(self.data)
         self.history_init()
         return
@@ -394,8 +401,9 @@ class Quads(object):
 
     # update a cloud resource
     def update_cloud(self, cloudresource, description, forceupdate, cloudowner,
-                     ccusers, cloudticket, qinq, postconfig=None, version=None, puddle=None,
-                     controlscale=None, computescale=None):
+                     ccusers, cloudticket, qinq, postconfig=None, version=None,
+                     build=None, controlscale=None, computescale=None,
+                     storagescale=None):
         # define or update a cloud resource
         if description is None:
             self.logger.error("--description is required when using --define-cloud")
@@ -425,9 +433,10 @@ class Quads(object):
                         else:
                             service_description = {'name': 'openstack',
                                                    'version': version,
-                                                   'puddle': puddle,
+                                                   'build': build,
                                                    'controllers': controlscale,
-                                                   'computes': computescale
+                                                   'computes': computescale,
+                                                   'ceph': storagescale
                                                   }
                             post_config.append(service_description)
                     else:
@@ -436,6 +445,14 @@ class Quads(object):
                         #defined here for the post config option
                         pass
 
+            curdate_obj = datetime.datetime.strptime(time.strftime("%Y-%m-%d %H:%M"), '%Y-%m-%d %H:%M')
+            for h in self.quads.hosts.data:
+                for s in self.quads.hosts.data[h]["schedule"]:
+                    if self.quads.hosts.data[h]["schedule"][s]["cloud"] == cloudresource:
+                        s_end_obj = datetime.datetime.strptime(self.quads.hosts.data[h]["schedule"][s]["end"], '%Y-%m-%d %H:%M')
+                        if s_end_obj >= curdate_obj:
+                            return [cloudresource + " is used in schedule " + str(s) + " for " + h,
+                                                    "Cloud cannot be reused while current or future schedules are in place."]
             if cloudresource not in self.quads.cloud_history.data:
                 self.quads.cloud_history.data[cloudresource] = {}
             self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':copy.deepcopy(ccusers),
@@ -747,9 +764,9 @@ class Quads(object):
         summary = {}
         for cloud in sorted(self.quads.clouds.data.iterkeys()):
             summary[cloud] = []
-        for h in sorted(self.quads.hosts.data.iterkeys()):
-            default_cloud, current_cloud, current_override = self.find_current(h, datearg)
-            summary[current_cloud].append(h)
+        for host, details in sorted(self.quads.hosts.data.iteritems()):
+            default_cloud, current_cloud, current_override =self.find_current(host, datearg)
+            summary[current_cloud].append(host)
         return summary
 
     def query_cloud_host_types(self, datearg, cloudonly):
@@ -767,10 +784,10 @@ class Quads(object):
                     if param == 'post_config':
                         post_list = []
                         for service in description:
-                            if service in postconfig:
-                                post_list.append(service)
+                            if service['name'] in postconfig:
+                                post_list.append(service['name'])
                         if sorted(post_list) == sorted(postconfig):
-                            result.append(cloudname)
+                            result.append(item)
         return result
 
     def query_cloud_summary(self, datearg, activesummary):
@@ -800,7 +817,7 @@ class Quads(object):
                                 service_list = []
                                 if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
                                     for service in cloud_history[cloud][c]['post_config']:
-                                        service_list.append(service['name'])
+                                        service_list.append(service)
                                     cloud_summary[cloud]['post_config'] = service_list
                     else:
                         requested_description = clouds[cloud]['description']
@@ -809,7 +826,7 @@ class Quads(object):
                         service_list = []
                         if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
                             for service in clouds[cloud]['post_config']:
-                                service_list.append(service['name'])
+                                service_list.append(service)
                             cloud_summary[cloud]['post_config'] = service_list
                     result.append(cloud_summary)
             else:
@@ -822,7 +839,7 @@ class Quads(object):
                             service_list = []
                             if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
                                 for service in cloud_history[cloud][c]['post_config']:
-                                    service_list.append(service['name'])
+                                    service_list.append(service)
                                 cloud_summary[cloud]['post_config'] = service_list
                     else:
                         requested_description = self.quads.clouds.data[cloud]["description"]
@@ -831,7 +848,7 @@ class Quads(object):
                         service_list = []
                         if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
                             for service in clouds[cloud]['post_config']:
-                                service_list.append(service['name'])
+                                service_list.append(service)
                             cloud_summary[cloud]['post_config'] = service_list
                 result.append(cloud_summary)
         return result
