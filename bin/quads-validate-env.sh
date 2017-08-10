@@ -51,6 +51,7 @@ EOM
     echo "Results:" >> $msgfile
     cat $resultfile >> $msgfile
     /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
+    /bin/python ${bin_dir}/index-validation.py --resultfile $resultfile
     rm -f $msgfile
 }
 
