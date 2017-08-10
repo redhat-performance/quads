@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb723210_97ee9d83",
+        "filename": "bin/post-config.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1012060
+      },
+      "writtenOn": "2017-08-10T19:16:30Z",
+      "side": 1,
+      "message": "Are you missin ga closing paren here?",
+      "revId": "c8b8a61d8ef22659c6d5cac9387db312c925d260",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
