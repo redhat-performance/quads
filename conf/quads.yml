@@ -8,6 +8,11 @@ domain: example.com
 log: /opt/quads/log/quads.log
 quads_base_url: http://127.0.0.1:8080/
 
+# Enable Elasticsearch indexing
+elastic_stats_enabled: false
+elastic_host: localhost
+elastic_port: 9200
+
 # used for reporting
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
 
