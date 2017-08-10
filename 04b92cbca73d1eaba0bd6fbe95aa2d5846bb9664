@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae35229a_c1db9dcc",
+        "filename": "conf/openstack.conf",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-08-10T10:14:24Z",
+      "side": 1,
+      "message": "To support more than OpenStack, should we :\n\n- should we prefix this with openstack-\u003c*\u003e.\n\nor\n\nInstead of prefixing:\n\n[Openstack]\ncontrollers \u003d {\u0027priority_r930\u0027:100, .... }\n\n[OpenShift]\n...\n\n[Satellite]\n...\n\nThoughts?",
+      "revId": "04b92cbca73d1eaba0bd6fbe95aa2d5846bb9664",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7d317e8_ad5b67b0",
+        "filename": "conf/quads.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-08-10T10:14:24Z",
+      "side": 1,
+      "message": "return to /opt/ ?",
+      "revId": "04b92cbca73d1eaba0bd6fbe95aa2d5846bb9664",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
