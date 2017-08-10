@@ -51,6 +51,9 @@ EOM
     echo "Results:" >> $msgfile
     cat $resultfile >> $msgfile
     /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
+    if [ ${quads["elastic_stats_enabled"]} ]; then
+      /bin/python ${bin_dir}/index-validation.py --resultfile $resultfile
+    fi
     rm -f $msgfile
 }
 
