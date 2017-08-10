@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e37c4f75_ba06f084",
+        "filename": "conf/openstack.conf",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1007728
+      },
+      "writtenOn": "2017-08-10T17:14:25Z",
+      "side": 1,
+      "message": "I think you have a great point Joe. But for now I think since the config file to be consumed can be changed by the script consuming the config file, I would expect the script that does openshift installs to use its own config file.",
+      "parentUuid": "ae35229a_c1db9dcc",
+      "revId": "04b92cbca73d1eaba0bd6fbe95aa2d5846bb9664",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7d317e8_ad5b67b0",
         "filename": "conf/quads.yml",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-10T10:14:24Z",
       "side": 1,
       "message": "return to /opt/ ?",
+      "revId": "04b92cbca73d1eaba0bd6fbe95aa2d5846bb9664",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a0dcd93_2d8909b1",
+        "filename": "conf/quads.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007728
+      },
+      "writtenOn": "2017-08-10T17:14:25Z",
+      "side": 1,
+      "message": "Yea, thanks!",
+      "parentUuid": "c7d317e8_ad5b67b0",
       "revId": "04b92cbca73d1eaba0bd6fbe95aa2d5846bb9664",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
