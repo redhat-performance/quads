@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cdc0452_36336304",
+        "filename": "conf/quads.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-08-11T14:48:11Z",
+      "side": 1,
+      "message": "Can we please add something like:\n\nelastic_stats_enabled: true/false\n\n(default being false) here.",
+      "revId": "1e9da8eb568ea8562064a934c0afc8279a7af05b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
