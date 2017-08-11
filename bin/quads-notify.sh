@@ -239,6 +239,10 @@ Perf/Scale DevOps Team
 
 EOM
                     /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                    if [ ${quads["elastic_stats_enabled"]} ]; then
+                        cat $current_list_file $future_list_file > /tmp/quads-allocation-list
+                        ./${bin_dir}/index-data.py --resultfile /tmp/quads-allocation-list --index allocations --type initial-allocation --owner $owner --cloud $env_to_report
+                    fi
                 fi
             fi
         fi
@@ -301,6 +305,10 @@ Perf/Scale DevOps Team
 
 EOM
                 /usr/sbin/sendmail -t < $msg_file 1>/dev/null 2>&1
+                if [ ${quads["elastic_stats_enabled"]} ]; then
+                    cat $current_list_file $future_list_file > /tmp/quads-allocation-list
+                    ./${bin_dir}/index-data.py --resultfile /tmp/quads-allocation-list --index allocations --type initial-allocation --owner $owner --cloud $env_to_report
+                fi
             fi
         fi
     fi
