@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4705f59_cc8973ee",
+        "filename": "bin/quads-validate-env.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-11T18:10:38Z",
+      "side": 1,
+      "message": "My only comment is not to call the script with /bin/python, since the script already uses /usr/bin/env python as the interpreter. Also avoids issues in the off chance someone tests inside a virtualenv",
+      "range": {
+        "startLine": 55,
+        "startChar": 11,
+        "endLine": 55,
+        "endChar": 17
+      },
+      "revId": "150e1ff0b7ebfb9761041a05bb69bddeb2f99abd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
