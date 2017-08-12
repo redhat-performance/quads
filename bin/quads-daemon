@@ -656,7 +656,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                 if param == 'hosts':
                                     r += str(description) + " "
                                 else:
-                                    r += "({})".format(description)
+                                    if param == 'description':
+                                        r += "({})".format(description)
                             result.append(r)
             else:
                 cloud_hosts = quads.query_cloud_hosts(data['date'][0])
