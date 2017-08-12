@@ -76,12 +76,17 @@ def main(argv):
                           auth=HTTPBasicAuth(args.cloud, ticketvalue),
                           verify=False)
         js = r.json()
-        if len(js['results']) > 0:
-            print "The following hosts are marked for build:"
-            print ""
-        for h in js['results']:
-            print h['name']
+        if 'results' not in js:
+            print "Unable to query foreman for cloud: " + args.cloud
+            print "Verify foreman password is correct: " + ticketvalue
             exitcode=1
+        else:
+            if len(js['results']) > 0:
+                print "The following hosts are marked for build:"
+                print ""
+            for h in js['results']:
+                print h['name']
+                exitcode=1
 
     exit(exitcode)
 
