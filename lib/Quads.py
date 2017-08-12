@@ -436,6 +436,14 @@ class Quads(object):
                         #defined here for the post config option
                         pass
 
+            curdate_obj = datetime.datetime.strptime(time.strftime("%Y-%m-%d %H:%M"), '%Y-%m-%d %H:%M')
+            for h in self.quads.hosts.data:
+                for s in self.quads.hosts.data[h]["schedule"]:
+                    if self.quads.hosts.data[h]["schedule"][s]["cloud"] == cloudresource:
+                        s_end_obj = datetime.datetime.strptime(self.quads.hosts.data[h]["schedule"][s]["end"], '%Y-%m-%d %H:%M')
+                        if s_end_obj >= curdate_obj:
+                            return [cloudresource + " is used in schedule " + str(s) + " for " + h,
+                                                    "Cloud cannot be reused while current or future schedules are in place."]
             if cloudresource not in self.quads.cloud_history.data:
                 self.quads.cloud_history.data[cloudresource] = {}
             self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':copy.deepcopy(ccusers),

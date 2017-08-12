@@ -32,6 +32,7 @@ function init_sandbox() {
     sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $sandbox_dir/quads/conf/quads.yml
     echo "Starting QUADS Daemon on TCP/8082"
     $quads_daemon_start  1>/dev/null 2>&1 &
+    sleep 2
     echo "Creating QUADS data structure [$sandbox_dir/quads/data]"
     if ! [ -d $sandbox_dir/quads/data ]; then
         mkdir -p $sandbox_dir/quads/data
