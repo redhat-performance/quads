@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66982300_1f5c682a",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-13T23:55:12Z",
+      "side": 1,
+      "message": "bin_dir is an absolute path.  The leading \"./\" is incorrect.  Please update this to ${bin_dir}/index-data.py",
+      "range": {
+        "startLine": 244,
+        "startChar": 28,
+        "endLine": 244,
+        "endChar": 35
+      },
+      "revId": "e846886bed4ef40ce2013547c03749cfddf43eb1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
