@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "456665e9_541efd38",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 22
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-08-14T16:15:15Z",
+      "side": 1,
+      "message": "Please add:\n\nfixes: https://github.com/redhat-performance/quads/issues/100\n\nto your commit message.",
+      "revId": "71a76831bb7d8813f1386148805a9b2fe5008392",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
