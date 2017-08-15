@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1791fa6_4ef92082",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-15T14:14:54Z",
+      "side": 1,
+      "message": "please remove \"./\" here as well.",
+      "range": {
+        "startLine": 310,
+        "startChar": 24,
+        "endLine": 310,
+        "endChar": 31
+      },
+      "revId": "8f13cb95e76b4012d0d2a3802a580aed89e1f122",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
