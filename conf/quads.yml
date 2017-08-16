@@ -51,6 +51,7 @@ quads_url: http://quads.scalelab.example.com
 
 # foreman URL
 foreman_url: http://foreman.example.com/hosts/
+foreman_api_url: https://foreman.example.com/api/v2
 
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
