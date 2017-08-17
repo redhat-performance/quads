@@ -171,9 +171,11 @@ bin/quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 ```
 
    - Define the hosts in the environment (Foreman Example)
+     - Note the ```--host-type``` parameter, this is a mandatory, free-form label that can be anything.  It will be used later for ```post-config``` automation and categorization.
+     - We are excluding anything starting with mgmt- and including servers with the name r630.
 
 ```
-for h in $(hammer host list --per-page 1000 | grep -v mgmt | grep r630 | grep -v c08-h30 | awk '{ print $3 }') ; do bin/quads-cli --define-host $h --default-cloud cloud01; done
+for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do bin/quads-cli --define-host $h --default-cloud cloud01 --host-type general; done
 ```
 
    - The command without Foreman would be simply:
