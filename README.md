@@ -181,7 +181,7 @@ for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630
    - The command without Foreman would be simply:
 
 ```
-bin/quads-cli --define-host <hostname> --default-cloud cloud01
+bin/quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 ```
    - To list the hosts:
 
