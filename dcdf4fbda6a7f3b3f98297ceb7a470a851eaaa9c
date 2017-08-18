@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21eb7be8_a7d162e5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 30
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-08-18T12:10:03Z",
+      "side": 1,
+      "message": "Please add this above and below an empty line before Change-Id:\n\nFixes: https://github.com/redhat-performance/quads/issues/100\n\nAnd modify subject to something like \"Implement PDU power management framework\"\n\nA little verbage afterwards to summarize the types supported and extensibility using the abstraction approach would also be warranted.\n\nGreat work here Joe!",
+      "revId": "dcdf4fbda6a7f3b3f98297ceb7a470a851eaaa9c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
