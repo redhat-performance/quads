@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "287731a6_f3104237",
+        "filename": "ansible/racadm-setup-boot-r620-director.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-22T22:36:54Z",
+      "side": 1,
+      "message": "same here --- sleeps of 1 minute should follow each of the ssh shutdown attempts.  I won\u0027t bother with tagging each addition with the same comment.",
+      "revId": "7ff6ca596aeabc0a0b0426f0156b3f29a1b018af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec363adf_623a6947",
+        "filename": "ansible/racadm-setup-boot-r620-foreman.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-22T22:36:54Z",
+      "side": 1,
+      "message": "I believe there should be a 1 minute sleep after each shutdown attempt",
+      "revId": "7ff6ca596aeabc0a0b0426f0156b3f29a1b018af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "520c3009_4133c035",
+        "filename": "ansible/racadm-setup-boot-r620-foreman.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-22T22:36:54Z",
+      "side": 1,
+      "message": "There should be a 1 minute sleep after the shutdown attempt here as well.",
+      "revId": "7ff6ca596aeabc0a0b0426f0156b3f29a1b018af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8dd0acdf_792875bc",
+        "filename": "ansible/racadm-setup-boot-r620-foreman.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-22T22:36:54Z",
+      "side": 1,
+      "message": "Another sleep following this as well",
+      "revId": "7ff6ca596aeabc0a0b0426f0156b3f29a1b018af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82a86b55_55e9f2da",
+        "filename": "ansible/racadm-setup-boot-r620-foreman.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-08-22T22:36:54Z",
+      "side": 1,
+      "message": "and another sleep should follow here.",
+      "revId": "7ff6ca596aeabc0a0b0426f0156b3f29a1b018af",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
