@@ -52,7 +52,12 @@
         executable: ''
       register: result_nicconfig
     - debug: var=result_nicconfig
-#
+
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
 # Commit the changes to the 1st NIC
     - name: racadm NIC reconfig
       raw: racadm jobqueue create NIC.Integrated.1-2-1 -r pwrcycle -s TIME_NOW
@@ -100,6 +105,11 @@
         executable: ''
       register: result_nicconfig
     - debug: var=result_nicconfig
+
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
 
 # Commit the changes to the 2nd NIC
     - name: racadm NIC reconfig
@@ -149,6 +159,11 @@
       register: result_nicconfig
     - debug: var=result_nicconfig
 
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
 # Commit the changes to the 3rd NIC
     - name: racadm NIC reconfig
       raw: racadm jobqueue create NIC.Slot.2-1-1 -r pwrcycle -s TIME_NOW
@@ -196,6 +211,11 @@
         executable: ''
       register: result_boot_setup
     - debug: var=result_boot_setup
+
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
 
 # Commit the changes to the bios
     - name: racadm bios reconfigure powercycle
