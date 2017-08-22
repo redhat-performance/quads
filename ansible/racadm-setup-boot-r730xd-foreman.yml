@@ -61,7 +61,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -118,7 +123,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -175,7 +185,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -233,7 +248,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -250,7 +270,7 @@
         executable: ''
       register: result_check_complete
       until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 80
+      retries: 100
       delay: 10
     - debug: var=result_check_complete
 

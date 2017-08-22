@@ -61,6 +61,11 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
 # power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
@@ -118,7 +123,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -175,7 +185,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -233,7 +248,12 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-# power cycle the host
+# try to gracefully shutdown target server
+    - name: shutdown underlying OS
+      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
+      ignore_errors: True
+
+## power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
