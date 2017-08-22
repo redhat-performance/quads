@@ -214,7 +214,7 @@
         executable: ''
       register: result_check_complete
       until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 80
+      retries: 100
       delay: 10
     - debug: var=result_check_complete
 
