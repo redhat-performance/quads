@@ -215,15 +215,6 @@ cloud01 : 45 (Primary Cloud Environment)
 cloud02 : 0 (02 Cloud Environment)
 cloud03 : 0 (03 Cloud Environment)
 ```
-   - Sync states of each host.
-     - This needs to be done whenever a new host is created.
-     - We also need to track the last configured environment of each host (this is how we track whether or not we need to reconfigure a host if the schedule changes).
-     - *Note*: state files are stored in ```/opt/quads/state/HOSTNAME``` for each host and contains the current cloud membership
-
-```
-bin/quads-cli --sync
-```
-
    - Define a custom schedule for a host
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
