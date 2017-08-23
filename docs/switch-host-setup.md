@@ -153,6 +153,26 @@ b08-h13-r620.rdu.openstack.engineering.example.com
    * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/1.15/index.html).
    * We do provide some [example templates](https://github.com/redhat-performance/quads/tree/master/templates) for post-provisioning creation of system interface config files like ```/etc/sysconfig/network-scripts/ifcfg-*``` for use with QUADs.
 
+## Create Foreman Roles and Filters
+   * This is Foreman-specific so if you want another provisioning backend you can ignore it.
+   * We use RBAC roles and filters to allow per-cloud Foreman views into subsets of machines, QUADS will manage this for you once created.
+      * Each server has a role named after it
+      * Each server role has filters attached that grant it certain permissions
+   * Create a role per server
+```
+hammer role create --name host01.example.com
+```
+   * Create a filter with access permissions and associate it with that role
+```
+hammer filter create --role host01.example.com --search "name = host01.example.com" --permissions view_hosts,edit_hosts,build_hosts,power_hosts,console_hosts --role-id $(hammer role info --name host01.example.com | egrep ^Id: | awk '{ print $NF }')
+```
+   * Next you'll need to make a Foreman user per unique cloud environment if they don't exist already
+```
+hammer user create --login cloud01 --password password --mail quads@example.com --auth-source-id 1
+hammer user create --login cloud02 --password password --mail quads@example.com --auth-source-id 1
+hammer user create --login cloud03 --password password --mail quads@example.com --auth-source-id 1
+```
+
 ## Adding New QUADS Host IPMI
 
    * Ensure QUADS host has access to the out-of-band interfaces
