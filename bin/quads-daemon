@@ -668,7 +668,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     else:
                         result.append("Requested cloud does not exist")
                 else:
-                    for cloud, hostlist in cloud_hosts.iteritems():
+                    for cloud, hostlist in sorted(cloud_hosts.iteritems()):
                         result.append("{}:".format(cloud))
                         for host in hostlist:
                             result.append(" - {}".format(host))
