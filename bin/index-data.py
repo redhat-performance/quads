@@ -76,13 +76,16 @@ def main(argv):
     if len(_result.split()) > 0 :
         for line in _result.split() :
             if re.findall(r'(.*\.)+',line):
-                hosts.append(line)
+                if re.findall(r'(\d+\.\d+\.\d+\.\d+)',line):
+                    continue
+                else :
+                    hosts.append(line)
     if len(hosts) < 1 :
         print "Error no hosts could be read in."
         exit(1)
 
     payload = { "message": _result,
-                "hosts": hosts,
+                "hosts": list(set(hosts)),
                 }
     if options.owner :
         payload["owner"] = options.owner
