@@ -45,8 +45,6 @@ function init_sandbox() {
     $quads_cmd --define-host host02.example.com --default-cloud cloud01 --host-type vendor
     $quads_cmd --define-host host03.example.com --default-cloud cloud01 --host-type vendor
     $quads_cmd --define-host host04.example.com --default-cloud cloud01 --host-type vendor
-    echo "Syncing QUADS state"
-    $quads_cmd --sync
     echo "Defining QUADS schedules [0, 1, 2, 3]"
     $quads_cmd --host host01.example.com --add-schedule --schedule-cloud cloud02 --schedule-start "2017-01-01 05:00" --schedule-end "2017-12-31 05:00"
     $quads_cmd --host host02.example.com --add-schedule --schedule-cloud cloud02 --schedule-start "2017-01-01 05:00" --schedule-end "2017-12-31 05:00"

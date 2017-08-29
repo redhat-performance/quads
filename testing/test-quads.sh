@@ -117,7 +117,6 @@ add_schedule2_host04
 ls_schedule_host03
 ls_schedule_host04
 rm_schedule2_host04
-sync_state
 check_move_1
 check_move_2
 "
@@ -151,7 +150,6 @@ declare -A quads_tests=(
     ["ls_schedule_host03"]="$quads --ls-schedule --host host03.example.com"
     ["ls_schedule_host04"]="$quads --ls-schedule --host host04.example.com"
     ["rm_schedule2_host04"]="$quads --rm-schedule 1 --host host04.example.com"
-    ["sync_state"]="$quads --sync"
     ["check_move_1"]="$quads --move-hosts --dry-run --date \"2016-01-02 09:00\""
     ["check_move_2"]="$quads --move-hosts --dry-run --date \"2016-01-12 09:00\""
     )
