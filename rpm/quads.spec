@@ -12,7 +12,6 @@ Version: %{version}
 Release: %{shortcommit0}
 Source0: https://github.com/%{OWNER}/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{version}-%{shortcommit0}.tar.gz
 License: GPL3
-Group: Applications/Internet
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: /usr
 BuildArchitectures: noarch
@@ -45,9 +44,9 @@ IRC bot and email notifications for new provisioning tasks and ones ending compl
 %autosetup -n %{name}-%{commit0}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir $RPM_BUILD_ROOT/opt/quads -p
-tar cf - bin lib/*.py conf ansible systemd | ( cd $RPM_BUILD_ROOT/opt/quads/ ; tar xvpBf - )
+rm -rf %{buildroot}
+mkdir %{buildroot}/opt/quads -p
+tar cf - bin lib/*.py conf ansible systemd | ( cd %{buildroot}/opt/quads/ ; tar xvpBf - )
 
 %clean
 rm -rf %{buildroot}
