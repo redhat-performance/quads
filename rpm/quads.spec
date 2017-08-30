@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 0.99.1
+%define version 0.99.2
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -28,6 +28,7 @@ Requires: PyYAML >= 3.10
 Requires: ansible >= 2.3
 Requires: expectk >= 5.0
 Requires: python2-aexpect >= 1.4
+Requires: python-requests >= 2.6
 Url: http://github.com/redhat-performance/quads
 
 %description
