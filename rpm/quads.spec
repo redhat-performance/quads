@@ -28,6 +28,7 @@ Requires: PyYAML >= 3.10
 Requires: ansible >= 2.3
 Requires: expectk >= 5.0
 Requires: python2-aexpect >= 1.4
+Requires: python-requests >= 2.6
 Url: http://github.com/redhat-performance/quads
 
 %description
