@@ -6,10 +6,12 @@
 #### At this point you can use rpmbuild -ba quads.spec
 #### (this is because our Source0 is a remote Github location
 ####
+#### Our upstream repository is located here:
+#### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
 %define version 0.99
-%define build_timestamp %{lua: print(os.date("%Y%m%d%H%M"))}
+%define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
 Name: %{name}
