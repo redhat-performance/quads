@@ -8,6 +8,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 
 ![quads](/image/quads.jpg?raw=true)
 
+
+![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS/package/quads/status_image/last_build.png)
+
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
       * [Notes](#notes)
@@ -20,6 +23,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Example: Calendar View](#example-calendar-view)
       * [Example: Systems Visualization Map](#example-systems-visualization-map)
       * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
+      * [Installing QUADS](#installing-quads)
+         * [Installing QUADS from Github](#installing-quads-from-github)
+         * [Installing QUADS from RPM](#installing-quads-from-rpm)
       * [QUADS Usage Documentation](#quads-usage-documentation)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Common Administration Tasks](#common-administration-tasks)
@@ -66,6 +72,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
+   - We use Ansible for optional Dell and SuperMicro playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
 
 ## QUADS Workflow
 
@@ -142,7 +149,8 @@ b02-h01-r620.example.com
    - We will not be covering the Wiki component setup, but you can use our [Wordpress/nginx/php-fm/mariadb Ansible playbooks](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) to set this up for you.
       * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
 
-## QUADS Usage Documentation
+## Installing QUADS
+### Installing QUADS from Github
    - Clone the git repository
 
 ```
@@ -155,11 +163,41 @@ vi /opt/quads/conf/quads.yml
    - Enable and start the QUADS systemd service (daemon)
    - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
 ```
-cp /opt/quads/systemd/quads-daemon.service
+cp /opt/quads/systemd/quads-daemon.service /etc/systemd/system/quads-daemon.service
 systemctl daemon-reload
 systemctl enable quads-daemon.service
 systemctl start quads-daemon.service
 ```
+   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-daemon``` via an alternative init process or similiar (It's just a Python HTTP application).
+
+### Installing QUADS from RPM
+   - On Red Hat or CentOS 7+
+
+```
+yum install yum-utils -y
+yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS/repo/epel-7/quadsdev-QUADS-epel-7.repo
+yum-config-manager --enable quadsdev-QUADS-epel-7
+yum install quads -y
+```
+   - On Fedora
+
+```
+dnf copr enable quadsdev/QUADS  -y
+dnf install quads -y
+```
+
+   - Read through the [QUADS YAML configuration file](/conf/quads.yml)
+```
+vi /opt/quads/conf/quads.yml
+```
+   - Enable and start the QUADS systemd service (daemon)
+   - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
+```
+systemctl enable quads-daemon.service
+systemctl start quads-daemon.service
+```
+
+## QUADS Usage Documentation
 
    - Define the various cloud environments
    - These are the isolated environments QUADS will use and provision into for you.
