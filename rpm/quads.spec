@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 0.99
+%define version 0.99.1
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
