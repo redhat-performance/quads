@@ -73,9 +73,9 @@ rm -rf %{buildroot}
 
 %post
 systemctl enable quads-daemon
-mkdir /opt/quads/log
-touch /opt/quads/log/quads.log
-mkdir /var/log/quads
+[ ! -d /opt/quads/log ] && mkdir /opt/quads/log || true
+[ ! -f /opt/quads/log/quads.log ] && touch /opt/quads/log/quads.log || true
+[ ! -d /var/log/quads ] && mkdir /var/log/quads || true
 :;
 
 %preun
