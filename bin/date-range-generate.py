@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 #
 # generates date range
 
