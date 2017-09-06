@@ -119,12 +119,18 @@ class Quads(object):
                 self.logger.error("There was a problem with your file %s" % ex)
         try:
             with open(self.config, 'r') as config_file:
-                self.data = yaml.safe_load(config_file)
-        except Exception, ex:
-            self.logger.error(ex)
-            exit(1)
+                try:
+                    fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    self.data = yaml.safe_load(config_file)
+                    self.loadtime = time.time()
+                    fcntl.flock(config_file, fcntl.LOCK_UN)
+                except IOError as e:
+                    if e.errno != errno.EAGAIN:
+                        raise
 
-        self.loadtime = time.time()
+        except Exception, ex:
+            self.logger.error("There was a problem with your file %s" % ex)
+
         self.quads = QuadsData.QuadsData(self.data)
         self.history_init()
         return
