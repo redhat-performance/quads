@@ -106,7 +106,7 @@ def main(argv):
     args = parser.parse_args()
     if args.lshosts:
         url = quads_config["quads_base_url"] + "api/v1/lshosts/"
-        response = urllib.urlopen(url)
+        response = urllib.urlopen(url, timeout=1200)
         data = json.loads(response.read())
         for k in data['hosts']:
             print k
@@ -114,7 +114,7 @@ def main(argv):
 
     if args.lsclouds:
         url = quads_config["quads_base_url"] + "api/v1/lsclouds/"
-        response = urllib.urlopen(url)
+        response = urllib.urlopen(url, timeout=1200)
         data = json.loads(response.read())
         for k in data['clouds']:
             print k
@@ -124,7 +124,7 @@ def main(argv):
         # simple get
         if not args.cloudonly:
             url = quads_config["quads_base_url"] + "api/v1/lsowner/"
-            response = urllib.urlopen(url)
+            response = urllib.urlopen(url, timeout=1200)
             data = json.loads(response.read())
             for k in data['owners']:
                 for key in sorted(k.iterkeys()):
@@ -135,7 +135,7 @@ def main(argv):
             url = quads_config["quads_base_url"] + "api/v1/lsowner"
             headers = { 'Content-Type': 'application/json' }
             data = { "cloudonly": args.cloudonly }
-            r = requests.post(url, data, headers=headers)
+            r = requests.post(url, data, headers=headers, timeout=1200)
             js = r.json()
             if 'owner' in js:
                 if len(js['owner']) == 0:
@@ -154,7 +154,7 @@ def main(argv):
         # simple get
         if not args.cloudonly:
             url = quads_config["quads_base_url"] + "api/v1/lsccusers/"
-            response = urllib.urlopen(url)
+            response = urllib.urlopen(url, timeout=1200)
             data = json.loads(response.read())
             for k in data['ccusers']:
                 for key in sorted(k.iterkeys()):
@@ -165,7 +165,7 @@ def main(argv):
             url = quads_config["quads_base_url"] + "api/v1/lsccusers"
             headers = { 'Content-Type': 'application/json' }
             data = { "cloudonly": args.cloudonly }
-            r = requests.post(url, data, headers=headers)
+            r = requests.post(url, data, headers=headers, timeout=1200)
             js = r.json()
             if 'ccuser' in js:
                 if len(js['ccuser']) == 0:
@@ -184,7 +184,7 @@ def main(argv):
         # simple get
         if not args.cloudonly:
             url = quads_config["quads_base_url"] + "api/v1/lstickets/"
-            response = urllib.urlopen(url)
+            response = urllib.urlopen(url, timeout=1200)
             data = json.loads(response.read())
             for k in data['tickets']:
                 for key in sorted(k.iterkeys()):
@@ -195,7 +195,7 @@ def main(argv):
             url = quads_config["quads_base_url"] + "api/v1/lstickets"
             headers = { 'Content-Type': 'application/json' }
             data = { "cloudonly": args.cloudonly }
-            r = requests.post(url, data, headers=headers)
+            r = requests.post(url, data, headers=headers, timeout=1200)
             js = r.json()
             if 'ticket' in js:
                 if len(js['ticket']) == 0:
@@ -213,7 +213,7 @@ def main(argv):
         # simple get
         if not args.cloudonly:
             url = quads_config["quads_base_url"] + "api/v1/lsqinq/"
-            response = urllib.urlopen(url)
+            response = urllib.urlopen(url, timeout=1200)
             data = json.loads(response.read())
             for k in data['qinqs']:
                 for key in sorted(k.iterkeys()):
@@ -224,7 +224,7 @@ def main(argv):
             url = quads_config["quads_base_url"] + "api/v1/lsqinq"
             headers = { 'Content-Type': 'application/json' }
             data = { "cloudonly": args.cloudonly }
-            r = requests.post(url, data, headers=headers)
+            r = requests.post(url, data, headers=headers, timeout=1200)
             js = r.json()
             if 'qinq' in js:
                 if len(js['qinq']) == 0:
@@ -246,7 +246,7 @@ def main(argv):
         url = quads_config["quads_base_url"] + "api/v1/host"
         headers = { 'Content-Type': 'application/json' }
         data = { "host": args.hostresource, "cloud": args.hostcloud, "type": args.hosttype, "force": args.force }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -268,7 +268,7 @@ def main(argv):
                 "qinq": args.qinq,
                 "ticket": args.cloudticket,
                 "force": args.force }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -293,7 +293,7 @@ def main(argv):
                 "host": args.host,
                 "start": args.schedstart,
                 "end": args.schedend }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -309,7 +309,7 @@ def main(argv):
         url = quads_config["quads_base_url"] + "api/v1/rmhost"
         headers = { 'Content-Type': 'application/json' }
         data = { "host": args.rmhost }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -325,7 +325,7 @@ def main(argv):
         url = quads_config["quads_base_url"] + "api/v1/rmcloud"
         headers = { 'Content-Type': 'application/json' }
         data = { "cloud": args.rmcloud }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -342,7 +342,7 @@ def main(argv):
         headers = { 'Content-Type': 'application/json' }
         data = { "schedule": args.rmschedule,
                 "host": args.host }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -373,7 +373,7 @@ def main(argv):
                 "end": args.schedend,
                 "cloud": args.schedcloud,
                 "host": args.host }
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -394,7 +394,7 @@ def main(argv):
         data = {"statedir":args.statedir}
         if args.datearg is not None:
             data["date"] = args.datearg
-        r = requests.post(url, data, headers=headers)
+        r = requests.post(url, data, headers=headers, timeout=1200)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -441,7 +441,7 @@ def main(argv):
 
     url = quads_config["quads_base_url"] + "api/v1/query"
     headers = { 'Content-Type': 'application/json' }
-    r = requests.post(url, data, headers=headers)
+    r = requests.post(url, data, headers=headers, timeout=1200)
     js = r.json()
     if 'result' in js:
         if len(js['result']) == 0:
