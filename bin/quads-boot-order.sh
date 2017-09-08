@@ -39,12 +39,12 @@ function reconfigure() {
         return
     fi
 
-    echo ==== $target
-    echo == checking for $install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml
+    echo '==== '$target
+    echo '== 'checking for $install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml
     if [ -f $install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml ]; then
         playbook=$install_dir/ansible/racadm-setup-boot-${target}-${playbook_type}.yml
     else
-        echo == checking for $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
+        echo '== 'checking for $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
         if [ -f $install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml ] ; then
             playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
         else
@@ -77,7 +77,7 @@ function reconfigure() {
         return
     fi
 
-    echo ============ starting ansible @ $(date) >> /var/log/quads/$target 2>&1
+    echo '============ starting ansible @ '$(date) >> /var/log/quads/$target 2>&1
     # note that when you run a subshell using this construct:
     #     command1 && command2 &
     # then $! is really a fork of $0, and hence /proc/<pid>/cmdline will have
@@ -108,11 +108,11 @@ if [ ! -d $data_dir/ansible ]; then
     mkdir $data_dir/ansible
 fi
 
-echo QUADS == $quads
+echo 'QUADS == '$quads
 $quads --ls-hosts
 echo ""
 for h in $($quads --ls-hosts) ; do
-    echo === MAIN : $h
+    echo '=== MAIN : '$h
     if [ -f $data_dir/boot/$h ]; then
         reconfigure $h
     fi

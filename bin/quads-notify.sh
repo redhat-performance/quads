@@ -34,7 +34,7 @@ function environment_released() {
     owner=$1
     env_to_check=$2
     ticket="$($quads --ls-ticket --cloud-only $env_to_check)"
-    release_file=${data_dir}/release/${env_to_report}-${owner}-${ticket}
+    release_file=${data_dir}/release/${env_to_check}-${owner}-${ticket}
 
     if [ ! -d ${data_dir}/release ]; then
         mkdir ${data_dir}/release
@@ -325,7 +325,7 @@ for e in $env_list ; do
         # environment is made.  These notifications go out once
         # starting at the time the schedule reflects the env is
         # made
-        echo =============== Initial Message
+        echo '=============== Initial Message'
         craft_initial_message $($quads --cloud-only $e --ls-owner) $e
     fi
 
@@ -348,7 +348,7 @@ for e in $env_list ; do
                     # additional messaging goes out if there is a change in the
                     # allocation at some future point in time. a "heads up"
                     # message basically.
-                    echo ============= Additional message
+                    echo '============= Additional message'
                     craft_message $($quads --cloud-only $e --ls-owner) $d $e $tmpcurlist $tmpfuturelist
                     alerted=true
                 fi
@@ -367,7 +367,7 @@ for e in $env_full_list ; do
             :
         else
             # This is when a future allocation is first defined
-            echo ============= Future initial message
+            echo '============= Future initial message'
             craft_future_initial_message $($quads --cloud-only $e --ls-owner) $e
         fi
 
@@ -387,7 +387,7 @@ for e in $env_full_list ; do
                     if cmp -s $tmpcurlist $tmpfuturelist ; then
                         :
                     else
-                        echo ============= Future additional message
+                        echo '============= Future additional message'
                         craft_future_message $($quads --cloud-only $e --ls-owner) $d $e $tmpcurlist $tmpfuturelist
                         alerted=true
                     fi

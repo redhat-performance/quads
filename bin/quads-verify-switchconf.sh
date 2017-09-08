@@ -48,7 +48,7 @@ done
 PIDFILE=$lockdir/quads-move.pid
 
 if $change ; then
-    echo === INFO: change requested
+    echo '=== INFO: change requested'
     if [ -f $PIDFILE ]; then
         while [ -d /proc/$(cat $PIDFILE) ]; do
             echo waiting on move to finish...
@@ -95,9 +95,9 @@ if [ -z "$qinq" ]; then
 fi
 
 echo check configuration of $env for qinq state $qinq
-echo ================================================
+echo '================================================'
 for h in $($quads --cloud-only $env) ; do
-    echo === $h
+    echo '=== '$h
     for interface in $(cat $data_dir/ports/$h) ; do
         ifname=$(echo $interface | awk -F, '{ print $1 }')
         switchip=$(echo $interface | awk -F, '{ print $3 }')
