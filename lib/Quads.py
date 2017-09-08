@@ -136,22 +136,17 @@ class Quads(object):
         return
 
     # we occasionally need to write the data back out
-    def write_data(self):
-        if self.config_newer_than_data():
+       try:
+            self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
+            with open(self.config, 'w') as yaml_file:
+                fcntl.flock(yaml_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                yaml_file.write(yaml.dump(self.data, default_flow_style=False))
+                fcntl.flock(yaml_file, fcntl.LOCK_UN)
             self.read_data()
+            return True
+        except Exception, ex:
+            self.logger.error("There was a problem with your file %s" % ex)
             return False
-        else:
-            try:
-                self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
-                with open(self.config, 'w') as yaml_file:
-                    fcntl.flock(yaml_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    yaml_file.write(yaml.dump(self.data, default_flow_style=False))
-                    fcntl.flock(yaml_file, fcntl.LOCK_UN)
-                self.read_data()
-                return True
-            except Exception, ex:
-                self.logger.error("There was a problem with your file %s" % ex)
-                return False
 
     def config_newer_than_data(self):
         if os.path.isfile(self.config):
