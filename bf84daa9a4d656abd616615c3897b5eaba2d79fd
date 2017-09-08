@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b77158d_13207b50",
+        "filename": "docs/switch-host-setup.md",
+        "patchSetId": 37
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-09-08T17:48:21Z",
+      "side": 1,
+      "message": "Can you change this to ### Optional PDU Managements",
+      "revId": "bf84daa9a4d656abd616615c3897b5eaba2d79fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23ba6d35_de573f15",
+        "filename": "docs/switch-host-setup.md",
+        "patchSetId": 37
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-09-08T17:48:21Z",
+      "side": 1,
+      "message": "Can you please add a pip install line here prior to running the command.\n\nSomething like \n\n   * Install the strip library (if not installed already)\n```\npip install strip\n```",
+      "revId": "bf84daa9a4d656abd616615c3897b5eaba2d79fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4eccfbc_c39f4944",
+        "filename": "lib/Strips.py",
+        "patchSetId": 37
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-09-08T17:48:21Z",
+      "side": 1,
+      "message": "Is it possible to change this to GPLv3 to match the rest of QUADS?",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 13,
+        "endChar": 34
+      },
+      "revId": "bf84daa9a4d656abd616615c3897b5eaba2d79fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
