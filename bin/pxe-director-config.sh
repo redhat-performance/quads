@@ -46,13 +46,13 @@ for h in $HOST_LIST ; do
     if [ "$undercloud" == "" ]; then
       undercloud=$h
       if [ $h == "$TARGET" ]; then
-        echo ==== set PXE to Foreman on $h
+        echo '==== set PXE to Foreman on '$h
         hammer host set-parameter --host $h --name $foreman_director_parameter --value false
       fi
     fi
     if [ "$h" != "$undercloud" ]; then
       if [ $h == "$TARGET" ]; then
-        echo ==== UNSET PXE from Foreman on $h
+        echo '==== UNSET PXE from Foreman on '$h
         hammer host set-parameter --host $h --name $foreman_director_parameter --value true
       fi
     fi

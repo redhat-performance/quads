@@ -22,7 +22,7 @@ if [ -z "$1" ]; then
 fi
 
 ## Jenkins specific debug here
-echo ========== START === `date` ====================
+echo '========== START === '`date`' ===================='
 echo "called as $0"
 echo "called with params: $*"
 printenv
@@ -37,6 +37,8 @@ virtualenv jenkins
 . jenkins/bin/activate
 pip install pyaml
 pip install requests
+# pexpect package for machine control
+pip install --pre strip
 
 install_bin=$(dirname $0)
 
@@ -154,15 +156,15 @@ declare -A quads_tests=(
     ["check_move_2"]="$quads --move-hosts --dry-run --date \"2016-01-12 09:00\""
     )
 
-echo ====== Starting quads-daemon service on TCP/8082 : $TMPDIR
+echo '====== Starting quads-daemon service on TCP/8082 : '$TMPDIR
 
 quads_daemon_start
 
-echo ====== Initializing sample data in :  $TMPDIR
+echo '====== Initializing sample data in :  '$TMPDIR
 
 for test in $tests ; do
   action="${quads_tests[$test]}"
-  echo =====================================
+  echo '====================================='
   echo running test \"$test\": $action
   eval $action
   retvalue=$?
@@ -176,13 +178,13 @@ for test in $tests ; do
 done
 rm -rf $TMPDIR
 
-echo ====== Stopping quads-daemon service
+echo '====== Stopping quads-daemon service'
 
 quads_daemon_stop
 
-echo ====== Initializing shellcheck with style-related exclusions
+echo '====== Initializing shellcheck with style-related exclusions'
 
-shellcheck $bindir/*.sh --exclude=SC2086,SC2046,SC2143,SC1068,SC2112,SC2002,SC2039,SC2155,SC2015,SC2012,SC2013,SC2034,SC2006,SC2059,SC2148,SC2154,SC2121,SC2154,SC2028,SC2003,SC2035,SC2005,SC2027,SC2018,SC2019,SC2116
+shellcheck $bindir/*.sh --exclude=SC1068,SC2086,SC2046,SC2143,SC1068,SC2112,SC2002,SC2039,SC2155,SC2015,SC2012,SC2013,SC2034,SC2006,SC2059,SC2148,SC2154,SC2121,SC2154,SC2028,SC2003,SC2035,SC2005,SC2027,SC2018,SC2019,SC2116
 
 if [ "$?" = "0" ]; then
    :
@@ -191,7 +193,7 @@ else
    exit 1
 fi
 
-echo ====== Initializing flake8 Python tests with style-related exclusions
+echo '====== Initializing flake8 Python tests with style-related exclusions'
 
 # primary python tools
 flake8 $bindir/*.py --ignore=F401,E302,E226,E231,E501,E225,E402,F403,F999,E127,W191,E101,E711,E201,E202,E124,E203,E122,E111,E128,E116,E222
@@ -209,7 +211,7 @@ else
 fi
 
 ## Jenkins post data here
-echo ========== FINISH == `date` ====================
+echo '========== FINISH == '`date`' ===================='
 
 exit 0
 ## end Jenkins post data here

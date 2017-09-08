@@ -23,6 +23,22 @@ function print_header() {
 EOF
 }
 
+function environment_released() {
+    owner=$1
+    env_to_check=$2
+    ticket="$($quads --ls-ticket --cloud-only $env_to_check)"
+    release_file=${data_dir}/release/${env_to_check}-${owner}-${ticket}
+
+    if [ ! -d ${data_dir}/release ]; then
+        mkdir ${data_dir}/release
+    fi
+    if [ -f $release_file ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
    echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
@@ -38,7 +54,18 @@ function print_summary() {
           link=""
       fi
       $quads --cloud-only ${name} > $tmpsummary
-      echo "| [$name](#${name}) | $desc | $owner | $link | <a href=${quads_url}/cloud/${name}_instackenv.json target=_blank>$name</a> |"
+      if environment_released $owner $name ; then
+          style_tag_start='<span style="color:green">'
+          style_tag_end='</span>'
+          instack_link=${quads_url}/cloud/${name}_instackenv.json
+          instack_text="download"
+      else
+          style_tag_start='<span style="color:red">'
+          style_tag_end='</span>'
+          instack_link=${quads_url}/underconstruction/
+          instack_text="download"
+      fi
+      echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
       rm -f $tmpsummary
   done
   echo ""
