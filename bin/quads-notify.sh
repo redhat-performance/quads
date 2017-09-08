@@ -34,7 +34,7 @@ function environment_released() {
     owner=$1
     env_to_check=$2
     ticket="$($quads --ls-ticket --cloud-only $env_to_check)"
-    release_file=${data_dir}/release/${env_to_report}-${owner}-${ticket}
+    release_file=${data_dir}/release/${env_to_check}-${owner}-${ticket}
 
     if [ ! -d ${data_dir}/release ]; then
         mkdir ${data_dir}/release
