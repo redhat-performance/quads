@@ -267,6 +267,8 @@ class Quads(object):
     # get the owners, returns a list of dictionaries
     def get_owners(self, cloudonly):
         # return the owners
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -282,6 +284,8 @@ class Quads(object):
     # get the cc users
     def get_cc(self, cloudonly):
         # return the cc users
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cc_list = []
         if cloudonly is not None:
@@ -302,6 +306,8 @@ class Quads(object):
     # get the tickets
     def get_tickets(self, cloudonly):
         # get the service request tickets
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -317,6 +323,8 @@ class Quads(object):
     # get qinq status
     def get_qinq(self, cloudonly):
         # get the environment qinq state
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -660,6 +668,8 @@ class Quads(object):
     # this method will be deprecated in favor of pending_moves
     def move_hosts(self, movecommand, dryrun, statedir, datearg):
         # move a host
+        if self.config_newer_than_data():
+            self.read_data()
         if self.datearg is not None and not dryrun :
             self.logger.error("--move-hosts and --date are mutually exclusive unless using --dry-run.")
             exit(1)
@@ -710,6 +720,8 @@ class Quads(object):
         # [{"host":"hostname1", "current":"cloudXX", "new":"cloudYY"},
         #  {"host":"hostname2", "current":"cloudXX", "new":"cloudYY"},
         #  ... ]
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
@@ -730,12 +742,16 @@ class Quads(object):
 
     # Method to get make of the host
     def get_host_type(self, hostname):
+        if self.config_newer_than_data():
+            self.read_data()
         hosttype = self.quads.hosts.data[hostname]['type']
         return hosttype
 
     # Method to get the number of hosts of each type to be returned as a
     # dictionary
     def get_host_count(self, hostnames):
+        if self.config_newer_than_data():
+            self.read_data()
         host_type_count = {}
         for host in hostnames:
             host_type = self.get_host_type(host)
@@ -743,6 +759,8 @@ class Quads(object):
         return host_type_count
 
     def query_host_schedule(self, host, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
         if host in self.quads.hosts.data.keys():
@@ -754,25 +772,34 @@ class Quads(object):
         return default_cloud, current_cloud, current_override, result
 
     def query_host_cloud(self, host, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
         return current_cloud
 
     def query_cloud_hosts(self, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         summary = {}
         for cloud in sorted(self.quads.clouds.data.iterkeys()):
             summary[cloud] = []
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
-            summary[current_cloud].append(h)
+            if current_cloud is not None:
+                summary[current_cloud].append(h)
         return summary
 
     def query_cloud_host_types(self, datearg, cloudonly):
+        if self.config_newer_than_data():
+            self.read_data()
         cloud_summary = self.query_cloud_hosts(datearg)
         hostnames = cloud_summary[cloudonly]
         host_type_count = self.get_host_count(hostnames)
         return host_type_count
 
     def query_cloud_postconfig(self, datearg, activesummary, postconfig):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cloud_summary = self.query_cloud_summary(datearg, activesummary)
         for item in cloud_summary:
@@ -788,6 +815,8 @@ class Quads(object):
         return result
 
     def query_cloud_summary(self, datearg, activesummary):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cloud_summary = {}
         clouds = self.quads.clouds.data
@@ -803,6 +832,7 @@ class Quads(object):
                 return result
         summary = self.query_cloud_hosts(datearg)
         for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            cloud_summary = {}
             if activesummary:
                 if len(summary[cloud]) > 0:
                     if requested_time < current_time:
@@ -817,18 +847,20 @@ class Quads(object):
                                         service_list.append(service['name'])
                                     cloud_summary[cloud]['post_config'] = service_list
                     else:
-                        requested_description = clouds[cloud]['description']
-                        cloud_summary = {cloud: {'description': requested_description,
-                                        'hosts': len(summary[cloud])}}
-                        service_list = []
-                        if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
-                            for service in clouds[cloud]['post_config']:
-                                service_list.append(service['name'])
-                            cloud_summary[cloud]['post_config'] = service_list
-                    result.append(cloud_summary)
+                        if cloud in self.quads.clouds.data.keys() and cloud in summary.keys():
+                            requested_description = clouds[cloud]['description']
+                            cloud_summary = {cloud: {'description': requested_description,
+                                            'hosts': len(summary[cloud])}}
+                            service_list = []
+                            if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
+                                for service in clouds[cloud]['post_config']:
+                                    service_list.append(service['name'])
+                                cloud_summary[cloud]['post_config'] = service_list
+                    if len(cloud_summary) > 0:
+                        result.append(cloud_summary)
             else:
-                for c in sorted(cloud_history[cloud]):
-                    if requested_time < current_time:
+                if requested_time < current_time:
+                    for c in sorted(cloud_history[cloud]):
                         if datetime.datetime.fromtimestamp(c) <= requested_time:
                             requested_description = cloud_history[cloud][c]["description"]
                             cloud_summary = {cloud: {'description': requested_description,
@@ -838,14 +870,16 @@ class Quads(object):
                                 for service in cloud_history[cloud][c]['post_config']:
                                     service_list.append(service['name'])
                                 cloud_summary[cloud]['post_config'] = service_list
-                    else:
+                else:
+                    if cloud in self.quads.clouds.data.keys() and cloud in summary.keys():
                         requested_description = self.quads.clouds.data[cloud]["description"]
                         cloud_summary = {cloud: {'description': requested_description,
-                                         'hosts': len(summary[cloud])}}
+                                                'hosts': len(summary[cloud])}}
                         service_list = []
                         if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
                             for service in clouds[cloud]['post_config']:
                                 service_list.append(service['name'])
                             cloud_summary[cloud]['post_config'] = service_list
-                result.append(cloud_summary)
+                if len(cloud_summary) > 0:
+                    result.append(cloud_summary)
         return result
