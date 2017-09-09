@@ -29,7 +29,7 @@ import errno
 import QuadsData
 
 class Quads(object):
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force):
+    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force, tlock):
         """
         Initialize a quads object.
         """
@@ -39,8 +39,10 @@ class Quads(object):
         self.datearg = datearg
         self.logger = logging.getLogger("quads.Quads")
         self.logger.setLevel(logging.DEBUG)
+        self.thread_lock = tlock
 
         self.init_data(initialize, force)
+        self.quads = QuadsData.QuadsData()
         self.read_data()
         self.history_init()
 
@@ -117,6 +119,7 @@ class Quads(object):
                     fcntl.flock(config_file, fcntl.LOCK_UN)
             except Exception, ex:
                 self.logger.error("There was a problem with your file %s" % ex)
+        self.thread_lock.acquire()
         try:
             with open(self.config, 'r') as config_file:
                 try:
@@ -131,7 +134,8 @@ class Quads(object):
         except Exception, ex:
             self.logger.error("There was a problem with your file %s" % ex)
 
-        self.quads = QuadsData.QuadsData(self.data)
+        self.thread_lock.release()
+        self.quads.put(self.data)
         self.history_init()
         return
 
@@ -267,6 +271,8 @@ class Quads(object):
     # get the owners, returns a list of dictionaries
     def get_owners(self, cloudonly):
         # return the owners
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -282,6 +288,8 @@ class Quads(object):
     # get the cc users
     def get_cc(self, cloudonly):
         # return the cc users
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cc_list = []
         if cloudonly is not None:
@@ -302,6 +310,8 @@ class Quads(object):
     # get the tickets
     def get_tickets(self, cloudonly):
         # get the service request tickets
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -317,6 +327,8 @@ class Quads(object):
     # get qinq status
     def get_qinq(self, cloudonly):
         # get the environment qinq state
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         if cloudonly is not None:
             if cloudonly not in self.quads.clouds.data:
@@ -332,49 +344,63 @@ class Quads(object):
     # remove a host
     def remove_host(self, rmhost):
         # remove a specific host
+        self.thread_lock.acquire()
         if rmhost not in self.quads.hosts.data:
             return [rmhost + " not found"]
         del(self.quads.hosts.data[rmhost])
         if self.write_data():
+            self.thread_lock.release()
             return ["OK"]
         else:
+            self.thread_lock.release()
             return ["ERROR"]
 
     # remove a cloud
     def remove_cloud(self, rmcloud):
         # remove a cloud (only if no hosts use it)
+        self.thread_lock.acquire()
         if rmcloud not in self.quads.clouds.data:
+            self.thread_lock.release()
             return [rmcloud + " not found"]
         for h in self.quads.hosts.data:
             if self.quads.hosts.data[h]["cloud"] == rmcloud:
+                self.thread_lock.release()
                 return [rmcloud + " is default for " + h,
                         "Change the default before deleting this cloud"]
             for s in self.quads.hosts.data[h]["schedule"]:
                 if self.quads.hosts.data[h]["schedule"][s]["cloud"] == rmcloud:
+                    self.thread_lock.release()
                     return [rmcloud + " is used in a schedule for " + h,
                             "Delete schedule before deleting this cloud"]
         del(self.quads.clouds.data[rmcloud])
         if self.write_data():
+            self.thread_lock.release()
             return ["OK"]
         else:
+            self.thread_lock.release()
             return ["ERROR"]
 
     # update a host resource
     def update_host(self, hostresource, hostcloud, hosttype, forceupdate):
         # define or update a host resouce
+        self.thread_lock.acquire()
         if hostcloud is None:
             self.logger.error("--default-cloud is required when using --define-host")
+            self.thread_lock.release()
             return ["--default-cloud is required when using --define-host"]
         elif hosttype is None:
             self.logger.error("--host-type is required when using --define-host")
+            self.thread_lock.release()
             return ["--host-type is required when using --define-host"]
 
         else:
             if hostcloud not in self.quads.clouds.data:
+                self.thread_lock.release()
                 return ["Unknown cloud : %s" % hostcloud,
                         "Define it first using:  --define-cloud"]
             if hostresource in self.quads.hosts.data and not forceupdate:
                 self.logger.error("Host \"%s\" already defined. Use --force to replace" % hostresource)
+                self.thread_lock.release()
                 return ["Host \"%s\" already defined. Use --force to replace" % hostresource]
 
             if hostresource in self.quads.hosts.data:
@@ -394,8 +420,10 @@ class Quads(object):
                 self.quads.history.data[hostresource] = {}
                 self.quads.history.data[hostresource][0] = hostcloud
             if self.write_data():
+                self.thread_lock.release()
                 return ["OK"]
             else:
+                self.thread_lock.release()
                 return ["ERROR"]
 
     # update a cloud resource
@@ -403,12 +431,15 @@ class Quads(object):
                      ccusers, cloudticket, qinq, postconfig=None, version=None, puddle=None,
                      controlscale=None, computescale=None):
         # define or update a cloud resource
+        self.thread_lock.acquire()
         if description is None:
             self.logger.error("--description is required when using --define-cloud")
+            self.thread_lock.release()
             return ["--description is required when using --define-cloud"]
         else:
             if cloudresource in self.quads.clouds.data and not forceupdate:
                 self.logger.error("Cloud \"%s\" already defined. Use --force to replace" % cloudresource)
+                self.thread_lock.release()
                 return ["Cloud \"%s\" already defined. Use --force to replace" % cloudresource]
             if not cloudowner:
                 cloudowner = "nobody"
@@ -427,6 +458,7 @@ class Quads(object):
                     if service == 'openstack':
                         if version is None or controlscale is None or computescale is None:
                             self.logger.error("Missing required arguments for openstack deployment")
+                            self.thread_lock.release()
                             return ["Missing OpenStack specific arguments"]
                         else:
                             service_description = {'name': 'openstack',
@@ -448,6 +480,7 @@ class Quads(object):
                     if self.quads.hosts.data[h]["schedule"][s]["cloud"] == cloudresource:
                         s_end_obj = datetime.datetime.strptime(self.quads.hosts.data[h]["schedule"][s]["end"], '%Y-%m-%d %H:%M')
                         if s_end_obj >= curdate_obj:
+                            self.thread_lock.release()
                             return [cloudresource + " is used in schedule " + str(s) + " for " + h,
                                                     "Cloud cannot be reused while current or future schedules are in place."]
             if cloudresource not in self.quads.cloud_history.data:
@@ -467,31 +500,38 @@ class Quads(object):
                                                      "post_config": post_config
                                                     }
             if self.write_data():
+                self.thread_lock.release()
                 return ["OK"]
             else:
+                self.thread_lock.release()
                 return ["ERROR"]
 
     # define a schedule for a given host
     def add_host_schedule(self, schedstart, schedend, schedcloud, host):
         # add a scheduled override for a given host
+        self.thread_lock.acquire()
         try:
             datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
         except Exception, ex:
             self.logger.error("Data format error : %s" % ex)
+            self.thread_lock.release()
             return ["Data format error : %s" % ex]
 
         try:
             datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
         except Exception, ex:
             self.logger.error("Data format error : %s" % ex)
+            self.thread_lock.release()
             return ["Data format error : %s" % ex]
 
         if schedcloud not in self.quads.clouds.data:
             self.logger.error("cloud \"" + schedcloud + "\" is not defined.")
+            self.thread_lock.release()
             return ["cloud \"" + schedcloud + "\" is not defined."]
 
         if host not in self.quads.hosts.data:
             self.logger.error("host \"" + host + "\" is not defined.")
+            self.thread_lock.release()
             return ["host \"" + host + "\" is not defined."]
 
         # before updating the schedule (adding the new override), we need to
@@ -503,9 +543,11 @@ class Quads(object):
 
         if schedend_obj < schedstart_obj:
             self.logger.error("Error. Requested end time is before start time.")
+            self.thread_lock.release()
             return ["Error. Requested end time is before start time."]
         if schedend_obj == schedstart_obj:
             self.logger.error("Error. Requested start and end time cannot be the same.")
+            self.thread_lock.release()
             return ["Error. Requested start and end time cannot be the same."]
 
         for s in self.quads.hosts.data[host]["schedule"]:
@@ -519,6 +561,7 @@ class Quads(object):
             # s_end
 
             if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
+                self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
                         "   Start: " + schedstart,
@@ -528,6 +571,7 @@ class Quads(object):
                         "   End: " + s_end]
 
             if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
+                self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
                         "   Start: " + schedstart,
@@ -539,39 +583,49 @@ class Quads(object):
         # the next available schedule index should be the max index + 1
         self.quads.hosts.data[host]["schedule"][max(self.quads.hosts.data[host]["schedule"].keys() or [-1])+1] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
         if self.write_data():
+            self.thread_lock.release()
             return ["OK"]
         else:
+            self.thread_lock.release()
             return ["ERROR"]
 
     # remove a scheduled override for a given host
     def rm_host_schedule(self, rmschedule, host):
         # remove a scheduled override for a given host
+        self.thread_lock.acquire()
         if host is None:
             self.logger.error("Missing --host option required for --rm-schedule")
+            self.thread_lock.release()
             return ["Missing --host option required for --rm-schedule"]
 
         if host not in self.quads.hosts.data:
             self.logger.error("host \"" + host + "\" is not defined.")
+            self.thread_lock.release()
             return ["host \"" + host + "\" is not defined."]
 
         if rmschedule not in self.quads.hosts.data[host]["schedule"].keys():
             self.logger.error("Could not find schedule for host")
+            self.thread_lock.release()
             return ["Could not find schedule for host"]
 
         del(self.quads.hosts.data[host]["schedule"][rmschedule])
         if self.write_data():
+            self.thread_lock.release()
             return ["OK"]
         else:
+            self.thread_lock.release()
             return ["ERROR"]
 
     # modify an existing schedule
     def mod_host_schedule(self, modschedule, schedstart, schedend, schedcloud, host):
         # add a scheduled override for a given host
+        self.thread_lock.acquire()
         if schedstart:
             try:
                 datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
             except Exception, ex:
                 self.logger.error("Data format error : %s" % ex)
+                self.thread_lock.release()
                 return ["Data format error : %s" % ex]
 
         if schedend:
@@ -579,19 +633,23 @@ class Quads(object):
                 datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
             except Exception, ex:
                 self.logger.error("Data format error : %s" % ex)
+                self.thread_lock.release()
                 return ["Data format error : %s" % ex]
 
         if schedcloud:
             if schedcloud not in self.quads.clouds.data:
                 self.logger.error("cloud \"" + schedcloud + "\" is not defined.")
+                self.thread_lock.release()
                 return ["cloud \"" + schedcloud + "\" is not defined."]
 
         if host not in self.quads.hosts.data:
             self.logger.error("host \"" + host + "\" is not defined.")
+            self.thread_lock.release()
             return ["host \"" + host + "\" is not defined."]
 
         if modschedule not in self.quads.hosts.data[host]["schedule"].keys():
             self.logger.error("Could not find schedule for host")
+            self.thread_lock.release()
             return ["Could not find schedule for host"]
 
         # before updating the schedule (modifying the new override), we need to
@@ -613,9 +671,11 @@ class Quads(object):
 
         if schedend_obj < schedstart_obj:
             self.logger.error("Error. Requested end time is before start time.")
+            self.thread_lock.release()
             return ["Error. Requested end time is before start time."]
         if schedend_obj == schedstart_obj:
             self.logger.error("Error. Requested start and end time cannot be the same.")
+            self.thread_lock.release()
             return ["Error. Requested start and end time cannot be the same."]
 
         for s in self.quads.hosts.data[host]["schedule"]:
@@ -630,6 +690,7 @@ class Quads(object):
                 # s_end
 
                 if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
+                    self.thread_lock.release()
                     return ["Error. Updated schedule conflicts with existing schedule.",
                             "Updated schedule: ",
                             "   Start: " + schedstart,
@@ -639,6 +700,7 @@ class Quads(object):
                             "   End: " + s_end]
 
                 if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
+                    self.thread_lock.release()
                     return ["Error. Updated schedule conflicts with existing schedule.",
                             "Updated schedule: ",
                             "   Start: " + schedstart,
@@ -652,14 +714,18 @@ class Quads(object):
         self.quads.hosts.data[host]["schedule"][modschedule]["cloud"] = schedcloud
 
         if self.write_data():
+            self.thread_lock.release()
             return ["OK"]
         else:
+            self.thread_lock.release()
             return ["ERROR"]
 
     # as needed move host(s) based on defined schedules
     # this method will be deprecated in favor of pending_moves
     def move_hosts(self, movecommand, dryrun, statedir, datearg):
         # move a host
+        if self.config_newer_than_data():
+            self.read_data()
         if self.datearg is not None and not dryrun :
             self.logger.error("--move-hosts and --date are mutually exclusive unless using --dry-run.")
             exit(1)
@@ -710,6 +776,8 @@ class Quads(object):
         # [{"host":"hostname1", "current":"cloudXX", "new":"cloudYY"},
         #  {"host":"hostname2", "current":"cloudXX", "new":"cloudYY"},
         #  ... ]
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
@@ -730,12 +798,16 @@ class Quads(object):
 
     # Method to get make of the host
     def get_host_type(self, hostname):
+        if self.config_newer_than_data():
+            self.read_data()
         hosttype = self.quads.hosts.data[hostname]['type']
         return hosttype
 
     # Method to get the number of hosts of each type to be returned as a
     # dictionary
     def get_host_count(self, hostnames):
+        if self.config_newer_than_data():
+            self.read_data()
         host_type_count = {}
         for host in hostnames:
             host_type = self.get_host_type(host)
@@ -743,6 +815,8 @@ class Quads(object):
         return host_type_count
 
     def query_host_schedule(self, host, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
         if host in self.quads.hosts.data.keys():
@@ -754,25 +828,34 @@ class Quads(object):
         return default_cloud, current_cloud, current_override, result
 
     def query_host_cloud(self, host, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         default_cloud, current_cloud, current_override = self.find_current(host, datearg)
         return current_cloud
 
     def query_cloud_hosts(self, datearg):
+        if self.config_newer_than_data():
+            self.read_data()
         summary = {}
         for cloud in sorted(self.quads.clouds.data.iterkeys()):
             summary[cloud] = []
         for h in sorted(self.quads.hosts.data.iterkeys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
-            summary[current_cloud].append(h)
+            if current_cloud is not None:
+                summary[current_cloud].append(h)
         return summary
 
     def query_cloud_host_types(self, datearg, cloudonly):
+        if self.config_newer_than_data():
+            self.read_data()
         cloud_summary = self.query_cloud_hosts(datearg)
         hostnames = cloud_summary[cloudonly]
         host_type_count = self.get_host_count(hostnames)
         return host_type_count
 
     def query_cloud_postconfig(self, datearg, activesummary, postconfig):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cloud_summary = self.query_cloud_summary(datearg, activesummary)
         for item in cloud_summary:
@@ -788,6 +871,8 @@ class Quads(object):
         return result
 
     def query_cloud_summary(self, datearg, activesummary):
+        if self.config_newer_than_data():
+            self.read_data()
         result = []
         cloud_summary = {}
         clouds = self.quads.clouds.data
@@ -802,11 +887,15 @@ class Quads(object):
                 self.logger.error("Data format error : %s" % ex)
                 return result
         summary = self.query_cloud_hosts(datearg)
-        for cloud in sorted(self.quads.clouds.data.iterkeys()):
+        # iterate over the currently defined clouds
+        for cloud in sorted(summary.iterkeys()):
+            cloud_summary = {}
             if activesummary:
                 if len(summary[cloud]) > 0:
+                    # for --date in the past, look at cloud_history data
                     if requested_time < current_time:
                         for c in sorted(cloud_history[cloud]):
+                            # keep looking forward to find the definition that precedes the data being requested
                             if datetime.datetime.fromtimestamp(c) <= requested_time:
                                 requested_description = cloud_history[cloud][c]['description']
                                 cloud_summary = {cloud: {'description': requested_description,
@@ -817,18 +906,21 @@ class Quads(object):
                                         service_list.append(service['name'])
                                     cloud_summary[cloud]['post_config'] = service_list
                     else:
-                        requested_description = clouds[cloud]['description']
-                        cloud_summary = {cloud: {'description': requested_description,
-                                        'hosts': len(summary[cloud])}}
-                        service_list = []
-                        if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
-                            for service in clouds[cloud]['post_config']:
-                                service_list.append(service['name'])
-                            cloud_summary[cloud]['post_config'] = service_list
-                    result.append(cloud_summary)
+                        if cloud in clouds.keys() and cloud in summary.keys():
+                            requested_description = clouds[cloud]['description']
+                            cloud_summary = {cloud: {'description': requested_description,
+                                            'hosts': len(summary[cloud])}}
+                            service_list = []
+                            if cloud in clouds.keys():
+                                if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
+                                    for service in clouds[cloud]['post_config']:
+                                        service_list.append(service['name'])
+                                    cloud_summary[cloud]['post_config'] = service_list
+                    if len(cloud_summary) > 0:
+                        result.append(cloud_summary)
             else:
-                for c in sorted(cloud_history[cloud]):
-                    if requested_time < current_time:
+                if requested_time < current_time:
+                    for c in sorted(cloud_history[cloud]):
                         if datetime.datetime.fromtimestamp(c) <= requested_time:
                             requested_description = cloud_history[cloud][c]["description"]
                             cloud_summary = {cloud: {'description': requested_description,
@@ -838,14 +930,17 @@ class Quads(object):
                                 for service in cloud_history[cloud][c]['post_config']:
                                     service_list.append(service['name'])
                                 cloud_summary[cloud]['post_config'] = service_list
-                    else:
-                        requested_description = self.quads.clouds.data[cloud]["description"]
+                else:
+                    if cloud in clouds.keys() and cloud in summary.keys():
+                        requested_description = clouds[cloud]["description"]
                         cloud_summary = {cloud: {'description': requested_description,
-                                         'hosts': len(summary[cloud])}}
+                                                'hosts': len(summary[cloud])}}
                         service_list = []
-                        if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
-                            for service in clouds[cloud]['post_config']:
-                                service_list.append(service['name'])
-                            cloud_summary[cloud]['post_config'] = service_list
-                result.append(cloud_summary)
+                        if cloud in clouds.keys():
+                            if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
+                                for service in clouds[cloud]['post_config']:
+                                    service_list.append(service['name'])
+                                cloud_summary[cloud]['post_config'] = service_list
+                if len(cloud_summary) > 0:
+                    result.append(cloud_summary)
         return result

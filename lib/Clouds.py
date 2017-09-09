@@ -14,21 +14,36 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import copy
 
 class Clouds(object):
-    def __init__(self, data):
+    def __init__(self, data=None):
         """
         Initialize a Clouds object. This is a subset of
         data required by the Quads object.
         """
         self.logger = logging.getLogger("quads.Clouds")
         self.logger.setLevel(logging.DEBUG)
+        if data is None:
+            self.data = {}
+            return
+
         if 'clouds' not in data:
             self.logger.error("data missing required \"clouds\" section.")
-            exit(1)
+            self.data = {}
+            return
 
-        self.data = data["clouds"]
+        self.data = copy.deepcopy(data["clouds"])
+
+    def put(self, data):
+        if 'clouds' not in data:
+            self.logger.error("data missing required \"clouds\" section.")
+            self.data = {}
+            return
+
+        self.data = copy.deepcopy(data["clouds"])
 
     # return list of clouds
     def get(self):
         return sorted(self.data.iterkeys())
+
