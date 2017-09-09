@@ -42,6 +42,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
+    global write_lock
     # reload data if needed and log
     if quads.config_newer_than_data():
         logger.info("config file %s changed on disk. Reloading..." % quads.config)
@@ -177,10 +178,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.update_host(data['host'][0],
                                        data['cloud'][0],
                                        data['type'][0],
                                        data['force'][0] == 'True')
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -218,7 +223,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.remove_host(data['host'][0])
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -287,6 +296,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.update_cloud(data['cloud'][0],
                                        data['description'][0],
                                        data['force'][0] == 'True',
@@ -295,6 +307,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                        data['ticket'][0],
                                        data['qinq'][0])
             self.wfile.write(json.dumps({'result': result}))
+            write_lock = False
             return
         else:
             logger.info("%s - %s - %s %s" % (self.client_address[0],
@@ -331,7 +344,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.remove_cloud(data['cloud'][0])
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -385,10 +402,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.add_host_schedule(data['start'][0],
                                                 data['end'][0],
                                                 data['cloud'][0],
                                                 data['host'][0])
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -432,8 +453,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.rm_host_schedule(int(data['schedule'][0]),
                                        data['host'][0])
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -503,11 +528,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             if len(result) > 0:
                 self.wfile.write(json.dumps({'result': result}))
                 return
+            while write_lock == True:
+                time.sleep(0.1)
+            write_lock = True
             result = quads.mod_host_schedule(int(data['schedule'][0]),
                                                 data['start'][0],
                                                 data['end'][0],
                                                 data['cloud'][0],
                                                 data['host'][0])
+            write_lock = False
             self.wfile.write(json.dumps({'result': result}))
             return
         else:
@@ -823,6 +852,7 @@ if not os.path.exists(args.statedir):
 quads = Quads(args.config, args.statedir, None, None,
               None, args.initialize, args.force)
 
+write_lock = False
 server = SimpleHttpServer(args.ip, args.port)
 logger.info("QUADS daemon started...........".format(quads_config["log"]))
 server.start()
