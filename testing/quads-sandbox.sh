@@ -24,6 +24,8 @@ function init_sandbox() {
         fi
     fi
 
+    sed -i -e "s,/tmp/quadsXXXX,$sandbox_dir,g" $sandbox_dir/quads/testing/*/*.sh
+
     cd quads
     echo "Editing QUADS configuration [$sandbox_dir/quads/conf/quads.yml]"
     sed -i -e "s@install_dir: /opt/quads@install_dir: $sandbox_dir/quads@g" $sandbox_dir/quads/conf/quads.yml
@@ -31,7 +33,7 @@ function init_sandbox() {
     sed -i -e "s@log: /opt/quads/log/quads.log@log: $sandbox_dir/quads/quads.log@g" $sandbox_dir/quads/conf/quads.yml
     sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $sandbox_dir/quads/conf/quads.yml
     echo "Starting QUADS Daemon on TCP/8082"
-    $quads_daemon_start  1>/dev/null 2>&1 &
+    $quads_daemon_start  &
     sleep 2
     echo "Creating QUADS data structure [$sandbox_dir/quads/data]"
     if ! [ -d $sandbox_dir/quads/data ]; then

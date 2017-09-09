@@ -19,7 +19,7 @@ import History
 import Hosts
 
 class QuadsData(object):
-    def __init__(self, data):
+    def __init__(self, data=None):
         """
         Initialize the QuadsData object.
         """
@@ -27,3 +27,9 @@ class QuadsData(object):
         self.clouds = Clouds.Clouds(data)
         self.history = History.History(data)
         self.cloud_history = CloudHistory.CloudHistory(data)
+
+    def put(self, data):
+        self.hosts.put(data)
+        self.clouds.put(data)
+        self.history.put(data)
+        self.cloud_history.put(data)
