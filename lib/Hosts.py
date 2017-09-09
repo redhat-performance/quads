@@ -14,20 +14,34 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import copy
 
 class Hosts(object):
-    def __init__(self, data):
+    def __init__(self, data=None):
         """
         Initialize a Hosts object. This is a subset of
         data required by the Quads object.
         """
         self.logger = logging.getLogger("quads.Hosts")
         self.logger.setLevel(logging.DEBUG)
+        if data is None:
+            self.data = {}
+            return
+
         if 'hosts' not in data:
             self.logger.error("data missing required \"hosts\" section.")
-            exit(1)
+            self.data = {}
+            return
 
-        self.data = data["hosts"]
+        self.data = copy.deepcopy(data["hosts"])
+
+    def put(self, data):
+        if 'hosts' not in data:
+            self.logger.error("data missing required \"hosts\" section.")
+            self.data = {}
+            return
+
+        self.data = copy.deepcopy(data["hosts"])
 
     # return list of hosts
     def get(self):

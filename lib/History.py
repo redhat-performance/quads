@@ -13,14 +13,28 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import copy
+
 class History(object):
-    def __init__(self, data):
+    def __init__(self, data=None):
         """
         Initialize a History object. This is a subset of
         data required by the Quads object. (used for host
         history tracking)
         """
+        if data is None:
+            self.data = {}
+            return
+
         if 'history' not in data:
             self.data = {}
         else:
-            self.data = data["history"]
+            self.data = copy.deepcopy(data["history"])
+
+    def put(self, data):
+        if 'history' not in data:
+            self.logger.error("data missing required \"history\" section.")
+            self.data = {}
+        else:
+            self.data = copy.deepcopy(data["history"])
