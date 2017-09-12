@@ -25,11 +25,12 @@ import sys
 import yaml
 import fcntl
 import errno
-
+import threading
 import QuadsData
 
 class Quads(object):
-    def __init__(self, config, statedir, movecommand, datearg, syncstate, initialize, force, tlock):
+    def __init__(self, config, statedir, movecommand, datearg, syncstate,
+                 initialize, force, tlock=threading.RLock()):
         """
         Initialize a quads object.
         """
