@@ -1,4 +1,23 @@
 ---
+
+# R620 hosts
+#   foreman:  NIC.Integrated.1-3-1,HardDisk.List.1-1,NIC.Slot.2-4,NIC.Slot.2-1,NIC.Slot.2-2,NIC.Slot.2-3
+#   director: NIC.Slot.2-4,HardDisk.List.1-1,NIC.Slot.2-1,NIC.Slot.2-2,NIC.Slot.2-3,NIC.Integrated.1-3-1
+#
+# R630 hosts:
+#   foreman:  NIC.Slot.2-1-1,HardDisk.List.1-1,NIC.Integrated.1-2-1
+#   director: NIC.Integrated.1-2-1,HardDisk.List.1-1,NIC.Slot.2-1-1
+#
+# R720xd:
+#   foreman:  NIC.Integrated.1-3-1,HardDisk.List.1-1,NIC.Slot.4-2-1
+#   director: NIC.Slot.4-2-1,HardDisk.List.1-1,NIC.Integrated.1-3-1
+#
+# R730xd:
+#   foreman:  NIC.Integrated.1-3-1,HardDisk.List.1-1,NIC.Integrated.1-2-1
+#   director: NIC.Integrated.1-2-1,HardDisk.List.1-1,NIC.Integrated.1-3-1
+#
+##############################################################################################
+
 - gather_facts: False
   name: check for racadm
   vars:
@@ -10,11 +29,6 @@
     - name: shutdown underlying OS
       local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
       ignore_errors: True
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
 
 # reset the drac
     - name: racadm racreset
@@ -50,224 +64,13 @@
       pause:
           minutes: 1
 
-# ensure 1st interface cant PXE
-    - name: racadm setup NIC1
-      raw: racadm set NIC.NICConfig.1.LegacyBootProto NONE
-      args:
-        executable: ''
-      register: result_nicconfig
-    - debug: var=result_nicconfig
-
-# try to gracefully shutdown target server
-    - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
-      ignore_errors: True
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
-## Commit the changes to the 1st NIC
-    - name: racadm NIC reconfig
-      raw: racadm jobqueue create NIC.Integrated.1-1-1 -r pwrcycle -s TIME_NOW
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-# power cycle the host
-    - name: racadm serveraction powercycle
-      raw: racadm serveraction powercycle
-      ignore_errors: yes
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-# Now wait for the jobqueue to finish
-    - name: racadm check complete
-      raw: racadm jobqueue view
-      args:
-        executable: ''
-      register: result_check_complete
-      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 50
-      delay: 10
-    - debug: var=result_check_complete
-
-# Delete the jobqueue so we can search it reliably later
-    - name: racadm jobqueue delete
-      raw: racadm jobqueue delete --all
-      args:
-        executable: ''
-      register: result_jobqueue
-    - debug: var=result_jobqueue
-
-# use the hammer
-    - name: racadm JID_CLEARALL_FORCE
-      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
-      args:
-        executable: ''
-      register: result_clearall_force
-    - debug: var=result_clearall_force
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
-# ensure 2nd interface cant PXE
-    - name: racadm setup NIC2
-      raw: racadm set NIC.NICConfig.2.LegacyBootProto NONE
-      args:
-        executable: ''
-      register: result_nicconfig
-    - debug: var=result_nicconfig
-
-# try to gracefully shutdown target server
-    - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
-      ignore_errors: True
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
-## Commit the changes to the 2nd NIC
-    - name: racadm NIC reconfig
-      raw: racadm jobqueue create NIC.Integrated.1-2-1 -r pwrcycle -s TIME_NOW
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-## power cycle the host
-    - name: racadm serveraction powercycle
-      raw: racadm serveraction powercycle
-      ignore_errors: yes
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-# Now wait for the jobqueue to finish
-    - name: racadm check complete
-      raw: racadm jobqueue view
-      args:
-        executable: ''
-      register: result_check_complete
-      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 50
-      delay: 10
-    - debug: var=result_check_complete
-
-# Delete the jobqueue so we can search it reliably later
-    - name: racadm jobqueue delete
-      raw: racadm jobqueue delete --all
-      args:
-        executable: ''
-      register: result_jobqueue
-    - debug: var=result_jobqueue
-
-# use the hammer
-    - name: racadm JID_CLEARALL_FORCE
-      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
-      args:
-        executable: ''
-      register: result_clearall_force
-    - debug: var=result_clearall_force
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
-# ensure 3nd interface can PXE
-    - name: racadm setup NIC3
-      raw: racadm set NIC.NICConfig.5.LegacyBootProto PXE
-      args:
-        executable: ''
-      register: result_nicconfig
-    - debug: var=result_nicconfig
-
-# try to gracefully shutdown target server
-    - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
-      ignore_errors: True
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
-# Commit the changes to the 3rd NIC
-    - name: racadm NIC reconfig
-      raw: racadm jobqueue create NIC.Slot.2-1-1 -r pwrcycle -s TIME_NOW
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-## power cycle the host
-    - name: racadm serveraction powercycle
-      raw: racadm serveraction powercycle
-      ignore_errors: yes
-      args:
-        executable: ''
-      register: result_pwrcycle
-    - debug: var=result_pwrcycle
-
-# Now wait for the jobqueue to finish
-    - name: racadm check complete
-      raw: racadm jobqueue view
-      args:
-        executable: ''
-      register: result_check_complete
-      until: result_check_complete.stdout.find("Status=Completed") != -1 and result_check_complete.stdout.find("Status=Running") == -1
-      retries: 50
-      delay: 10
-    - debug: var=result_check_complete
-
-# Delete the jobqueue so we can search it reliably later
-    - name: racadm jobqueue delete
-      raw: racadm jobqueue delete --all
-      args:
-        executable: ''
-      register: result_jobqueue
-    - debug: var=result_jobqueue
-
-# use the hammer
-    - name: racadm JID_CLEARALL_FORCE
-      raw: racadm jobqueue delete -i JID_CLEARALL_FORCE
-      args:
-        executable: ''
-      register: result_clearall_force
-    - debug: var=result_clearall_force
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
-
 # setup the new boot order to ensure 1st nic is before disk
     - name: racadm setup boot
-      raw: racadm set BIOS.BiosBootSettings.BootSeq NIC.Slot.2-1-1,HardDisk.List.1-1
+      raw: racadm set BIOS.BiosBootSettings.BootSeq NIC.Slot.2-1-1,HardDisk.List.1-1,NIC.Integrated.1-2-1
       args:
         executable: ''
       register: result_boot_setup
     - debug: var=result_boot_setup
-
-# try to gracefully shutdown target server
-    - name: shutdown underlying OS
-      local_action: command ssh -o ConnectTimeout=10 {{ inventory_hostname | regex_replace('mgmt-', '' ) }} shutdown -h now
-      ignore_errors: True
-
-# pause
-    - name: pause for reset
-      pause:
-          minutes: 1
 
 # Commit the changes to the bios
     - name: racadm bios reconfigure powercycle
@@ -278,7 +81,7 @@
       register: result_pwrcycle
     - debug: var=result_pwrcycle
 
-## power cycle the host
+# power cycle the host
     - name: racadm serveraction powercycle
       raw: racadm serveraction powercycle
       ignore_errors: yes
@@ -306,4 +109,4 @@
 
     - name: Print Time of Completion
       debug:
-        msg="{{ currentdate.stdout }} report time of completion, Ansible Playbook for {{ ansible_host }} completed"
+        msg="{{ currentdate.stdout }} , Ansible Playbook for {{ ansible_host }} completed"

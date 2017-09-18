@@ -63,7 +63,7 @@ function print_summary() {
           style_tag_start='<span style="color:red">'
           style_tag_end='</span>'
           instack_link=${quads_url}/underconstruction/
-          instack_text="download"
+          instack_text="validating"
       fi
       echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
       rm -f $tmpsummary
