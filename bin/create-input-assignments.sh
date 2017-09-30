@@ -14,6 +14,7 @@ rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
+ansible_facts_web_path=${quads["ansible_facts_web_path"]}
 
 function print_header() {
     cat <<EOF
@@ -41,13 +42,19 @@ function environment_released() {
 
 function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
-   echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
-   echo "|----------|-------------|-----------|--------------------|----------------|"
+   if [ "${gather_ansible_facts}" == "true" ]; then
+       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **HWFACTS** |"
+       echo "|----------|-------------|-----------|--------------------|----------------|---------------|"
+   else
+       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
+       echo "|----------|-------------|-----------|--------------------|----------------|"
+   fi
    $quads --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
       desc=$(echo $(echo $line | awk -F: '{ print $2 }'))
       owner=$($quads --ls-owner --cloud-only $name)
       rt=$($quads --ls-ticket --cloud-only $name)
+      cloud_specific_tag="${name}_${owner}_${rt}"
       if [ "$rt" ]; then
           link="<a href=${rt_url}?id=$rt target=_blank>$rt</a>"
       else
@@ -65,8 +72,17 @@ function print_summary() {
           instack_link=${quads_url}/underconstruction/
           instack_text="validating"
       fi
-      echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
-      rm -f $tmpsummary
+
+      if [ "${gather_ansible_facts}" == "true" ]; then
+      # Add ansible facts data
+        if [ -f "${ansible_facts_web_path}/${cloud_specific_tag}_overview.html" ]; then
+          ansible_facts_link="${quads_url}/ansible_facts/${name}_overview.html"
+        else
+          ansible_facts_link="${quads_url}/underconstruction/"
+        fi
+        echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> | <ahref=$ansible_facts_link target=_blank>"${name}_facts"</a> |"
+        rm -f $tmpsummary
+      fi
   done
   echo ""
   echo "[Unmanaged Hosts](#unmanaged)"
