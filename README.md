@@ -73,6 +73,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
    - We use Ansible for optional Dell and SuperMicro playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
+   - The package [ansible-cmdb](https://github.com/fboender/ansible-cmdb) needs to be available if you want to see per assignment Ansible facts of the inventory. It can be obtained from [here](https://github.com/fboender/ansible-cmdb/releases)
 
 ## QUADS Workflow
 
