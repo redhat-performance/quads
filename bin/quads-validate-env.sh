@@ -19,6 +19,7 @@ install_dir=${quads["install_dir"]}
 bin_dir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 report_cc=${quads["report_cc"]}
+gather_ansible_facts=${quads["gather_ansible_facts"]}
 # if failure persiste beyond tolerance, do reporting.
 tolerance=14400
 
@@ -116,6 +117,9 @@ function validate_environment() {
         return
     fi
 
+    if [ "${gather_ansible_facts}" == "true" ]; then
+        $bin_dir/quads-ansible-cmdb-facts.sh $env $owner $ticket
+    fi
     if $bin_dir/quads-post-network-test.sh -c $env -2 1>$resultfile 2>&1; then
         touch $data_dir/release/${env}-${owner}-${ticket}
         if [ -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
