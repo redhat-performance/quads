@@ -14,6 +14,7 @@ rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
+ansible_facts_web_path=${quads["ansible_facts_web_path"]}
 
 function print_header() {
     cat <<EOF
@@ -39,10 +40,42 @@ function environment_released() {
     fi
 }
 
+# generates ansible facts for hosts in this environment
+function generate_facts(){
+name=$1
+facts_dir="${data_dir}/ansible_facts"
+# create directory to hold facts for ansible-cmdb consumption, if it doesn't exist
+if [ ! -d $facts_dir ]; then
+    mkdir "$facts_dir"
+fi
+# create directory to serve the html contents out of, if it doesnt exist
+if [ ! -d "${ansible_facts_web_path}" ]; then
+    mkdir "${ansible_facts_web_path}"
+fi
+pushd $facts_dir
+rm -rf $name
+# make cloud specific directory
+mkdir $name
+pushd $name
+# make hosts file for ansible
+$quads --cloud-only ${name} > "${name}_hosts"
+mkdir out
+# ansible-cmdb command to generate the static html, timeout is present so that
+# command doesn't hang if hosts aren't reachable
+timeout 600 ansible-cmdb -i "${name}_hosts" out/ > overview.html
+# copy the html over to the directory served by apache only if previous command
+# was successful, otherwise the old copy is used
+if [ "$?" -eq 0 ]; then
+    cp overview.html ${ansible_facts_web_path}/${name}_overview.html
+fi
+popd
+popd
+}
+
 function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
-   echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
-   echo "|----------|-------------|-----------|--------------------|----------------|"
+   echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **ANSIBLE FACTS** |"
+   echo "|----------|-------------|-----------|--------------------|----------------|---------------|"
    $quads --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
       desc=$(echo $(echo $line | awk -F: '{ print $2 }'))
@@ -65,7 +98,10 @@ function print_summary() {
           instack_link=${quads_url}/underconstruction/
           instack_text="validating"
       fi
-      echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
+      # generate ansible-cmdb data (https://github.com/fboender/ansible-cmdb)
+      generate_facts $name
+      ansible_facts_link="${quads_url}/ansible_facts/${name}_overview.html"
+      echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> | <a href=${quads_url}/ansible_facts/${name}_overview.html target=_blank>"${name}_facts"</a> |"
       rm -f $tmpsummary
   done
   echo ""
