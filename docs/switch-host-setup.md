@@ -12,8 +12,10 @@ General guidelines of how to setup your network switches, servers and DNS for QU
       * [TOR Switch Configuration](#tor-switch-configuration)
       * [Greenfield TOR Switch Configuration](#greenfield-tor-switch-configuration)
       * [QUADS Host Network Setup](#quads-host-network-setup)
-      * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
       * [Adding New QUADS Host](#adding-new-quads-host)
+        * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
+        * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
+        * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -149,11 +151,11 @@ em4,a0:36:9f:98:44:56,10.12.67.247,switch-type,xe-0/0/3:3
 b08-h13-r620.rdu.openstack.engineering.example.com
 ```
 
-## Integration into Foreman or a Provisioning System
+### Integration into Foreman or a Provisioning System
    * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/1.15/index.html).
    * We do provide some [example templates](https://github.com/redhat-performance/quads/tree/master/templates) for post-provisioning creation of system interface config files like ```/etc/sysconfig/network-scripts/ifcfg-*``` for use with QUADs.
 
-## Create Foreman Roles and Filters
+### Create Foreman Roles and Filters
    * This is Foreman-specific so if you want another provisioning backend you can ignore it.
    * We use RBAC roles and filters to allow per-cloud Foreman views into subsets of machines, QUADS will manage this for you once created.
       * Each server has a role named after it
@@ -173,7 +175,7 @@ hammer user create --login cloud02 --password password --mail quads@example.com 
 hammer user create --login cloud03 --password password --mail quads@example.com --auth-source-id 1
 ```
 
-## Adding New QUADS Host IPMI
+### Adding New QUADS Host IPMI
 
    * Ensure QUADS host has access to the out-of-band interfaces
       * For Dell systems we copy the QUADS ssh key in via racadm
