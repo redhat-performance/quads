@@ -14,6 +14,8 @@ rt_url=${quads["rt_url"]}
 data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
+ansible_facts_web_path=${quads["ansible_facts_web_path"]}
+gather_ansible_facts=${quads["gather_ansible_facts"]}
 
 function print_header() {
     cat <<EOF
@@ -41,20 +43,26 @@ function environment_released() {
 
 function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
-   echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
-   echo "|----------|-------------|-----------|--------------------|----------------|"
+   if [ "${gather_ansible_facts}" == "true" ]; then
+       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **HWFACTS** |"
+       echo "|----------|-------------|-----------|--------------------|----------------|---------------|"
+   else
+       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
+       echo "|----------|-------------|-----------|--------------------|----------------|"
+   fi
    $quads --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
       desc=$(echo $(echo $line | awk -F: '{ print $2 }'))
       owner=$($quads --ls-owner --cloud-only $name)
       rt=$($quads --ls-ticket --cloud-only $name)
+      cloud_specific_tag="${name}_${owner}_${rt}"
       if [ "$rt" ]; then
           link="<a href=${rt_url}?id=$rt target=_blank>$rt</a>"
       else
           link=""
       fi
       $quads --cloud-only ${name} > $tmpsummary
-      if environment_released $owner $name ; then
+      if environment_released $owner $name || [ ${name} == "cloud01" ]; then
           style_tag_start='<span style="color:green">'
           style_tag_end='</span>'
           instack_link=${quads_url}/cloud/${name}_instackenv.json
@@ -65,7 +73,22 @@ function print_summary() {
           instack_link=${quads_url}/underconstruction/
           instack_text="validating"
       fi
-      echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
+
+      if [ "${gather_ansible_facts}" == "true" ]; then
+      # Add ansible facts data
+        if [ -f "${ansible_facts_web_path}/${cloud_specific_tag}_overview.html" ]; then
+          factstyle_tag_start='<span style="color:green">'
+          factstyle_tag_end='</span>'
+          ansible_facts_link="${quads_url}/ansible_facts/${cloud_specific_tag}_overview.html"
+        else
+          factstyle_tag_start='<span style="color:red">'
+          factstyle_tag_end='</span>'
+          ansible_facts_link="${quads_url}/underconstruction/"
+        fi
+        echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> | <a href=$ansible_facts_link target=_blank>${factstyle_tag_start}inventory$factstyle_tag_end</a> |"
+      else
+        echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
+      fi
       rm -f $tmpsummary
   done
   echo ""

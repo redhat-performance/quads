@@ -19,6 +19,7 @@ install_dir=${quads["install_dir"]}
 bin_dir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 report_cc=${quads["report_cc"]}
+gather_ansible_facts=${quads["gather_ansible_facts"]}
 # if failure persiste beyond tolerance, do reporting.
 tolerance=14400
 
@@ -108,6 +109,20 @@ function validate_environment() {
     else
         if env_allocation_time_exceeded $env ; then
             if [ ! -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
+                report_failure $env $owner $ticket $resultfile
+                cat $resultfile > $data_dir/release/.failreport.${env}-${owner}-${ticket}
+            fi
+        fi
+        rm -f $resultfile
+        return
+    fi
+
+    if [ "${gather_ansible_facts}" == "true" ]; then
+        if $bin_dir/quads-ansible-cmdb-facts.sh $env $owner $ticket 1>/dev/null 2>&1 ; then
+            :
+        else
+            if env_allocation_time_exceeded $env ; then
+                echo "Something went wrong with ansible-cmdb for ${env}-${owner}-${ticket}" > $resultfile
                 report_failure $env $owner $ticket $resultfile
                 cat $resultfile > $data_dir/release/.failreport.${env}-${owner}-${ticket}
             fi
