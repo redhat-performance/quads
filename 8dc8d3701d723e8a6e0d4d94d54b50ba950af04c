@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51a3017c_0e9fcce2",
+        "filename": "bin/create-input-assignments.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-10-05T18:21:44Z",
+      "side": 1,
+      "message": "We have had issues with column title length in the past, let\u0027s change this to something more abbreviated.\n\ne.g. \"HW\" or \"HWINFO\" or \"HWFACTS\"",
+      "revId": "8dc8d3701d723e8a6e0d4d94d54b50ba950af04c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "765ba49f_6e650443",
+        "filename": "conf/quads.yml",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-10-05T18:21:44Z",
+      "side": 1,
+      "message": "Let\u0027s roll with this as \"false\" for upstream, that way people will see this comment note (and the note you made in README.md possibly too).",
+      "revId": "8dc8d3701d723e8a6e0d4d94d54b50ba950af04c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
