@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebce4019_1d37fd0a",
+        "filename": "bin/create-input-assignments.sh",
+        "patchSetId": 13
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-10-05T19:44:20Z",
+      "side": 1,
+      "message": "I think we should simply not generate the additional table/column here if it\u0027s not enabled.",
+      "revId": "05a64e4ad352ffec578b3970a307841949ceafc3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "166ce30d_274190d7",
+        "filename": "bin/quads-ansible-cmdb-facts.sh",
+        "patchSetId": 13
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-10-05T19:44:20Z",
+      "side": 1,
+      "message": "typo here.",
+      "revId": "05a64e4ad352ffec578b3970a307841949ceafc3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
