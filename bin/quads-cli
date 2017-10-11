@@ -51,10 +51,27 @@ def main(argv):
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
     from Quads import Quads
+    from rtquery.RTQuery import RTQuery
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
     defaultmovecommand = "/bin/echo"
+
+    """
+    We can house the RTConfig in the QUADs config to make this much simpler.
+    The data structure must be maintained though.
+    """
+    RTConfig = {
+            'elastichost': '',
+            'elasticport': 9200,
+            'index': 'quads-rt',
+            'ssl_cert': '',
+            'urls': {
+                'search': 'https://engineering.website.com/rt/REST/1.0/search/ticket',
+                'ticket': 'https://engineering.website.com/rt/REST/1.0/ticket',
+                },
+            'domain': 'website@engineering.website.com'
+            }
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     group = parser.add_mutually_exclusive_group()
@@ -102,8 +119,27 @@ def main(argv):
     parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
     parser.add_argument('--os-compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
+    parser.add_argument('--ticket', dest='ticket',type=int,default=None, help='Ticket to update')
+    parser.add_argument('--message', dest='message',type=str,default=None, help='Path to the file that contains the message to update the ticket with')
 
     args = parser.parse_args()
+
+    if args.ticket:
+        if not args.message :
+            print "ERROR : Expecting Message path with ticket"
+            exit(1)
+        else :
+            try :
+                 print "Loading message"
+                 rt = RTQuery(RTConfig)
+                 with open(args.message, 'r') as message:
+                    content = message.read()
+                    rt.rt_history_comment(args.ticket,content)
+                    exit(0)
+            except Exception, ex:
+                print ex
+                exit(1)
+
     if args.lshosts:
         url = quads_config["quads_base_url"] + "api/v1/lshosts/"
         response = urllib2.urlopen(url, timeout=120)
