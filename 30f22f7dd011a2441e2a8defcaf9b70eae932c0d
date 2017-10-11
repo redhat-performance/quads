@@ -22,6 +22,30 @@
       "revId": "30f22f7dd011a2441e2a8defcaf9b70eae932c0d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec2a428b_efc7507b",
+        "filename": "bin/quads-cli",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2017-10-11T18:48:23Z",
+      "side": 1,
+      "message": "See the above comment...It can be migrated to the QUADs config we we like...",
+      "parentUuid": "8bebd61d_1db07c3e",
+      "range": {
+        "startLine": 65,
+        "startChar": 27,
+        "endLine": 65,
+        "endChar": 30
+      },
+      "revId": "30f22f7dd011a2441e2a8defcaf9b70eae932c0d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
