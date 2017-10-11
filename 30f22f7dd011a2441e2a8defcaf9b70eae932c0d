@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bebd61d_1db07c3e",
+        "filename": "bin/quads-cli",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2017-10-11T18:07:34Z",
+      "side": 1,
+      "message": "I didn\u0027t see anything in this patch to set these values in the quads.conf file",
+      "range": {
+        "startLine": 65,
+        "startChar": 27,
+        "endLine": 65,
+        "endChar": 30
+      },
+      "revId": "30f22f7dd011a2441e2a8defcaf9b70eae932c0d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
