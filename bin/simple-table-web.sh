@@ -9,7 +9,7 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
     exit 1
 fi
 
-months_out=2
+months_out=4
 declare -A month=()
 declare -A year=()
 declare -A days=()
@@ -27,7 +27,9 @@ for i in $(seq 1 $months_out) ; do
     year[$i]=${year[$(expr $i - 1)]}
     if [ ${month[$i]} -gt 12 ]; then
         month[$i]=$(expr ${month[$i]} - 12)
-        year[$i]=$(expr ${year[$i]} + 1)
+        if [ ${month[$i]} -eq 1 ]; then
+            year[$i]=$(expr ${year[$i]} + 1)
+        fi
     fi
     if [ ${month[$i]} -lt 10 ]; then
         month[$i]=0${month[$i]}
