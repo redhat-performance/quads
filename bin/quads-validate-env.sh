@@ -123,12 +123,14 @@ function validate_environment() {
         else
             if env_allocation_time_exceeded $env ; then
                 echo "Something went wrong with ansible-cmdb for ${env}-${owner}-${ticket}" > $resultfile
-                report_failure $env $owner $ticket $resultfile
-                cat $resultfile > $data_dir/release/.failreport.${env}-${owner}-${ticket}
+                if [ ! -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
+                    report_failure $env $owner $ticket $resultfile
+                    cat $resultfile > $data_dir/release/.failreport.${env}-${owner}-${ticket}
+                fi
             fi
+            rm -f $resultfile
+            return
         fi
-        rm -f $resultfile
-        return
     fi
 
     if $bin_dir/quads-post-network-test.sh -c $env -2 1>$resultfile 2>&1; then
