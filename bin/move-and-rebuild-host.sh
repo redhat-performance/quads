@@ -90,7 +90,7 @@ for line in $(cat $configdir/$host_to_move); do
     switchip=$(echo $line | awk -F, '{ print $3 }')
     switchtype=$(echo $line | awk -F, '{ print $4 }')
     switchport=$(echo $line | awk -F, '{ print $5 }')
-    old_vlan=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show vlans interface ${switchport}.0 2>/dev/null| egrep ^VLAN | sed 's/VLAN Name: vlan\(.*\), Index.*/\1/g')
+    old_vlan=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show configuration interfaces ${switchport} 2>/dev/null | awk '{ print $2 }' | sed -e 's/QinQ_vl//' -e 's/;//')
     if [ -z "$old_vlan" ]; then
         echo "Could not determine the previous VLAN for $host_to_move"
         exit 1
