@@ -56,6 +56,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
      * Current workloads and assignments
      * Current ownership and resource utilization links (grafana/collectd)
      * Total duration and time remaining in system assignments
+     * Dynamic provisioning & system/network validation status per assignment
+     * Granular Ansible facts inventory per server via [ansible-cmdb](https://github.com/fboender/ansible-cmdb)
    - Query scheduling data to determine future availability
    - Generates a monthly, auto-updated calendar of machine assignments
    - Generates a per-month visualization map for per-machine allocations to assignments.
@@ -94,6 +96,10 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 ## Example: Workload Assignments
 
 ![wiki](/image/quads-assignments.png?raw=true)
+
+## Example: Workload Assignments Readiness
+
+![wiki](/image/quads-assignment-readiness.png?raw=true)
 
 ## Example: Calendar View
 
@@ -164,11 +170,23 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 ```
 yum install PyYAML ansible expectk python2-aexpect python-requests
 ```
+   - Install a webserver (Apache, nginx, etc)
+```
+yum install httpd
+```
    - Create logging directory (you can edit this in ```conf/quads.yml``` via the ```log:``` parameter).
 ```
 mkdir -p /opt/quads/log
 ```
-   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
+   - Create your visualization web directory (you can configure this in ```conf/quads.yml``` via ```visual_web_dir```)
+```
+mkdir -p /var/www/html/visual
+```
+   - Populate the web visualization images in your webserver directory
+```
+cp -p /opt/quads/images/{button*,texture*}.png /var/www/html/visual/
+```
+   - - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
 ```
 vi /opt/quads/conf/quads.yml
 ```
@@ -197,7 +215,6 @@ yum install quads -y
 dnf copr enable quadsdev/QUADS  -y
 dnf install quads -y
 ```
-
    - Read through the [QUADS YAML configuration file](/conf/quads.yml)
 ```
 vi /opt/quads/conf/quads.yml

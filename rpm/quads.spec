@@ -29,6 +29,7 @@ Requires: ansible >= 2.3
 Requires: expectk >= 5.0
 Requires: python2-aexpect >= 1.4
 Requires: python-requests >= 2.6
+Requires: httpd >= 2.4
 Url: http://github.com/redhat-performance/quads
 
 %description
@@ -58,6 +59,8 @@ mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 tar cf - bin lib/*.py conf ansible | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-daemon.service %{buildroot}/etc/systemd/system/
+mkdir -p %{buildroot}/var/www/html/visual/
+cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 
 %clean
@@ -69,6 +72,7 @@ rm -rf %{buildroot}
 /opt/quads/ansible/*
 /opt/quads/bin/*
 /opt/quads/lib/*
+/var/www/html/visual/*
 %config /opt/quads/conf/quads.yml
 
 %post
@@ -86,6 +90,9 @@ fi;
 :;
 
 %changelog
+
+* Fri Oct 20 2017 - 0.99.2: Will Foster <wfoster@redhat.com>
+- Add httpd dependency and visualization image files
 
 * Wed Aug 30 2017 - 0.99: Will Foster <wfoster@redhat.com>
 - Initial spec file and package into RPM
