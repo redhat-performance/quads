@@ -97,6 +97,37 @@ ipmi_cloud_username_id: 4
 # visual web dir is where the visual HTML representation of the lab usage goes
 visual_web_dir: /var/www/html/visual
 
+# Note: for nested yaml, two spaces must be used
+# for the next level of key/value pairs.
+# If the value is 3 numeric values, they are RGB values
+# If the first number is -1 then the 2nd value is the name
+# of the image file in the visual_web_dir
+visual_colors:
+  cloud01: 190 193 212
+  cloud02: 2 63 165
+  cloud03: 216 19 19
+  cloud04: 187 119 132
+  cloud05: 142 6 59
+  cloud06: 74 111 227
+  cloud07: 230 175 185
+  cloud08: 211 63 106
+  cloud09: -1 texture01.png 0
+  cloud10: 239 151 8
+  cloud11: 15 207 192
+  cloud12: 247 156 212
+  cloud13: 229 244 66
+  cloud14: 107 66 6
+  cloud15: 161 0 255
+  cloud16: 155 255 140
+  cloud17: 196 94 0
+  cloud18: 94 238 255
+  cloud19: 17 198 56
+  cloud20: -1 texture02.png  0
+  cloud21: -1 texture03.png 0
+  cloud22: -1 texture04.png 0
+  cloud23: -1 texture05.png 0
+  cloud24: 0 0 0
+
 # parameter to designate "undercloud" (ignored) hosts
 # for overcloud instackenv.json generation as well as
 # pxe boot selection
