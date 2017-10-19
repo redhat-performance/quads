@@ -43,7 +43,7 @@ def quads_load_config(quads_config):
         exit(1)
     return(quads_config_yaml)
 
-quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
+quads_config_file = "/opt/quads/conf/quads.yml"
 quads_config = quads_load_config(quads_config_file)
 
 # Sanity checks to determine QUADS dir structure is intact
@@ -73,7 +73,8 @@ maxcloud = len(quads.get_clouds())
 # define color palette
 # https://www.google.com/#q=rgb+color+picker&*
 def get_spaced_colors():
-    return [(190,193,212),
+    # (190,193,212) # previously used grey
+    return [(-1, "/misc/quads24x24.png", 0),
             (2,63,165),
             (216,19, 19),
             (187,119,132),
@@ -81,14 +82,23 @@ def get_spaced_colors():
             (74,111,227),
             (230,175,185),
             (211,63,106),
-            (17,198,56),
+            (-1, "/misc/texture01.png", 0),
             (239,151,8),
             (15,207,192),
             (247,156,212),
             (229, 244, 66),
             (107, 66, 6),
             (161, 0, 255),
-            (155, 255, 140)]
+            (155, 255, 140),
+            (196, 94, 0),
+            (94, 238, 255),
+            (17,198,56),
+            (-1, "/misc/texture02.png", 0),
+            (-1, "/misc/texture03.png", 0),
+            (-1, "/misc/texture04.png", 0),
+            (-1, "/misc/texture05.png", 0),
+            (0, 0, 0),
+            ]
 
 # covert palette to hex
 def get_cell_color(a, b, c):
@@ -98,7 +108,10 @@ colors = get_spaced_colors()
 color_array = []
 
 for i in colors:
-    color_array.append(get_cell_color(i[0], i[1], i[2]))
+    if i[0] >= 0:
+        color_array.append(get_cell_color(i[0], i[1], i[2]))
+    else:
+        color_array.append(i[1])
 
 def print_simple_table(data, data_colors, days):
 
@@ -132,7 +145,13 @@ def print_simple_table(data, data_colors, days):
                     display_description = history["cloud" + str(chosen_color)][c]["description"]
                     display_owner = history["cloud" + str(chosen_color)][c]["owner"]
                     display_ticket = history["cloud" + str(chosen_color)][c]["ticket"]
-            print "<td bgcolor=\"" + \
+
+        for i in range(0, len(color_array)):
+            if color_array[int(chosen_color)-1][0] == "#":
+                tdata = "<td bgcolor=\""
+            else:
+                tdata = "<td background=\""
+            print tdata + \
                 color_array[int(chosen_color)-1] + \
                 "\" data-toggle=\"tooltip\" title=\"" + \
                 "Description: " + display_description + "\n" +\
@@ -170,3 +189,4 @@ for h in your_list:
     your_list_colors.append(one_host)
 
 print_simple_table(your_list, your_list_colors, days)
+
