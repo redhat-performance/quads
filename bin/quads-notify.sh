@@ -340,8 +340,8 @@ for e in $env_list ; do
             else
                 tmpcurlist=$(mktemp /tmp/curlistfileXXXXXXX)
                 tmpfuturelist=$(mktemp /tmp/futurelistfileXXXXXXX)
-                $quads --cloud-only $e --date "$(date +%Y-%m-%d) 05:00" | sort > $tmpcurlist
-                $quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 05:00" | sort > $tmpfuturelist
+                $quads --cloud-only $e --date "$(date +%Y-%m-%d) 22:00" | sort > $tmpcurlist
+                $quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 22:00" | sort > $tmpfuturelist
                 if cmp -s $tmpcurlist $tmpfuturelist ; then
                     :
                 else
@@ -359,6 +359,9 @@ for e in $env_list ; do
 done
 
 for e in $env_full_list ; do
+    # recalculate env_list
+    # this is an attempt to ensure we are not looking at vacated environments
+    env_list=$($quads --summary | awk '{ print $1 }')
     if echo "$env_list" | grep -q $e ; then
         :
     else
@@ -382,8 +385,8 @@ for e in $env_full_list ; do
                 else
                     tmpcurlist=$(mktemp /tmp/curlistfileXXXXXXX)
                     tmpfuturelist=$(mktemp /tmp/futurelistfileXXXXXXX)
-                    $quads --cloud-only $e --date "$(date +%Y-%m-%d) 05:00" | sort > $tmpcurlist
-                    $quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 05:00" | sort > $tmpfuturelist
+                    $quads --cloud-only $e --date "$(date +%Y-%m-%d) 22:00" | sort > $tmpcurlist
+                    $quads --cloud-only $e --date "$(date -d "now + $d days" +%Y-%m-%d) 22:00" | sort > $tmpfuturelist
                     if cmp -s $tmpcurlist $tmpfuturelist ; then
                         :
                     else
