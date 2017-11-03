@@ -115,6 +115,7 @@ def print_simple_table(data, data_colors, days):
             chosen_color = data_colors[i][j]
             cell_date = year + "-" + month + "-" + str(j + 1) + " 00:00"
             cell_time = datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
+            cell_day = datetime.strptime(cell_date, '%d')
             history = quads.get_history()
             for c in sorted(history["cloud" + str(chosen_color)]):
                 if datetime.fromtimestamp(c) <= cell_time:
@@ -133,6 +134,7 @@ def print_simple_table(data, data_colors, days):
                 "Env: cloud" + str(chosen_color) + "\n" + \
                 "Owner: " + display_owner + "\n" + \
                 "RT: " + display_ticket + "\n" + \
+                "Day: " + cell_day + "\n" + \
                 "\"></td>"
         print "</tr>"
     print "</table>"
