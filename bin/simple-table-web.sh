@@ -64,6 +64,7 @@ fi
 
 for i in $(seq 0 $months_out) ; do
     $bindir/simple-table-generator.py -d ${days[$i]} -m ${month[$i]} -y ${year[$i]} --gentime "Allocation Map for ${year[$i]}-${month[$i]}<br>(Hover cursor over squares for details on allocation)" > $visual_tmp_file
+    sed -i -r 's/<title>Allocation Map for (.*)<br>/<title>Allocation Map for \1 /g' $visual_tmp_file
     cp $visual_tmp_file $visual_web_dir/${year[$i]}-${month[$i]}.html
     chmod 644 $visual_web_dir/${year[$i]}-${month[$i]}.html
 done
