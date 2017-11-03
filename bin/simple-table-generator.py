@@ -135,7 +135,7 @@ def print_simple_table(data, data_colors, days):
                 "Owner: " + display_owner + "\n" + \
                 "RT: " + display_ticket + "\n" + \
                 "Day: " + str(cell_day) + "\n" + \
-                "></td>"
+                "\"></td>"
         print "</tr>"
     print "</table>"
     print "</body>"
