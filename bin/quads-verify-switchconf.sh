@@ -93,7 +93,7 @@ for h in $($quads --cloud-only $env) ; do
         if [ "$qinq" = "1" ]; then
             vlan=$(expr $base_vlan + ${offsets["em1"]})
         else
-            vlan=$(expr $base_vlan + ${offsets[$interface]})
+            vlan=$(expr $base_vlan + ${offsets[$ifname]})
         fi
 
         qinqsetting=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show configuration interfaces ${switchport} 2>/dev/null | sed 's/^apply-groups QinQ_vl\(.*\);/\1/g')
