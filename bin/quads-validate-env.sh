@@ -20,6 +20,8 @@ bin_dir=${quads["install_dir"]}/bin
 data_dir=${quads["data_dir"]}
 report_cc=${quads["report_cc"]}
 gather_ansible_facts=${quads["gather_ansible_facts"]}
+gather_dell_configs=${quads["gather_dell_configs"]}
+json_web_path=${quads["json_web_path"]}
 # if failure persiste beyond tolerance, do reporting.
 tolerance=14400
 
@@ -137,6 +139,10 @@ function validate_environment() {
         touch $data_dir/release/${env}-${owner}-${ticket}
         if [ -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
             report_success $env $owner $ticket
+        fi
+        if [ "${gather_dell_configs}" == "true" ]; then
+            # now that we have success, we can also generate the dell report
+            $bin_dir/quads-dell-config-report.sh 1> $json_web_path/${env}-${owner}-${ticket}-dellconfig.html 2>/dev/null
         fi
     else
         if env_allocation_time_exceeded $env ; then

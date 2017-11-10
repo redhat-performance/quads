@@ -15,7 +15,9 @@ data_dir=${quads["data_dir"]}
 exclude_hosts=${quads["exclude_hosts"]}
 domain=${quads["domain"]}
 ansible_facts_web_path=${quads["ansible_facts_web_path"]}
+json_web_path=${quads["json_web_path"]}
 gather_ansible_facts=${quads["gather_ansible_facts"]}
+gather_dell_configs=${quads["gather_dell_configs"]}
 
 function print_header() {
     cat <<EOF
@@ -44,11 +46,21 @@ function environment_released() {
 function print_summary() {
    tmpsummary=$(mktemp /tmp/cloudSummaryXXXXXX)
    if [ "${gather_ansible_facts}" == "true" ]; then
-       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **HWFACTS** |"
-       echo "|----------|-------------|-----------|--------------------|----------------|---------------|"
+       if [ "${gather_dell_configs}" == "true" ]; then
+           echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **HWFACTS** | **DELLCFG** |"
+           echo "|----------|-------------|-----------|--------------------|----------------|---------------|--------------|"
+       else
+           echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **HWFACTS** |"
+           echo "|----------|-------------|-----------|--------------------|----------------|---------------|"
+       fi
    else
-       echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
-       echo "|----------|-------------|-----------|--------------------|----------------|"
+       if [ "${gather_dell_configs}" == "true" ]; then
+           echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** | **DELLCFG** |"
+           echo "|----------|-------------|-----------|--------------------|----------------|--------------|"
+       else
+           echo "| **NAME** | **SUMMARY** | **OWNER** | **REQUEST** | **INSTACKENV** |"
+           echo "|----------|-------------|-----------|--------------------|----------------|"
+       fi
    fi
    $quads --summary | while read line ; do
       name=$(echo $(echo $line | awk -F: '{ print $1 }'))
@@ -85,9 +97,37 @@ function print_summary() {
           factstyle_tag_end='</span>'
           ansible_facts_link="${quads_url}/underconstruction/"
         fi
-        echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> | <a href=$ansible_facts_link target=_blank>${factstyle_tag_start}inventory$factstyle_tag_end</a> |"
+        if [ "$name" == "cloud01" ]; then
+            echo -n "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | | |"
+		else
+            echo -n "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> | <a href=$ansible_facts_link target=_blank>${factstyle_tag_start}inventory$factstyle_tag_end</a> |"
+		fi
       else
-        echo "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
+        if [ "$name" == "cloud01" ]; then
+        	echo -n "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | |"
+		else
+        	echo -n "| [$style_tag_start$name$style_tag_end](#${name}) | $desc | $owner | $link | <a href=$instack_link target=_blank>$style_tag_start$instack_text$style_tag_end</a> |"
+		fi
+      fi
+      if [ "${gather_dell_configs}" == "true" ]; then
+        if [ -f "${json_web_path}/${name}-${owner}-${rt}-dellconfig.html" ]; then
+          dellstyle_tag_start='<span style="color:green">'
+          dellstyle_tag_end='</span>'
+          dellconfig_link="${quads_url}/cloud/${name}-${owner}-${rt}-dellconfig.html"
+          dellconfig_text="view"
+        else
+          dellstyle_tag_start='<span style="color:red">'
+          dellstyle_tag_end='</span>'
+          dellconfig_link="${quads_url}/underconstruction/"
+          dellconfig_text="unavailable"
+        fi
+        if [ "$name" == "cloud01" ]; then
+          echo " |"
+        else
+          echo " <a href=$dellconfig_link target=_blank>$dellstyle_tag_start$dellconfig_text$dellstyle_tag_end</a> |"
+        fi
+      else
+          echo ""
       fi
       rm -f $tmpsummary
   done

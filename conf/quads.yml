@@ -70,6 +70,14 @@ json_web_path: /var/www/html/cloud
 # got from https://github.com/fboender/ansible-cmdb/releases
 gather_ansible_facts: false
 
+# Whether or not you want the QUADS host to gather and display dell configs
+# in an HTML page.  This is done over ssh using racadm commands. This presumes
+# a particular hostname convention that splits your hosts into three elements:
+# e.g. <rack>-<location>-<hosttype>.<yourdomain>, where hosttype is what is
+# checked against several Dell types.  Be careful as this is environment specific
+# and may not work in all environments.  Default is false.
+gather_dell_configs: false
+
 # this is where we place the generated ansible configuration management database
 # html
 ansible_facts_web_path: /var/www/html/ansible_facts
