@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c6630bf_3371f5ab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-11-10T14:38:21Z",
+      "side": 1,
+      "message": "This also resolves:\n\nhttps://github.com/redhat-performance/quads/issues/155",
+      "revId": "c55c39a5b99a700ed2f7d92782b70dbbcb494ba3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db87170_23917002",
+        "filename": "bin/quads-validate-env.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2017-11-10T14:38:21Z",
+      "side": 1,
+      "message": "We need to have this check against quads.yml for quads_generate_dell_configs \u003d true/false otherwise this will fail for people that set it to false (or just not work).",
+      "revId": "c55c39a5b99a700ed2f7d92782b70dbbcb494ba3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
