@@ -142,7 +142,7 @@ function validate_environment() {
         fi
         if [ "${gather_dell_configs}" == "true" ]; then
             # now that we have success, we can also generate the dell report
-            $bin_dir/quads-dell-config-report.sh 1> $json_web_path/${env}-${owner}-${ticket}-dellconfig.html 2>/dev/null
+            $bin_dir/quads-dell-config-report.sh $env 1> $json_web_path/${env}-${owner}-${ticket}-dellconfig.html 2>/dev/null
         fi
     else
         if env_allocation_time_exceeded $env ; then
