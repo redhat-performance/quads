@@ -131,6 +131,7 @@ function print_summary() {
       fi
       rm -f $tmpsummary
   done
+  echo "| Total | "$($quads --ls-hosts | wc -l)"|"
   echo ""
   echo "[Unmanaged Hosts](#unmanaged)"
   echo ""
