@@ -710,6 +710,16 @@ class Quads(object):
                             "   Start: " + s_start,
                             "   End: " + s_end]
 
+                if s_start_obj >= schedstart_obj and s_end_obj <= schedend_obj:
+                    self.thread_lock.release()
+                    return ["Error. Updated schedule conflicts with existing schedule.",
+                            "Updated schedule: ",
+                            "   Start: " + schedstart,
+                            "   End: " + schedend,
+                            "Existing schedule: ",
+                            "   Start: " + s_start,
+                            "   End: " + s_end]
+
         self.quads.hosts.data[host]["schedule"][modschedule]["start"] = schedstart
         self.quads.hosts.data[host]["schedule"][modschedule]["end"] = schedend
         self.quads.hosts.data[host]["schedule"][modschedule]["cloud"] = schedcloud
