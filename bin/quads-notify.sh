@@ -81,6 +81,9 @@ $cloudinfo
 (Details)
 http://${quads["wp_wiki"]}/assignments/#$env_to_report
 
+(Ansible Facts)
+${quads["quads_url"]}/ansible_facts/${env_to_report}_${owner}_$($quads --ls-ticket --cloud-only ${env_to_report})_overview.html
+
 You can view your machine list, duration and other
 details above.
 
