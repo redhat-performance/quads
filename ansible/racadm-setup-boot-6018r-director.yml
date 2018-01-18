@@ -4,10 +4,12 @@
   vars:
     untouchables: mgmt-foreman.example.com
   hosts: all:!{{untouchables}}
+  vars_files:
+     - ipmi_credentials.yml
   tasks:
 
     - name: enable pxe
-      local_action: command ipmitool -I lanplus -H {{ inventory_hostname }} -U ADMIN -P ADMIN chassis bootdev pxe options=persistent
+      local_action: command ipmitool -I lanplus -H {{ inventory_hostname }} -U {{ smc_ipmi_user }} -P {{ smc_ipmi_pass }} chassis bootdev pxe options=persistent
       ignore_errors: True
 
 # Record when we are finished
