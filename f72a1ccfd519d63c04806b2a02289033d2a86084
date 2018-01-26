@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "088573fa_054c2353",
+        "filename": "bin/quads-daemon",
+        "patchSetId": 46
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-01-26T16:11:24Z",
+      "side": 1,
+      "message": "Not to be a stickler, but if someone passes: \n\n/api/v1/addstrip1\n\nThis code path will work. Which could lead to other security issues. \n\n^/api/v1/addstrip1$ (not sure what the self.path really contains).",
+      "revId": "f72a1ccfd519d63c04806b2a02289033d2a86084",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9befad5_192f3977",
+        "filename": "lib/Quads.py",
+        "patchSetId": 46
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-01-26T16:11:24Z",
+      "side": 1,
+      "message": "Should we just import all? That way we don\u0027t have to maintain new strips being added in the future?",
+      "revId": "f72a1ccfd519d63c04806b2a02289033d2a86084",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
