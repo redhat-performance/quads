@@ -143,6 +143,8 @@ hammer user update --login $new_cloud --password $foreman_user_password
 # this resets the user IPMI account password to the foreman password.
 # this is typically the ticket number.
 ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password user set password $ipmi_cloud_username_id $foreman_user_password
+# ensure the user_id is set to operator and not administrator
+ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password user priv $ipmi_cloud_username_id 0x3
 #### END IPMI ACCOUNT RESET
 #### BEGIN FOREMAN REBUILD
 
