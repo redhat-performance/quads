@@ -2,6 +2,9 @@
 # This is the main configuration file for QUADS
 # Configure for your environment
 
+# spare pool name. e.g. where your unused systems rest
+spare_pool_name: cloud01
+
 install_dir: /opt/quads
 data_dir: /opt/quads/data
 domain: example.com
