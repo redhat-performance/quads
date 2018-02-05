@@ -30,6 +30,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
+            * [QUADS VLAN Options](#quads-vlan-options)
+            * [Defining a New Cloud](#defining-a-new-cloud)
+            * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
          * [Extending the <strong>Schedule</strong> of an Existing
            Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
@@ -337,14 +340,18 @@ In the above example the default move command was called ```/bin/echo``` for ill
 
 Creating a new schedule and assigning machines is currently done through the QUADS CLI.  There are a few options you'll want to utilize.
 
-   - description (this will appear on the assignments dynamic wiki)
+   -  description (this will appear on the assignments dynamic wiki)
    -  force (needed for re-using an existing cloud)
    -  cloud-owner (for associating ownership and usage notifications)
    -  cc-users (Add additional people to notifications)
    -  cloud-ticket (RT ticket used for the work, also appears in the assignments dynamic wiki)
+
+#### QUADS VLAN Options ####
    -  VLAN design (optional, will default to 0 below)
      - ```qinq: 0``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
      - ```qinq: 1``` all QUADS-managed interfaces in the same qinq VLAN
+
+#### Defining a New Cloud ####
 
 ```
 /opt/quads/bin/quads-cli --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 0
@@ -353,6 +360,7 @@ Creating a new schedule and assigning machines is currently done through the QUA
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
      - We're going to find the first 20 Dell r620's and assign them as an example.
 
+#### Adding New Hosts to your Cloud ####
 ```
 /opt/quads/bin/quads-cli --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
 ```
