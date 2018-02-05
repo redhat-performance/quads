@@ -338,13 +338,14 @@ In the above example the default move command was called ```/bin/echo``` for ill
 
 ### Creating a New Cloud Assignment and Schedule
 
-Creating a new schedule and assigning machines is currently done through the QUADS CLI.  There are a few options you'll want to utilize.
+Creating a new schedule and assigning machines is currently done through the QUADS CLI.  There are a few options you'll want to utilize.  Mandatory options are in bold and optional are in italics.
 
-   -  description (this will appear on the assignments dynamic wiki)
-   -  force (needed for re-using an existing cloud)
-   -  cloud-owner (for associating ownership and usage notifications)
-   -  cc-users (Add additional people to notifications)
-   -  cloud-ticket (RT ticket used for the work, also appears in the assignments dynamic wiki)
+   -  **description** (this will appear on the assignments dynamic wiki)
+   -  **cloud-owner** (for associating ownership and usage notifications)
+   -  *force* (needed for re-using an existing cloud)
+   -  *cc-users* (Add additional people to the notifications)
+   -  *cloud-ticket* (RT ticket used for the work, also appears in the assignments dynamic wiki)
+   -  *nowipe* (do not reprovision machines going into this cloud, default is 0)
 
 #### QUADS VLAN Options ####
    -  VLAN design (optional, will default to 0 below)

@@ -342,6 +342,29 @@ class Quads(object):
                     result.append({cloud : self.quads.clouds.data[cloud]['qinq']})
         return result
 
+    # get wipe status
+    def get_wipe(self, cloudonly):
+        # get the environment wipe state
+        if self.config_newer_than_data():
+            self.read_data()
+        result = []
+        if cloudonly is not None:
+            if cloudonly not in self.quads.clouds.data:
+                return result
+            if 'wipe' in self.quads.clouds.data[cloudonly]:
+                result.append({cloudonly : self.quads.clouds.data[cloudonly]['wipe']})
+            else:
+                # assume if the cloud was defined (before this functionality was added)
+                # that we want to wipe
+                result.append({cloudonly : '1'})
+        else:
+            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+                if 'wipe' in self.quads.clouds.data[cloud]:
+                    result.append({cloud : self.quads.clouds.data[cloud]['wipe']})
+                else:
+                    result.append({cloud : '1'})
+        return result
+
     # remove a host
     def remove_host(self, rmhost):
         # remove a specific host
@@ -429,7 +452,7 @@ class Quads(object):
 
     # update a cloud resource
     def update_cloud(self, cloudresource, description, forceupdate, cloudowner,
-                     ccusers, cloudticket, qinq, postconfig=None, version=None, puddle=None,
+                     ccusers, cloudticket, qinq, wipe='1', postconfig=None, version=None, puddle=None,
                      controlscale=None, computescale=None):
         # define or update a cloud resource
         self.thread_lock.acquire()
@@ -448,6 +471,8 @@ class Quads(object):
                 cloudticket = "00000"
             if not qinq:
                 qinq = 0
+            if not wipe:
+                wipe = 1
             if not ccusers:
                 ccusers = []
             else:
@@ -491,6 +516,7 @@ class Quads(object):
                                                                     'post_config':copy.deepcopy(post_config),
                                                                     'owner':cloudowner,
                                                                     'qinq':qinq,
+                                                                    'wipe':wipe,
                                                                     'ticket':cloudticket}
             self.quads.clouds.data[cloudresource] = { "description": description,
                                                      "networks":{},
@@ -498,6 +524,7 @@ class Quads(object):
                                                      "ccusers": ccusers,
                                                      "ticket": cloudticket,
                                                      "qinq": qinq,
+                                                     "wipe": wipe,
                                                      "post_config": post_config
                                                     }
             if self.write_data():
@@ -773,7 +800,13 @@ class Quads(object):
                     self.logger.info("Moving " + h + " from " + current_state + " to " + current_cloud)
                     if not dryrun:
                         try:
-                            subprocess.check_call([movecommand, h, current_state, current_cloud])
+                            if 'wipe' in self.quads.clouds.data[current_cloud]:
+                                if self.quads.clouds.data[current_cloud]['wipe'] == '0':
+                                    subprocess.check_call([movecommand, h, current_state, current_cloud, 'nowipe'])
+                                else:
+                                    subprocess.check_call([movecommand, h, current_state, current_cloud])
+                            else:
+                                subprocess.check_call([movecommand, h, current_state, current_cloud])
                         except Exception, ex:
                             self.logger.error("Move command failed: %s" % ex)
                             exit(1)
