@@ -714,7 +714,7 @@ cloud01:
   - b09-h06-r620.rdu.openstack.engineering.example.com
 ```
 
-* You can use find-available.py to search for free machines for a timerange for allocation.
+* You can use ```find-available.py``` to search for free machines for a timerange for allocation.
   - Use the optional ```-l``` option to filter results
 
 ```
@@ -732,6 +732,12 @@ c03-h15-r620.rdu.openstack.example.com
 c03-h17-r620.rdu.openstack.example.com
 ```
 
+* You can use ```find-free-cloud.py``` to search for available clouds to assign new systems into for future assignments.
+
+```
+/opt/quads/bin/find-free-cloud.py
+```
+
 * You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
 
 ```
@@ -746,7 +752,7 @@ INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
 
-* You can query all upcoming changes pending and what hosts are involved via the ```/opt/quads/bin/quads-change-list.sh``` tool.
+* You can query all upcoming changes pending and what hosts are involved via the ```quads-change-list.sh``` tool.
 
 ```
 /opt/quads/bin/quads-change-list.sh
