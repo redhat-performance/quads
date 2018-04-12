@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+# This file is part of QUADs.
+#
+# QUADs is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# QUADs is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
+
+
+import argparse
+import cherrypy
+import os
+
+#from quads.webui import QuadsWebUI
+#from quads.api_v1 import QuadsServerApiV1
+from quads.api_v2 import QuadsServerApiV2
+from quads.util import quads_load_config
+
+
+# TODO: is there a better way to handle these constants??
+# TODO: revisit loading configfile and getting defaults
+#       vs getting overrides from the user
+# load quads config
+conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
+conf = quads_load_config(conf_file)
+defaultconfig = os.path.join(conf["data_dir"], "schedule.yaml")
+defaultstatedir = os.path.join(conf["data_dir"], "state")
+
+class QuadsServer(object):
+    @cherrypy.expose
+    def index(self):
+        return 'index.html'
+
+
+#https://docs.cherrypy.org/en/latest/advanced.html#restful-style-dispatching
+@cherrypy.expose
+class QuadsServerApi(object):
+    def __init__(self):
+        # v1 doesn't work, this is just an example
+        #self.v1 = QuadsServerApiV1()
+        self.v2 = QuadsServerApiV2()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='CherryPy Server')
+    # cherrypy args
+    parser.add_argument('--ip', '--host',
+                        dest='host',
+                        default='127.0.0.1', help='IP address to bind to')
+    parser.add_argument('-p', '--port',
+                        default=8080, type=int, help='Port to bind to')
+    parser.add_argument('--ssl', action='store_true')
+
+    # quads args
+    parser.add_argument('-c', '--config',
+                        dest='config', help='YAML file with cluster data',
+                        default=defaultconfig, type=str)
+    parser.add_argument('-i', '--init',
+                        dest='initialize', action='store_true',
+                        help='initialize the schedule YAML file')
+    parser.add_argument('--force',
+                        dest='force', action='store_true',
+                        help='Force host or cloud update when already defined')
+    # TODO: not sure a passed value takes prcidence over the default
+    #       should test it
+    parser.add_argument('--statedir',
+                        dest='statedir', type=str, default=defaultstatedir,
+                        help='Default state dir')
+    # TODO: do something with log path
+    # parser.add_argument('--log-path',
+    #                     dest='logpath', type=str,
+    #                     default=None, help='Path to quads log file')
+    args = parser.parse_args()
+
+    # Cherrypy configurations
+    static_path = os.path.abspath(
+                      os.path.join(os.path.dirname(__file__), 'static'))
+    cherrypy.config.update({'server.socket_host': args.host,
+                            'server.socket_port': args.port,
+                            'tools.staticdir.root': static_path})
+
+    if args.ssl:
+        cherrypy.config.update({'server.ssl_certificate': './server.crt',
+                                'server.ssl_private_key': './server.key'})
+
+    # mount server endpoints
+    print(args)
+    webapp = QuadsServer()
+    webapp.api = QuadsServerApi()
+
+    conf = {
+        '/': {
+            'tools.sessions.on': True,
+            'tools.staticdir.root': os.path.abspath(os.getcwd())
+        },
+        '/api': {
+            'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+            'tools.response_headers.on': True,
+            'tools.response_headers.headers': [('Content-Type', 'text/plain')],
+        },
+        '/static': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': './public'
+        }
+    }
+    cherrypy.tree.mount(webapp, '/', conf)
+
+    #cherrypy.quickstart(StringGeneratorWebService(), '/', conf)
+    # Start up CherryPy
+    cherrypy.engine.signals.subscribe()
+    cherrypy.engine.start()
+    cherrypy.engine.block()
+
+if __name__ == "__main__":
+    main()

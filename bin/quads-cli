@@ -8,7 +8,6 @@ import os
 import requests
 import subprocess
 import sys
-import urllib2
 import yaml
 
 
@@ -18,6 +17,32 @@ ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
+
+API = 'v2'
+
+apiurl = {'v2': {
+'lshosts': 'host',
+'lsclouds': 'cloud',
+'lsowner': 'owner',
+'lsccusers': 'ccuser',
+'lsticket': 'ticket',
+'lsqinq': 'qinq',
+'lswipe': 'wipe',
+'hostresource': 'hostresource',
+'cloudresource': 'cloudresource',
+'addschedule': 'schedule',
+'rmhost': 'host',
+'rmcloud': 'cloud',
+'rmschedule': 'schedule',
+'modschedule': 'schedule',
+'movehosts': 'host',
+'host': 'host',
+'cloudonly': 'cloud',
+'datearg': 'date',
+'summary': 'summary',
+'fullsummary': 'summary',
+'lsschedule': 'schedule',}}
 
 
 # used to load the configuration for quads behavior
@@ -60,19 +85,19 @@ def main():
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--ls-owner', dest='lsowner', action='store_true', default=None, help='List owners')
-    group.add_argument('--ls-cc-users', dest='lsccusers', action='store_true', default=None, help='List CC list')
-    group.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
-    group.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
-    group.add_argument('--ls-wipe', dest='lswipe', action='store_true', default=None, help='List cloud wipe state')
+    group.add_argument('--ls-owner', dest='action', action='store_const', const='owner', help='List owners')
+    group.add_argument('--ls-cc-users', dest='action', action='store_const', const='ccuser', help='List CC list')
+    group.add_argument('--ls-ticket', dest='action', action='store_const', const='ticket', help='List request ticket')
+    group.add_argument('--ls-qinq', dest='action', action='store_const', const='qinq', help='List cloud qinq state')
+    group.add_argument('--ls-wipe', dest='action', action='store_const', const='wipe', help='List cloud wipe state')
     group.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
     group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None,
                        help='Define a cloud environment')
     group.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
     group.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
     group.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
-    group.add_argument('--ls-hosts', dest='lshosts', action='store_true', default=None, help='List all hosts')
-    group.add_argument('--ls-clouds', dest='lsclouds', action='store_true', default=None, help='List all clouds')
+    group.add_argument('--ls-hosts', dest='action', action='store_const', const='host', help='List all hosts')
+    group.add_argument('--ls-clouds', dest='action', action='store_const', const='cloud', help='List all clouds')
     group.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
     group.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
@@ -126,180 +151,30 @@ def main():
     parser.add_argument('--extnet', dest='extnet', type=int, default=None,
                         help='VLAN id number for public routable network')
 
+
     args = parser.parse_args()
-    if args.lshosts:
-        url = quads_config["quads_base_url"] + "api/v1/lshosts/"
-        response = urllib2.urlopen(url, timeout=120)
-        data = json.loads(response.read())
-        for k in data['hosts']:
-            print k
+    if args.action:
+        url = os.path.join(quads_config["quads_base_url"], "api", API, args.action)
+        if args.cloudonly:
+            url += '?cloudonly=%s' % args.cloudonly
+        if args.debug:
+            print(url)
+        r = requests.get(url)
+        data = r.json()
+        if args.debug:
+            print(data)
+        for k in data:
+            print k[args.action]
         exit(0)
-
-    if args.lsclouds:
-        url = quads_config["quads_base_url"] + "api/v1/lsclouds/"
-        response = urllib2.urlopen(url, timeout=120)
-        data = json.loads(response.read())
-        for k in data['clouds']:
-            print k
-        exit(0)
-
-    if args.lsowner:
-        # simple get
-        if not args.cloudonly:
-            url = quads_config["quads_base_url"] + "api/v1/lsowner/"
-            response = urllib2.urlopen(url, timeout=120)
-            data = json.loads(response.read())
-            for k in data['owners']:
-                for key in sorted(k.iterkeys()):
-                    print key + ": " + k[key]
-            exit(0)
-        else:
-            # post
-            url = quads_config["quads_base_url"] + "api/v1/lsowner"
-            headers = {'Content-Type': 'application/json'}
-            data = {"cloudonly": args.cloudonly}
-            r = requests.post(url, data, headers=headers, timeout=120)
-            js = r.json()
-            if 'owner' in js:
-                if len(js['owner']) == 0:
-                    print "ERROR"
-                    exit(1)
-                for owner in js['owner']:
-                    print owner[args.cloudonly]
-                exit(0)
-            if 'owners' in js:
-                for k in js['owners']:
-                    for key in sorted(k.iterkeys()):
-                        print key + ": " + k[key]
-            exit(0)
-
-    if args.lsccusers:
-        # simple get
-        if not args.cloudonly:
-            url = quads_config["quads_base_url"] + "api/v1/lsccusers/"
-            response = urllib2.urlopen(url, timeout=120)
-            data = json.loads(response.read())
-            for k in data['ccusers']:
-                for key in sorted(k.iterkeys()):
-                    print key + ": " + ",".join(k[key])
-            exit(0)
-        else:
-            # post
-            url = quads_config["quads_base_url"] + "api/v1/lsccusers"
-            headers = {'Content-Type': 'application/json'}
-            data = {"cloudonly": args.cloudonly}
-            r = requests.post(url, data, headers=headers, timeout=120)
-            js = r.json()
-            if 'ccuser' in js:
-                if len(js['ccuser']) == 0:
-                    print "ERROR"
-                    exit(1)
-                for cc in js['ccuser']:
-                    print ",".join(cc[args.cloudonly])
-                exit(0)
-            if 'ccusers' in js:
-                for k in js['ccusers']:
-                    for key in sorted(k.iterkeys()):
-                        print key + ": " + ",".join(k[key])
-            exit(0)
-
-    if args.lsticket:
-        # simple get
-        if not args.cloudonly:
-            url = quads_config["quads_base_url"] + "api/v1/lstickets/"
-            response = urllib2.urlopen(url, timeout=120)
-            data = json.loads(response.read())
-            for k in data['tickets']:
-                for key in sorted(k.iterkeys()):
-                    print key + ": " + k[key]
-            exit(0)
-        else:
-            # post
-            url = quads_config["quads_base_url"] + "api/v1/lstickets"
-            headers = {'Content-Type': 'application/json'}
-            data = {"cloudonly": args.cloudonly}
-            r = requests.post(url, data, headers=headers, timeout=120)
-            js = r.json()
-            if 'ticket' in js:
-                if len(js['ticket']) == 0:
-                    exit(1)
-                for owner in js['ticket']:
-                    print owner[args.cloudonly]
-                exit(0)
-            if 'tickets' in js:
-                for k in js['tickets']:
-                    for key in sorted(k.iterkeys()):
-                        print key + ": " + k[key]
-            exit(0)
-
-    if args.lsqinq:
-        # simple get
-        if not args.cloudonly:
-            url = quads_config["quads_base_url"] + "api/v1/lsqinq/"
-            response = urllib2.urlopen(url, timeout=120)
-            data = json.loads(response.read())
-            for k in data['qinqs']:
-                for key in sorted(k.iterkeys()):
-                    print key + ": " + k[key]
-            exit(0)
-        else:
-            # post
-            url = quads_config["quads_base_url"] + "api/v1/lsqinq"
-            headers = {'Content-Type': 'application/json'}
-            data = {"cloudonly": args.cloudonly}
-            r = requests.post(url, data, headers=headers, timeout=120)
-            js = r.json()
-            if 'qinq' in js:
-                if len(js['qinq']) == 0:
-                    print "ERROR"
-                    exit(1)
-                for qinq in js['qinq']:
-                    print qinq[args.cloudonly]
-                exit(0)
-            if 'qinqs' in js:
-                for k in js['qinqs']:
-                    for key in sorted(k.iterkeys()):
-                        print key + ": " + k[key]
-            exit(0)
-
-    if args.lswipe:
-        # simple get
-        if not args.cloudonly:
-            url = quads_config["quads_base_url"] + "api/v1/lswipe/"
-            response = urllib2.urlopen(url, timeout=120)
-            data = json.loads(response.read())
-            for k in data['wipes']:
-                for key in sorted(k.iterkeys()):
-                    print key + ": " + k[key]
-            exit(0)
-        else:
-            # post
-            url = quads_config["quads_base_url"] + "api/v1/lswipe"
-            headers = {'Content-Type': 'application/json'}
-            data = {"cloudonly": args.cloudonly}
-            r = requests.post(url, data, headers=headers, timeout=120)
-            js = r.json()
-            if 'wipe' in js:
-                if len(js['wipe']) == 0:
-                    print "ERROR"
-                    exit(1)
-                for wipe in js['wipe']:
-                    print wipe[args.cloudonly]
-                exit(0)
-            if 'wipes' in js:
-                for k in js['wipes']:
-                    for key in sorted(k.iterkeys()):
-                        print key + ": " + k[key]
-            exit(0)
 
     if args.hostresource:
         if args.cloudresource:
             print "--define-cloud and --define-host are mutually exclusive."
             exit(1)
-        url = quads_config["quads_base_url"] + "api/v1/host"
-        headers = {'Content-Type': 'application/json'}
-        data = {"host": args.hostresource, "cloud": args.hostcloud, "type": args.hosttype, "force": args.force}
-        r = requests.post(url, data, headers=headers, timeout=120)
+
+        url = quads_config["quads_base_url"] + "api/" + API + "/host"
+        data = { "host": args.hostresource, "cloud": args.hostcloud, "type": args.hosttype, "force": args.force }
+        r = requests.post(url, data)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -312,9 +187,9 @@ def main():
         exit(0)
 
     if args.cloudresource:
-        url = quads_config["quads_base_url"] + "api/v1/cloud"
-        headers = {'Content-Type': 'application/json'}
-        data = {"cloud": args.cloudresource,
+
+        url = quads_config["quads_base_url"] + "api/" + API + "/cloud"
+        data = { "cloud": args.cloudresource,
                 "description": args.description,
                 "owner": args.cloudowner,
                 "cc": args.ccusers,
@@ -324,6 +199,7 @@ def main():
                 "extnet": args.extnet,
                 "force": args.force}
         r = requests.post(url, data, headers=headers, timeout=120)
+
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -342,13 +218,13 @@ def main():
             print "    --schedule-start"
             print "    --schedule-end"
             print "    --schedule-cloud"
-        url = quads_config["quads_base_url"] + "api/v1/ahs"
-        headers = {'Content-Type': 'application/json'}
-        data = {"cloud": args.schedcloud,
+
+        url = quads_config["quads_base_url"] + "api/" + API + "/ahs"
+        data = { "cloud": args.schedcloud,
                 "host": args.host,
                 "start": args.schedstart,
-                "end": args.schedend}
-        r = requests.post(url, data, headers=headers, timeout=120)
+                "end": args.schedend }
+        r = requests.post(url, data)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -361,43 +237,45 @@ def main():
         exit(0)
 
     if args.rmhost is not None:
-        url = quads_config["quads_base_url"] + "api/v1/rmhost"
-        headers = {'Content-Type': 'application/json'}
-        data = {"host": args.rmhost}
-        r = requests.post(url, data, headers=headers, timeout=120)
-        js = r.json()
-        if 'result' in js:
-            if len(js['result']) == 0:
-                print "Unexpected error"
-                exit(1)
-            for result in js['result']:
-                print result
-            exit(0)
-        print "No result received"
+
+        url = os.path.join(quads_config["quads_base_url"], "api", API, 'host', args.rmhost)
+        r = requests.delete(url)
+        if r.ok:
+            js = r.json()
+            if 'result' in js:
+                if len(js['result']) == 0:
+                    print "Unexpected error"
+                    exit(1)
+                for result in js['result']:
+                    print result
+                exit(0)
+            print "No result received"
+        else:
+            print "%s host %s %s" % (r.status_code, args.rmhost, r.reason)
         exit(0)
 
     if args.rmcloud is not None:
-        url = quads_config["quads_base_url"] + "api/v1/rmcloud"
-        headers = {'Content-Type': 'application/json'}
-        data = {"cloud": args.rmcloud}
-        r = requests.post(url, data, headers=headers, timeout=120)
-        js = r.json()
-        if 'result' in js:
-            if len(js['result']) == 0:
-                print "Unexpected error"
-                exit(1)
-            for result in js['result']:
-                print result
-            exit(0)
-        print "No result received"
+        url = os.path.join(quads_config["quads_base_url"], "api", API, 'cloud', args.rmcloud)
+        r = requests.delete(url)
+        if r.ok:
+            js = r.json()
+            if 'result' in js:
+                if len(js['result']) == 0:
+                    print "Unexpected error"
+                    exit(1)
+                for result in js['result']:
+                    print result
+                exit(0)
+            print "No result received"
+        else:
+            print "%s cloud %s %s" % (r.status_code, args.rmcloud, r.reason)
         exit(0)
 
     if args.rmschedule is not None:
-        url = quads_config["quads_base_url"] + "api/v1/rhs"
-        headers = {'Content-Type': 'application/json'}
-        data = {"schedule": args.rmschedule,
-                "host": args.host}
-        r = requests.post(url, data, headers=headers, timeout=120)
+        url = quads_config["quads_base_url"] + "api/" + API + "/rhs"
+        data = { "schedule": args.rmschedule,
+                "host": args.host }
+        r = requests.post(url, data)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -421,14 +299,14 @@ def main():
             print "    --schedule-cloud"
             exit(1)
 
-        url = quads_config["quads_base_url"] + "api/v1/mhs"
-        headers = {'Content-Type': 'application/json'}
-        data = {"schedule": args.modschedule,
+
+        url = quads_config["quads_base_url"] + "api/" + API + "/mhs"
+        data = { "schedule": args.modschedule,
                 "start": args.schedstart,
                 "end": args.schedend,
                 "cloud": args.schedcloud,
-                "host": args.host}
-        r = requests.post(url, data, headers=headers, timeout=120)
+                "host": args.host }
+        r = requests.post(url, data)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -444,12 +322,12 @@ def main():
         if args.datearg is not None and not args.dryrun:
             print "--move-hosts and --date are mutually exclusive unless using --dry-run."
             exit(1)
-        url = quads_config["quads_base_url"] + "api/v1/moves"
-        headers = {'Content-Type': 'application/json'}
-        data = {"statedir": args.statedir}
+
+        url = quads_config["quads_base_url"] + "api/" + API + "/moves"
+        data = {"statedir":args.statedir}
         if args.datearg is not None:
             data["date"] = args.datearg
-        r = requests.post(url, data, headers=headers, timeout=120)
+        r = requests.post(url, data)
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -460,10 +338,10 @@ def main():
                 current = result["current"]
                 new = result["new"]
                 # now we need to know if we should wipe
-                url = quads_config["quads_base_url"] + "api/v1/lswipe"
-                headers = {'Content-Type': 'application/json'}
-                data = {"cloudonly": new}
-                r = requests.post(url, data, headers=headers, timeout=120)
+
+                url = quads_config["quads_base_url"] + "api/" + API + "/lswipe"
+                data = { "cloudonly": new }
+                r = requests.post(url, data)
                 wipe_js = r.json()
                 wipe_value = '1'
                 if 'wipe' in wipe_js:
@@ -510,9 +388,9 @@ def main():
     if args.lsschedule:
         data['lsschedule'] = args.lsschedule
 
-    url = quads_config["quads_base_url"] + "api/v1/query"
-    headers = {'Content-Type': 'application/json'}
-    r = requests.post(url, data, headers=headers, timeout=120)
+
+    url = quads_config["quads_base_url"] + "api/" + API + "/query"
+    r = requests.post(url, data)
     js = r.json()
     if 'result' in js:
         if len(js['result']) == 0:

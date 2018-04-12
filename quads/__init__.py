@@ -24,7 +24,8 @@ import yaml
 import fcntl
 import errno
 import threading
-import QuadsData
+
+from data import QuadsData
 
 
 class Quads(object):
@@ -270,7 +271,7 @@ class Quads(object):
         return self.quads.clouds.get()
 
     # get the owners, returns a list of dictionaries
-    def get_owners(self, cloudonly):
+    def get_owners(self, cloudonly=None):
         # return the owners
         if self.config_newer_than_data():
             self.read_data()
@@ -287,7 +288,7 @@ class Quads(object):
         return result
 
     # get the cc users
-    def get_cc(self, cloudonly):
+    def get_cc(self, cloudonly=None):
         # return the cc users
         if self.config_newer_than_data():
             self.read_data()
@@ -309,7 +310,7 @@ class Quads(object):
         return result
 
     # get the tickets
-    def get_tickets(self, cloudonly):
+    def get_tickets(self, cloudonly=None):
         # get the service request tickets
         if self.config_newer_than_data():
             self.read_data()
@@ -326,7 +327,7 @@ class Quads(object):
         return result
 
     # get qinq status
-    def get_qinq(self, cloudonly):
+    def get_qinq(self, cloudonly=None):
         # get the environment qinq state
         if self.config_newer_than_data():
             self.read_data()
@@ -343,7 +344,7 @@ class Quads(object):
         return result
 
     # get wipe status
-    def get_wipe(self, cloudonly):
+    def get_wipe(self, cloudonly=None):
         # get the environment wipe state
         if self.config_newer_than_data():
             self.read_data()
