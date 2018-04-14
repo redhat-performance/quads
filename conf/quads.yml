@@ -5,11 +5,21 @@
 # spare pool name. e.g. where your unused systems rest
 spare_pool_name: cloud01
 
-install_dir: /opt/quads
-data_dir: /opt/quads/data
+install_dir: /home/jack/git/quads-hil/quads
+data_dir: /home/jack/git/quads-hil/quads/data
 domain: example.com
-log: /opt/quads/log/quads.log
-quads_base_url: http://127.0.0.1:8080/
+log: /home/jack/git/quads-hil/quads/log/quads.log
+quads_base_url: http://127.0.0.1:8082//
+
+#Enable external Host allocator
+allocator_activated: true
+allocator_name: HIL
+allocator_url: http://127.0.0.1:6000
+allocator_pool_name: quads
+allocator_username: quad_user
+allocator_password: quads
+
+
 
 # Enable Elasticsearch indexing
 elastic_stats_enabled: false
