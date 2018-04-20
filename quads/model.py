@@ -21,7 +21,6 @@ def param_check(data, params, defaults={}):
     return result, data
 
 class Cloud(Document):
-    #name = 'cloud'
     cloud = StringField()
     description = StringField()
     owner = StringField()
@@ -33,7 +32,6 @@ class Cloud(Document):
 
     @staticmethod
     def prep_data(data):
-        # hard coded for cloud
         defaults = {'owner': 'nobody',
                     'ccuser': [],
                     'ticket': '000000',
@@ -49,11 +47,10 @@ class Cloud(Document):
 
 
 class Host(Document):
-    #name = 'host'
     host = StringField()
     cloud = ReferenceField(Cloud, required=True)
     interfaces = DictField()
-    schedule = DictField()
+    schedule = ListField(DictField())
     type = StringField()
 
     @staticmethod
@@ -62,11 +59,50 @@ class Host(Document):
         if not result:
             cloud = Cloud.objects(cloud=data['cloud']).first()
             if not cloud:
-               result.append('Cloud %s not found')
+                result.append('Cloud %s not found' % data['cloud'])
             else:
-               data['cloud'] = cloud
-        
+                data['cloud'] = cloud
+
         return result, data
+
+    @staticmethod
+    def prep_schedule_data(data):
+        result, data = param_check(data, ['cloud', 'host',
+                                          'start', 'end'])
+        host = None
+        if not result:
+            cloud = Cloud.objects(cloud=data['cloud']).first()
+            host = Host.objects(host=data['host']).first()
+            if not cloud:
+                result.append('Cloud %s not found' % data['cloud'])
+            elif not host:
+                result.append('Host %s not found' % data['host'])
+            else:
+                data['cloud'] = cloud
+                del data['host']
+
+            data = {'add_to_set__schedule': [data]}
+
+        return result, host, data
+
+    @staticmethod
+    def prep_interfaces_data(data):
+        result, data = param_check(data, ['host', 'interface', 'mac',
+                                          'vendor_type', 'port'])
+        host = None
+        if not result:
+            host = Host.objects(host=data['host']).first()
+            if not host:
+                result.append('Host %s not found' % data['host'])
+            else:
+                del data['host']
+            interface = data['interface']
+            del data['interface']
+            data = {'set__interfaces__%s' % interface: data}
+
+        print result
+
+        return result, host, data
 
 
 class History(Document):
