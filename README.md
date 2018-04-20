@@ -345,7 +345,7 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  *force* (needed for re-using an existing cloud)
    -  *cc-users* (Add additional people to the notifications)
    -  *cloud-ticket* (RT ticket used for the work, also appears in the assignments dynamic wiki)
-   -  *nowipe* (do not reprovision machines going into this cloud, default is 0)
+   -  *wipe* (whether to reprovision machines going into this cloud, default is 1 or wipe.
 
 #### QUADS VLAN Options ####
    -  VLAN design (optional, will default to 0 below)
