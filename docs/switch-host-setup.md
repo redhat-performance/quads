@@ -122,14 +122,14 @@ set interfaces xe-0/0/1:3 apply-groups QinQ_vl1140
 ```
 
 ## QUADS Host Network Setup
-   * For every bare-metal host you'll need an ```/etc/lab/ports/FQDN``` file that describes and maintains mappings
+   * For every bare-metal host you'll need an ```/opt/quads/data/ports/FQDN``` file that describes and maintains mappings
       * Physical interface on each server and the corresponding mac address
       * IP address of the switch the server is connected to
       * switch-type label for vendor (currently unused, stub for supporting vendors outside Juniper)
       * Physical switchport each host interface is connected to.
    * You'll have a separate line per physical interface, connected to physical switchport per machine
 ```
-cat /etc/lab/ports/c08-h13-r930.rdu.openstack.engineering.redhat.com
+cat /opt/quads/data/ports/c08-h13-r930.engineering.example.com
 ```
 ```
 em1,24:6e:96:0d:3d:90,10.12.67.247,switch-type,xe-0/0/3:0

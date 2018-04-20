@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 0.99.2
+%define version 1.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -24,12 +24,18 @@ Prefix: /opt/quads
 BuildArch: noarch
 Vendor: QUADS
 Packager: QUADS
+# required for quads-1.1+
+#Requires: epel-release
 Requires: PyYAML >= 3.10
 Requires: ansible >= 2.3
 Requires: expectk >= 5.0
 Requires: python2-aexpect >= 1.4
 Requires: python-requests >= 2.6
 Requires: httpd >= 2.4
+# required for quads-1.1+
+#Requires: python-mongoengine >= 0.8
+#Requires: mongodb >=2.6.12
+#Requires: mongodb-server >=2.6.12
 Url: http://github.com/redhat-performance/quads
 
 %description
@@ -77,6 +83,8 @@ rm -rf %{buildroot}
 
 %post
 systemctl enable quads-daemon
+# will be required for quads-1.1+
+#systemctl enable mongod
 [ ! -d /opt/quads/log ] && mkdir /opt/quads/log || true
 [ ! -f /opt/quads/log/quads.log ] && touch /opt/quads/log/quads.log || true
 [ ! -d /var/log/quads ] && mkdir /var/log/quads || true
@@ -90,6 +98,9 @@ fi;
 :;
 
 %changelog
+
+* Fri Apr 20 2018 - 1.0.0: Will Foster <wfoster@redhat.com>
+- Bump version to match 1.0.0 tag
 
 * Fri Oct 20 2017 - 0.99.2: Will Foster <wfoster@redhat.com>
 - Add httpd dependency and visualization image files

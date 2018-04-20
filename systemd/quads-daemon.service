@@ -6,6 +6,8 @@
 [Unit]
 Description = QUADS Daemon
 Documentation = https://github.com/redhat-performance/quads
+# will be required for quads-1.1+
+#After=network.target mongod.service
 
 [Service]
 Type = simple
