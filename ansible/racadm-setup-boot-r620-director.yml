@@ -21,7 +21,7 @@
   hosts: all:!{{untouchables}}
   vars_files:
     - idrac_interfaces.yml
-   tasks:
+  tasks:
 
 # try to gracefully shutdown target server
     - name: shutdown underlying OS
