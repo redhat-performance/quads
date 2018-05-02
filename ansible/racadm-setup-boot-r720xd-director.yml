@@ -20,7 +20,7 @@
     untouchables: mgmt-foreman.example.com
   vars_files:
     - idrac_interfaces.yml
-   hosts: all:!{{untouchables}}
+  hosts: all:!{{untouchables}}
   tasks:
 
 # try to gracefully shutdown target server
