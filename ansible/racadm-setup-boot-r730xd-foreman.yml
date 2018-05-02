@@ -25,7 +25,7 @@
   hosts: all:!{{untouchables}}
   vars_files:
     - idrac_interfaces.yml
-   tasks:
+  tasks:
 
 # try to gracefully shutdown target server
     - name: shutdown underlying OS
@@ -68,7 +68,7 @@
 
 # setup the new boot order to ensure 1st nic is before disk
     - name: racadm setup boot
-      raw: racadm set BIOS.BiosBootSettings.BootSeq {{foreman_r730dx_interfaces}}
+      raw: racadm set BIOS.BiosBootSettings.BootSeq {{foreman_r730xd_interfaces}}
       args:
         executable: ''
       register: result_boot_setup
