@@ -146,11 +146,17 @@ Reply-To: dev-null@${quads["domain"]}
 
 Greetings Citizen,
 
-You've been allocated a new environment!  The environment is not
-yet ready for use but you are being notified ahead of time that
-it is being prepared.
+A new future environment has been allocated for you in the system!
+This means that sometime in the future you'll be given a working
+schedule and Scale Lab assignment that will belong inside this
+unique environment.
 
 $cloudinfo
+
+Please keep an eye out for forthcoming details when your
+assignment is fully ready to use, this will be the next message
+that you'll receive.  This is informational only, letting you
+know that you'll be scheduled into the system in the near future.
 
 When your environment is ready and your hardware/network has
 passed automated validation it will be released to you.
