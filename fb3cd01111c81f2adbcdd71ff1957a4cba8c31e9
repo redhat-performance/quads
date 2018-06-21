@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26688ffd_2ba0e4b1",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1007728
+      },
+      "writtenOn": "2018-06-21T17:24:03Z",
+      "side": 1,
+      "message": "scale seems unnecessary here",
+      "revId": "fb3cd01111c81f2adbcdd71ff1957a4cba8c31e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
