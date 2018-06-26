@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import datetime
@@ -39,16 +39,16 @@ def output_json_result(request, item, data, debug=False):
     try:
         js = request.json()
         if debug:
-            print '%s %s: %s' % (request.status_code, request.reason, data)
+            print('%s %s: %s' % (request.status_code, request.reason, data))
         else:
             for result in js['result']:
-                print result
+                print(result)
     except:
-        print 'Could not parse json reply.'
+        print('Could not parse json reply.')
         if debug:
-            print request.text
+            print(request.text)
         else:
-            print 'use --debug to see contents'
+            print('use --debug to see contents')
         exit(1)
 
 def main(argv):
@@ -56,21 +56,22 @@ def main(argv):
     quads_config = quads_load_config(quads_config_file)
 
     if 'data_dir' not in quads_config:
-        print 'quads: Missing \'data_dir\' in ' + quads_config_file
+        print('quads: Missing \'data_dir\' in ' + quads_config_file)
         exit(1)
 
     if 'install_dir' not in quads_config:
-        print 'quads: Missing \'install_dir\' in ' + quads_config_file
+        print('quads: Missing \'install_dir\' in ' + quads_config_file)
         exit(1)
 
     if 'quads_base_url' not in quads_config:
-        print 'quads: Missing \'quads_base_url\' in ' + quads_config_file
+        print('quads: Missing \'quads_base_url\' in ' + quads_config_file)
         exit(1)
     else:
         api_url = os.path.join(quads_config['quads_base_url'], 'api', API)
 
-    sys.path.append(quads_config["install_dir"] + "/lib")
-    sys.path.append(os.path.dirname(__file__) + "/../lib")
+
+    sys.path.append(quads_config['install_dir'])
+    sys.path.append(os.path.dirname(__file__) + '/../')
 
     defaultconfig = quads_config['data_dir'] + '/schedule.yaml'
     defaultstatedir = quads_config['data_dir'] + '/state'
@@ -168,11 +169,11 @@ def main(argv):
             if args.debug:
                 print(data)
             for k in data:
-                print k[args.action]
+                print(k[args.action])
             exit(0)
         else:
             # TODO: is this host or generic?
-            print '%s host %s %s' % (r.status_code, args.rmhost, r.reason)
+            print('%s host %s %s' % (r.status_code, args.rmhost, r.reason))
 
     # Cloud Add / Modify
     elif args.cloudresource:
@@ -197,7 +198,7 @@ def main(argv):
     # Host Add / Modify
     elif args.hostresource:
         if args.cloudresource:
-            print '--define-cloud and --define-host are mutually exclusive.'
+            print('--define-cloud and --define-host are mutually exclusive.')
             exit(1)
 
         url = os.path.join(api_url, 'host')
@@ -218,11 +219,11 @@ def main(argv):
     elif args.addinterface:
         if args.ifmac is None or args.iftype is None \
                 or args.ifport is None or args.host is None:
-            print 'Missing option. All these options are required for --add-interface:'
-            print '    --host'
-            print '    --interface-mac'
-            print '    --interface-type'
-            print '    --interface-port'
+            print('Missing option. All these options are required for --add-interface:')
+            print('    --host')
+            print('    --interface-mac')
+            print('    --interface-type')
+            print('    --interface-port')
         url = os.path.join(api_url, 'interfaces')
         data = {'mac': args.ifmac,
                 'vendor_type': args.iftype,
@@ -230,7 +231,7 @@ def main(argv):
                 'port': args.ifport,
                 'interface': args.addinterface }
         r = requests.post(url, data)
-        print data
+        print(data)
         output_json_result(r, 'interfaces', {'interfaces': 'cli-TODO'})
 
 
@@ -243,18 +244,18 @@ def main(argv):
     elif args.addschedule:
         if args.schedstart is None or args.schedend is None \
                 or args.schedcloud is None or args.host is None:
-            print 'Missing option. All these options are required for --add-schedule:'
-            print '    --host'
-            print '    --schedule-start'
-            print '    --schedule-end'
-            print '    --schedule-cloud'
+            print('Missing option. All these options are required for --add-schedule:')
+            print('    --host')
+            print('    --schedule-start')
+            print('    --schedule-end')
+            print('    --schedule-cloud')
         url = os.path.join(api_url, 'schedule')
         data = {'cloud': args.schedcloud,
                 'host': args.host,
                 'start': args.schedstart,
                 'end': args.schedend }
         r = requests.post(url, data)
-        print data
+        print(data)
         output_json_result(r, 'schedule', {'schedule': 'cli-TODO'})
 
     elif args.rmschedule is not None:
@@ -264,14 +265,14 @@ def main(argv):
 
     elif args.modschedule is not None:
         if args.host is None:
-            print 'Missing option. Need --host when using --mod-schedule'
+            print('Missing option. Need --host when using --mod-schedule')
             exit(1)
 
         if args.schedstart is None and args.schedend is None and args.schedcloud is None:
-            print 'Missing option. At least one these options are required for --mod-schedule:'
-            print '    --schedule-start'
-            print '    --schedule-end'
-            print '    --schedule-cloud'
+            print('Missing option. At least one these options are required for --mod-schedule:')
+            print('    --schedule-start')
+            print('    --schedule-end')
+            print('    --schedule-cloud')
             exit(1)
 
         url = quads_config["quads_base_url"] + "api/" + API + "/mhs"
@@ -286,7 +287,7 @@ def main(argv):
 
     elif args.movehosts:
         if args.datearg is not None and not args.dryrun:
-            print '--move-hosts and --date are mutually exclusive unless using --dry-run.'
+            print('--move-hosts and --date are mutually exclusive unless using --dry-run.')
             exit(1)
 
         url = quads_config["quads_base_url"] + "api/" + API + "/moves"
@@ -298,7 +299,7 @@ def main(argv):
         js = r.json()
         if 'result' in js:
             if len(js['result']) == 0:
-                print 'Nothing to do.'
+                print('Nothing to do.')
                 exit(0)
             for result in js['result']:
                 host = result['host']
@@ -314,11 +315,11 @@ def main(argv):
                 wipe_value = '1'
                 if 'wipe' in wipe_js:
                     if len(wipe_js['wipe']) == 0:
-                        print 'ERROR'
+                        print('ERROR')
                         exit(1)
                     for wipe in wipe_js['wipe']:
                         wipe_value = wipe[new]
-                print 'Moving ' + host + ' from ' + current + ' to ' + new + ', wipe = ' + wipe_value
+                print('Moving ' + host + ' from ' + current + ' to ' + new + ', wipe = ' + wipe_value)
                 if not args.dryrun:
                     try:
                         if wipe_value == '1':
@@ -328,13 +329,14 @@ def main(argv):
                     except Exception as ex:
                         logger.error("Move command failed: %s" % ex)
 
+
                         exit(1)
                     stream = open(args.statedir + '/' + host, 'w')
                     stream.write(new + '\n')
                     stream.close()
 
             exit(0)
-        print 'No result received'
+        print('No result received')
 
         exit(0)
 
