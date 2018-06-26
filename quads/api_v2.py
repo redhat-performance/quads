@@ -68,13 +68,13 @@ class DocumentMethodHandler(MethodHandlerBase):
                         cherrypy.response.status = "201 Resource Created"
                         result.append('Created %s %s' % (self.name,
                                                          data[self.name]))
-                except Exception, e:
+                except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
                     #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
                     result.append('Error: %s' % e)
-        print result
+        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):
@@ -113,13 +113,13 @@ class PropertyMethodHandler(MethodHandlerBase):
                 obj.update(**data)
                 cherrypy.response.status = "201 Resource Created"
                 result.append('Added %s %s' % (self.proprty, data))
-            except Exception, e:
+            except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
                     #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
                 result.append('Error: %s' % e)
-        print result
+        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):

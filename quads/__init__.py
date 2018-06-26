@@ -25,7 +25,8 @@ import fcntl
 import errno
 import threading
 
-from data import QuadsData
+#from data import QuadsData
+from quads import data
 
 
 class Quads(object):
@@ -201,6 +202,7 @@ class Quads(object):
             else:
                 try:
                     requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+
                 except Exception as ex:
                     self.logger.error("Data format error : %s" % ex)
                     return None, None, None

@@ -18,21 +18,47 @@
 import argparse
 import cherrypy
 import os
-
-#from quads.webui import QuadsWebUI
-#from quads.api_v1 import QuadsServerApiV1
-from quads.api_v2 import QuadsServerApiV2
-from quads.util import quads_load_config
+import yaml
+import sys
+import logging
+import threading
+import re
+import cgi
+import json
+import threading
 
 
 # TODO: is there a better way to handle these constants??
 # TODO: revisit loading configfile and getting defaults
 #       vs getting overrides from the user
 # load quads config
+
+def quads_load_config(quads_config):
+    try:
+        with open(quads_config, 'r') as config_file:
+            try:
+                quads_config_yaml = yaml.safe_load(config_file)
+            except Exception as ex:
+                print("quads: Invalid YAML config: " + quads_config)
+                exit(1)
+    except Exception as ex:
+        print(ex)
+        exit(1)
+    return(quads_config_yaml)
+
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
 defaultconfig = os.path.join(conf["data_dir"], "schedule.yaml")
 defaultstatedir = os.path.join(conf["data_dir"], "state")
+
+sys.path.append(conf['install_dir'])
+sys.path.append(os.path.dirname(__file__) + "/../")
+
+#from quads.webui import QuadsWebUI
+#from quads.api_v1 import QuadsServerApiV1
+from quads.api_v2 import QuadsServerApiV2
+#from quads.util import quads_load_config
+
 
 class QuadsServer(object):
     @cherrypy.expose

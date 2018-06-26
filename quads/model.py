@@ -100,7 +100,7 @@ class Host(Document):
             del data['interface']
             data = {'set__interfaces__%s' % interface: data}
 
-        print result
+        print(result)
 
         return result, host, data
 
