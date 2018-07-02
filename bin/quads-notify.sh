@@ -74,7 +74,7 @@ Reply-To: dev-null@${quads["domain"]}
 
 Greetings Citizen,
 
-You've been allocated a new environment!
+You've been allocated a new environment which is now ready for use!
 
 $cloudinfo
 
