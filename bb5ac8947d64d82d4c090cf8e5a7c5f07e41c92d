@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13eca2a6_b759468b",
+        "filename": "bin/quads-notify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-07-03T11:33:08Z",
+      "side": 1,
+      "message": "Can we make this a new line please.  We don\u0027t want to go over 70 characters per line as it may wrap on some clients.  Alternatively rewording slight to:\n\necho \"You\u0027ve been allocated a new environment which is now ready for use!\" | wc -c\n68",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 78
+      },
+      "revId": "bb5ac8947d64d82d4c090cf8e5a7c5f07e41c92d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
