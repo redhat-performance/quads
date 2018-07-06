@@ -127,7 +127,7 @@ function craft_future_initial_message() {
     ircbot_ipaddr=${quads["ircbot_ipaddr"]}
     ircbot_port=${quads["ircbot_port"]}
     ircbot_channel=${quads["ircbot_channel"]}
-    cloudinfo="$($quads --full-summary | grep $env_to_report)"
+    cloudinfo="$($quads --full-summary | grep $env_to_report | sed 's/.*(\(.*\))/\1/g')"
     report_file=${env_to_report}-${owner}-pre-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
     additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
