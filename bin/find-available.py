@@ -63,7 +63,7 @@ def avail_for(start_day, n, duration):
     if debug:
         print "DEBUG: avail_for called with : start_days = " + str(start_day) + ", n = " + str(n) + ", duration = " + str(duration)
 
-    datecommand = "date -d \"today + " + str(start_day) + " days \" '+%Y-%m-%d 08:00'"
+    datecommand = "date -d \"today + " + str(start_day) + " days \" '+%Y-%m-%d 22:00'"
     datestring = os.popen(datecommand).read().rstrip('\n')
     schedulepycommand = quads["install_dir"] + "/bin/quads-cli --cloud-only cloud01 --date \"" + datestring + "\""
     if limited != None:
@@ -93,7 +93,7 @@ def avail_for(start_day, n, duration):
                 if fail:
                     break
                 for t in range(start_day, (start_day + duration)):
-                    datecommand = "date -d \"today + " + str(t) + " days \" '+%Y-%m-%d 08:00'"
+                    datecommand = "date -d \"today + " + str(t) + " days \" '+%Y-%m-%d 22:00'"
                     datestring = os.popen(datecommand).read().rstrip('\n')
                     schedulepycommand = quads["install_dir"] + "/bin/quads-cli --host " + myresult[k] + " --date \"" + datestring + "\""
                     if debug:
@@ -111,7 +111,7 @@ def avail_for(start_day, n, duration):
 
 class Faster(threading.Thread):
     def __init__(self,limited,increment):
-        self.datestring = "%s 08:00".format(datetime.date.today() + datetime.timedelta(days=increment))
+        self.datestring = "%s 22:00".format(datetime.date.today() + datetime.timedelta(days=increment))
         self.schedulepycommand = quads["install_dir"] + "/bin/quads-cli --cloud-only cloud01 --date \"" + self.datestring + "\""
         if limited != None:
             self.schedulepycommand += "| egrep '" + limited + "'"
@@ -140,11 +140,11 @@ def find_date(node_count, for_days):
     return increment
 
 first_avail = find_date(count, days)
-datecommand = "date -d \"today + " + str(first_avail) + " days \" '+%Y-%m-%d 08:00'"
+datecommand = "date -d \"today + " + str(first_avail) + " days \" '+%Y-%m-%d 22:00'"
 startdatestring = os.popen(datecommand).read().rstrip('\n')
 print "=================="
 print "First available date = " + startdatestring
-datecommand = "date -d \"today + " + str(first_avail + days) + " days \" '+%Y-%m-%d 08:00'"
+datecommand = "date -d \"today + " + str(first_avail + days) + " days \" '+%Y-%m-%d 22:00'"
 if debug:
     print "DEBUG: datecommand for end date = " + datecommand
 enddatestring = os.popen(datecommand).read().rstrip('\n')
