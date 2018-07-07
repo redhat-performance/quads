@@ -169,9 +169,9 @@ def main(argv):
             data = r.json()
             if args.debug:
                 print(data)
-            if args.action == 'owner':
+            if args.action in ['owner', 'ticket', 'qinq', 'wipe']:
                 for k in data:
-                    print(k['cloud']+": "+k[args.action])
+                    print(str(k['cloud'])+": "+str(k[args.action]))
             else:
                 for k in data:
                     print(k[args.action])
