@@ -137,7 +137,14 @@ visual_colors:
   cloud21: -1 texture03.png 0
   cloud22: -1 texture04.png 0
   cloud23: -1 texture05.png 0
-  cloud24: 0 0 0
+  cloud24: -1 texture06.png 0
+  cloud25: -1 texture07.png 0
+  cloud26: -1 texture08.png 0
+  cloud27: -1 texture09.png 0
+  cloud28: -1 texture10.png 0
+  cloud29: -1 texture11.png 0
+  cloud30: -1 texture12.png 0
+  cloud31: -1 texture13.png 0
 
 # parameter to designate "undercloud" (ignored) hosts
 # for overcloud instackenv.json generation as well as
