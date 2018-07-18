@@ -77,6 +77,7 @@ def main(argv):
     defaultstatedir = quads_config['data_dir'] + '/state'
     defaultmovecommand = '/bin/echo'
 
+
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--ls-owner', dest='action', action='store_const', const='owner', help='List owners')
@@ -157,19 +158,23 @@ def main(argv):
     # List all common call
     if args.action:
         url = os.path.join(api_url, args.action)
+        if args.debug:
+            print(url)
         if args.cloudonly:
             url += '?cloudonly=%s' % args.cloudonly
         if args.host:
             url += '?host=%s' % args.host
-        if args.debug:
-            print(url)
         r = requests.get(url)
         if r.ok:
             data = r.json()
             if args.debug:
                 print(data)
-            for k in data:
-                print(k[args.action])
+            if args.action in ['owner', 'ticket', 'qinq', 'wipe']:
+                for k in data:
+                    print(str(k['cloud'])+": "+str(k[args.action]))
+            else:
+                for k in data:
+                    print(k[args.action])
             exit(0)
         else:
             # TODO: is this host or generic?
