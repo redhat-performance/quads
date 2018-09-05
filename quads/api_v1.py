@@ -136,15 +136,6 @@ class QuadsServer(object):
         self.write_lock.release()
         return json.dumps({'result': result})
 
-    def cloud(self, data):
-        result, data = param_check(data, ['cloud'])
-        if len(result) > 0:
-            return json.dumps({'result': result})
-        self.write_lock.acquire()
-        result = self.quads.remove_cloud(data['cloud'])
-        self.write_lock.release()
-        return json.dumps({'result': result})
-
     def rmcloud(self, data):
         result, data = param_check(data, ['cloud'])
         if len(result) > 0:
@@ -233,9 +224,9 @@ class QuadsServer(object):
                     result.append("Current schedule: {}".format(current_schedule))
                 if len(full_schedule) > 0:
                     for item in full_schedule:
-                        for override, schedule in item.iteritems():
+                        for override, schedule in item.items():
                             output = " {}| ".format(override)
-                            for t, date in schedule.iteritems():
+                            for t, date in schedule.items():
                                 if t == 'start' or t == 'end':
                                     output += "{}={},".format(t, date)
                                 else:
@@ -260,9 +251,9 @@ class QuadsServer(object):
                                                                True)
             if len(cloud_summary) > 0:
                 for item in cloud_summary:
-                    for cloudname, details in item.iteritems():
+                    for cloudname, details in item.items():
                         r = cloudname + " : "
-                        for param, description in details.iteritems():
+                        for param, description in details.items():
                             if param == 'hosts':
                                 r += str(description) + " "
                             else:
@@ -278,7 +269,7 @@ class QuadsServer(object):
                 else:
                     result.append("Requested cloud does not exist")
             else:
-                for cloud, hostlist in sorted(cloud_hosts.iteritems()):
+                for cloud, hostlist in sorted(cloud_hosts.items()):
                     result.append("{}:".format(cloud))
                     for host in hostlist:
                         result.append(" - {}".format(host))

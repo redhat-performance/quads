@@ -3,53 +3,44 @@
 # This code was shamelessly plucked out of another
 # repo.  Originally written by Joe Talerico <jtaleric at redhat dot com>
 
+import argparse
 import csv
 import json
 import sys
-import getopt
 from collections import defaultdict
 
-def main(argv):
-    inputfile = None
-    try:
-        opts, args = getopt.getopt(argv,"c",["csv="])
-    except :
-        print >> sys.stderr, "csv-to-instack.py --csv=<inputfile>"
-        sys.exit(2)
 
-    for opt, arg in opts:
-       if opt == '-h':
-           print >> sys.stderr ,'csv-to-instack.py --csv=<inputfile>'
-           sys.exit()
-       elif opt in ("-c", "--csv"):
-           inputfile = arg
-    if inputfile == None :
-        print >> sys.stderr, "Error : No input file passed"
-        print >> sys.stderr, "Usage:"
-        print >> sys.stderr, "csv-to-instack.py --csv=<inputfile>"
-        sys.exit(2)
+def main():
+    parser = argparse.ArgumentParser(description="CSV to instack converter")
+    parser.add_argument(
+        '-c', '--csv',
+        dest='inputfile',
+        help='Path to CSV file to convert',
+        default=None,
+        type=str,
+        required=True
+    )
 
-    print >> sys.stderr, "Opening %s" % inputfile
-    csvFile =  open(inputfile)
-    data = list(csv.reader(csvFile))
+    args = parser.parse_args()
+    with open(args.inputfile, 'r') as csvFile:
+        data = list(csv.reader(csvFile))
 
-    firstrow = True
-    jdata = defaultdict(list)
-    for value in data:
-        if firstrow :
-            firstrow = False
-            continue
-        jdata['nodes'].append({'pm_password' : value[3],
-        'pm_type' : value[4],
-        'mac' : [value[0]],
-        'cpu' : "2",
-        'memory' : "1024",
-        'disk' : "20",
-        'arch' : "x86_64",
-        'pm_user' : value[2],
-        'pm_addr' : value[1]})
+    json_data = defaultdict(list)
+    for value in data[1:]:
+        json_data['nodes'].append({
+            'pm_password': value[3],
+            'pm_type': value[4],
+            'mac': [value[0]],
+            'cpu': "2",
+            'memory': "1024",
+            'disk': "20",
+            'arch': "x86_64",
+            'pm_user': value[2],
+            'pm_addr': value[1]})
 
-    print json.dumps(jdata,indent=4, sort_keys=True)
+    print(json.dumps(json_data, indent=4, sort_keys=True))
+    return 0
+
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    sys.exit(main())

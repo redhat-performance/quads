@@ -46,5 +46,4 @@ class Clouds(object):
 
     # return list of clouds
     def get(self):
-        return sorted(self.data.iterkeys())
-
+        return sorted(self.data.keys())

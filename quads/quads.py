@@ -43,7 +43,7 @@ class Quads(object):
         self.thread_lock = tlock
 
         self.init_data(initialize, force)
-        self.quads = QuadsData.QuadsData()
+        self.quads = QuadsData()
         self.read_data()
         self.history_init()
 
@@ -57,14 +57,14 @@ class Quads(object):
     def history_init(self):
         updateyaml = False
 
-        for h in sorted(self.quads.hosts.data.iterkeys()):
+        for h in sorted(self.quads.hosts.data.keys()):
             if h not in self.quads.history.data:
                 self.quads.history.data[h] = {}
                 default_cloud, current_cloud, current_override = self.find_current(h, None)
                 self.quads.history.data[h][0] = current_cloud
                 updateyaml = True
 
-        for c in sorted(self.quads.clouds.data.iterkeys()):
+        for c in sorted(self.quads.clouds.data.keys()):
             if c not in self.quads.cloud_history.data:
                 self.quads.cloud_history.data[c] = {}
                 if 'ccusers' in self.quads.clouds.data[c]:
@@ -171,7 +171,7 @@ class Quads(object):
         if initialize:
             if os.path.isfile(self.config):
                 if not force:
-                    self.logger.warn("Warning: " + self.config + " exists. Use --force to initialize.")
+                    self.logger.warning("Warning: " + self.config + " exists. Use --force to initialize.")
                     return False
             else:
                 try:
@@ -207,10 +207,13 @@ class Quads(object):
 
             if "schedule" in hosts[host].keys():
                 for override in hosts[host]["schedule"]:
-                    start_obj = datetime.datetime.strptime(hosts[host]["schedule"][override]["start"], '%Y-%m-%d %H:%M')
+                    start_obj = datetime.datetime.strptime(
+                        hosts[host]["schedule"][override]["start"],
+                        '%Y-%m-%d %H:%M'
+                    )
                     end_obj = datetime.datetime.strptime(hosts[host]["schedule"][override]["end"], '%Y-%m-%d %H:%M')
 
-                    if start_obj <= requested_time and requested_time < end_obj:
+                    if start_obj <= requested_time < end_obj:
                         current_cloud = hosts[host]["schedule"][override]["cloud"]
                         current_override = override
                         return default_cloud, current_cloud, current_override
@@ -247,7 +250,7 @@ class Quads(object):
         if self.datearg is not None:
             self.logger.error("--sync and --date are mutually exclusive.")
             return False
-        for h in sorted(self.quads.hosts.data.iterkeys()):
+        for h in sorted(self.quads.hosts.data.keys()):
             default_cloud, current_cloud, current_override = self.find_current(h, self.datearg)
             if not os.path.isfile(self.statedir + "/" + h):
                 try:
@@ -282,7 +285,7 @@ class Quads(object):
             if 'owner' in self.quads.clouds.data[cloudonly]:
                 result.append({cloudonly: self.quads.clouds.data[cloudonly]['owner']})
         else:
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            for cloud in sorted(self.quads.clouds.data.keys()):
                 if 'owner' in self.quads.clouds.data[cloud]:
                     result.append({cloud: self.quads.clouds.data[cloud]['owner']})
         return result
@@ -301,7 +304,7 @@ class Quads(object):
                 cc_list.append(user)
             result.append({cloudonly: cc_list})
         else:
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            for cloud in sorted(self.quads.clouds.data.keys()):
                 cc_list = []
                 if 'ccusers' in self.quads.clouds.data[cloud]:
                     for user in self.quads.clouds.data[cloud]['ccusers']:
@@ -321,7 +324,7 @@ class Quads(object):
             if 'ticket' in self.quads.clouds.data[cloudonly]:
                 result.append({cloudonly: self.quads.clouds.data[cloudonly]['ticket']})
         else:
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            for cloud in sorted(self.quads.clouds.data.keys()):
                 if 'ticket' in self.quads.clouds.data[cloud]:
                     result.append({cloud: self.quads.clouds.data[cloud]['ticket']})
         return result
@@ -338,7 +341,7 @@ class Quads(object):
             if 'qinq' in self.quads.clouds.data[cloudonly]:
                 result.append({cloudonly: self.quads.clouds.data[cloudonly]['qinq']})
         else:
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            for cloud in sorted(self.quads.clouds.data.keys()):
                 if 'qinq' in self.quads.clouds.data[cloud]:
                     result.append({cloud: self.quads.clouds.data[cloud]['qinq']})
         return result
@@ -359,7 +362,7 @@ class Quads(object):
                 # that we want to wipe
                 result.append({cloudonly: '1'})
         else:
-            for cloud in sorted(self.quads.clouds.data.iterkeys()):
+            for cloud in sorted(self.quads.clouds.data.keys()):
                 if 'wipe' in self.quads.clouds.data[cloud]:
                     result.append({cloud: self.quads.clouds.data[cloud]['wipe']})
                 else:
@@ -513,13 +516,15 @@ class Quads(object):
                                     "Cloud cannot be reused while current or future schedules are in place."]
             if cloudresource not in self.quads.cloud_history.data:
                 self.quads.cloud_history.data[cloudresource] = {}
-            self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers': copy.deepcopy(ccusers),
-                                                                              'description': description,
-                                                                              'post_config': copy.deepcopy(post_config),
-                                                                              'owner': cloudowner,
-                                                                              'qinq': qinq,
-                                                                              'wipe': wipe,
-                                                                              'ticket': cloudticket}
+            self.quads.cloud_history.data[cloudresource][int(time.time())] = {
+                'ccusers': copy.deepcopy(ccusers),
+                'description': description,
+                'post_config': copy.deepcopy(post_config),
+                'owner': cloudowner,
+                'qinq': qinq,
+                'wipe': wipe,
+                'ticket': cloudticket
+            }
             self.quads.clouds.data[cloudresource] = {"description": description,
                                                      "networks": {},
                                                      "owner": cloudowner,
@@ -590,7 +595,7 @@ class Quads(object):
             # need code to see if schedstart or schedend is between s_start and
             # s_end
 
-            if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
+            if s_start_obj <= schedstart_obj < s_end_obj:
                 self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
@@ -600,7 +605,7 @@ class Quads(object):
                         "   Start: " + s_start,
                         "   End: " + s_end]
 
-            if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
+            if s_start_obj < schedend_obj <= s_end_obj:
                 self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
@@ -786,7 +791,7 @@ class Quads(object):
         except Exception as ex:
             self.logger.error(ex)
             exit(1)
-        for h in sorted(self.quads.hosts.data.iterkeys()):
+        for h in sorted(self.quads.hosts.data.keys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
             if not os.path.isfile(statedir + "/" + h):
                 try:
@@ -826,7 +831,7 @@ class Quads(object):
         if self.config_newer_than_data():
             self.read_data()
         result = []
-        for h in sorted(self.quads.hosts.data.iterkeys()):
+        for h in sorted(self.quads.hosts.data.keys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
             if not os.path.isfile(statedir + "/" + h):
                 try:
@@ -884,9 +889,9 @@ class Quads(object):
         if self.config_newer_than_data():
             self.read_data()
         summary = {}
-        for cloud in sorted(self.quads.clouds.data.iterkeys()):
+        for cloud in sorted(self.quads.clouds.data.keys()):
             summary[cloud] = []
-        for h in sorted(self.quads.hosts.data.iterkeys()):
+        for h in sorted(self.quads.hosts.data.keys()):
             default_cloud, current_cloud, current_override = self.find_current(h, datearg)
             if current_cloud is not None:
                 summary[current_cloud].append(h)
@@ -906,8 +911,8 @@ class Quads(object):
         result = []
         cloud_summary = self.query_cloud_summary(datearg, activesummary)
         for item in cloud_summary:
-            for cloudname, details in item.iteritems():
-                for param, description in details.iteritems():
+            for cloudname, details in item.items():
+                for param, description in details.items():
                     if param == 'post_config':
                         post_list = []
                         for service in description:
@@ -934,7 +939,7 @@ class Quads(object):
                 return result
         summary = self.query_cloud_hosts(datearg)
         # iterate over the currently defined clouds
-        for cloud in sorted(summary.iterkeys()):
+        for cloud in sorted(summary.keys()):
             cloud_summary = {}
             if activesummary:
                 if len(summary[cloud]) > 0:

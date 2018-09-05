@@ -46,4 +46,4 @@ class Hosts(object):
 
     # return list of hosts
     def get(self):
-        return sorted(self.data.iterkeys())
+        return sorted(self.data.keys())

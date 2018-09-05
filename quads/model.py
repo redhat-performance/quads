@@ -22,10 +22,8 @@ class Cloud(Document):
                     'qinq': False,
                     'wipe': True}
 
-        result, data = param_check(data,
-                                   ['cloud', 'description', 'owner', 'ccuser',
-                                    'ticket', 'qinq', 'wipe'],
-                                   defaults)
+        params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
+        result, data = param_check(data, params, defaults)
 
         return result, data
 

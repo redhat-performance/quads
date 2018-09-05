@@ -1,7 +1,16 @@
 import cherrypy
 import json
+import logging
+import sys
 
 from quads import model
+
+logger = logging.getLogger('api')
+hdlr = logging.FileHandler('/tmp/api_quads.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.DEBUG)
 
 
 class MethodHandlerBase(object):
@@ -32,6 +41,7 @@ class DocumentMethodHandler(MethodHandlerBase):
     # post data comes in **data
     def POST(self, **data):
         # handle force
+
         force = data.get('force', False) == 'True'
         if 'force' in data:
             del data['force']
@@ -48,8 +58,8 @@ class DocumentMethodHandler(MethodHandlerBase):
             obj = self._get_obj(data[self.name])
             if obj and not force:
                 result.append('%s %s already exists' % (
-                                self.name,
-                                data[self.name]))
+                    self.name,
+                    data[self.name]))
                 cherrypy.response.status = "409 Conflict"
             else:
                 # Create/update Operation
@@ -62,7 +72,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                                                          data[self.name]))
                     # otherwise create it
                     else:
-                        obj = self.m(**data).save()
+                        obj = self.model(**data).save()
                         cherrypy.response.status = "201 Resource Created"
                         result.append('Created %s %s' % (self.name,
                                                          data[self.name]))
@@ -100,7 +110,7 @@ class PropertyMethodHandler(MethodHandlerBase):
     # post data comes in **data
     def POST(self, **data):
         # make sure post data passed in is ready to pass to mongo engine
-        prep_data = getattr(self.m, 'prep_%s_data' % self.proprty)
+        prep_data = getattr(self.model, 'prep_%s_data' % self.property)
         result, obj, data = prep_data(data)
 
         # Check if there were data validation errors
@@ -111,11 +121,11 @@ class PropertyMethodHandler(MethodHandlerBase):
             try:
                 obj.update(**data)
                 cherrypy.response.status = "201 Resource Created"
-                result.append('Added %s %s' % (self.proprty, data))
+                result.append('Added %s %s' % (self.property, data))
             except Exception as e:
-                    # TODO: make sure when this is thrown the output
-                    #       points back to here and gives the end user
-                    #       enough information to fix the issue
+                # TODO: make sure when this is thrown the output
+                #       points back to here and gives the end user
+                #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
                 result.append('Error: %s' % e)
         print(result)
@@ -129,12 +139,12 @@ class PropertyMethodHandler(MethodHandlerBase):
     def DELETE(self, item, obj_name):
         obj = self._get_obj(obj_name)
         if obj:
-            data = {'unset__%s__%s' % (self.proprty, item): True}
+            data = {'unset__%s__%s' % (self.property, item): True}
             obj.update(**data)
-            result = ['deleted %s from %s' % (self.proprty, obj_name)]
+            result = ['deleted %s from %s' % (self.property, obj_name)]
         else:
             cherrypy.response.status = "404 Not Found"
-            result = ['%s Not Found for %s %s'  % (self.proprty, self.name, obj_name)]
+            result = ['%s Not Found for %s %s' % (self.property, self.name, obj_name)]
         return json.dumps({'result': result})
 
 
