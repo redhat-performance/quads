@@ -1,24 +1,8 @@
 from mongoengine import *
+from quads.helpers import param_check
 
 connect('quads')
 
-# TODO: Put this some where else
-def param_check(data, params, defaults={}):
-    result = []
-    # set defaults
-    for k, v in defaults.items():
-        data.setdefault(k, v)
-
-    if data:
-        # check for missing params
-        for p in params:
-            if p not in data:
-                result.append("Missing required parameter: %s" % p)
-            elif str == type(data[p]) and not data[p]:
-                result.append("Could not parse %s parameter" % p)
-            elif data[p] == 'None':
-                data[p] = None
-    return result, data
 
 class Cloud(Document):
     cloud = StringField()
@@ -107,6 +91,7 @@ class Host(Document):
 
 class History(Document):
     pass
+
 
 class CloudHistory(Document):
     cloud = ReferenceField(Cloud, required=True)

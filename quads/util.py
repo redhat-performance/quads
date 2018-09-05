@@ -7,12 +7,16 @@ import os
 import sys
 import yaml
 
+from Quads import Quads
+
+
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
 
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
@@ -21,25 +25,29 @@ def quads_load_config(quads_config):
             try:
                 quads_config_yaml = yaml.safe_load(config_file)
             except Exception as ex:
-                print "quads: Invalid YAML config: " + quads_config
+                print("quads: Invalid YAML config: " + quads_config)
                 exit(1)
     except Exception as ex:
-        print ex
+        print(ex)
         exit(1)
-    return(quads_config_yaml)
+    return quads_config_yaml
+
 
 def print_hosts(quads):
     for host in quads.get_hosts():
         print(host)
 
+
 def print_clouds(quads):
     for cloud in quads.get_clouds():
         print(cloud)
+
 
 def print_owners(quads, cloudonly):
     for item in quads.get_owners(cloudonly):
         for cloud, owner in item.iteritems():
             print("{}: {}".format(cloud, owner))
+
 
 def print_cc(quads, cloudonly):
     for item in quads.get_cc(cloudonly):
@@ -49,25 +57,29 @@ def print_cc(quads, cloudonly):
             else:
                 print(cloud)
 
+
 def print_tickets(quads, cloudonly):
     for item in quads.get_tickets(cloudonly):
         for cloud, ticket in item.iteritems():
             print("{}: {}".format(cloud, ticket))
+
 
 def print_qinq(quads, cloudonly):
     for item in quads.get_qinq(cloudonly):
         for cloud, qinq in item.iteritems():
             print("{}: {}".format(cloud, qinq))
 
+
 def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
+
 
 def print_cloud_hosts(quads, datearg, cloudonly):
     cloud_hosts = quads.query_cloud_hosts(datearg)
     if cloudonly is not None:
         if cloudonly in cloud_hosts:
             for host in cloud_hosts[cloudonly]:
-                print host
+                print(host)
         else:
             print("Requested cloud does not exist")
     else:
@@ -75,6 +87,7 @@ def print_cloud_hosts(quads, datearg, cloudonly):
                   print("{}:".format(cloud))
                   for host in hostlist:
                       print(" - {}".format(host))
+
 
 def print_host_schedule(quads, host, datearg):
     default_cloud, current_cloud, current_schedule, full_schedule = quads.query_host_schedule(host, datearg)
@@ -93,6 +106,7 @@ def print_host_schedule(quads, host, datearg):
                     else:
                         print("{}={}".format(schedkey, schedval))
 
+
 def print_cloud_summary(quads, datearg, activesummary):
     cloud_summary = quads.query_cloud_summary(datearg, activesummary)
     if len(cloud_summary) > 0:
@@ -105,26 +119,27 @@ def print_cloud_summary(quads, datearg, activesummary):
                     elif param == 'description':
                         print("({})".format(description))
 
+
 def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
     clouds = quads.query_cloud_postconfig(datearg, activesummary, postconfig)
     for cloud in clouds:
-        print cloud
+        print(cloud)
+
 
 def main():
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
     if "data_dir" not in quads_config:
-        print "quads: Missing \"data_dir\" in " + quads_config_file
+        print("quads: Missing \"data_dir\" in " + quads_config_file)
         exit(1)
 
     if "install_dir" not in quads_config:
-        print "quads: Missing \"install_dir\" in " + quads_config_file
+        print("quads: Missing \"install_dir\" in " + quads_config_file)
         exit(1)
 
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
-    from Quads import Quads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
@@ -199,7 +214,7 @@ def main():
         try:
             os.makedirs(args.statedir)
         except Exception as ex:
-            print ex
+            print(ex)
             exit(1)
 
     # Note: defaults are read in from /path/to/bin/../conf/quads.yml
@@ -280,7 +295,7 @@ def main():
         result = quads.update_host(args.hostresource, args.hostcloud,
                                    args.hosttype, args.force)
         for r in result:
-            print r
+            print(r)
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
@@ -296,7 +311,7 @@ def main():
                                     args.postconfig, args.version, args.puddle,
                                     args.controlscale, args.computescale)
         for r in result:
-            print r
+            print(r)
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
@@ -306,30 +321,29 @@ def main():
         exit(0)
 
     if args.schedquery:
-        schedule = None
         schedule = quads.hosts_schedule_query(month=args.month,year=args.year)
 
-        print "Host Schedule for {}/{}".format(args.year,args.schedquery)
-        print "Note: This is a per-day view. Every entry is a day in a given month."
-        print "      This only shows the cloud number per entry"
+        print("Host Schedule for {}/{}".format(args.year, args.schedquery))
+        print("Note: This is a per-day view. Every entry is a day in a given month.")
+        print("      This only shows the cloud number per entry")
         for host in sorted(schedule.iterkeys()) :
             _daily=""
             for day in schedule[host][args.year][args.month]:
                 _daily = "{} {}".format(_daily,schedule[host][args.year][args.month][day][1].strip('cloud'))
-            print "{}\t {}".format(host.split('.')[0],_daily)
+            print("{}\t {}".format(host.split('.')[0], _daily))
         exit(0)
 
     if args.addschedule:
         if args.schedstart is None or args.schedend is None or args.schedcloud is None or args.host is None:
-            print "Missing option. All these options are required for --add-schedule:"
-            print "    --host"
-            print "    --schedule-start"
-            print "    --schedule-end"
-            print "    --schedule-cloud"
+            print("Missing option. All these options are required for --add-schedule:")
+            print("    --host")
+            print("    --schedule-start")
+            print("    --schedule-end")
+            print("    --schedule-cloud")
             exit(1)
         result = quads.add_host_schedule(args.schedstart, args.schedend, args.schedcloud, args.host)
         for r in result:
-            print r
+            print(r)
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
@@ -340,7 +354,7 @@ def main():
     if args.rmschedule is not None:
         result = quads.rm_host_schedule(args.rmschedule, args.host)
         for r in result:
-            print r
+            print(r)
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
@@ -351,18 +365,18 @@ def main():
 
     if args.modschedule is not None:
         if args.host is None:
-            print "Missing option. Need --host when using --mod-schedule"
+            print("Missing option. Need --host when using --mod-schedule")
             exit(1)
 
         if args.schedstart is None and args.schedend is None and args.schedcloud is None:
-            print "Missing option. At least one these options are required for --mod-schedule:"
-            print "    --schedule-start"
-            print "    --schedule-end"
-            print "    --schedule-cloud"
+            print("Missing option. At least one these options are required for --mod-schedule:")
+            print("    --schedule-start")
+            print("    --schedule-end")
+            print("    --schedule-cloud")
             exit(1)
         result = quads.mod_host_schedule(args.modschedule, args.schedstart, args.schedend, args.schedcloud, args.host)
         for r in result:
-            print r
+            print(r)
         if len(result) == 0:
             exit(1)
         if result[0] != "OK":
@@ -373,7 +387,7 @@ def main():
 
     if args.movehosts:
         if args.datearg is not None and not args.dryrun:
-            print "--move-hosts and --date are mutually exclusive unless using --dry-run."
+            print("--move-hosts and --date are mutually exclusive unless using --dry-run.")
             exit(1)
         quads.move_hosts(args.movecommand, args.dryrun, args.statedir, args.datearg)
         exit(0)
@@ -396,5 +410,6 @@ def main():
     print_cloud_hosts(quads, args.datearg, args.cloudonly)
     exit(0)
 
+
 if __name__ == "__main__":
-       main()
+    main()

@@ -1,19 +1,18 @@
 import cherrypy
 import json
-import urllib
 
-from quads import model as m
-from quads.model import Cloud
+from quads import model
+
 
 class MethodHandlerBase(object):
-    def __init__(self, model, name, proprty=None):
-        self.m = model
+    def __init__(self, _model, name, _property=None):
+        self.model = _model
         self.name = name
-        self.proprty = proprty
+        self.property = _property
 
     def _get_obj(self, obj):
         q = {self.name: obj}
-        obj = self.m.objects(**q).first()
+        obj = self.model.objects(**q).first()
         return obj
 
 
@@ -22,24 +21,23 @@ class DocumentMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         args = {}
         if 'cloudonly' in data:
-            c = Cloud.objects(cloud=data['cloudonly'])
+            c = model.Cloud.objects(cloud=data['cloudonly'])
             if not c:
                 cherrypy.response.status = "404 Not Found"
-                return json.dumps({'result':
-                        'Cloud %s Not Found' % data['cloudonly']})
+                return json.dumps({'result': 'Cloud %s Not Found' % data['cloudonly']})
             else:
                 return c.to_json()
-        return self.m.objects(**args).to_json()
+        return self.model.objects(**args).to_json()
 
     # post data comes in **data
     def POST(self, **data):
         # handle force
-        force = True if data.get('force', False) == 'True' else False
+        force = data.get('force', False) == 'True'
         if 'force' in data:
             del data['force']
 
         # make sure post data passed in is ready to pass to mongo engine
-        result, data = self.m.prep_data(data)
+        result, data = self.model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -92,11 +90,12 @@ class DocumentMethodHandler(MethodHandlerBase):
             result = ['%s %s Not Found' % (self.name, obj_name)]
         return json.dumps({'result': result})
 
+
 @cherrypy.expose
 class PropertyMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         args = {}
-        return self.m.objects(**args).to_json()
+        return self.model.objects(**args).to_json()
 
     # post data comes in **data
     def POST(self, **data):
@@ -138,15 +137,16 @@ class PropertyMethodHandler(MethodHandlerBase):
             result = ['%s Not Found for %s %s'  % (self.proprty, self.name, obj_name)]
         return json.dumps({'result': result})
 
+
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
-        self.cloud = DocumentMethodHandler(m.Cloud, 'cloud')
-        self.owner = DocumentMethodHandler(m.Cloud, 'owner')
-        self.ccuser = DocumentMethodHandler(m.Cloud, 'ccuser')
-        self.ticket = DocumentMethodHandler(m.Cloud, 'ticket')
-        self.qinq = DocumentMethodHandler(m.Cloud, 'qinq')
-        self.wipe = DocumentMethodHandler(m.Cloud, 'wipe')
-        self.host = DocumentMethodHandler(m.Host, 'host')
-        self.schedule = PropertyMethodHandler(m.Host, 'host', 'schedule')
-        self.interfaces = PropertyMethodHandler(m.Host, 'host', 'interfaces')
+        self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
+        self.owner = DocumentMethodHandler(model.Cloud, 'owner')
+        self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
+        self.ticket = DocumentMethodHandler(model.Cloud, 'ticket')
+        self.qinq = DocumentMethodHandler(model.Cloud, 'qinq')
+        self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
+        self.host = DocumentMethodHandler(model.Host, 'host')
+        self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
+        self.interfaces = PropertyMethodHandler(model.Host, 'host', 'interfaces')

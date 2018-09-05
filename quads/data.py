@@ -13,14 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-#from cloudhistory import CloudHistory
-#from clouds import Clouds
-#from history import History
-#from hosts import Hosts
-from quads import cloudhistory
-from quads import clouds
-from quads import history
-from quads import hosts
+from quads.cloudhistory import CloudHistory
+from quads.clouds import Clouds
+from quads.history import History
+from quads.hosts import Hosts
+
 
 
 class QuadsData(object):

@@ -2,7 +2,6 @@
 
 import argparse
 import datetime
-import json
 import logging
 import os
 import requests
@@ -21,6 +20,7 @@ logger.addHandler(ch)
 
 API = 'v2'
 
+
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
     try:
@@ -35,6 +35,7 @@ def quads_load_config(quads_config):
         exit(1)
     return quads_config_yaml
 
+
 def output_json_result(request, item, data, debug=False):
     try:
         js = request.json()
@@ -43,7 +44,7 @@ def output_json_result(request, item, data, debug=False):
         else:
             for result in js['result']:
                 print(result)
-    except:
+    except Exception:
         print('Could not parse json reply.')
         if debug:
             print(request.text)
@@ -51,7 +52,8 @@ def output_json_result(request, item, data, debug=False):
             print('use --debug to see contents')
         exit(1)
 
-def main(argv):
+
+def main():
     quads_config_file = os.path.dirname(__file__) + '/../conf/quads.yml'
     quads_config = quads_load_config(quads_config_file)
 
@@ -76,7 +78,6 @@ def main(argv):
     defaultconfig = quads_config['data_dir'] + '/schedule.yaml'
     defaultstatedir = quads_config['data_dir'] + '/state'
     defaultmovecommand = '/bin/echo'
-
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     group = parser.add_mutually_exclusive_group()
@@ -127,11 +128,13 @@ def main(argv):
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
-    parser.add_argument('--ls-schedule', dest='action', action='store_const', const='schedule', help='List the host reservations')
+    parser.add_argument('--ls-schedule', dest='action', action='store_const', const='schedule',
+                        help='List the host reservations')
     parser.add_argument('--interface-mac', dest='ifmac', type=str, default=None, help='')
     parser.add_argument('--interface-type', dest='iftype', type=str, default=None, help='')
     parser.add_argument('--interface-port', dest='ifport', type=str, default=None, help='')
-    parser.add_argument('--ls-interface', dest='action', action='store_const', const='interfaces', help='List the host interfaces')
+    parser.add_argument('--ls-interface', dest='action', action='store_const', const='interfaces',
+                        help='List the host interfaces')
     parser.add_argument('--statedir', dest='statedir', type=str, default=defaultstatedir, help='Default state dir')
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
                         help='Move hosts if schedule has changed')
@@ -171,7 +174,7 @@ def main(argv):
                 print(data)
             if args.action in ['owner', 'ticket', 'qinq', 'wipe']:
                 for k in data:
-                    print(str(k['cloud'])+": "+str(k[args.action]))
+                    print(str(k['cloud']) + ": " + str(k[args.action]))
             else:
                 for k in data:
                     print(k[args.action])
@@ -190,7 +193,7 @@ def main(argv):
                 'qinq': args.qinq,
                 'wipe': args.wipe,
                 'ticket': args.cloudticket,
-                'force': args.force }
+                'force': args.force}
         r = requests.post(url, data)
         output_json_result(r, 'cloud', data)
 
@@ -210,7 +213,7 @@ def main(argv):
         data = {'host': args.hostresource,
                 'cloud': args.hostcloud,
                 'type': args.hosttype,
-                'force': args.force }
+                'force': args.force}
         r = requests.post(url, data)
         output_json_result(r, 'host', data)
 
@@ -234,7 +237,7 @@ def main(argv):
                 'vendor_type': args.iftype,
                 'host': args.host,
                 'port': args.ifport,
-                'interface': args.addinterface }
+                'interface': args.addinterface}
         r = requests.post(url, data)
         print(data)
         output_json_result(r, 'interfaces', {'interfaces': 'cli-TODO'})
@@ -258,7 +261,7 @@ def main(argv):
         data = {'cloud': args.schedcloud,
                 'host': args.host,
                 'start': args.schedstart,
-                'end': args.schedend }
+                'end': args.schedend}
         r = requests.post(url, data)
         print(data)
         output_json_result(r, 'schedule', {'schedule': 'cli-TODO'})
@@ -287,6 +290,7 @@ def main(argv):
                 "cloud": args.schedcloud,
                 "host": args.host }
 
+
         r = requests.post(url, data)
         output_json_result(r, 'schedule', data['schedule'])
 
@@ -294,7 +298,6 @@ def main(argv):
         if args.datearg is not None and not args.dryrun:
             print('--move-hosts and --date are mutually exclusive unless using --dry-run.')
             exit(1)
-
         url = quads_config["quads_base_url"] + "api/" + API + "/moves"
         data = {"statedir":args.statedir}
 

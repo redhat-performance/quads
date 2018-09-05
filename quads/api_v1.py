@@ -16,11 +16,11 @@
 
 import json
 import cherrypy
-import simplejson
 import time
 import urllib
 
-from quads import Quads
+from quads.quads import Quads
+from quads.helpers import param_check
 
 # Setup Jinja Templates
 from jinja2 import Environment, FileSystemLoader
@@ -30,24 +30,6 @@ LSACTIONS = ['lshosts', 'lsclouds', 'lsowner', 'lsowners', 'lsccusers',
              'lstickets', 'lsqinq', 'lswipe']
 OTHERS = ['host', 'rmhost', 'cloud', 'rmcloud', 'ahs',
           'rhs', 'mhs', 'moves', 'query']
-
-
-def param_check(data, params, defaults={}):
-    result = []
-    # set defaults
-    for k, v in defaults.items():
-        data.setdefault(k, v)
-
-    if data:
-        # check for missing params
-        for p in params:
-            if p not in data:
-                result.append("Missing required parameter: %s" % p)
-            elif not (data[p] or data[p] is None):
-                result.append("Could not parse %s parameter" % p)
-            elif data[p] == 'None':
-                data[p] = None
-    return result, data
 
 
 class QuadsServer(object):
@@ -123,7 +105,7 @@ class QuadsServer(object):
         if len(result) > 0:
             return json.dumps({'result': result})
         self.write_lock.acquire()
-        print data['host']
+        print(data['host'])
         result = self.quads.remove_host(data['host'])
         self.write_lock.release()
         return json.dumps({'result': result})

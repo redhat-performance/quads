@@ -9,7 +9,7 @@ sandbox_dir=$(mktemp -d /tmp/quadsXXXX)
 
 function init_sandbox() {
     quads_cmd="$sandbox_dir/quads/bin/quads-cli"
-    quads_daemon_start="$sandbox_dir/quads/bin/quads-daemon --port 8082"
+    quads_daemon_start="$sandbox_dir/quads/bin/quads-server --port 8082"
     cwd=$(pwd)
     cd $sandbox_dir
     local=$1
