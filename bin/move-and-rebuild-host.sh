@@ -171,7 +171,9 @@ if $rebuild ; then
     rm -f $TMPIFFILE
 
     # perform host rebuild, in future the OS here should be a variable, fix me.
-    hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7"
+    # we will also force a specific partition table and media option, you should
+    # adjust this to your environment
+    hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7" --partition-table "generic-rhel7" --medium "RHEL local"
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
     sleep 30
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power on
