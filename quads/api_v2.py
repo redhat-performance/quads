@@ -1,16 +1,7 @@
 import cherrypy
 import json
-import logging
-import sys
 
 from quads import model
-
-logger = logging.getLogger('api')
-hdlr = logging.FileHandler('/tmp/api_quads.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.DEBUG)
 
 
 class MethodHandlerBase(object):
