@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import calendar
 import copy
 import datetime
@@ -21,12 +20,12 @@ import time
 import logging
 import os
 import subprocess
-import sys
 import yaml
 import fcntl
 import errno
 import threading
 import QuadsData
+
 
 class Quads(object):
     def __init__(self, config, statedir, movecommand, datearg, syncstate,
@@ -92,18 +91,18 @@ class Quads(object):
                     ticket = '000000'
                 if 'post_config' in self.quads.clouds.data[c]:
                     post_config = copy.deepcopy(self.quads.clouds.data[c]['post_config'])
-                    self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
-                                                       'description':description,
-                                                       'owner':owner,
-                                                       'qinq':qinq,
-                                                       'ticket':ticket,
-                                                       'post_config': post_config}
+                    self.quads.cloud_history.data[c][0] = {'ccusers': ccusers,
+                                                           'description': description,
+                                                           'owner': owner,
+                                                           'qinq': qinq,
+                                                           'ticket': ticket,
+                                                           'post_config': post_config}
                 else:
-                    self.quads.cloud_history.data[c][0] = {'ccusers':ccusers,
-                                                           'description':description,
-                                                           'owner':owner,
-                                                           'qinq':qinq,
-                                                           'ticket':ticket}
+                    self.quads.cloud_history.data[c][0] = {'ccusers': ccusers,
+                                                           'description': description,
+                                                           'owner': owner,
+                                                           'qinq': qinq,
+                                                           'ticket': ticket}
 
                 updateyaml = True
 
@@ -112,13 +111,13 @@ class Quads(object):
 
     def read_data(self):
         if not os.path.isfile(self.config):
-            data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
+            data = {"clouds": {}, "hosts": {}, "history": {}, "cloud_history": {}}
             try:
                 with open(self.config, 'w') as config_file:
                     fcntl.flock(config_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     config_file.write(yaml.dump(data, default_flow_style=False))
                     fcntl.flock(config_file, fcntl.LOCK_UN)
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.error("There was a problem with your file %s" % ex)
         self.thread_lock.acquire()
         try:
@@ -132,7 +131,7 @@ class Quads(object):
                     if e.errno != errno.EAGAIN:
                         raise
 
-        except Exception, ex:
+        except Exception as ex:
             self.logger.error("There was a problem with your file %s" % ex)
 
         self.thread_lock.release()
@@ -147,14 +146,15 @@ class Quads(object):
             return False
         else:
             try:
-                self.data = {"clouds":self.quads.clouds.data, "hosts":self.quads.hosts.data, "history":self.quads.history.data, "cloud_history":self.quads.cloud_history.data}
+                self.data = {"clouds": self.quads.clouds.data, "hosts": self.quads.hosts.data,
+                             "history": self.quads.history.data, "cloud_history": self.quads.cloud_history.data}
                 with open(self.config, 'w') as yaml_file:
                     fcntl.flock(yaml_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
                     yaml_file.write(yaml.dump(self.data, default_flow_style=False))
                     fcntl.flock(yaml_file, fcntl.LOCK_UN)
                 self.read_data()
                 return True
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.error("There was a problem with your file %s" % ex)
                 return False
 
@@ -175,10 +175,10 @@ class Quads(object):
             else:
                 try:
                     stream = open(self.config, 'w')
-                    data = {"clouds":{}, "hosts":{}, "history":{}, "cloud_history":{}}
-                    stream.write( yaml.dump(data, default_flow_style=False))
+                    data = {"clouds": {}, "hosts": {}, "history": {}, "cloud_history": {}}
+                    stream.write(yaml.dump(data, default_flow_style=False))
                     return True
-                except Exception, ex:
+                except Exception as ex:
                     self.logger.error("There was a problem with your file %s" % ex)
                     return False
         else:
@@ -199,8 +199,8 @@ class Quads(object):
                 requested_time = current_time
             else:
                 try:
-                    requested_time =datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
-                except Exception, ex:
+                    requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
+                except Exception as ex:
                     self.logger.error("Data format error : %s" % ex)
                     return None, None, None
 
@@ -231,12 +231,12 @@ class Quads(object):
                              year=datetime.datetime.now().year):
         hosts = self.quads.hosts.data
         schedule = {}
-        for host in hosts :
+        for host in hosts:
             schedule[host] = {}
             schedule[host][year] = {}
             schedule[host][year][month] = {}
-            for day in range(1,calendar.monthrange(int(year),int(month))[1]):
-              schedule[host][year][month][day] = self.find_current(host,"{}-{}-{} 00:00".format(year,month,day))
+            for day in range(1, calendar.monthrange(int(year), int(month))[1]):
+                schedule[host][year][month][day] = self.find_current(host, "{}-{}-{} 00:00".format(year, month, day))
 
         return schedule
 
@@ -253,11 +253,11 @@ class Quads(object):
                     stream = open(self.statedir + "/" + h, 'w')
                     stream.write(current_cloud + '\n')
                     stream.close()
-                except Exception, ex:
+                except Exception as ex:
                     self.logger.error("There was a problem with your file %s" % ex)
         return
 
-    #return hosts
+    # return hosts
     def get_hosts(self):
         if self.config_newer_than_data():
             self.read_data()
@@ -279,11 +279,11 @@ class Quads(object):
             if cloudonly not in self.quads.clouds.data:
                 return result
             if 'owner' in self.quads.clouds.data[cloudonly]:
-                result.append({cloudonly : self.quads.clouds.data[cloudonly]['owner']})
+                result.append({cloudonly: self.quads.clouds.data[cloudonly]['owner']})
         else:
             for cloud in sorted(self.quads.clouds.data.iterkeys()):
                 if 'owner' in self.quads.clouds.data[cloud]:
-                    result.append({cloud : self.quads.clouds.data[cloud]['owner']})
+                    result.append({cloud: self.quads.clouds.data[cloud]['owner']})
         return result
 
     # get the cc users
@@ -318,11 +318,11 @@ class Quads(object):
             if cloudonly not in self.quads.clouds.data:
                 return result
             if 'ticket' in self.quads.clouds.data[cloudonly]:
-                result.append({cloudonly : self.quads.clouds.data[cloudonly]['ticket']})
+                result.append({cloudonly: self.quads.clouds.data[cloudonly]['ticket']})
         else:
             for cloud in sorted(self.quads.clouds.data.iterkeys()):
                 if 'ticket' in self.quads.clouds.data[cloud]:
-                    result.append({cloud : self.quads.clouds.data[cloud]['ticket']})
+                    result.append({cloud: self.quads.clouds.data[cloud]['ticket']})
         return result
 
     # get qinq status
@@ -335,11 +335,11 @@ class Quads(object):
             if cloudonly not in self.quads.clouds.data:
                 return result
             if 'qinq' in self.quads.clouds.data[cloudonly]:
-                result.append({cloudonly : self.quads.clouds.data[cloudonly]['qinq']})
+                result.append({cloudonly: self.quads.clouds.data[cloudonly]['qinq']})
         else:
             for cloud in sorted(self.quads.clouds.data.iterkeys()):
                 if 'qinq' in self.quads.clouds.data[cloud]:
-                    result.append({cloud : self.quads.clouds.data[cloud]['qinq']})
+                    result.append({cloud: self.quads.clouds.data[cloud]['qinq']})
         return result
 
     # get wipe status
@@ -352,17 +352,17 @@ class Quads(object):
             if cloudonly not in self.quads.clouds.data:
                 return result
             if 'wipe' in self.quads.clouds.data[cloudonly]:
-                result.append({cloudonly : self.quads.clouds.data[cloudonly]['wipe']})
+                result.append({cloudonly: self.quads.clouds.data[cloudonly]['wipe']})
             else:
                 # assume if the cloud was defined (before this functionality was added)
                 # that we want to wipe
-                result.append({cloudonly : '1'})
+                result.append({cloudonly: '1'})
         else:
             for cloud in sorted(self.quads.clouds.data.iterkeys()):
                 if 'wipe' in self.quads.clouds.data[cloud]:
-                    result.append({cloud : self.quads.clouds.data[cloud]['wipe']})
+                    result.append({cloud: self.quads.clouds.data[cloud]['wipe']})
                 else:
-                    result.append({cloud : '1'})
+                    result.append({cloud: '1'})
         return result
 
     # remove a host
@@ -371,7 +371,7 @@ class Quads(object):
         self.thread_lock.acquire()
         if rmhost not in self.quads.hosts.data:
             return [rmhost + " not found"]
-        del(self.quads.hosts.data[rmhost])
+        del (self.quads.hosts.data[rmhost])
         if self.write_data():
             self.thread_lock.release()
             return ["OK"]
@@ -396,7 +396,7 @@ class Quads(object):
                     self.thread_lock.release()
                     return [rmcloud + " is used in a schedule for " + h,
                             "Delete schedule before deleting this cloud"]
-        del(self.quads.clouds.data[rmcloud])
+        del (self.quads.clouds.data[rmcloud])
         if self.write_data():
             self.thread_lock.release()
             return ["OK"]
@@ -428,16 +428,16 @@ class Quads(object):
                 return ["Host \"%s\" already defined. Use --force to replace" % hostresource]
 
             if hostresource in self.quads.hosts.data:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud,
+                self.quads.hosts.data[hostresource] = {"cloud": hostcloud,
                                                        "interfaces":
-                                                       self.quads.hosts.data[hostresource]["interfaces"],
+                                                           self.quads.hosts.data[hostresource]["interfaces"],
                                                        "schedule":
-                                                       self.quads.hosts.data[hostresource]["schedule"],
+                                                           self.quads.hosts.data[hostresource]["schedule"],
                                                        "type": hosttype,
-                                                     }
+                                                       }
                 self.quads.history.data[hostresource][int(time.time())] = hostcloud
             else:
-                self.quads.hosts.data[hostresource] = { "cloud": hostcloud,
+                self.quads.hosts.data[hostresource] = {"cloud": hostcloud,
                                                        "interfaces": {},
                                                        "schedule": {},
                                                        "type": hosttype}
@@ -492,41 +492,42 @@ class Quads(object):
                                                    'puddle': puddle,
                                                    'controllers': controlscale,
                                                    'computes': computescale
-                                                  }
+                                                   }
                             post_config.append(service_description)
                     else:
-                        #code for defining service description for other post
-                        #config options should come here, service_description is
-                        #defined here for the post config option
+                        # code for defining service description for other post
+                        # config options should come here, service_description is
+                        # defined here for the post config option
                         pass
 
             curdate_obj = datetime.datetime.strptime(time.strftime("%Y-%m-%d %H:%M"), '%Y-%m-%d %H:%M')
             for h in self.quads.hosts.data:
                 for s in self.quads.hosts.data[h]["schedule"]:
                     if self.quads.hosts.data[h]["schedule"][s]["cloud"] == cloudresource:
-                        s_end_obj = datetime.datetime.strptime(self.quads.hosts.data[h]["schedule"][s]["end"], '%Y-%m-%d %H:%M')
+                        s_end_obj = datetime.datetime.strptime(self.quads.hosts.data[h]["schedule"][s]["end"],
+                                                               '%Y-%m-%d %H:%M')
                         if s_end_obj >= curdate_obj:
                             self.thread_lock.release()
                             return [cloudresource + " is used in schedule " + str(s) + " for " + h,
-                                                    "Cloud cannot be reused while current or future schedules are in place."]
+                                    "Cloud cannot be reused while current or future schedules are in place."]
             if cloudresource not in self.quads.cloud_history.data:
                 self.quads.cloud_history.data[cloudresource] = {}
-            self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers':copy.deepcopy(ccusers),
-                                                                    'description':description,
-                                                                    'post_config':copy.deepcopy(post_config),
-                                                                    'owner':cloudowner,
-                                                                    'qinq':qinq,
-                                                                    'wipe':wipe,
-                                                                    'ticket':cloudticket}
-            self.quads.clouds.data[cloudresource] = { "description": description,
-                                                     "networks":{},
+            self.quads.cloud_history.data[cloudresource][int(time.time())] = {'ccusers': copy.deepcopy(ccusers),
+                                                                              'description': description,
+                                                                              'post_config': copy.deepcopy(post_config),
+                                                                              'owner': cloudowner,
+                                                                              'qinq': qinq,
+                                                                              'wipe': wipe,
+                                                                              'ticket': cloudticket}
+            self.quads.clouds.data[cloudresource] = {"description": description,
+                                                     "networks": {},
                                                      "owner": cloudowner,
                                                      "ccusers": ccusers,
                                                      "ticket": cloudticket,
                                                      "qinq": qinq,
                                                      "wipe": wipe,
                                                      "post_config": post_config
-                                                    }
+                                                     }
             if self.write_data():
                 self.thread_lock.release()
                 return ["OK"]
@@ -540,14 +541,14 @@ class Quads(object):
         self.thread_lock.acquire()
         try:
             datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
-        except Exception, ex:
+        except Exception as ex:
             self.logger.error("Data format error : %s" % ex)
             self.thread_lock.release()
             return ["Data format error : %s" % ex]
 
         try:
             datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
-        except Exception, ex:
+        except Exception as ex:
             self.logger.error("Data format error : %s" % ex)
             self.thread_lock.release()
             return ["Data format error : %s" % ex]
@@ -588,7 +589,7 @@ class Quads(object):
             # need code to see if schedstart or schedend is between s_start and
             # s_end
 
-            if s_start_obj <= schedstart_obj and schedstart_obj < s_end_obj:
+            if s_start_obj <= schedstart_obj < s_end_obj:
                 self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
@@ -598,7 +599,7 @@ class Quads(object):
                         "   Start: " + s_start,
                         "   End: " + s_end]
 
-            if s_start_obj < schedend_obj and schedend_obj <= s_end_obj:
+            if s_start_obj < schedend_obj <= s_end_obj:
                 self.thread_lock.release()
                 return ["Error. New schedule conflicts with existing schedule.",
                         "New schedule: ",
@@ -609,7 +610,8 @@ class Quads(object):
                         "   End: " + s_end]
 
         # the next available schedule index should be the max index + 1
-        self.quads.hosts.data[host]["schedule"][max(self.quads.hosts.data[host]["schedule"].keys() or [-1])+1] = { "cloud": schedcloud, "start": schedstart, "end": schedend }
+        self.quads.hosts.data[host]["schedule"][max(self.quads.hosts.data[host]["schedule"].keys() or [-1]) + 1] = {
+            "cloud": schedcloud, "start": schedstart, "end": schedend}
         if self.write_data():
             self.thread_lock.release()
             return ["OK"]
@@ -636,7 +638,7 @@ class Quads(object):
             self.thread_lock.release()
             return ["Could not find schedule for host"]
 
-        del(self.quads.hosts.data[host]["schedule"][rmschedule])
+        del (self.quads.hosts.data[host]["schedule"][rmschedule])
         if self.write_data():
             self.thread_lock.release()
             return ["OK"]
@@ -651,7 +653,7 @@ class Quads(object):
         if schedstart:
             try:
                 datetime.datetime.strptime(schedstart, '%Y-%m-%d %H:%M')
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.error("Data format error : %s" % ex)
                 self.thread_lock.release()
                 return ["Data format error : %s" % ex]
@@ -659,7 +661,7 @@ class Quads(object):
         if schedend:
             try:
                 datetime.datetime.strptime(schedend, '%Y-%m-%d %H:%M')
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.error("Data format error : %s" % ex)
                 self.thread_lock.release()
                 return ["Data format error : %s" % ex]
@@ -764,7 +766,7 @@ class Quads(object):
         # move a host
         if self.config_newer_than_data():
             self.read_data()
-        if self.datearg is not None and not dryrun :
+        if self.datearg is not None and not dryrun:
             self.logger.error("--move-hosts and --date are mutually exclusive unless using --dry-run.")
             exit(1)
         try:
@@ -780,7 +782,7 @@ class Quads(object):
                             time.sleep(0.1)
                 self.read_data()
                 fcntl.flock(config_file, fcntl.LOCK_UN)
-        except Exception, ex:
+        except Exception as ex:
             self.logger.error(ex)
             exit(1)
         for h in sorted(self.quads.hosts.data.iterkeys()):
@@ -790,7 +792,7 @@ class Quads(object):
                     stream = open(statedir + "/" + h, 'w')
                     stream.write(current_cloud + '\n')
                     stream.close()
-                except Exception, ex:
+                except Exception as ex:
                     self.logger.error("There was a problem with your file %s" % ex)
             else:
                 stream = open(statedir + "/" + h, 'r')
@@ -807,7 +809,7 @@ class Quads(object):
                                     subprocess.check_call([movecommand, h, current_state, current_cloud])
                             else:
                                 subprocess.check_call([movecommand, h, current_state, current_cloud])
-                        except Exception, ex:
+                        except Exception as ex:
                             self.logger.error("Move command failed: %s" % ex)
                             exit(1)
                         stream = open(statedir + "/" + h, 'w')
@@ -830,14 +832,14 @@ class Quads(object):
                     stream = open(statedir + "/" + h, 'w')
                     stream.write(current_cloud + '\n')
                     stream.close()
-                except Exception, ex:
+                except Exception as ex:
                     self.logger.error("There was a problem with your file %s" % ex)
             else:
                 stream = open(statedir + "/" + h, 'r')
                 current_state = stream.readline().rstrip()
                 stream.close()
                 if current_state != current_cloud:
-                    result.append({"host":h, "current":current_state, "new":current_cloud})
+                    result.append({"host": h, "current": current_state, "new": current_cloud})
         return result
 
     # Method to get make of the host
@@ -866,8 +868,8 @@ class Quads(object):
         if host in self.quads.hosts.data.keys():
             for override in self.quads.hosts.data[host]["schedule"]:
                 schedule_override = {override: {'start': self.quads.hosts.data[host]["schedule"][override]["start"],
-                                    'end': self.quads.hosts.data[host]["schedule"][override]["end"],
-                                    'cloud': self.quads.hosts.data[host]["schedule"][override]["cloud"]}}
+                                                'end': self.quads.hosts.data[host]["schedule"][override]["end"],
+                                                'cloud': self.quads.hosts.data[host]["schedule"][override]["cloud"]}}
                 result.append(schedule_override)
         return default_cloud, current_cloud, current_override, result
 
@@ -921,13 +923,13 @@ class Quads(object):
         cloud_summary = {}
         clouds = self.quads.clouds.data
         cloud_history = self.quads.cloud_history.data
-        current_time =datetime.datetime.now()
+        current_time = datetime.datetime.now()
         if datearg is None:
             requested_time = current_time
         else:
             try:
                 requested_time = datetime.datetime.strptime(datearg, '%Y-%m-%d %H:%M')
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.error("Data format error : %s" % ex)
                 return result
         summary = self.query_cloud_hosts(datearg)
@@ -943,9 +945,10 @@ class Quads(object):
                             if datetime.datetime.fromtimestamp(c) <= requested_time:
                                 requested_description = cloud_history[cloud][c]['description']
                                 cloud_summary = {cloud: {'description': requested_description,
-                                                'hosts': len(summary[cloud])}}
+                                                         'hosts': len(summary[cloud])}}
                                 service_list = []
-                                if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
+                                if 'post_config' in cloud_history[cloud][c] and len(
+                                        cloud_history[cloud][c]['post_config']) > 0:
                                     for service in cloud_history[cloud][c]['post_config']:
                                         service_list.append(service['name'])
                                     cloud_summary[cloud]['post_config'] = service_list
@@ -953,7 +956,7 @@ class Quads(object):
                         if cloud in clouds.keys() and cloud in summary.keys():
                             requested_description = clouds[cloud]['description']
                             cloud_summary = {cloud: {'description': requested_description,
-                                            'hosts': len(summary[cloud])}}
+                                                     'hosts': len(summary[cloud])}}
                             service_list = []
                             if cloud in clouds.keys():
                                 if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
@@ -968,9 +971,10 @@ class Quads(object):
                         if datetime.datetime.fromtimestamp(c) <= requested_time:
                             requested_description = cloud_history[cloud][c]["description"]
                             cloud_summary = {cloud: {'description': requested_description,
-                                         'hosts': len(summary[cloud])}}
+                                                     'hosts': len(summary[cloud])}}
                             service_list = []
-                            if 'post_config' in cloud_history[cloud][c] and len(cloud_history[cloud][c]['post_config']) > 0:
+                            if 'post_config' in cloud_history[cloud][c] and len(
+                                    cloud_history[cloud][c]['post_config']) > 0:
                                 for service in cloud_history[cloud][c]['post_config']:
                                     service_list.append(service['name'])
                                 cloud_summary[cloud]['post_config'] = service_list
@@ -978,7 +982,7 @@ class Quads(object):
                     if cloud in clouds.keys() and cloud in summary.keys():
                         requested_description = clouds[cloud]["description"]
                         cloud_summary = {cloud: {'description': requested_description,
-                                                'hosts': len(summary[cloud])}}
+                                                 'hosts': len(summary[cloud])}}
                         service_list = []
                         if cloud in clouds.keys():
                             if 'post_config' in clouds[cloud] and len(clouds[cloud]['post_config']) > 0:
