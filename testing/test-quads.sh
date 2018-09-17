@@ -25,6 +25,7 @@ fi
 echo '========== START === '`date`' ===================='
 echo "called as $0"
 echo "called with params: $*"
+source /home/quads-ci/foreman
 printenv
 echo pwd is: `pwd`
 echo "------"
@@ -74,6 +75,8 @@ libdir=$bindir/../lib
 
 function quads_daemon_start() {
     sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $install_bin/../conf/quads.yml
+    sed -i -e "s@foreman_api_url: https://foreman.example.com/api/v2@foreman_api_url: $FOREMAN_API_URL@g" $install_bin/../conf/quads.yml
+    sed -i -e "s@foreman_password: password@foreman_password: $FOREMAN_PASSWORD@g" $install_bin/../conf/quads.yml
     quads_start="python $(dirname $0)/quads-daemon --config $DATA --statedir $STATEDIR --log-path $LOGFILE --port 8082"
     $quads_start  1>/dev/null 2>&1 &
 }
