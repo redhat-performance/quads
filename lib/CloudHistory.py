@@ -16,6 +16,7 @@
 import logging
 import copy
 
+
 class CloudHistory(object):
     def __init__(self, data=None):
         """
@@ -23,6 +24,8 @@ class CloudHistory(object):
         data required by the Quads object. (used for cloud
         history tracking)
         """
+        self.logger = logging.getLogger("quads.CloudHistory")
+        self.logger.setLevel(logging.DEBUG)
         if data is None:
             self.data = {}
             return

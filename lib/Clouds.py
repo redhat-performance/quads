@@ -16,6 +16,7 @@
 import logging
 import copy
 
+
 class Clouds(object):
     def __init__(self, data=None):
         """
