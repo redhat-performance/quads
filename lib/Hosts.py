@@ -16,6 +16,7 @@
 import logging
 import copy
 
+
 class Hosts(object):
     def __init__(self, data=None):
         """

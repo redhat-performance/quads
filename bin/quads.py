@@ -7,6 +7,8 @@ import os
 import sys
 import yaml
 
+from lib.Quads import Quads
+
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
@@ -14,32 +16,37 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
     try:
         with open(quads_config, 'r') as config_file:
             try:
                 quads_config_yaml = yaml.safe_load(config_file)
-            except Exception, ex:
+            except yaml.YAMLError:
                 print "quads: Invalid YAML config: " + quads_config
                 exit(1)
-    except Exception, ex:
+    except Exception as ex:
         print ex
         exit(1)
-    return(quads_config_yaml)
+    return quads_config_yaml
+
 
 def print_hosts(quads):
     for host in quads.get_hosts():
         print(host)
 
+
 def print_clouds(quads):
     for cloud in quads.get_clouds():
         print(cloud)
+
 
 def print_owners(quads, cloudonly):
     for item in quads.get_owners(cloudonly):
         for cloud, owner in item.iteritems():
             print("{}: {}".format(cloud, owner))
+
 
 def print_cc(quads, cloudonly):
     for item in quads.get_cc(cloudonly):
@@ -49,18 +56,22 @@ def print_cc(quads, cloudonly):
             else:
                 print(cloud)
 
+
 def print_tickets(quads, cloudonly):
     for item in quads.get_tickets(cloudonly):
         for cloud, ticket in item.iteritems():
             print("{}: {}".format(cloud, ticket))
+
 
 def print_qinq(quads, cloudonly):
     for item in quads.get_qinq(cloudonly):
         for cloud, qinq in item.iteritems():
             print("{}: {}".format(cloud, qinq))
 
+
 def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
+
 
 def print_cloud_hosts(quads, datearg, cloudonly):
     cloud_hosts = quads.query_cloud_hosts(datearg)
@@ -72,9 +83,10 @@ def print_cloud_hosts(quads, datearg, cloudonly):
             print("Requested cloud does not exist")
     else:
         for cloud, hostlist in sorted(cloud_hosts.iteritems()):
-                  print("{}:".format(cloud))
-                  for host in hostlist:
-                      print(" - {}".format(host))
+            print("{}:".format(cloud))
+            for host in hostlist:
+                print(" - {}".format(host))
+
 
 def print_host_schedule(quads, host, datearg):
     default_cloud, current_cloud, current_schedule, full_schedule = quads.query_host_schedule(host, datearg)
@@ -82,7 +94,7 @@ def print_host_schedule(quads, host, datearg):
     print ("Current cloud: {}".format(current_cloud))
     if current_schedule is not None:
         print("Current schedule: {}".format(current_schedule))
-    if len(full_schedule)>0:
+    if len(full_schedule) > 0:
         print("Defined schedules:")
         for item in full_schedule:
             for override, schedule in item.iteritems():
@@ -92,6 +104,7 @@ def print_host_schedule(quads, host, datearg):
                         sys.stdout.write("{}={},".format(schedkey, schedval))
                     else:
                         print("{}={}".format(schedkey, schedval))
+
 
 def print_cloud_summary(quads, datearg, activesummary):
     cloud_summary = quads.query_cloud_summary(datearg, activesummary)
@@ -105,10 +118,12 @@ def print_cloud_summary(quads, datearg, activesummary):
                     elif param == 'description':
                         print("({})".format(description))
 
+
 def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
     clouds = quads.query_cloud_postconfig(datearg, activesummary, postconfig)
     for cloud in clouds:
         print cloud
+
 
 def main():
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
@@ -124,7 +139,6 @@ def main():
 
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
-    from Quads import Quads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
@@ -137,7 +151,8 @@ def main():
     group.add_argument('--ls-ticket', dest='lsticket', action='store_true', default=None, help='List request ticket')
     group.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
     group.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
-    group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
+    group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None,
+                       help='Define a cloud environment')
     group.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
     group.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
     group.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
@@ -148,44 +163,61 @@ def main():
     group.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     group.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
-    parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
-    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig, type=str)
-    parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
-    parser.add_argument('-i', '--init', dest='initialize', action='store_true', help='initialize the schedule YAML file')
+    parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
+                        help='Limit full report to hosts only in this cloud')
+    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig,
+                        type=str)
+    parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None,
+                        help='date and time to query; e.g. "2016-06-01 08:00"')
+    parser.add_argument('-i', '--init', dest='initialize', action='store_true',
+                        help='initialize the schedule YAML file')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
-    parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
-    parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
-    parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
-    parser.add_argument('--schedule-query', dest='schedquery', action='store_true', help='Query the schedule for a specific month')
-    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month, help='Query the schedule for a specific month and year')
-    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year, help='Query the schedule for a specific month and year')
+    parser.add_argument('--description', dest='description', type=str, default=None,
+                        help='Defined description of cloud')
+    parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None,
+                        help='Defined default cloud for a host')
+    parser.add_argument('--force', dest='force', action='store_true',
+                        help='Force host or cloud update when already defined')
+    parser.add_argument('--schedule-query', dest='schedquery', action='store_true',
+                        help='Query the schedule for a specific month')
+    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month,
+                        help='Query the schedule for a specific month and year')
+    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year,
+                        help='Query the schedule for a specific month and year')
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
     parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
     parser.add_argument('--statedir', dest='statedir', type=str, default=defaultstatedir, help='Default state dir')
     parser.add_argument('--sync', dest='syncstate', action='store_true', default=None, help='Sync state of hosts')
-    parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
-    parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
-    parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
-    parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig',type=str, default=None, nargs='*', choices=['openstack'], help='Post provisioning configuration to apply')
-    parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
-    parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
-    parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
-    parser.add_argument('--os-compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
-    parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
+    parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
+                        help='Move hosts if schedule has changed')
+    parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand,
+                        help='External command to move a host')
+    parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None,
+                        help='Dont update state when used with --move-hosts')
+    parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
+    parser.add_argument('--post-config', dest='postconfig', type=str, default=None, nargs='*', choices=['openstack'],
+                        help='Post provisioning configuration to apply')
+    parser.add_argument('--version', dest='version', type=str, default=None, help='Version of Software to apply')
+    parser.add_argument('--puddle', dest='puddle', type=str, default='latest', help='Puddle to apply')
+    parser.add_argument('--os-control-scale', dest='controlscale', type=int, default=None,
+                        help='Number of controller nodes for OpenStack deployment')
+    parser.add_argument('--os-compute-scale', dest='computescale', type=int, default=None,
+                        help='Number of compute nodes for OpenStack deployment')
+    parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
+                        help='Model/Make/Type of host DellR620  for example')
 
     args = parser.parse_args()
-    if args.logpath :
+    if args.logpath:
         quads_config["log"] = args.logpath
 
-    if not os.path.exists(quads_config["log"]) :
-        try :
-            open(quads_config["log"],'a').close()
+    if not os.path.exists(quads_config["log"]):
+        try:
+            open(quads_config["log"], 'a').close()
         except Exception:
             logger.error("Log file does not exist : {}".format(quads_config["log"]))
             exit(1)
@@ -198,7 +230,7 @@ def main():
     if not os.path.exists(args.statedir):
         try:
             os.makedirs(args.statedir)
-        except Exception, ex:
+        except Exception as ex:
             print ex
             exit(1)
 
@@ -306,17 +338,16 @@ def main():
         exit(0)
 
     if args.schedquery:
-        schedule = None
-        schedule = quads.hosts_schedule_query(month=args.month,year=args.year)
+        schedule = quads.hosts_schedule_query(month=args.month, year=args.year)
 
-        print "Host Schedule for {}/{}".format(args.year,args.schedquery)
+        print "Host Schedule for {}/{}".format(args.year, args.schedquery)
         print "Note: This is a per-day view. Every entry is a day in a given month."
         print "      This only shows the cloud number per entry"
-        for host in sorted(schedule.iterkeys()) :
-            _daily=""
+        for host in sorted(schedule.iterkeys()):
+            _daily = ""
             for day in schedule[host][args.year][args.month]:
-                _daily = "{} {}".format(_daily,schedule[host][args.year][args.month][day][1].strip('cloud'))
-            print "{}\t {}".format(host.split('.')[0],_daily)
+                _daily = "{} {}".format(_daily, schedule[host][args.year][args.month][day][1].strip('cloud'))
+            print "{}\t {}".format(host.split('.')[0], _daily)
         exit(0)
 
     if args.addschedule:
@@ -396,5 +427,6 @@ def main():
     print_cloud_hosts(quads, args.datearg, args.cloudonly)
     exit(0)
 
+
 if __name__ == "__main__":
-       main()
+    main()
