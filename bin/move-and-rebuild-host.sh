@@ -91,10 +91,18 @@ for line in $(cat $configdir/$host_to_move); do
     switchip=$(echo $line | awk -F, '{ print $3 }')
     switchtype=$(echo $line | awk -F, '{ print $4 }')
     switchport=$(echo $line | awk -F, '{ print $5 }')
-    old_vlan=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show configuration interfaces ${switchport} 2>/dev/null | awk '{ print $2 }' | sed -e 's/QinQ_vl//' -e 's/;//')
+    old_vlan=$(ssh -o passwordauthentication=no -o connecttimeout=3 $switchip show configuration interfaces ${switchport} 2>/dev/null | grep 'QinQ' | awk '{ print $2 }' | sed -e 's/QinQ_vl//' -e 's/;//')
     if [ -z "$old_vlan" ]; then
-        echo "Could not determine the previous VLAN for $host_to_move"
-        exit 1
+        echo "Warning: Could not determine the previous VLAN for $host_to_move on $interface, switch $switchip, switchport $switchport"
+    else
+        old_cloud_num=$(echo $old_cloud | sed 's/cloud//')
+        old_cloud_offset=$(expr $old_cloud_num \* 10)
+        old_base_vlan=$(expr 1090 + $old_cloud_offset)
+        if [ "$qinq" = "1" ]; then
+            old_vlan=$(expr $old_base_vlan + ${offsets["em1"]})
+        else
+            old_vlan=$(expr $old_base_vlan + ${offsets[$interface]})
+        fi
     fi
 
     new_cloud_num=$(echo $new_cloud | sed 's/cloud//')
