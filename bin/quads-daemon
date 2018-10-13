@@ -32,7 +32,7 @@ import re
 import cgi
 import json
 import threading
-
+import Reservation_report
 
 logger = logging.getLogger('quads')
 logger.setLevel(logging.DEBUG)
@@ -785,6 +785,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps({'wipes': quads.get_wipe(None)}))
+        return
+    if None != re.search('/api/v1/showreserv', self.path):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(Reservation_report.main()))
         return
     self.send_response(403)
     self.send_header('Content-Type', 'application/json')
