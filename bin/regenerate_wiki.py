@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from . import create_input
+from . import create_input, create_input_assignments
 from . import racks_wiki
 from datetime import datetime
 from git import Repo
@@ -32,12 +32,12 @@ racks = conf["racks"]
 
 if __name__ == "__main__":
     create_input.main()
-    md_file = os.path.join(wp_wiki_git_repo_path, "main.md")
+    main_md = os.path.join(wp_wiki_git_repo_path, "main.md")
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
             repo = Repo(wp_wiki_git_repo_path)
             if repo.is_dirty():
-                repo.index.add(md_file)
+                repo.index.add(main_md)
                 repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
                 repo.remotes.origin.push()
                 # TODO: check gitdiff
@@ -48,5 +48,25 @@ if __name__ == "__main__":
         password=wp_password,
         _page_title=wp_wiki_main_title,
         _page_id=wp_wiki_main_page_id,
-        _markdown=md_file
+        _markdown=main_md,
+    )
+
+    create_input_assignments.main()
+    assignments_md = os.path.join(wp_wiki_git_repo_path, "assignments.md")
+    if wp_wiki_git_manage:
+        if os.path.exists(wp_wiki_git_repo_path):
+            repo = Repo(wp_wiki_git_repo_path)
+            if repo.is_dirty():
+                repo.index.add(assignments_md)
+                repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
+                repo.remotes.origin.push()
+                # TODO: check gitdiff
+
+    racks_wiki.update_wiki(
+        url="http://%s/xmlrpc.php" % wp_wiki,
+        username=wp_username,
+        password=wp_password,
+        _page_title=wp_wiki_assignments_title,
+        _page_id=wp_wiki_assignments_page_id,
+        _markdown=assignments_md,
     )
