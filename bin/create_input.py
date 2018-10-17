@@ -81,8 +81,8 @@ def main():
     )
     foreman = Foreman(
         conf["foreman_api_url"],
-        conf["ipmi_username"],
-        conf["ipmi_password"],
+        conf["foreman_username"],
+        conf["foreman_password"],
     )
 
     all_hosts = foreman.get_hosts()

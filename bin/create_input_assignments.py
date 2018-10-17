@@ -215,8 +215,17 @@ def main():
     default_config = conf["data_dir"] + "/schedule.yaml"
     default_state_dir = conf["data_dir"] + "/state"
     default_move_command = "/bin/echo"
-    quads = Quads(default_config, default_state_dir, default_move_command, None, False, False, False)
-    foreman = Foreman(conf["foreman_api_url"], conf["ipmi_username"], conf["ipmi_password"])
+    quads = Quads(
+        default_config,
+        default_state_dir,
+        default_move_command,
+        None, False, False, False
+    )
+    foreman = Foreman(
+        conf["foreman_api_url"],
+        conf["foreman_username"],
+        conf["foreman_password"]
+    )
 
     lines = []
     all_hosts = foreman.get_hosts()
