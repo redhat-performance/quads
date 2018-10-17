@@ -2,8 +2,10 @@
 
 import os
 from . import create_input
+from . import racks_wiki
+from datetime import datetime
+from git import Repo
 from quads.helpers import quads_load_config
-
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -28,9 +30,23 @@ exclude_hosts = conf["exclude_hosts"]
 domain = conf["domain"]
 racks = conf["racks"]
 
-
 if __name__ == "__main__":
     create_input.main()
+    md_file = os.path.join(wp_wiki_git_repo_path, "main.md")
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
-            pass
+            repo = Repo(wp_wiki_git_repo_path)
+            if repo.is_dirty():
+                repo.index.add(md_file)
+                repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
+                repo.remotes.origin.push()
+                # TODO: check gitdiff
+
+    racks_wiki.update_wiki(
+        url="http://%s/xmlrpc.php" % wp_wiki,
+        username=wp_username,
+        password=wp_password,
+        _page_title=wp_wiki_main_title,
+        _page_id=wp_wiki_main_page_id,
+        _markdown=md_file
+    )
