@@ -27,11 +27,10 @@ if __name__ == "__main__":
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
             repo = Repo(wp_wiki_git_repo_path)
-            if repo.is_dirty():
+            if repo.git.diff():
                 repo.index.add(main_md)
                 repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
                 repo.remotes.origin.push()
-                # TODO: check gitdiff
 
     racks_wiki.update_wiki(
         url="http://%s/xmlrpc.php" % wp_wiki,
@@ -42,16 +41,16 @@ if __name__ == "__main__":
         _markdown=main_md,
     )
 
+
     create_input_assignments.main()
     assignments_md = os.path.join(wp_wiki_git_repo_path, "assignments.md")
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
             repo = Repo(wp_wiki_git_repo_path)
-            if repo.is_dirty():
+            if repo.git.diff():
                 repo.index.add(assignments_md)
                 repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
                 repo.remotes.origin.push()
-                # TODO: check gitdiff
 
     racks_wiki.update_wiki(
         url="http://%s/xmlrpc.php" % wp_wiki,
