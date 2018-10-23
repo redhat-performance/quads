@@ -4,7 +4,7 @@ import os
 import re
 from helpers import quads_load_config
 from foreman import Foreman
-from quads import Quads
+from quads.quads import Quads
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -40,15 +40,14 @@ def consolidate_ipmi_data(_host, _path, _value):
 
 def render_header(_rack):
     h = "**Rack %s**" % _rack.upper()
-    h1 = "|%s|" % " | ".join(HEADERS)
-    h2 = "|%s|\n" % " | ".join(["---" for _ in range(len(HEADERS))])
+    h1 = "| %s |" % " | ".join(HEADERS)
+    h2 = "| %s |\n" % " | ".join(["---" for _ in range(len(HEADERS))])
     return "\n".join([h, "", h1, h2])
 
 
 def render_row(_quads, _host, _properties):
     u_loc = _host.split("-")[2][1:]
     node = _host[5:]
-    workload = ""
     owner = ""
     cloud = ""
     workload = _quads.query_host_cloud(node, None)
@@ -56,9 +55,10 @@ def render_row(_quads, _host, _properties):
         cloud_owner = _quads.get_owners(workload)
         owner = cloud_owner[0][workload]
         cloud = "[%s](/assignments/#%s)" % (workload, workload)
+
     # TODO: figure out what to put on grafana field
     grafana = ""
-    row = "|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|\n" % (
+    row = [
         u_loc,
         node.split(".")[0],
         _properties["svctag"],
@@ -70,8 +70,8 @@ def render_row(_quads, _host, _properties):
         cloud,
         owner,
         grafana,
-    )
-    return row
+    ]
+    return "| %s |" % " | ".join(row)
 
 
 def rack_has_hosts(rack, hosts):

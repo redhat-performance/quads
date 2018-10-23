@@ -23,7 +23,10 @@ HEADERS = [
 
 
 def print_header():
-    lines = ["| %s |\n" % " | ".join(HEADERS), "| %s |\n" % "|".join([" --- " for _ in range(len(HEADERS))])]
+    lines = [
+        "| %s |\n" % " | ".join(HEADERS),
+        "| %s |\n" % " | ".join(["---" for _ in range(len(HEADERS))])
+    ]
     return lines
 
 
@@ -49,37 +52,37 @@ def print_summary(_quads, _host_count):
         _headers.append("**DELLCFG**")
 
     _summary.append("| %s |\n" % " | ".join(_headers))
-    _summary.append("|%s|\n" % "|".join([" --- " for _ in range(len(_headers))]))
+    _summary.append("|%s|\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
     _cloud_summary = get_cloud_summary(_quads, None, True)
 
     for line in _cloud_summary:
-        name = line.split()[0]
+        cloud = line.split()[0]
         desc = line.strip().split(":")[1].strip()
         owner = ""
-        if name:
-            cloud_owner = _quads.get_owners(name)
-            owner = cloud_owner[0][name]
-        cloud_ticket = get_tickets(_quads, name)
+        if cloud:
+            cloud_owner = _quads.get_owners(cloud)
+            owner = cloud_owner[0][cloud]
+        cloud_ticket = get_tickets(_quads, cloud)
         ticket = ""
         link = ""
         if cloud_ticket:
             ticket = cloud_ticket[0].split()[1]
             link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"],
                                                               ticket, ticket)
-        cloud_specific_tag = "%s_%s_%s" % (name, owner, ticket)
+        cloud_specific_tag = "%s_%s_%s" % (cloud, owner, ticket)
 
         style_tag_end = "</span>"
-        if environment_released(_quads, None, None) or name == "cloud01":
+        if environment_released(_quads, None, None) or cloud == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % name)
+            instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud)
             instack_text = "download"
         else:
             style_tag_start = '<span style="color:red">'
             instack_link = os.path.join(conf["quads_url"], "underconstruction")
             instack_text = "validating"
 
-        _data = ["[%s%s%s](#%s)" % (style_tag_start, name, style_tag_end, name), desc, owner, link]
+        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud, style_tag_end, cloud), desc, owner, link]
 
         if conf["gather_ansible_facts"]:
             factstyle_tag_end = "</span>"
@@ -93,7 +96,7 @@ def print_summary(_quads, _host_count):
             else:
                 factstyle_tag_start = '<span style="color:red">'
                 ansible_facts_link = os.path.join(conf["quads_url"], "underconstruction")
-            if name == "cloud01":
+            if cloud == "cloud01":
                 _data.append("")
                 _data.append("")
             else:
@@ -106,7 +109,7 @@ def print_summary(_quads, _host_count):
                     % (ansible_facts_link, factstyle_tag_start, factstyle_tag_end)
                 )
         else:
-            if name == "cloud01":
+            if cloud == "cloud01":
                 _data.append("")
             else:
                 _data.append(
@@ -116,10 +119,10 @@ def print_summary(_quads, _host_count):
 
         if conf["gather_dell_configs"]:
             dellstyle_tag_end = "</span>"
-            if os.path.exists(conf["json_web_path"], "%s-%s-%s-dellconfig.html" % (name, owner, ticket)):
+            if os.path.exists(conf["json_web_path"], "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)):
                 dellstyle_tag_start = '<span style="color:green">'
                 dellconfig_link = os.path.join(
-                    conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (name, owner, ticket)
+                    conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)
                 )
                 dellconfig_text = "view"
             else:
@@ -127,7 +130,7 @@ def print_summary(_quads, _host_count):
                 dellconfig_link = os.path.join(conf["quads_url"], "underconstruction")
                 dellconfig_text = "unavailable"
 
-            if name == "cloud01":
+            if cloud == "cloud01":
                 _data.append("")
             else:
                 _data.append(
@@ -148,7 +151,7 @@ def print_unmanaged(quads, hosts, broken_hosts):
     lines = ["\n", '### <a name="unmanaged"></a>Unmanaged systems ###\n', "\n"]
     _headers = ["**SystemHostname**", "**OutOfBand**"]
     lines.append("| %s |\n" % " | ".join(_headers))
-    lines.append("| %s |\n" % "|".join([" --- " for _ in range(len(_headers))]))
+    lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
         if broken_hosts.get(host, True):
             short_host = host.split(".")[0]
@@ -161,7 +164,7 @@ def print_faulty(broken_hosts):
     lines = ["\n", '### <a name="faulty"></a>Faulty systems ###\n', "\n"]
     _headers = ["**SystemHostname**", "**OutOfBand**"]
     lines.append("| %s |\n" % " | ".join(_headers))
-    lines.append("| %s |\n" % "|".join([" --- " for _ in range(len(_headers))]))
+    lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in broken_hosts.items():
         short_host = host.split(".")[0]
         lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host))
