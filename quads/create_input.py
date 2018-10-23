@@ -2,9 +2,9 @@
 
 import os
 import re
-from quads.helpers import quads_load_config
-from quads.foreman import Foreman
-from quads.quads import Quads
+from helpers import quads_load_config
+from foreman import Foreman
+from quads import Quads
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -39,17 +39,23 @@ def consolidate_ipmi_data(_host, _path, _value):
 
 
 def render_header(_rack):
-    h = "**Rack %s**" % _rack.toupper()
-    h1 = "|%s|" % "|".join(HEADERS)
-    h2 = "|%s|\n" % "|".join(["---" for _ in range(len(HEADERS))])
+    h = "**Rack %s**" % _rack.upper()
+    h1 = "|%s|" % " | ".join(HEADERS)
+    h2 = "|%s|\n" % " | ".join(["---" for _ in range(len(HEADERS))])
     return "\n".join([h, "", h1, h2])
 
 
 def render_row(_quads, _host, _properties):
     u_loc = _host.split("-")[2][1:]
     node = _host[5:]
+    workload = ""
+    owner = ""
+    cloud = ""
     workload = _quads.query_host_cloud(node, None)
-    owner = _quads.get_owners(workload)
+    if workload:
+        cloud_owner = _quads.get_owners(workload)
+        owner = cloud_owner[0][workload]
+        cloud = "[%s](/assignments/#%s)" % (workload, workload)
     # TODO: figure out what to put on grafana field
     grafana = ""
     row = "|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|\n" % (
@@ -61,11 +67,18 @@ def render_row(_quads, _host, _properties):
         _properties["ip"],
         "<a href=http://%s/ target=_blank>console</a>" % _host,
         _properties["mac"],
-        workload,
+        cloud,
         owner,
         grafana,
     )
     return row
+
+
+def rack_has_hosts(rack, hosts):
+    for host, _ in hosts.items():
+        if rack in host:
+            return True
+    return False
 
 
 def main():
@@ -92,11 +105,13 @@ def main():
         if "mgmt" in host and not blacklist.search(host):
             properties["host_ip"] = all_hosts.get(host[5:], {"ip": None})["ip"]
             properties["host_mac"] = all_hosts.get(host[5:], {"mac": None})["mac"]
-            svctag_file = os.path.join(conf["data_dir"], "ipmi", host[5:], "svctag")
             consolidate_ipmi_data(host[5:], "macaddr", properties["host_mac"])
             consolidate_ipmi_data(host[5:], "oobmacaddr", properties["mac"])
-            with open(svctag_file) as _file:
-                svctag = _file.read()
+            svctag_file = os.path.join(conf["data_dir"], "ipmi", host[5:], "svctag")
+            svctag = ""
+            if os.path.exists(svctag_file):
+                with open(svctag_file) as _file:
+                    svctag = _file.read()
             properties["svctag"] = svctag.strip()
             hosts[host] = properties
 
@@ -104,12 +119,14 @@ def main():
 
     with open(_full_path, "w") as _f:
         _f.seek(0)
-        for rack in conf["racks"]:
-            _f.write(render_header(rack))
+        for rack in conf["racks"].split():
+            if rack_has_hosts(rack, hosts):
+                _f.write(render_header(rack))
 
-            for host, properties in hosts.items():
-                if rack in host:
-                    _f.write(render_row(quads, host, properties))
+                for host, properties in hosts.items():
+                    if rack in host:
+                        _f.write(render_row(quads, host, properties))
+                _f.write("\n")
 
         _f.truncate()
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import requests
+import urllib3
+
+urllib3.disable_warnings()
 
 
 class Foreman(object):
