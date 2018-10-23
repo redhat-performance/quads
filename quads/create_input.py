@@ -98,7 +98,7 @@ def main():
         conf["foreman_password"],
     )
 
-    all_hosts = foreman.get_hosts()
+    all_hosts = foreman.get_all_hosts()
     blacklist = re.compile(conf["exclude_hosts"])
     hosts = {}
     for host, properties in all_hosts.items():

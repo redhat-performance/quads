@@ -16,6 +16,10 @@ class TestForeman(object):
             conf["ipmi_password"],
         )
 
-    def test_get_hosts(self):
-        hosts = self.foreman.get_hosts()
+    def test_get_all_hosts(self):
+        hosts = self.foreman.get_all_hosts()
+        assert isinstance(hosts, type(dict))
+
+    def test_get_broken_hosts(self):
+        hosts = self.foreman.get_broken_hosts()
         assert isinstance(hosts, type(dict))

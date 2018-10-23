@@ -229,7 +229,7 @@ def main():
     )
 
     lines = []
-    all_hosts = foreman.get_hosts()
+    all_hosts = foreman.get_all_hosts()
     blacklist = re.compile(conf["exclude_hosts"])
 
     broken_hosts = foreman.get_broken_hosts()
