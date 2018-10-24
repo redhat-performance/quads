@@ -2,7 +2,7 @@
 
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from helpers import quads_load_config
 from foreman import Foreman
 from quads import Quads
@@ -43,7 +43,7 @@ def environment_released(_quads, _owner, _env):
     return False
 
 
-def print_summary(_quads, _host_count):
+def print_summary(_quads):
     _summary = []
     _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**", "**INSTACKENV**"]
     if conf["gather_ansible_facts"]:
@@ -52,7 +52,7 @@ def print_summary(_quads, _host_count):
         _headers.append("**DELLCFG**")
 
     _summary.append("| %s |\n" % " | ".join(_headers))
-    _summary.append("|%s|\n" % " | ".join(["---" for _ in range(len(_headers))]))
+    _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
     _cloud_summary = get_cloud_summary(_quads, None, True)
 
@@ -138,6 +138,7 @@ def print_summary(_quads, _host_count):
                     % (dellconfig_link, dellstyle_tag_start, dellconfig_text, dellstyle_tag_end)
                 )
         _summary.append("| %s |\n" % " | ".join(_data))
+    _host_count = len(_quads.get_hosts())
     _summary.append("| Total | %s |\n" % _host_count)
     _summary.append("\n")
     _summary.append("[Unmanaged Hosts](#unmanaged)\n")
@@ -153,10 +154,13 @@ def print_unmanaged(quads, hosts, broken_hosts):
     lines.append("| %s |\n" % " | ".join(_headers))
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
-        if broken_hosts.get(host, True):
-            short_host = host.split(".")[0]
-            if quads.query_host_cloud(short_host, None):
-                lines.append("| %s | <a href=http://%s/ target=_blank>console</a> |" % (short_host, host))
+        if not broken_hosts.get(host, False):
+            real_host = host[5:]
+            short_host = real_host.split(".")[0]
+            if not quads.query_host_cloud(real_host, None):
+                lines.append(
+                    "| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host)
+                )
     return lines
 
 
@@ -247,7 +251,7 @@ def main():
             mgmt_hosts[host] = properties
 
     lines.append("### **SUMMARY**\n")
-    _summary = print_summary(quads, len(mgmt_hosts))
+    _summary = print_summary(quads)
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
@@ -267,7 +271,7 @@ def main():
             lines.extend(add_row(quads, host))
         lines.append("\n")
 
-    lines.extend(print_unmanaged(quads, all_hosts, domain_broken_hosts))
+    lines.extend(print_unmanaged(quads, mgmt_hosts, domain_broken_hosts))
     lines.extend(print_faulty(domain_broken_hosts))
 
     _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "assignments.md")
