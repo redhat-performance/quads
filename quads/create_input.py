@@ -71,7 +71,7 @@ def render_row(_quads, _host, _properties):
         owner,
         grafana,
     ]
-    return "| %s |" % " | ".join(row)
+    return "| %s |\n" % " | ".join(row)
 
 
 def rack_has_hosts(rack, hosts):
