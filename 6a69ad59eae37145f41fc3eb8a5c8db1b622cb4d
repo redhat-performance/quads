@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd4430c3_1c259e2b",
+        "filename": "testing/test-quads.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-02T20:27:08Z",
+      "side": 1,
+      "message": "clever way to solve the variable dilemma, wonder if we should also push a file under ../testing with dummy values for folks if this is to be replicated somewhere else.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 29
+      },
+      "revId": "6a69ad59eae37145f41fc3eb8a5c8db1b622cb4d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
