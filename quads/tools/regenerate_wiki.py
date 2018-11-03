@@ -19,7 +19,6 @@ wp_wiki_assignments_page_id = conf["wp_wiki_assignments_page_id"]
 wp_wiki_git_manage = conf["wp_wiki_git_manage"]
 wp_wiki_git_repo_path = conf["wp_wiki_git_repo_path"]
 
-
 if __name__ == "__main__":
     create_input.main()
     main_md = os.path.join(wp_wiki_git_repo_path, "main.md")
@@ -39,7 +38,6 @@ if __name__ == "__main__":
             _page_id=wp_wiki_main_page_id,
             _markdown=main_md,
         )
-
 
     create_input_assignments.main()
     assignments_md = os.path.join(wp_wiki_git_repo_path, "assignments.md")
