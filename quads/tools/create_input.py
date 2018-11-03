@@ -3,7 +3,7 @@
 import os
 import re
 from helpers import quads_load_config
-from foreman import Foreman
+from tools.foreman import Foreman
 from quads import Quads
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")

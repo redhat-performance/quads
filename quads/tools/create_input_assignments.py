@@ -4,7 +4,7 @@ import os
 import re
 from datetime import datetime
 from helpers import quads_load_config
-from foreman import Foreman
+from tools.foreman import Foreman
 from quads import Quads
 from util import get_cloud_summary, get_tickets
 

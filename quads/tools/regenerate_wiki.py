@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import create_input, create_input_assignments
-import racks_wiki
+from tools import create_input, create_input_assignments, racks_wiki
 from datetime import datetime
 from git import Repo
 from helpers import quads_load_config
