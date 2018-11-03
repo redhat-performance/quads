@@ -6,7 +6,7 @@ from helpers import quads_load_config
 from tools.foreman import Foreman
 from quads import Quads
 
-conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
+conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
 
 HEADERS = [

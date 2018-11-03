@@ -36,7 +36,7 @@ cli = args.cli
 hostset = ()
 hostnames = ()
 
-quads_config = os.path.dirname(__file__) + "/../conf/quads.yml"
+quads_config = os.path.dirname(__file__) + "/../../conf/quads.yml"
 quads = {}
 
 

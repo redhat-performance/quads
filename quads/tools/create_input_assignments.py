@@ -8,7 +8,7 @@ from tools.foreman import Foreman
 from quads import Quads
 from util import get_cloud_summary, get_tickets
 
-conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
+conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
 
 HEADERS = [

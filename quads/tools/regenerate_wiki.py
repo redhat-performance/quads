@@ -6,7 +6,7 @@ from datetime import datetime
 from git import Repo
 from helpers import quads_load_config
 
-conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
+conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
 
 wp_wiki = conf["wp_wiki"]
