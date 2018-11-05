@@ -15,12 +15,9 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from SocketServer import ThreadingMixIn
-from lib.Foreman import Foreman
-from lib.Quads import Quads
-from lib.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from socketserver import ThreadingMixIn
 import time
 import yaml
 import argparse
@@ -892,11 +889,10 @@ def quads_load_config(_quads_config):
             try:
                 quads_config_yaml = yaml.safe_load(config_file)
             except yaml.YAMLError:
-                print "quads: Invalid YAML config: " + _quads_config
+                print("quads: Invalid YAML config: " + _quads_config)
                 exit(1)
-    except Exception as ex:
-        print ex
-
+    except IOError as err:
+        print(err)
         exit(1)
     return quads_config_yaml
 

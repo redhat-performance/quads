@@ -18,7 +18,7 @@ def printf(_format, *args):
 
 args = parser.parse_args()
 
-quads_config = os.path.dirname(__file__) + "/../conf/quads.yml"
+quads_config = os.path.dirname(__file__) + "/../../conf/quads.yml"
 quads = {}
 
 

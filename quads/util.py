@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
-from quads.helpers import quads_load_config
-from quads.quads import Quads
+from helpers import quads_load_config
+from quads import Quads
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -27,10 +27,17 @@ def print_clouds(quads):
         print(cloud)
 
 
-def print_owners(quads, cloudonly):
+def get_owners(quads, cloudonly):
+    _owners = []
     for item in quads.get_owners(cloudonly):
         for cloud, owner in item.items():
-            print("{}: {}".format(cloud, owner))
+            _owners.append("{}: {}".format(cloud, owner))
+    return _owners
+
+
+def print_owners(quads, cloudonly):
+    for item in get_owners(quads, cloudonly):
+        print(item)
 
 
 def print_cc(quads, cloudonly):
@@ -42,10 +49,17 @@ def print_cc(quads, cloudonly):
                 print(cloud)
 
 
-def print_tickets(quads, cloudonly):
+def get_tickets(quads, cloudonly):
+    _tickets = []
     for item in quads.get_tickets(cloudonly):
         for cloud, ticket in item.items():
-            print("{}: {}".format(cloud, ticket))
+            _tickets.append("{}: {}".format(cloud, ticket))
+    return _tickets
+
+
+def print_tickets(quads, cloudonly):
+    for item in get_tickets(quads, cloudonly):
+        print(item)
 
 
 def print_qinq(quads, cloudonly):
@@ -91,17 +105,28 @@ def print_host_schedule(quads, host, datearg):
                         print("{}={}".format(schedkey, schedval))
 
 
-def print_cloud_summary(quads, datearg, activesummary):
-    cloud_summary = quads.query_cloud_summary(datearg, activesummary)
-    if len(cloud_summary) > 0:
-        for item in cloud_summary:
+def get_cloud_summary(quads, datearg, activesummary):
+    _cloud_summary = quads.query_cloud_summary(datearg, activesummary)
+    _lines = []
+    if len(_cloud_summary) > 0:
+        for item in _cloud_summary:
             for cloudname, details in item.items():
-                print("{} :".format(cloudname)),
-                for param, description in details.items():
+                hosts_count = "0"
+                description = ""
+                for param, value in details.items():
                     if param == 'hosts':
-                        print(description),
+                        hosts_count = value
                     elif param == 'description':
-                        print("({})".format(description))
+                        description = value
+                line = "%s : %s (%s)\n" % (cloudname, hosts_count, description)
+                _lines.append(line)
+    return _lines
+
+
+def print_cloud_summary(quads, datearg, activesummary):
+    _cloud_summary = get_cloud_summary(quads, datearg, activesummary)
+    for line in _cloud_summary:
+        print(line)
 
 
 def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
