@@ -1,0 +1,30 @@
+
+Greetings Citizen,
+
+You've been allocated a new environment!
+
+{{ cloud_info }}
+
+(Details)
+http://{{ wp_wiki }}/assignments/#{{ cloud }}
+
+(Ansible Facts)
+{{ quads_url }}/ansible_facts/{{ cloud }}_{{ real_owner }}_{{ ticket }}_overview.html
+
+You can view your machine list, duration and other
+details above.
+
+You can also view/manage your hosts via Foreman:
+
+{{ foreman_url }}
+
+Username: {{ cloud }}
+Password: {{ ticket }}
+
+For additional information regarding system usage
+please see the following documentation:
+
+http://{{ wp_wiki }}/faq/
+http://{{ wp_wiki }}/usage/
+
+Perf/Scale DevOps Team

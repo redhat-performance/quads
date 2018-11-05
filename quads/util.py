@@ -40,13 +40,20 @@ def print_owners(quads, cloudonly):
         print(item)
 
 
-def print_cc(quads, cloudonly):
-    for item in quads.get_cc(cloudonly):
+def get_cc(quads, cloud_only):
+    _cc = []
+    for item in quads.get_cc(cloud_only):
         for cloud, cc_list in item.items():
             if cc_list is not None:
-                print("{}: {}".format(cloud, ''.join(cc_list)))
+                _cc.append("{}: {}".format(cloud, ''.join(cc_list)))
             else:
-                print(cloud)
+                _cc.append(cloud)
+    return _cc
+
+
+def print_cc(quads, cloud_only):
+    for item in get_cc(quads, cloud_only):
+        print(item)
 
 
 def get_tickets(quads, cloudonly):

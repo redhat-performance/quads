@@ -15,8 +15,8 @@ fi
 source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads-cli
-install_dir=${quads["install_dir"]}
 bin_dir=${quads["install_dir"]}/bin
+tools_dir=${quads["install_dir"]}/quads/tools
 data_dir=${quads["data_dir"]}
 report_cc=${quads["report_cc"]}
 gather_ansible_facts=${quads["gather_ansible_facts"]}
@@ -55,7 +55,7 @@ EOM
     cat $resultfile >> $msgfile
     /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
     if [ ${quads["elastic_stats_enabled"]} ]; then
-      ${bin_dir}/index-data.py --resultfile $resultfile --index validation-errors --type validation-log --owner $owner --ticket $ticket --cloud $env
+      ${tools_dir}/index_data.py --resultfile $resultfile --index validation-errors --type validation-log --owner $owner --ticket $ticket --cloud $env
     fi
     rm -f $msgfile
 }
@@ -106,7 +106,7 @@ function validate_environment() {
     ticket=$3
     resultfile=$(mktemp /tmp/netcheckXXXXXXX)
 
-    if $bin_dir/quads-post-system-test.py --cloud $env 1>$resultfile 2>&1; then
+    if ${tools_dir}/quads_post_system_test.py --cloud $env 1>$resultfile 2>&1; then
         :
     else
         if env_allocation_time_exceeded $env ; then

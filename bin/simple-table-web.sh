@@ -44,10 +44,12 @@ done
 source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
+tools_dir=${quads["install_dir"]}/quads/tools
+data_dir=${quads["data_dir"]}
 visual_web_dir=${quads["visual_web_dir"]}
 visual_tmp_file=$(mktemp /tmp/quads-visual-tmpXXXX)
 
-lockfile=$data_dir/.simple_table_web
+lockfile=${data_dir}/.simple_table_web
 
 if [ -f $lockfile ]; then
     if [ -d /proc/$(cat $lockfile) ]; then
@@ -63,7 +65,7 @@ fi
 [ ! -d $visual_web_dir ] && mkdir -p $visual_web_dir
 
 for i in $(seq 0 $months_out) ; do
-    $bindir/simple-table-generator.py -d ${days[$i]} -m ${month[$i]} -y ${year[$i]} --gentime "Allocation Map for ${year[$i]}-${month[$i]}<br>(Hover cursor over squares for details on allocation)" > $visual_tmp_file
+    ${tools_dir}/simple_table_generator.py -d ${days[$i]} -m ${month[$i]} -y ${year[$i]} --gentime "Allocation Map for ${year[$i]}-${month[$i]}<br>(Hover cursor over squares for details on allocation)" > $visual_tmp_file
     sed -i -r 's/<title>Allocation Map for (.*)<br>/<title>Allocation Map for \1 /g' $visual_tmp_file
     cp $visual_tmp_file $visual_web_dir/${year[$i]}-${month[$i]}.html
     chmod 644 $visual_web_dir/${year[$i]}-${month[$i]}.html
