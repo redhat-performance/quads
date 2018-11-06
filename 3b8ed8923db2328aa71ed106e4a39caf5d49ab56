@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "080914fc_e2036af9",
+        "filename": "bin/move-and-rebuild-host.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-06T19:49:53Z",
+      "side": 1,
+      "message": "See here, this omits supermicro.",
+      "range": {
+        "startLine": 172,
+        "startChar": 4,
+        "endLine": 172,
+        "endChar": 8
+      },
+      "revId": "3b8ed8923db2328aa71ed106e4a39caf5d49ab56",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3e9ac64_5fec691b",
         "filename": "bin/move-and-rebuild-host.sh",
         "patchSetId": 6
@@ -13,6 +36,30 @@
       "writtenOn": "2018-11-06T19:47:33Z",
       "side": 1,
       "message": "So do you think we should only run the \"pxe-director-config.sh\" script for the supermicros?",
+      "range": {
+        "startLine": 173,
+        "startChar": 22,
+        "endLine": 173,
+        "endChar": 23
+      },
+      "revId": "3b8ed8923db2328aa71ed106e4a39caf5d49ab56",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e923ff73_32b5df8b",
+        "filename": "bin/move-and-rebuild-host.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-06T19:49:53Z",
+      "side": 1,
+      "message": "No, I omit them via !",
+      "parentUuid": "a3e9ac64_5fec691b",
       "range": {
         "startLine": 173,
         "startChar": 22,
