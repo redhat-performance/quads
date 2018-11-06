@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Takes three arguments
 # e.g. : c08-h21-r630.example.com cloud01 cloud02
@@ -161,10 +161,25 @@ if $rebuild ; then
   if [ $new_cloud != "cloud01" ]; then
 
     # first ensure PXE enabled on the host .... for foreman
-    $bindir/pxe-foreman-config.sh $host_to_move
+    # we will omit Supermicro systems here
+    if ! [[ $host_to_move =~ .*1029p.* ]] || [[ $host_to_move =~ .*1028r.* ]] || [[ $host_to_move =~ .*6029p.* ]] \
+       || [[ $host_to_move =~ .*6018r.* ]] || [[ $host_to_move =~ .*6048r.* ]];
+       then
+          $bindir/pxe-foreman-config.sh $host_to_move
 
     # also determine whether or not to leverage post snipper for PXE disablement
-    $bindir/pxe-director-config.sh $host_to_move $new_cloud
+    # ommitting supermicro systems here as well
+    if ! [[ $host_to_move =~ .*1029p.* ]] || [[ $host_to_move =~ .*1028r.* ]] || [[ $host_to_move =~ .*6029p.* ]] \
+       || [[ $host_to_move =~ .*6018r.* ]] || [[ $host_to_move =~ .*6048r.* ]] || [[ $host_to_move =~ .*1029u.* ]];
+       then
+          $bindir/pxe-director-config.sh $host_to_move $new_cloud
+
+    # issue #195: run chassis bootdev pxe options=persistent outside of Ansible
+    # this affects supermicros only
+    if [[ $host_to_move =~ .*1029p.* ]] || [[ $host_to_move =~ .*1028r.* ]] || [[ $host_to_move =~ .*6029p.* ]] \
+       || [[ $host_to_move =~ .*6018r.* ]] || [[ $host_to_move =~ .*6048r.* ]] || [[ $host_to_move =~ .*1029u.* ]];
+       then
+          ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis bootdev pxe options=persistent
 
     # either puppet facts or Foreman sometimes collect additional interface info
     # this is needed sometimes as a workaround: clean all non-primary interfaces previously collected
@@ -178,22 +193,18 @@ if $rebuild ; then
     done
     rm -f $TMPIFFILE
 
-    # perform host rebuild, in future the OS here should be a variable, fix me.
-    # we will also force a specific partition table and media option, you should
-    # adjust this to your environment
+    # perform host rebuild
+    # we will also force a specific OS, partition table and media option, you should adjust this to your environment
     hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7" --partition-table "generic-rhel7" --medium "RHEL local"
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
     sleep 30
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power on
+        fi
+      fi
+    fi
   fi
 fi
 
 #### END FOREMAN REBUILD
-# DONT update the wiki here.  This is costly and slows down the
-# move of a large number of nodes.  Instead, run the wiki regeneration
-# more frequently (via cron).  There's a lock file regardless so you
-# cannot cause inconsistencies by running the cronjob more frequently.
-
-# $bindir/regenerate-wiki.sh 1>/dev/null 2>&1
 
 exit 0
