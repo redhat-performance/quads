@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3337e7e_7609e514",
+        "filename": "bin/move-and-rebuild-host.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2018-11-06T19:34:27Z",
+      "side": 1,
+      "message": "It doesn\u0027t look like the if clauses are terminated correctly above.",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 10
+      },
+      "revId": "b55e139b476cfab776bca9d8a2d70dcd697e450f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
