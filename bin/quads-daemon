@@ -425,14 +425,21 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     if len(data['host']) == 0:
                         result.append("Could not parse host parameter")
                     # hotfix for not scheduling broken hosts
-                    foreman = Foreman(
-                        quads_config["foreman_api_url"],
-                        quads_config["foreman_username"],
-                        quads_config["foreman_password"]
-                    )
-                    broken_hosts = foreman.get_broken_hosts()
-                    if broken_hosts.get(data['host'][0], False):
-                        result.append("Host %s is in broken state" % data['host'][0])
+                    # if foreman_check_host_health: false then skip checking
+                    foremanhostcheck = quads_config["foreman_check_host_health"]
+                    if foremanhostcheck == False:
+                        pass
+                    # proceed with checking foreman for the broken_state: host
+                    # parameter in Foreman before proceeding otherwise
+                    else:
+                        foreman = Foreman(
+                            quads_config["foreman_api_url"],
+                            quads_config["foreman_username"],
+                            quads_config["foreman_password"]
+                        )
+                        broken_hosts = foreman.get_broken_hosts()
+                        if broken_hosts.get(data['host'][0], False):
+                            result.append("Host %s is in broken state" % data['host'][0])
 
                 if len(result) > 0:
                     self.wfile.write(json.dumps({'result': result}))
