@@ -138,7 +138,9 @@ function validate_environment() {
     if $bin_dir/quads-post-network-test.sh -c $env -2 1>$resultfile 2>&1; then
         touch $data_dir/release/${env}-${owner}-${ticket}
         if [ -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
-            report_success $env $owner $ticket
+            if [ ! -f $data_dir/vlans/${env}* ]; then
+                report_success $env $owner $ticket
+            fi
         fi
         if [ "${gather_dell_configs}" == "true" ]; then
             # now that we have success, we can also generate the dell report
