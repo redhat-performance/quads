@@ -335,6 +335,35 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                             data['wipe'][0])
                 self.wfile.write(json.dumps({'result': result}))
                 write_lock.release()
+                if data['extnet']:
+                    vlans_conf = os.path.dirname(__file__) + "/../conf/vlans.yml"
+
+                    try:
+                        with open(vlans_conf, 'a') as _vlans_conf:
+                            try:
+                                vlans = yaml.safe_load(_vlans_conf)
+                            except yaml.YAMLError:
+                                print "quads: Invalid YAML config: " + _vlans_conf
+                                exit(1)
+                            for vlan, properties in vlans.iteritems():
+                                if data["extnet"] == properties["id"]:
+                                    vlans_dir = os.path.join(quads_config["data_dir"], "vlans")
+                                    if not os.path.exists(vlans_dir):
+                                        os.makedirs(vlans_dir)
+                                    stub = os.path.join(vlans_dir, "%s-vlan%s-%s-%s" % (
+                                        data["cloud"],
+                                        data["owner"],
+                                        data['ticket'],
+                                        data["extnet"],
+                                    ))
+                                    if not os.path.exists(stub):
+                                        with open(stub, "a") as _:
+                                            os.utime(stub, None)
+
+                    except IOError:
+                        print "Error reading %s" % vlans_conf
+                        exit(1)
+
                 return
             else:
                 logger.info("%s - %s - %s %s" % (self.client_address[0],
