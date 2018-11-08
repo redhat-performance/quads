@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cdcedf9_d0fb7254",
+        "filename": "bin/quads-daemon",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2018-11-08T09:37:54Z",
+      "side": 1,
+      "message": "foreman_host_check \u003d quads_config[\"foreman_check_host_health\"]\nif foreman_host_check:\n    foreman \u003d Foreman(\n        quads_config[\"foreman_api_url\"],\n        quads_config[\"foreman_username\"],\n        quads_config[\"foreman_password\"]\n    )\n    broken_hosts \u003d foreman.get_broken_hosts()\n    if broken_hosts.get(data[\u0027host\u0027][0], False):\n        result.append(\"Host %s is in broken state\" % data[\u0027host\u0027][0])",
+      "range": {
+        "startLine": 429,
+        "startChar": 0,
+        "endLine": 442,
+        "endChar": 89
+      },
+      "revId": "cf49b94a055513d6b2c6553be4b0a22176b447cb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
