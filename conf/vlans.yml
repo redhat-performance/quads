@@ -1,0 +1,201 @@
+---
+pubnet01:
+  - id: 1
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet02:
+  - id: 2
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet03:
+  - id: 3
+  - vlanid: 601
+  - iprange: 10.12.84.0/24
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet04:
+  - id: 4
+  - vlanid: 602
+  - iprange: 10.12.85.0/24
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet05:
+  - id: 5
+  - vlanid: 601
+  - iprange: 10.12.85.0/24
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet06:
+  - id: 6
+  - vlanid: 602
+  - iprange: 10.12.86.0/24
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet07:
+  - id: 7
+  - vlanid: 601
+  - iprange: 10.12.88.0/24
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet08:
+  - id: 8
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet09:
+  - id: 9
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet10:
+  - id: 10
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet11:
+  - id: 11
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet12:
+  - id: 12
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet13:
+  - id: 13
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet14:
+  - id: 14
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet15:
+  - id: 15
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet16:
+  - id: 16
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet17:
+  - id: 17
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet18:
+  - id: 18
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
+pubnet19:
+  - id: 19
+  - vlanid: 601
+  - iprange: 10.12.80.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.81.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 435354
+  - cloud: 20
+pubnet20:
+  - id: 20
+  - vlanid: 602
+  - iprange: 10.12.82.0/23
+  - netmask: 255.255.254.0
+  - gateway: 10.12.83.254
+  - ipfree: 510
+  - owner: abond
+  - ticket: 434354
+  - cloud: 16
