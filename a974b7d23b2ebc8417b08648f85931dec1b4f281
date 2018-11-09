@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db5c7310_b318c478",
+        "filename": "pdu/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-09T17:11:56Z",
+      "side": 1,
+      "message": "Let\u0027s make this a proper README.md in Markdown so it\u0027s more easily read from the browser.\n\nhttps://jbt.github.io/markdown-editor/",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 19
+      },
+      "revId": "a974b7d23b2ebc8417b08648f85931dec1b4f281",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
