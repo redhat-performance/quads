@@ -30,6 +30,8 @@ source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
+pdudir=${quads["install_dir"]}/pdu
+pducmd=$pdudir/power-host.sh
 data_dir=${quads["data_dir"]}
 lockdir=$data_dir/lock
 untouchable_hosts=${quads["untouchable_hosts"]}
@@ -159,6 +161,12 @@ ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password us
 
 if $rebuild ; then
   if [ $new_cloud != "cloud01" ]; then
+
+    # call PDU power off and power on for each host as a first step
+    $pducmd $host_to_move off
+    sleep 60
+    $pducmd $host_to_move on
+    sleep 60
 
     # first ensure PXE enabled on the host .... for foreman
     # we will omit Supermicro systems here
