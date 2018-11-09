@@ -1,0 +1,15 @@
+#!/usr/bin/expect
+
+set timeout 20
+
+set pdu [lindex $argv 0]
+set port [lindex $argv 1]
+
+spawn sshpass -e ssh "admn@$pdu"
+expect "Switched CDU:"
+send "on .$port\r";
+expect "Switched CDU:"
+send "exit\r";
+
+interact
+
