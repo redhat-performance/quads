@@ -151,6 +151,8 @@ em4,a0:36:9f:98:44:56,10.12.67.247,switch-type,xe-0/0/3:3
 b08-h13-r620.rdu.openstack.engineering.example.com
 ```
 
+Once the host is added, and if you have pdu_management enabled, you will also want to ensure you have your host PDU connections mapped out.  For more information on how to setup the PDU-connections.txt file please refer to [pdu/README.md](https://github.com/redhat-performance/quads/pdu/README.md)
+
 ### Integration into Foreman or a Provisioning System
    * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/1.15/index.html).
    * We do provide some [example templates](https://github.com/redhat-performance/quads/tree/master/templates) for post-provisioning creation of system interface config files like ```/etc/sysconfig/network-scripts/ifcfg-*``` for use with QUADs.
