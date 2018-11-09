@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47816c5e_a5274ed4",
+        "filename": "bin/quads-daemon",
+        "patchSetId": 4
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2018-11-09T14:58:46Z",
+      "side": 1,
+      "message": "So the stub file will look like:  $datadir/vlans/cloudXX-vlan$owner-$ticket-$extnet ?  e.g.\n\n   /opt/quads/data/vlans/cloud02-vlanjohndoe-123456-2\n\nI wonder if the extnet should be appended to \"vlan\" instead of owner.",
+      "revId": "ea0820f269e894c05ab6a847a00620cf379e6f57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
