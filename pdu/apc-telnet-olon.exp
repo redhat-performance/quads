@@ -1,0 +1,21 @@
+#!/usr/bin/expect
+
+set timeout 20
+
+set pdu [lindex $argv 0]
+set port [lindex $argv 1]
+
+spawn telnet "$pdu"
+expect "name:"
+send "apc\r";
+expect "word:"
+send "apc\r";
+expect "apc>"
+send "olon $port\r";
+expect "apc>"
+send "olstatus $port\r";
+expect "apc>"
+send "exit\r";
+
+interact
+
