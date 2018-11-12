@@ -31,7 +31,7 @@ source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
 pdu_management=${quads["pdu_management"]}
-pdudir=${quads["install_dir"]}/pdu
+pdudir=${quads["install_dir"]}/bin
 pducmd=$pdudir/power-host.sh
 data_dir=${quads["data_dir"]}
 lockdir=$data_dir/lock
