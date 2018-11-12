@@ -9,7 +9,7 @@ if [ ! -e $(dirname $0)/load-config.sh ]; then
 fi
 
 source $(dirname $0)/load-config.sh
-pdudir=${quads["install_dir"]}/pdu
+pdudir=${quads["install_dir"]}/bin
 
 cd $pdudir
 

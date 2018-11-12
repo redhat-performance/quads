@@ -152,7 +152,7 @@ b08-h13-r620.rdu.openstack.engineering.example.com
 ```
 
    * Optional PDU power management configuration
-      * Once the host is added, and if you have pdu_management enabled, you will also want to ensure you have your host PDU connections mapped out.  For more information on how to setup the PDU-connections.txt file please refer to [pdu/README.md](https://github.com/redhat-performance/quads/pdu/README.md)
+      * Once the host is added, and if you have pdu_management enabled, you will also want to ensure you have your host PDU connections mapped out.  For more information on how to setup the PDU-connections.txt file please refer to [docs/pdu-setup.md](https://github.com/redhat-performance/quads/docs/pdu-setup.md)
 
 ### Integration into Foreman or a Provisioning System
    * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/1.15/index.html).
