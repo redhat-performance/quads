@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "068313d7_d944812a",
+        "filename": "conf/vlans.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2018-11-13T14:11:01Z",
+      "side": 1,
+      "message": "By adding this line you are changing the data structure of the yaml so we would have to modify the backend to accommodate to this.\nThought it to be redundant to add this line since the file name already states this.\nI\u0027d rather remove it.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 1
+      },
+      "revId": "32ed71c3ec4f94d80aa7fda98b570ca0152bc80b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
