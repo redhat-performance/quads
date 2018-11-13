@@ -16,6 +16,24 @@
       "revId": "ea0820f269e894c05ab6a847a00620cf379e6f57",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89a4c3b0_795d1f91",
+        "filename": "bin/quads-daemon",
+        "patchSetId": 4
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2018-11-13T14:17:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47816c5e_a5274ed4",
+      "revId": "ea0820f269e894c05ab6a847a00620cf379e6f57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
