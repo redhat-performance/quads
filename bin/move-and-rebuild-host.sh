@@ -84,6 +84,7 @@ for redalert in $untouchable_hosts ; do
 done
 
 qinq=$($quads --cloud-only $new_cloud --ls-qinq)
+old_qinq=$($quads --cloud-only $old_cloud --ls-qinq)
 
 if [ -z "$qinq" ]; then
     qinq=0
@@ -101,7 +102,7 @@ for line in $(cat $configdir/$host_to_move); do
         old_cloud_num=$(echo $old_cloud | sed 's/cloud//')
         old_cloud_offset=$(expr $old_cloud_num \* 10)
         old_base_vlan=$(expr 1090 + $old_cloud_offset)
-        if [ "$qinq" = "1" ]; then
+        if [ "$old_qinq" = "1" ]; then
             old_vlan=$(expr $old_base_vlan + ${offsets["em1"]})
         else
             old_vlan=$(expr $old_base_vlan + ${offsets[$interface]})
