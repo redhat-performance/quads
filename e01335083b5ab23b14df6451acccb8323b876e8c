@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2010665_f8b54dc2",
+        "filename": "bin/regenerate-wiki.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-16T18:44:51Z",
+      "side": 1,
+      "message": "I see you moved some stuff to /lib/tools here but I don\u0027t see where we\u0027re updating the vlan page.  Is the lib/tools move intentional for 1.0 or wasn\u0027t that a 1.1 thing?",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 32
+      },
+      "revId": "e01335083b5ab23b14df6451acccb8323b876e8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d19ad8e_af9a59db",
+        "filename": "conf/quads.yml",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-16T18:44:51Z",
+      "side": 1,
+      "message": "Cool, so we\u0027re defining this here I just don\u0027t see where it\u0027s actually called to be regenerated.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 28
+      },
+      "revId": "e01335083b5ab23b14df6451acccb8323b876e8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
