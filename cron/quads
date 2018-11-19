@@ -8,4 +8,4 @@
 # 0 0 * * * python /opt/quads/quads/tools/simple_table_web.py 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-boot-order.sh 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-validate-boot-order.sh 1>/dev/null 2>&1
-# * * * * * /opt/quads/bin/make-instackenv-json.sh 1>/dev/null 2>&1
+# * * * * * python /opt/quads/quads/tools/make_instackenv_json.py 1>/dev/null 2>&1
