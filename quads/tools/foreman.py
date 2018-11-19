@@ -12,7 +12,7 @@ class Foreman(object):
         self.username = username
         self.password = password
 
-    def get_hosts(self, endpoint):
+    def get(self, endpoint):
         response = requests.get(
             self.url + endpoint,
             auth=(self.username, self.password),
@@ -28,8 +28,12 @@ class Foreman(object):
 
     def get_all_hosts(self):
         endpoint = "/hosts"
-        return self.get_hosts(endpoint)
+        return self.get(endpoint)
 
     def get_broken_hosts(self):
         endpoint = "/hosts?search=params.broken_state=true"
-        return self.get_hosts(endpoint)
+        return self.get(endpoint)
+
+    def get_parametrized(self, param, value):
+        endpoint = "hosts?search=params.%s=%s" % (param, value)
+        return self.get(endpoint)
