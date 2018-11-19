@@ -6,8 +6,8 @@ import os
 import sys
 import re
 
-from quads.helpers import quads_load_config
-from quads.elastic import Elastic
+from helpers import quads_load_config
+from elastic import Elastic
 
 logger = logging.getLogger('quads-validation')
 ch = logging.StreamHandler(sys.stdout)
@@ -17,7 +17,54 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def main():
+def get_hosts(result_file):
+    _result = None
+    try:
+        with open(result_file, 'r') as validation_result:
+            _result = validation_result.read()
+    except Exception as e:
+        print("Error reading in result file from validations : {}".format(e))
+        exit(1)
+
+    _hosts = []
+    if len(_result.split()) > 0:
+        for line in _result.split():
+            if re.findall(r'(.*\.)+', line):
+                if re.findall(r'(\d+\.\d+\.\d+\.\d+)', line):
+                    continue
+                else:
+                    _hosts.append(line)
+    if len(_hosts) < 1:
+        print("Error no hosts could be read in.")
+        exit(1)
+
+    return _hosts
+
+
+def index_data(_hosts, owner, cloud, ticket, index, _type):
+    message = "\n".join(_hosts)
+    payload = {"message": message,
+               "hosts": list(_hosts),
+               }
+    if owner:
+        payload["owner"] = owner
+    if cloud:
+        payload["cloud"] = cloud
+    if ticket:
+        payload["ticket"] = ticket
+
+    if not index:
+        print("Missing index")
+        exit(1)
+    if not _type:
+        print("Missing type")
+        exit(1)
+
+    es = Elastic(quads_config['elastic_host'], quads_config['elastic_port'])
+    es.index(payload, index, _type)
+
+
+if __name__ == "__main__":
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
@@ -57,47 +104,15 @@ def main():
     parser.add_argument('--owner', dest='owner', default=None, type=str, help="Owner of the cloud")
     parser.add_argument('--ticket', dest='ticket', default=None, type=str, help="Ticket for the cloud")
     parser.add_argument('--cloud', dest='cloud', default=None, type=str, help="Cloud id")
-    _result = None
     options = parser.parse_args()
-    try:
-        with open(options.resultfile, 'r') as validation_result:
-            _result = validation_result.read()
-    except Exception as e:
-        print("Error reading in result file from validations : {}".format(e))
-        exit(1)
 
-    hosts = []
-    if len(_result.split()) > 0:
-        for line in _result.split():
-            if re.findall(r'(.*\.)+', line):
-                if re.findall(r'(\d+\.\d+\.\d+\.\d+)', line):
-                    continue
-                else:
-                    hosts.append(line)
-    if len(hosts) < 1:
-        print("Error no hosts could be read in.")
-        exit(1)
+    hosts = get_hosts(options.resultfile)
 
-    payload = {"message": _result,
-               "hosts": list(set(hosts)),
-               }
-    if options.owner:
-        payload["owner"] = options.owner
-    if options.cloud:
-        payload["cloud"] = options.cloud
-    if options.ticket:
-        payload["ticket"] = options.ticket
-
-    if not options.index:
-        print("Missing index")
-        exit(1)
-    if not options.type:
-        print("Missing type")
-        exit(1)
-
-    es = Elastic(quads_config['elastic_host'], quads_config['elastic_port'])
-    es.index(payload, options.index, options.type)
-
-
-if __name__ == "__main__":
-    main()
+    index_data(
+        hosts,
+        options.owner,
+        options.cloud,
+        options.ticket,
+        options.index,
+        options.type
+    )

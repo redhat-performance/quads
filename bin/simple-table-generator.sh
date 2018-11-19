@@ -1,5 +1,5 @@
 #!/bin/sh
-# wrapper around simple-table-generator.py
+# wrapper around simple_table_generator.py
 # this generates a visualization map image of allocations across a month
 
 # print usage if not specified
@@ -18,7 +18,7 @@ fi
 source $(dirname $0)/load-config.sh
 
 quads=${quads["install_dir"]}/bin/quads-cli
-bindir=${quads["install_dir"]}/bin
+tools_dir=${quads["install_dir"]}/quads/tools
 
 TMPHOSTFILE=$(mktemp /tmp/quadshostfileXXXXXXX)
 
@@ -30,5 +30,5 @@ NUM_DAYS=$2
 
 $quads --ls-hosts  > $TMPHOSTFILE
 
-$bindir/simple-table-generator.py --host-file $TMPHOSTFILE -m $MONTH -y $YEAR -d $NUM_DAYS --gentime "Allocation Map for $YEAR_MONTH"
+${tools_dir}/simple_table_generator.py --host-file $TMPHOSTFILE -m $MONTH -y $YEAR -d $NUM_DAYS --gentime "Allocation Map for $YEAR_MONTH"
 rm -f $TMPCOLORFILE $TMPHOSTFILE

@@ -5,7 +5,6 @@
 # * * * * * /opt/quads/bin/quads-validate-env.sh 1>>/dev/null 2>&1
 # */5 * * * * /opt/quads/bin/regenerate-wiki.sh 1>/dev/null 2>&1
 # 0 0 * * * /opt/quads/bin/quads-notify.sh 1>/dev/null 2>&1
-# 0 * * * * /opt/quads/bin/ical-generate-cron.sh 1>/dev/null 2>&1
 # 0 0 * * * /opt/quads/bin/simple-table-web.sh 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-boot-order.sh 1>/dev/null 2>&1
 # * * * * * /opt/quads/bin/quads-validate-boot-order.sh 1>/dev/null 2>&1

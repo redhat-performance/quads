@@ -5,7 +5,7 @@ import os
 import requests
 import sys
 
-from quads.helpers import quads_load_config
+from helpers import quads_load_config
 
 
 def main():

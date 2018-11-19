@@ -5,7 +5,7 @@
 #
 # Dependencies: quads
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads-cli
-#               csv-to-instack.py
+#               csv_to_instack.py
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/csv-to-instack.py
 #
 
@@ -17,6 +17,7 @@ fi
 source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads-cli
 bindir=${quads["install_dir"]}/bin
+tools_dir=${quads["install_dir"]}/quads/tools
 data_dir=${quads["data_dir"]}
 ipmi_username=${quads["ipmi_cloud_username"]}
 ipmi_password=${quads["ipmi_password"]}
@@ -25,7 +26,7 @@ foreman_parameter=${quads["foreman_director_parameter"]}
 domain=${quads["domain"]}
 
 SCHEDULER=$quads
-JSON_MAKER=$bindir/csv-to-instack.py
+JSON_MAKER=$tools_dir/csv_to_instack.py
 TMPCSVFILE=$(mktemp /tmp/csvfileXXXXXX)
 TMPJSONFILE=$(mktemp /tmp/jsonXXXXXXX)
 

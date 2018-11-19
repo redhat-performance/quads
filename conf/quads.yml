@@ -106,7 +106,6 @@ untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 
 # phpical
 phpical_dir: /srv/cal
-ical_web_location: /var/www/html/ical/schedule.ics
 
 # ipmi QUADS admin user/pass
 # this is the IPMI account QUADS uses

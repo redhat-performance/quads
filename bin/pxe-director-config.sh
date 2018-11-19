@@ -2,7 +2,7 @@
 #
 # Dependencies: quads
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/quads-cli
-#               csv-to-instack.py
+#               csv_to_instack.py
 #                  https://raw.githubusercontent.com/redhat-performance/quads/master/bin/csv-to-instack.py
 #
 # This script is to work around an issue with RHEL OpenStack Director
