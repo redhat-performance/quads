@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "974589a5_f8d5c2a3",
+        "filename": "bin/regenerate-wiki.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-11-19T10:50:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2010665_f8b54dc2",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 32
+      },
+      "revId": "e01335083b5ab23b14df6451acccb8323b876e8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d19ad8e_af9a59db",
         "filename": "conf/quads.yml",
         "patchSetId": 8
