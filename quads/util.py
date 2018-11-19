@@ -79,19 +79,27 @@ def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
 
 
-def print_cloud_hosts(quads, datearg, cloudonly):
+def get_cloud_hosts(quads, datearg, cloudonly):
+    hosts = []
     cloud_hosts = quads.query_cloud_hosts(datearg)
     if cloudonly is not None:
         if cloudonly in cloud_hosts:
             for host in cloud_hosts[cloudonly]:
-                print(host)
+                hosts.append(host)
         else:
             print("Requested cloud does not exist")
     else:
         for cloud, hostlist in sorted(cloud_hosts.items()):
-            print("{}:".format(cloud))
+            hosts.append("{}:".format(cloud))
             for host in hostlist:
-                print(" - {}".format(host))
+                hosts.append(" - {}".format(host))
+    return hosts
+
+
+def print_cloud_hosts(quads, datearg, cloudonly):
+    cloud_hosts = get_cloud_hosts(quads, datearg, cloudonly)
+    for host in cloud_hosts:
+        print(host)
 
 
 def print_host_schedule(quads, host, datearg):
