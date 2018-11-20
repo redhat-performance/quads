@@ -10,19 +10,9 @@ import sys
 from collections import defaultdict
 
 
-def main():
-    parser = argparse.ArgumentParser(description="CSV to instack converter")
-    parser.add_argument(
-        '-c', '--csv',
-        dest='inputfile',
-        help='Path to CSV file to convert',
-        default=None,
-        type=str,
-        required=True
-    )
+def csv_to_instack(input_file):
 
-    args = parser.parse_args()
-    with open(args.inputfile, 'r') as csvFile:
+    with open(input_file, 'r') as csvFile:
         data = list(csv.reader(csvFile))
 
     json_data = defaultdict(list)
@@ -38,7 +28,25 @@ def main():
             'pm_user': value[2],
             'pm_addr': value[1]})
 
-    print(json.dumps(json_data, indent=4, sort_keys=True))
+    return json.dumps(json_data, indent=4, sort_keys=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="CSV to instack converter")
+    parser.add_argument(
+        '-c', '--csv',
+        dest='inputfile',
+        help='Path to CSV file to convert',
+        default=None,
+        type=str,
+        required=True
+    )
+
+    args = parser.parse_args()
+    input_file = args.inputfile
+
+    instack_env = csv_to_instack(input_file)
+    print(instack_env)
     return 0
 
 
