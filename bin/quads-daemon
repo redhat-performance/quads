@@ -369,7 +369,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                         with open(stub, "a") as _:
                                             os.utime(stub, None)
 
-                    regenerate_vlans_wiki()
+                        regenerate_vlans_wiki()
 
                     except IOError:
                         print "Error reading %s" % vlans_conf
