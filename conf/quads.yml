@@ -42,7 +42,9 @@ wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
 wp_wiki_assignments_title: assignments
 wp_wiki_assignments_page_id: 357
-wp_wiki_vlans_title: Plublic VLAN Allocations
+# these values are used for auto-generation of a VLAN wiki page markdown
+# when routable public VLANs are required (--extnet)
+wp_wiki_vlans_title: Public VLAN Allocations
 wp_wiki_vlans_page_id: 14244
 # optional management of wordpress content via git repo
 wp_wiki_git_manage: false
