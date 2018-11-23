@@ -63,7 +63,7 @@ rm -rf %{buildroot}
 mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
-tar cf - bin lib/*.py conf ansible | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+tar cf - bin lib/*.py lib/tools/*.py conf ansible | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-daemon.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
 cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
@@ -78,9 +78,9 @@ rm -rf %{buildroot}
 /opt/quads/ansible/*
 /opt/quads/bin/*
 /opt/quads/lib/*
-/opt/quads/lib/tools/*
 /var/www/html/visual/*
 %config /opt/quads/conf/quads.yml
+%config /opt/quads/conf/vlans.yml
 
 %post
 systemctl enable quads-daemon
