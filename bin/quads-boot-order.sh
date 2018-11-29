@@ -49,6 +49,7 @@ function reconfigure() {
             playbook=$install_dir/ansible/racadm-setup-boot-${host_type}-${playbook_type}.yml
         else
             rm -f $data_dir/boot/$target
+            echo $playbook_type > $data_dir/bootstate/$target
             return
         fi
     fi

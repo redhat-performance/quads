@@ -29,6 +29,7 @@ month = args.month
 year = args.year
 gentime = args.gentime
 
+
 # Load QUADS yaml config
 def quads_load_config(quads_config):
     try:
@@ -42,6 +43,7 @@ def quads_load_config(quads_config):
         print ex
         exit(1)
     return(quads_config_yaml)
+
 
 quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
 quads_config = quads_load_config(quads_config_file)

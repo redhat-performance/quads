@@ -19,6 +19,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from SocketServer import ThreadingMixIn
 from lib.Foreman import Foreman
 from lib.Quads import Quads
+from lib.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 import time
 import yaml
@@ -30,8 +31,11 @@ import re
 import cgi
 import json
 import threading
+<<<<<<< HEAD
 import Reservation_report
 import subprocess
+=======
+>>>>>>> e159448601abeb21ba761e4cf7d2d88af5602786
 
 logger = logging.getLogger('quads')
 logger.setLevel(logging.DEBUG)
@@ -336,6 +340,46 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                                             data['wipe'][0])
                 self.wfile.write(json.dumps({'result': result}))
                 write_lock.release()
+                if data['extnet']:
+                    vlans_conf = os.path.dirname(__file__) + "/../conf/vlans.yml"
+
+                    try:
+                        with open(vlans_conf, 'r') as _vlans_read:
+                            try:
+                                vlans = yaml.safe_load(_vlans_read)
+                            except yaml.YAMLError:
+                                print "quads: Invalid YAML config: " + vlans_conf
+                                exit(1)
+                            for vlan, properties in vlans.iteritems():
+                                if data["extnet"] == properties["id"]:
+                                    properties["cloud"] = data['cloud'][0]
+                                    properties["owner"] = data['owner'][0]
+                                    properties["ticket"] = data['ticket'][0]
+                                    try:
+                                        with open(vlans_conf, 'w') as _vlans_write:
+                                            yaml.dump(vlans, _vlans_write, default_flow_style=False)
+                                    except yaml.YAMLError:
+                                        print "quads: Could not write to YAML config: " + vlans_conf
+                                        exit(1)
+                                    vlans_dir = os.path.join(quads_config["data_dir"], "vlans")
+                                    if not os.path.exists(vlans_dir):
+                                        os.makedirs(vlans_dir)
+                                    stub = os.path.join(vlans_dir, "%s-vlan%s-%s-%s" % (
+                                        data["cloud"],
+                                        data["extnet"],
+                                        data["owner"],
+                                        data['ticket'],
+                                    ))
+                                    if not os.path.exists(stub):
+                                        with open(stub, "a") as _:
+                                            os.utime(stub, None)
+
+                        regenerate_vlans_wiki()
+
+                    except IOError:
+                        print "Error reading %s" % vlans_conf
+                        exit(1)
+
                 return
             else:
                 logger.info("%s - %s - %s %s" % (self.client_address[0],

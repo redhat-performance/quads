@@ -33,7 +33,7 @@ ircbot_port: 5050
 ircbot_channel: #yourchannel
 
 # wordpress wiki
-wp_wiki: wiki.example.com
+wp_wiki: http://wiki.example.com/xmlrpc.php
 wp_username: wikiadmin
 wp_password: wikipassword
 
@@ -42,6 +42,10 @@ wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
 wp_wiki_assignments_title: assignments
 wp_wiki_assignments_page_id: 357
+# these values are used for auto-generation of a VLAN wiki page markdown
+# when routable public VLANs are required (--extnet)
+wp_wiki_vlans_title: Public VLAN Allocations
+wp_wiki_vlans_page_id: 14244
 # optional management of wordpress content via git repo
 wp_wiki_git_manage: false
 wp_wiki_git_repo_path: /opt/quads/git/wiki
@@ -57,6 +61,10 @@ foreman_url: http://foreman.example.com/hosts/
 foreman_api_url: https://foreman.example.com/api/v2
 foreman_username: admin
 foreman_password: password
+# set this to true if you want to check Foreman for faulty hosts
+# prior to scheduling e.g. --add-schedule.  Requires host parameter of
+# "broken_state: true/false" for each QUADS-managed host
+foreman_check_host_health: false
 
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
@@ -168,3 +176,6 @@ foreman_director_parameter: nullos
 # OpenStack # Director-deployed machines but
 # this isn't used for other purposes.
 ansible_max_proc: 60
+
+# Do you have managed PDUs?
+pdu_management: false
