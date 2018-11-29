@@ -16,6 +16,7 @@
 import logging
 import copy
 
+
 class History(object):
     def __init__(self, data=None):
         """
@@ -23,6 +24,8 @@ class History(object):
         data required by the Quads object. (used for host
         history tracking)
         """
+        self.logger = logging.getLogger("quads.History")
+        self.logger.setLevel(logging.DEBUG)
         if data is None:
             self.data = {}
             return

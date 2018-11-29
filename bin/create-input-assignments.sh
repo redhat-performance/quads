@@ -226,10 +226,10 @@ function add_row() {
         totalminutesleft=$(date -d "1970-01-01 + $totalsecleft seconds" "+%M")
         totaltime="$totaldays day(s)"
         totaltimeleft="$totaldaysleft day(s)"
-        if [ $totalhours -gt 0 ]; then 
+        if [ $totalhours -gt 0 ]; then
             totaltime="$totaltime, $totalhours hour(s)"
         fi
-        if [ $totalhoursleft -gt 0 ]; then 
+        if [ $totalhoursleft -gt 0 ]; then
             totaltimeleft="$totaltimeleft, $totalhoursleft hour(s)"
         fi
     fi

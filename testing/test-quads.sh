@@ -20,6 +20,9 @@ if [ -z "$1" ]; then
     chmod 755 ./bin/jenkins-ci-test.sh
     exec `pwd`/bin/jenkins-ci-test.sh recursive
 fi
+if [ -f /home/quads-ci/foreman ]; then
+    source /home/quads-ci/foreman
+fi
 
 ## Jenkins specific debug here
 echo '========== START === '`date`' ===================='
@@ -74,6 +77,12 @@ libdir=$bindir/../lib
 
 function quads_daemon_start() {
     sed -i -e "s@quads_base_url: http://127.0.0.1:8080/@quads_base_url: http://127.0.0.1:8082/@g" $install_bin/../conf/quads.yml
+    if [ ! -z "$FOREMAN_API_URL" ]; then
+        sed -i -e "s@foreman_api_url: https://foreman.example.com/api/v2@foreman_api_url: $FOREMAN_API_URL@g" $install_bin/../conf/quads.yml
+    fi
+    if [ ! -z "$FOREMAN_PASSWORD" ]; then
+        sed -i -e "s@foreman_password: password@foreman_password: $FOREMAN_PASSWORD@g" $install_bin/../conf/quads.yml
+    fi
     quads_start="python $(dirname $0)/quads-daemon --config $DATA --statedir $STATEDIR --log-path $LOGFILE --port 8082"
     $quads_start  1>/dev/null 2>&1 &
 }

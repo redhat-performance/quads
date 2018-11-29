@@ -11,6 +11,7 @@ import sys
 import urllib2
 import yaml
 
+
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
@@ -18,21 +19,23 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
 # used to load the configuration for quads behavior
 def quads_load_config(quads_config):
     try:
         with open(quads_config, 'r') as config_file:
             try:
                 quads_config_yaml = yaml.safe_load(config_file)
-            except Exception, ex:
+            except yaml.YAMLError:
                 print "quads: Invalid YAML config: " + quads_config
                 exit(1)
-    except Exception, ex:
+    except Exception as ex:
         print ex
         exit(1)
-    return(quads_config_yaml)
+    return quads_config_yaml
 
-def main(argv):
+
+def main():
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
@@ -50,7 +53,6 @@ def main(argv):
 
     sys.path.append(quads_config["install_dir"] + "/lib")
     sys.path.append(os.path.dirname(__file__) + "/../lib")
-    from Quads import Quads
 
     defaultconfig = quads_config["data_dir"] + "/schedule.yaml"
     defaultstatedir = quads_config["data_dir"] + "/state"
@@ -65,7 +67,8 @@ def main(argv):
     group.add_argument('--ls-qinq', dest='lsqinq', action='store_true', default=None, help='List cloud qinq state')
     group.add_argument('--ls-wipe', dest='lswipe', action='store_true', default=None, help='List cloud wipe state')
     group.add_argument('--define-host', dest='hostresource', type=str, default=None, help='Define a host resource')
-    group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None, help='Define a cloud environment')
+    group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None,
+                       help='Define a cloud environment')
     group.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
     group.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
     group.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
@@ -74,37 +77,53 @@ def main(argv):
     group.add_argument('--rm-host', dest='rmhost', type=str, default=None, help='Remove a host')
     group.add_argument('--rm-cloud', dest='rmcloud', type=str, default=None, help='Remove a cloud')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
-    parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None, help='Limit full report to hosts only in this cloud')
-    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig, type=str)
-    parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None, help='date and time to query; e.g. "2016-06-01 08:00"')
+    parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
+                        help='Limit full report to hosts only in this cloud')
+    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=defaultconfig,
+                        type=str)
+    parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None,
+                        help='date and time to query; e.g. "2016-06-01 08:00"')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
     parser.add_argument('--wipe', dest='wipe', type=str, default=None, help='Define environment wipe state')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
-    parser.add_argument('--description', dest='description', type=str, default=None, help='Defined description of cloud')
-    parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None, help='Defined default cloud for a host')
-    parser.add_argument('--force', dest='force', action='store_true', help='Force host or cloud update when already defined')
+    parser.add_argument('--description', dest='description', type=str, default=None,
+                        help='Defined description of cloud')
+    parser.add_argument('--default-cloud', dest='hostcloud', type=str, default=None,
+                        help='Defined default cloud for a host')
+    parser.add_argument('--force', dest='force', action='store_true',
+                        help='Force host or cloud update when already defined')
     parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
-    parser.add_argument('--schedule-query', dest='schedquery', action='store_true', help='Query the schedule for a specific month')
-    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month, help='Query the schedule for a specific month and year')
-    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year, help='Query the schedule for a specific month and year')
+    parser.add_argument('--schedule-query', dest='schedquery', action='store_true',
+                        help='Query the schedule for a specific month')
+    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month,
+                        help='Query the schedule for a specific month and year')
+    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year,
+                        help='Query the schedule for a specific month and year')
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
     parser.add_argument('--ls-schedule', dest='lsschedule', action='store_true', help='List the host reservations')
     parser.add_argument('--statedir', dest='statedir', type=str, default=defaultstatedir, help='Default state dir')
-    parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None, help='Move hosts if schedule has changed')
-    parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand, help='External command to move a host')
-    parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None, help='Dont update state when used with --move-hosts')
-    parser.add_argument('--log-path', dest='logpath',type=str,default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig',type=str,default=None, nargs='+', choices=['openstack'], help='Post provisioning configuration to apply')
-    parser.add_argument('--version', dest='version',type=str,default=None, help='Version of Software to apply')
-    parser.add_argument('--puddle', dest='puddle',type=str,default='latest', help='Puddle to apply')
-    parser.add_argument('--os-control-scale', dest='controlscale',type=int,default=None, help='Number of controller nodes for OpenStack deployment')
-    parser.add_argument('--os-compute-scale', dest='computescale',type=int,default=None, help='Number of compute nodes for OpenStack deployment')
-    parser.add_argument('--host-type', dest='hosttype',type=str, default=None, help='Model/Make/Type of host DellR620  for example')
+    parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
+                        help='Move hosts if schedule has changed')
+    parser.add_argument('--move-command', dest='movecommand', type=str, default=defaultmovecommand,
+                        help='External command to move a host')
+    parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None,
+                        help='Dont update state when used with --move-hosts')
+    parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
+    parser.add_argument('--post-config', dest='postconfig', type=str, default=None, nargs='+', choices=['openstack'],
+                        help='Post provisioning configuration to apply')
+    parser.add_argument('--version', dest='version', type=str, default=None, help='Version of Software to apply')
+    parser.add_argument('--puddle', dest='puddle', type=str, default='latest', help='Puddle to apply')
+    parser.add_argument('--os-control-scale', dest='controlscale', type=int, default=None,
+                        help='Number of controller nodes for OpenStack deployment')
+    parser.add_argument('--os-compute-scale', dest='computescale', type=int, default=None,
+                        help='Number of compute nodes for OpenStack deployment')
+    parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
+                        help='Model/Make/Type of host DellR620  for example')
 
     args = parser.parse_args()
     if args.showresrv:
@@ -223,16 +242,16 @@ def main(argv):
                     print key + ": " + k[key]
             exit(0)
         else:
-            #post
+            # post
             url = quads_config["quads_base_url"] + "api/v1/lsowner"
-            headers = { 'Content-Type': 'application/json' }
-            data = { "cloudonly": args.cloudonly }
+            headers = {'Content-Type': 'application/json'}
+            data = {"cloudonly": args.cloudonly}
             r = requests.post(url, data, headers=headers, timeout=120)
             js = r.json()
             if 'owner' in js:
                 if len(js['owner']) == 0:
-                       print "ERROR"
-                       exit(1)
+                    print "ERROR"
+                    exit(1)
                 for owner in js['owner']:
                     print owner[args.cloudonly]
                 exit(0)
@@ -253,16 +272,16 @@ def main(argv):
                     print key + ": " + ",".join(k[key])
             exit(0)
         else:
-            #post
+            # post
             url = quads_config["quads_base_url"] + "api/v1/lsccusers"
-            headers = { 'Content-Type': 'application/json' }
-            data = { "cloudonly": args.cloudonly }
+            headers = {'Content-Type': 'application/json'}
+            data = {"cloudonly": args.cloudonly}
             r = requests.post(url, data, headers=headers, timeout=120)
             js = r.json()
             if 'ccuser' in js:
                 if len(js['ccuser']) == 0:
-                       print "ERROR"
-                       exit(1)
+                    print "ERROR"
+                    exit(1)
                 for cc in js['ccuser']:
                     print ",".join(cc[args.cloudonly])
                 exit(0)
@@ -283,15 +302,15 @@ def main(argv):
                     print key + ": " + k[key]
             exit(0)
         else:
-            #post
+            # post
             url = quads_config["quads_base_url"] + "api/v1/lstickets"
-            headers = { 'Content-Type': 'application/json' }
-            data = { "cloudonly": args.cloudonly }
+            headers = {'Content-Type': 'application/json'}
+            data = {"cloudonly": args.cloudonly}
             r = requests.post(url, data, headers=headers, timeout=120)
             js = r.json()
             if 'ticket' in js:
                 if len(js['ticket']) == 0:
-                       exit(1)
+                    exit(1)
                 for owner in js['ticket']:
                     print owner[args.cloudonly]
                 exit(0)
@@ -312,16 +331,16 @@ def main(argv):
                     print key + ": " + k[key]
             exit(0)
         else:
-            #post
+            # post
             url = quads_config["quads_base_url"] + "api/v1/lsqinq"
-            headers = { 'Content-Type': 'application/json' }
-            data = { "cloudonly": args.cloudonly }
+            headers = {'Content-Type': 'application/json'}
+            data = {"cloudonly": args.cloudonly}
             r = requests.post(url, data, headers=headers, timeout=120)
             js = r.json()
             if 'qinq' in js:
                 if len(js['qinq']) == 0:
-                       print "ERROR"
-                       exit(1)
+                    print "ERROR"
+                    exit(1)
                 for qinq in js['qinq']:
                     print qinq[args.cloudonly]
                 exit(0)
@@ -342,16 +361,16 @@ def main(argv):
                     print key + ": " + k[key]
             exit(0)
         else:
-            #post
+            # post
             url = quads_config["quads_base_url"] + "api/v1/lswipe"
-            headers = { 'Content-Type': 'application/json' }
-            data = { "cloudonly": args.cloudonly }
+            headers = {'Content-Type': 'application/json'}
+            data = {"cloudonly": args.cloudonly}
             r = requests.post(url, data, headers=headers, timeout=120)
             js = r.json()
             if 'wipe' in js:
                 if len(js['wipe']) == 0:
-                       print "ERROR"
-                       exit(1)
+                    print "ERROR"
+                    exit(1)
                 for wipe in js['wipe']:
                     print wipe[args.cloudonly]
                 exit(0)
@@ -366,8 +385,8 @@ def main(argv):
             print "--define-cloud and --define-host are mutually exclusive."
             exit(1)
         url = quads_config["quads_base_url"] + "api/v1/host"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "host": args.hostresource, "cloud": args.hostcloud, "type": args.hosttype, "force": args.force }
+        headers = {'Content-Type': 'application/json'}
+        data = {"host": args.hostresource, "cloud": args.hostcloud, "type": args.hosttype, "force": args.force}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -382,15 +401,15 @@ def main(argv):
 
     if args.cloudresource:
         url = quads_config["quads_base_url"] + "api/v1/cloud"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "cloud": args.cloudresource,
+        headers = {'Content-Type': 'application/json'}
+        data = {"cloud": args.cloudresource,
                 "description": args.description,
                 "owner": args.cloudowner,
                 "cc": args.ccusers,
                 "qinq": args.qinq,
                 "wipe": args.wipe,
                 "ticket": args.cloudticket,
-                "force": args.force }
+                "force": args.force}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -411,11 +430,11 @@ def main(argv):
             print "    --schedule-end"
             print "    --schedule-cloud"
         url = quads_config["quads_base_url"] + "api/v1/ahs"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "cloud": args.schedcloud,
+        headers = {'Content-Type': 'application/json'}
+        data = {"cloud": args.schedcloud,
                 "host": args.host,
                 "start": args.schedstart,
-                "end": args.schedend }
+                "end": args.schedend}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -430,8 +449,8 @@ def main(argv):
 
     if args.rmhost is not None:
         url = quads_config["quads_base_url"] + "api/v1/rmhost"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "host": args.rmhost }
+        headers = {'Content-Type': 'application/json'}
+        data = {"host": args.rmhost}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -446,8 +465,8 @@ def main(argv):
 
     if args.rmcloud is not None:
         url = quads_config["quads_base_url"] + "api/v1/rmcloud"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "cloud": args.rmcloud }
+        headers = {'Content-Type': 'application/json'}
+        data = {"cloud": args.rmcloud}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -462,9 +481,9 @@ def main(argv):
 
     if args.rmschedule is not None:
         url = quads_config["quads_base_url"] + "api/v1/rhs"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "schedule": args.rmschedule,
-                "host": args.host }
+        headers = {'Content-Type': 'application/json'}
+        data = {"schedule": args.rmschedule,
+                "host": args.host}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -490,12 +509,12 @@ def main(argv):
             exit(1)
 
         url = quads_config["quads_base_url"] + "api/v1/mhs"
-        headers = { 'Content-Type': 'application/json' }
-        data = { "schedule": args.modschedule,
+        headers = {'Content-Type': 'application/json'}
+        data = {"schedule": args.modschedule,
                 "start": args.schedstart,
                 "end": args.schedend,
                 "cloud": args.schedcloud,
-                "host": args.host }
+                "host": args.host}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
         if 'result' in js:
@@ -513,8 +532,8 @@ def main(argv):
             print "--move-hosts and --date are mutually exclusive unless using --dry-run."
             exit(1)
         url = quads_config["quads_base_url"] + "api/v1/moves"
-        headers = { 'Content-Type': 'application/json' }
-        data = {"statedir":args.statedir}
+        headers = {'Content-Type': 'application/json'}
+        data = {"statedir": args.statedir}
         if args.datearg is not None:
             data["date"] = args.datearg
         r = requests.post(url, data, headers=headers, timeout=120)
@@ -529,8 +548,8 @@ def main(argv):
                 new = result["new"]
                 # now we need to know if we should wipe
                 url = quads_config["quads_base_url"] + "api/v1/lswipe"
-                headers = { 'Content-Type': 'application/json' }
-                data = { "cloudonly": new }
+                headers = {'Content-Type': 'application/json'}
+                data = {"cloudonly": new}
                 r = requests.post(url, data, headers=headers, timeout=120)
                 wipe_js = r.json()
                 wipe_value = '1'
@@ -547,7 +566,7 @@ def main(argv):
                             subprocess.check_call([args.movecommand, host, current, new])
                         else:
                             subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
-                    except Exception, ex:
+                    except Exception as ex:
                         logger.error("Move command failed: %s" % ex)
                         exit(1)
                     stream = open(args.statedir + "/" + host, 'w')
@@ -579,7 +598,7 @@ def main(argv):
         data['lsschedule'] = args.lsschedule
 
     url = quads_config["quads_base_url"] + "api/v1/query"
-    headers = { 'Content-Type': 'application/json' }
+    headers = {'Content-Type': 'application/json'}
     r = requests.post(url, data, headers=headers, timeout=120)
     js = r.json()
     if 'result' in js:
@@ -590,5 +609,6 @@ def main(argv):
         exit(0)
     exit(0)
 
+
 if __name__ == "__main__":
-       main(sys.argv[1:])
+    main()

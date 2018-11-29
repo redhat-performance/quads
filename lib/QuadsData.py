@@ -18,6 +18,7 @@ import Clouds
 import History
 import Hosts
 
+
 class QuadsData(object):
     def __init__(self, data=None):
         """
