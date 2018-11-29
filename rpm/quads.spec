@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 1.0.0
+%define version 1.0.1
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -63,7 +63,7 @@ rm -rf %{buildroot}
 mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
-tar cf - bin lib/*.py conf ansible | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+tar cf - bin lib/*.py lib/tools/*.py conf ansible | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-daemon.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
 cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
@@ -80,10 +80,11 @@ rm -rf %{buildroot}
 /opt/quads/lib/*
 /var/www/html/visual/*
 %config /opt/quads/conf/quads.yml
+%config /opt/quads/conf/vlans.yml
 
 %post
 systemctl enable quads-daemon
-# will be required for quads-1.1+
+# will be required for quads-1.2+
 #systemctl enable mongod
 [ ! -d /opt/quads/log ] && mkdir /opt/quads/log || true
 [ ! -f /opt/quads/log/quads.log ] && touch /opt/quads/log/quads.log || true
@@ -98,6 +99,13 @@ fi;
 :;
 
 %changelog
+
+* Thu Nov 22 2018 - 1.0.1: Will Foster <wfoster@redhat.com>
+- Bump version to match 1.0.1 tag
+- PDU control feature added - issue #100
+- Public VLAN management added into cloud definitions - issue #192
+- We can now check against broken hosts in Foreman if broken_state
+  host parameter is set before allowing those machines to be scheduled - issue #190
 
 * Fri Apr 20 2018 - 1.0.0: Will Foster <wfoster@redhat.com>
 - Bump version to match 1.0.0 tag

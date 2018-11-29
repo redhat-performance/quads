@@ -10,7 +10,7 @@ import subprocess
 import sys
 import urllib2
 import yaml
-
+from client_report import report_all_availability
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -124,6 +124,8 @@ def main():
                         help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Model/Make/Type of host DellR620  for example')
+    parser.add_argument('--extnet', dest='extnet', type=int, default=None,
+                        help='VLAN id number for public routable network')
 
     args = parser.parse_args()
     if args.showresrv:
@@ -134,86 +136,7 @@ def main():
         filename = 'detail_reservation_report.json'
         with open(filename, 'w') as file_name:
             json.dump(data, file_name)
-
-        timestamps = data.keys()
-        timestamps.sort()
-        ## Uncomment the following for loop to check if all types are reported correctly.
-#        for timestamp in timestamps:
-#            dt_obj = datetime.datetime.fromtimestamp(float(timestamp))
-#            print " "
-#            print "Availability on {}".format(dt_obj.strftime('%c'))
-#            print "Node availability Type wise: "
-#            for node_types in data[timestamp].keys():
-#                print " {:20s} :   {:5d}".format(node_types, len(data[timestamp][node_types]))
-#
-#            print "*"*35
-#            print " "
-
-        days = []
-        r620 = []
-        r630 = []
-        r730xd = []
-        r930 = []
-        type_6018r = []
-        type_6048r = []
-        type_1028r = []
-        type_1029p = []
-        total_avail = []
-        busy = []
-        print timestamps
-        print " "
-        print len(timestamps) 
-
-        for timestamp in timestamps:
-            dt_obj = datetime.datetime.fromtimestamp(float(timestamp))
-            free_nodes = 0
-            days.append(dt_obj.isoformat())
-            if 'r620' in data[timestamp].keys():
-                r620.append(len(data[timestamp]['r620']))
-                free_nodes += len(data[timestamp]['r620'])
-            if 'r630' in data[timestamp].keys():
-                r630.append(len(data[timestamp]['r630']))
-                free_nodes += len(data[timestamp]['r630'])
-            if 'r730xd' in data[timestamp].keys():
-                r730xd.append(len(data[timestamp]['r730xd']))
-                free_nodes += len(data[timestamp]['r730xd'])
-            if 'r930' in data[timestamp].keys():
-                r930.append(len(data[timestamp]['r930']))
-                free_nodes += len(data[timestamp]['r930'])
-            if '6018r' in data[timestamp].keys():
-                type_6018r.append(len(data[timestamp]['6018r']))
-                free_nodes += len(data[timestamp]['6018r'])
-            if '6048r' in data[timestamp].keys():
-                type_6048r.append(len(data[timestamp]['6048r']))
-                free_nodes += len(data[timestamp]['6048r'])
-            if '1028r' in data[timestamp].keys():
-                type_1028r.append(len(data[timestamp]['1028r']))
-                free_nodes += len(data[timestamp]['1028r'])
-            if '1029p' in data[timestamp].keys():
-                type_1029p.append(len(data[timestamp]['1029p']))
-                free_nodes += len(data[timestamp]['1029p'])
-            total_avail.append(free_nodes)
-            busy.append(340-free_nodes)
-
-
-        print "*"*100
-        print "                          **** Node availability per day, sorted per type. ****"
-        print "*"*100
-
-        print "{:20s} {:10s} {:10s} {:10s} {:10s} {:10s} {:10s} {:10s} {:10s} {:12s} {:12s} ".format(
-                "Days_time", "r620", "r630", "r730xd", "r930", "6018r", "6048r", "1028r", "1029p", 
-                "Total_free", "Still Busy")
-
-        for day, x, y, z, m, n, o, p, q, free, not_free in zip(
-                days, r620, r630, r730xd, r930, type_6018r, type_6048r, type_1028r, type_1029p,  
-                total_avail, busy
-                ):
-            print "{:20s} {:8d} {:10d} {:10d} {:10d} {:10d} {:10d} {:10d} {:10d} {:12d} {:12d} ".format(day, x, y, z, m, n, o, p, q, free, not_free
-                    )
-
-
-        print " "*100
-        print "*"*100
+        report_all_availability(data)
         exit(0)
     if args.lshosts:
         url = quads_config["quads_base_url"] + "api/v1/lshosts/"
@@ -409,6 +332,7 @@ def main():
                 "qinq": args.qinq,
                 "wipe": args.wipe,
                 "ticket": args.cloudticket,
+                "extnet": args.extnet,
                 "force": args.force}
         r = requests.post(url, data, headers=headers, timeout=120)
         js = r.json()
