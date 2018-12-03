@@ -169,7 +169,8 @@ if $rebuild ; then
         $pducmd $host_to_move off
         sleep 60
         $pducmd $host_to_move on
-        sleep 60
+        # it takes longer for older systems IPMI to fully power back up
+        sleep 100
     fi
 
     # first ensure PXE enabled on the host .... for foreman
