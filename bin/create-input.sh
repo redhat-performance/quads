@@ -86,7 +86,7 @@ function find_u() {
 TMPHAMMERFILE1=$(mktemp /tmp/host_list_XXXXXXXX)
 TMPHAMMERFILE2=$(mktemp /tmp/host_list_XXXXXXXX)
 
-hammer host list --per-page 10000 | grep $domain | awk '{ print $3 }' | awk '{ print $3 }' 1>$TMPHAMMERFILE1 2>&1
+hammer host list --per-page 10000 | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE1 2>&1
 if [ $? -gt 0 ]; then
     exit 1
 fi
