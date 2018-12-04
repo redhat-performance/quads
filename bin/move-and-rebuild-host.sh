@@ -194,11 +194,12 @@ if $rebuild ; then
     # either puppet facts or Foreman sometimes collect additional interface info
     # this is needed sometimes as a workaround: clean all non-primary interfaces previously collected
     skip_id=$(hammer host info --name $host_to_move | egrep -B 3 "nterface .primary, provision" | grep Id: | awk '{ print $NF }')
+    skip_bmc_id=$(hammer host info --name $host_to_move | egrep -B 3 "Type.*bmc" | grep Id: | awk '{ print $NF }')
     TMPIFFILE=$(mktemp /tmp/IFXXXXXXX)
     hammer host info --name $host_to_move > $TMPIFFILE
 
     # remove extraneous interfaces collected prior to previous host usage
-    for interface in $(grep Id $TMPIFFILE  | grep ')' | grep -v $skip_id | awk '{ print $NF }') ; do
+    for interface in $(grep Id $TMPIFFILE  | grep ')' | egrep -v "$skip_id|$skip_bmc_id" | awk '{ print $NF }') ; do
         hammer host interface delete --host $host_to_move --id $interface
     done
     rm -f $TMPIFFILE
