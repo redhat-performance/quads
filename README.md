@@ -26,6 +26,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
+         * [Installing other QUADS Components](#installing-other-quads-components)
+            * [QUADS Wiki](#quads-wiki)
+            * [Foreman Hammer CLI](#foreman-hammer-cli)
       * [QUADS Usage Documentation](#quads-usage-documentation)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Common Administration Tasks](#common-administration-tasks)
@@ -156,8 +159,6 @@ b02-h01-r620.example.com
 
 ## QUADS Switch and Host Setup
    - To ensure you have setup your switch properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
-   - We will not be covering the Wiki component setup, but you can use our [Wordpress/nginx/php-fm/mariadb Ansible playbooks](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) to set this up for you.
-      * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
 
 ## Installing QUADS
    - We offer both RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
@@ -169,6 +170,8 @@ b02-h01-r620.example.com
 ```
 git clone https://github.com/redhat-performance/quads /opt/quads
 ```
+   - Install [hammer CLI](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) for Foreman integration.
+
    - Install pre-requisite Python packages
 ```
 yum install PyYAML ansible expectk python2-aexpect python-requests
@@ -228,8 +231,22 @@ vi /opt/quads/conf/quads.yml
 systemctl enable quads-daemon.service
 systemctl start quads-daemon.service
 ```
+   - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
 
-   - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
+   - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.  We typically place this as an alias in `/root/.bashrc`.
+```
+echo 'alias quads="/opt/quads/bin/quads-cli"' >> /root/.bashrc
+```
+
+### Installing other QUADS Components
+#### QUADS Wiki
+   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.
+   - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
+   - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
+      * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
+
+#### Foreman Hammer CLI
+   - For full Foreman functionality you'll want to have a working [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) setup on your QUADS host as well.
 
 ## QUADS Usage Documentation
 
