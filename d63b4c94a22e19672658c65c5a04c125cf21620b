@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29c4ee00_5dce3fb8",
+        "filename": "bin/create-input.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2018-12-04T16:57:00Z",
+      "side": 1,
+      "message": "Only issue I\u0027d have with this is that we seem to only populate the equivalent of the \"infrastructure racks wiki\" (which is what this page should be) with only QUADS-defined hosts.  \n\nI think that the authoritative source of this should be Foreman, or something else defined in provisioning_backend: XXXXXX when we support something besides Foreman (like generic Ansible facts/inventory, beaker etc.).\n\nWhat can we do to ensure the racks wiki (create-input.sh) is capturing added/removed Foreman hosts?  create-input-assignments would be fine for harvesting just quads-managed items however.",
+      "revId": "d63b4c94a22e19672658c65c5a04c125cf21620b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
