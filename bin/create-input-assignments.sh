@@ -155,7 +155,7 @@ hammer host list --per-page 10000 1>$TMPHAMMERFILE1 2>&1
 if [ $? -gt 0 ]; then
     exit 1
 fi
-cat $TMPHAMMERFILE1 | grep mgmt | egrep -v "$exclude_hosts" | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
+$quads --ls-hosts | egrep -v "$exclude_hosts" 1>$TMPHAMMERFILE2 2>&1
 hammer host list --search params.broken_state=true 1>$TMPHAMMERFILE1 2>&1
 if [ $? -gt 0 ]; then
     exit 1

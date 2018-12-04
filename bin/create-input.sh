@@ -83,23 +83,21 @@ function find_u() {
     echo $1 | awk -F- '{ print $3 }' | sed 's/^h//'
 }
 
-TMPHAMMERFILE1=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-TMPHAMMERFILE2=$(mktemp /tmp/hammer_host_list_XXXXXXXX)
-hammer host list --per-page 10000 1>$TMPHAMMERFILE1 2>&1
+TMPHAMMERFILE=$(mktemp /tmp/host_list_XXXXXXXX)
 if [ $? -gt 0 ]; then
     exit 1
 fi
-cat $TMPHAMMERFILE1 | grep mgmt | egrep -v "${exclude_hosts}" | awk '{ print $3 }' 1>$TMPHAMMERFILE2 2>&1
+$quads --ls-hosts 1>$TMPHAMMERFILE 2>&1
 
 for rack in $racks ; do
     echo "**Rack "$(echo $rack | tr a-z A-Z)"**"
     print_header
-    for h in $(cat $TMPHAMMERFILE2 | egrep $rack) ; do
+    for h in $(cat $TMPHAMMERFILE | egrep $rack) ; do
         add_row $h $(find_u $h)
     done
     echo ""
 
 done
 
-rm -f $TMPHAMMERFILE1 $TMPHAMMERFILE2
+rm -f $TMPHAMMERFILE
 
