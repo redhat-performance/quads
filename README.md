@@ -244,6 +244,7 @@ echo 'alias quads="/opt/quads/bin/quads-cli"' >> /root/.bashrc
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
       * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
+   - On CentOS/RHEL7 you'll need the [python2-wordpress-xmlrpc](https://github.com/redhat-performance/ops-tools/raw/master/packages/python2-wordpress-xmlrpc-2.3-11.fc28.noarch.rpm) package unless you satisfy it with pip.
 
 #### Foreman Hammer CLI
    - For full Foreman functionality you'll want to have a working [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) setup on your QUADS host as well.
