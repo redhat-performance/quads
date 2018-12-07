@@ -32,8 +32,8 @@ EOF
 function print_header() {
     cat <<EOF
 
-| U | ServerHostname | Serial | MAC | IP | IPMIADDR | IPMIURL | IPMIMAC | Workload | Owner | Graph |
-|---|----------------|--------|-----|----|----------|---------|---------|----------|-------|-------|
+| U | ServerHostname | Serial | MAC | IP | IPMIADDR | IPMIURL | IPMIMAC | Workload | Owner |
+|---|----------------|--------|-----|----|----------|---------|---------|----------|-------|
 EOF
 }
 
@@ -54,16 +54,16 @@ function add_row() {
     if [ -f $data_dir/ipmi/$nodename/macaddr ]; then
         macaddr=$(cat $data_dir/ipmi/$nodename/macaddr)
     else
-        macaddr=$(hammer host info --name $nodename | grep "MAC:" | awk '{ print $NF }')
+        macaddr=$(hammer host info --name $nodename | grep "MAC:" | head -1 | awk '{ print $NF }')
         echo $macaddr > $data_dir/ipmi/$nodename/macaddr
     fi
     ip=$(host $nodename | awk '{ print $NF }')
-    oobip=$(host $arg | awk '{ print $NF }')
-    ooburl="<a href=http://$arg/ target=_blank>console</a>"
+    oobip=$(host mgmt-$arg | awk '{ print $NF }')
+    ooburl="<a href=http://mgmt-$arg/ target=_blank>console</a>"
     if [ -f $data_dir/ipmi/$nodename/oobmacaddr ]; then
         oobmacaddr=$(cat $data_dir/ipmi/$nodename/oobmacaddr)
     else
-        oobmacaddr=$(hammer host info --name $arg | grep "MAC:" | awk '{ print $NF }')
+        oobmacaddr=$(hammer host info --name $arg | grep "SP MAC:" | head -1 | awk '{ print $NF }')
         echo $oobmacaddr > $data_dir/ipmi/$nodename/oobmacaddr
     fi
     workload=$($quads --host $nodename)
@@ -75,18 +75,18 @@ function add_row() {
     fi
     # need to figure out grafana links
     grafana=""
-    echo "| $uloc | $(echo $nodename | awk -F. '{ print $1 }') | $svctag | $macaddr | $ip | $oobip | $ooburl | $oobmacaddr | [$workload](/assignments/#$workload) | $owner | $grafana |"
+    echo "| $uloc | $(echo $nodename | awk -F. '{ print $1 }') | $svctag | $macaddr | $ip | $oobip | $ooburl | $oobmacaddr | [$workload](/assignments/#$workload) | $owner |"
 }
 
 # assume hostnames are the format "<rackname>-h<U location>-<type>"
 function find_u() {
-    echo $1 | awk -F- '{ print $3 }' | sed 's/^h//'
+    echo $1 | sed 's/^mgmt-//' | awk -F- '{ print $2 }' | sed 's/^h//'
 }
 
 TMPHAMMERFILE1=$(mktemp /tmp/host_list_XXXXXXXX)
 TMPHAMMERFILE2=$(mktemp /tmp/host_list_XXXXXXXX)
 
-hammer host list --per-page 10000 | grep $domain | awk '{ print $3 }' 1>$TMPHAMMERFILE1 2>&1
+hammer host list --per-page 10000 | grep $domain | grep -v mgmt- | awk '{ print $3 }' 1>$TMPHAMMERFILE1 2>&1
 if [ $? -gt 0 ]; then
     exit 1
 fi
