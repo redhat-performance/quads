@@ -15,6 +15,13 @@ class MethodHandlerBase(object):
         obj = self.model.objects(**q).first()
         return obj
 
+@cherrypy.expose
+class GenericMethodHandler(MethodHandlerBase):
+    def GET(self, **data):
+        args = {}
+        if 'moves' in data:
+
+
 
 @cherrypy.expose
 class DocumentMethodHandler(MethodHandlerBase):

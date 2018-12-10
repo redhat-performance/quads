@@ -22,8 +22,8 @@ import urllib
 from quads.quads import Quads
 from quads.helpers import param_check
 
-# Setup Jinja Templates
 from jinja2 import Environment, FileSystemLoader
+
 env = Environment(loader=FileSystemLoader('templates'))
 
 LSACTIONS = ['lshosts', 'lsclouds', 'lsowner', 'lsowners', 'lsccusers',

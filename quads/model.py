@@ -1,4 +1,14 @@
-from mongoengine import *
+from mongoengine import (
+    connect,
+    Document,
+    EmbeddedDocument,
+    StringField,
+    BooleanField,
+    ListField,
+    ReferenceField,
+    DictField,
+    DateTimeField
+)
 from quads.helpers import param_check
 
 connect('quads')
@@ -28,12 +38,13 @@ class Cloud(Document):
         return result, data
 
 
-class Host(Document):
+class Host(EmbeddedDocument):
     host = StringField()
     cloud = ReferenceField(Cloud, required=True)
     interfaces = DictField()
     schedule = ListField(DictField())
     type = StringField()
+    meta = {'strict': False}
 
     @staticmethod
     def prep_data(data):
@@ -85,20 +96,3 @@ class Host(Document):
         print(result)
 
         return result, host, data
-
-
-class History(Document):
-    pass
-
-
-class CloudHistory(Document):
-    cloud = ReferenceField(Cloud, required=True)
-    dt_stamp = DateTimeField()
-    name = StringField()
-    description = StringField()
-    owner = StringField()
-    ticket = StringField()
-    qing = BooleanField()
-    wipe = BooleanField()
-    post_config = ListField()
-    ccusers = ListField()

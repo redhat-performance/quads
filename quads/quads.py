@@ -25,7 +25,7 @@ import fcntl
 import errno
 import threading
 
-from data import QuadsData
+from quads.data import QuadsData
 
 
 class Quads(object):
