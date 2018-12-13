@@ -38,7 +38,7 @@ class Cloud(Document):
         return result, data
 
 
-class Schedule(EmbeddedDocument):
+class Schedule(Document):
     start = DateTimeField()
     end = DateTimeField()
     meta = {'strict': False}
