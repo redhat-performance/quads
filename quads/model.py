@@ -38,11 +38,23 @@ class Cloud(Document):
         return result, data
 
 
+class Schedule(EmbeddedDocument):
+    start = DateTimeField()
+    end = DateTimeField()
+    meta = {'strict': False}
+
+    @staticmethod
+    def prep_data(data):
+        result, data = param_check(data, ['start', 'end'])
+
+        return result, data
+
+
 class Host(EmbeddedDocument):
     host = StringField()
     cloud = ReferenceField(Cloud, required=True)
     interfaces = DictField()
-    schedule = ListField(DictField())
+    schedule = ReferenceField(Schedule)
     type = StringField()
     meta = {'strict': False}
 
@@ -59,26 +71,6 @@ class Host(EmbeddedDocument):
         return result, data
 
     @staticmethod
-    def prep_schedule_data(data):
-        result, data = param_check(data, ['cloud', 'host',
-                                          'start', 'end'])
-        host = None
-        if not result:
-            cloud = Cloud.objects(cloud=data['cloud']).first()
-            host = Host.objects(host=data['host']).first()
-            if not cloud:
-                result.append('Cloud %s not found' % data['cloud'])
-            elif not host:
-                result.append('Host %s not found' % data['host'])
-            else:
-                data['cloud'] = cloud
-                del data['host']
-
-            data = {'add_to_set__schedule': [data]}
-
-        return result, host, data
-
-    @staticmethod
     def prep_interfaces_data(data):
         result, data = param_check(data, ['host', 'interface', 'mac',
                                           'vendor_type', 'port'])
@@ -92,7 +84,5 @@ class Host(EmbeddedDocument):
             interface = data['interface']
             del data['interface']
             data = {'set__interfaces__%s' % interface: data}
-
-        print(result)
 
         return result, host, data

@@ -15,12 +15,12 @@ class MethodHandlerBase(object):
         obj = self.model.objects(**q).first()
         return obj
 
+
 @cherrypy.expose
 class GenericMethodHandler(MethodHandlerBase):
     def GET(self, **data):
-        args = {}
         if 'moves' in data:
-
+            pass
 
 
 @cherrypy.expose
@@ -158,3 +158,4 @@ class QuadsServerApiV2(object):
         self.host = DocumentMethodHandler(model.Host, 'host')
         self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
         self.interfaces = PropertyMethodHandler(model.Host, 'host', 'interfaces')
+        self.moves = GenericMethodHandler('moves')

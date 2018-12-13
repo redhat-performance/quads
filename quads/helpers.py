@@ -32,7 +32,4 @@ def param_check(data, params, defaults={}):
             elif data[p] == 'None':
                 data[p] = None
 
-            # mongonengine COMPARISON_OPERATOR type hack
-            if p == 'type' and data.get(p, False):
-                data['set__type__'] = data.pop(p)
     return result, data
