@@ -6,9 +6,9 @@ set pdu [lindex $argv 0]
 set port [lindex $argv 1]
 
 spawn telnet "$pdu"
-expect "name:"
+expect ":"
 send "apc\r";
-expect "word:"
+expect ":"
 send "apc\r";
 expect "apc>"
 send "olstatus $port\r";

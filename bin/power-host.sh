@@ -38,21 +38,24 @@ for outlet in $pdus ; do
         case "$action" in
             status)
                 # use apc-telnet-olstatus.exp if ssh is a problem
-                exp=apc-olstatus.exp
+                #exp=apc-olstatus.exp
+                exp=apc-telnet-olstatus.exp
                 # fix the path later. For now run in directory
                 result=$(./$exp $pdu $socket | egrep "^$socket")
                 echo "$result"
                 ;;
             off)
                 # use apc-telnet-oloff.exp if ssh is a problem
-                exp=apc-oloff.exp
+                #exp=apc-oloff.exp
+                exp=apc-telnet-oloff.exp
                 # fix the path later. For now run in directory
                 result=$(./$exp $pdu $socket | egrep "^$socket")
                 echo "$result"
                 ;;
             on)
                 # use apc-telnet-olon.exp if ssh is a problem
-                exp=apc-olon.exp
+                #exp=apc-olon.exp
+                exp=apc-telnet-olon.exp
                 # fix the path later. For now run in directory
                 result=$(./$exp $pdu $socket | egrep "^$socket")
                 echo "$result"
