@@ -2,7 +2,6 @@ from datetime import datetime
 from mongoengine import (
     connect,
     Document,
-    EmbeddedDocument,
     StringField,
     BooleanField,
     ListField,
@@ -12,7 +11,13 @@ from mongoengine import (
 )
 from quads.helpers import param_check
 
-connect('quads')
+import os
+
+
+connect(
+    'quads',
+    host=os.environ.get("MONGODB_IP", "127.0.0.1")
+)
 
 
 class CloudHistory(Document):
@@ -25,6 +30,13 @@ class CloudHistory(Document):
     post_config = ListField()
     ccuser = ListField()
     date = DateTimeField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$cloud']
+            }
+        ]
+    }
 
     @staticmethod
     def prep_data(data):
@@ -36,6 +48,8 @@ class CloudHistory(Document):
             'wipe': True,
             'date': datetime.now()
         }
+        data['cloud'] = data['_id']
+        data.pop('_id')
 
         params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
@@ -81,23 +95,24 @@ class Schedule(Document):
         return result, data
 
 
-class Host(EmbeddedDocument):
+class Host(Document):
     host = StringField()
-    cloud = ReferenceField(Cloud, required=True)
+    cloud = StringField()
     interfaces = DictField()
     schedule = ReferenceField(Schedule)
     type = StringField()
-    meta = {'strict': False}
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$host']
+            }
+        ],
+        'strict': False
+    }
 
     @staticmethod
     def prep_data(data):
         result, data = param_check(data, ['host', 'cloud', 'type'])
-        if not result:
-            cloud = Cloud.objects(cloud=data['cloud']).first()
-            if not cloud:
-                result.append('Cloud %s not found' % data['cloud'])
-            else:
-                data['cloud'] = cloud
 
         return result, data
 

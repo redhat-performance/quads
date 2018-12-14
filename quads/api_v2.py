@@ -41,6 +41,11 @@ class MethodHandlerBase(object):
         obj = self.model.objects(**q).first()
         return obj
 
+    def _get_obj_id(self, obj):
+        q = {'_id': obj}
+        obj = self.model.objects(**q).first()
+        return obj
+
 
 @cherrypy.expose
 class MovesMethodHandler(MethodHandlerBase):
@@ -111,11 +116,16 @@ class DocumentMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
         else:
             # check if object already exists
-            obj = self._get_obj(data[self.name])
+            if self.name in data:
+                obj_name = data[self.name]
+                obj = self._get_obj(obj_name)
+            else:
+                obj_name = data["_id"]
+                obj = self._get_obj_id(obj_name)
             if obj and not force:
-                result.append('%s %s already exists' % (
-                    self.name,
-                    data[self.name]))
+                result.append(
+                    '%s %s already exists' % (self.name, obj_name)
+                )
                 cherrypy.response.status = "409 Conflict"
             else:
                 # Create/update Operation
@@ -124,14 +134,16 @@ class DocumentMethodHandler(MethodHandlerBase):
                     if force and obj:
                         # TODO: DEFAULTS OVERWRITE EXISTING VALUES
                         obj.update(**data)
-                        result.append('Updated %s %s' % (self.name,
-                                                         data[self.name]))
+                        result.append(
+                            'Updated %s %s' % (self.name, obj_name)
+                        )
                     # otherwise create it
                     else:
                         obj = self.model(**data).save()
                         cherrypy.response.status = "201 Resource Created"
-                        result.append('Created %s %s' % (self.name,
-                                                         data[self.name]))
+                        result.append(
+                            'Created %s %s' % (self.name, obj_name)
+                        )
                     history_result, history_data = model.CloudHistory.prep_data(data)
                     if history_result:
                         result.append('Data validation failed: %s' % ', '.join(history_result))

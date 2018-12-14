@@ -239,7 +239,7 @@ def main(_args):
 
 
 if __name__ == '__main__':
-    quads_config_file = os.path.dirname(__file__) + '/../conf/.yml'
+    quads_config_file = os.path.dirname(__file__) + '/../conf/quads.yml'
     quads_config = quads_load_config(quads_config_file)
 
     if 'data_dir' not in quads_config:
