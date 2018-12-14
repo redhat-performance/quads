@@ -1,3 +1,4 @@
+from datetime import datetime
 from mongoengine import (
     connect,
     Document,
@@ -14,8 +15,36 @@ from quads.helpers import param_check
 connect('quads')
 
 
-class Cloud(Document):
+class CloudHistory(Document):
     cloud = StringField()
+    description = StringField()
+    owner = StringField()
+    ticket = StringField()
+    qinq = BooleanField()
+    wipe = BooleanField()
+    post_config = ListField()
+    ccuser = ListField()
+    date = DateTimeField()
+
+    @staticmethod
+    def prep_data(data):
+        defaults = {
+            'owner': 'nobody',
+            'ccuser': [],
+            'ticket': '000000',
+            'qinq': False,
+            'wipe': True,
+            'date': datetime.now()
+        }
+
+        params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
+        result, data = param_check(data, params, defaults)
+
+        return result, data
+
+
+class Cloud(Document):
+    _id = StringField()
     description = StringField()
     owner = StringField()
     ticket = StringField()
@@ -26,13 +55,15 @@ class Cloud(Document):
 
     @staticmethod
     def prep_data(data):
-        defaults = {'owner': 'nobody',
-                    'ccuser': [],
-                    'ticket': '000000',
-                    'qinq': False,
-                    'wipe': True}
+        defaults = {
+            'owner': 'nobody',
+            'ccuser': [],
+            'ticket': '000000',
+            'qinq': False,
+            'wipe': True
+        }
 
-        params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
+        params = ['_id', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
 
         return result, data

@@ -84,7 +84,7 @@ def main(_args):
     # Cloud Add / Modify
     elif _args.cloudresource:
         url = os.path.join(api_url, 'cloud')
-        data = {'cloud': _args.cloudresource,
+        data = {'_id': _args.cloudresource,
                 'description': _args.description,
                 'owner': _args.cloudowner,
                 'ccuser': _args.ccusers,
@@ -239,7 +239,7 @@ def main(_args):
 
 
 if __name__ == '__main__':
-    quads_config_file = os.path.dirname(__file__) + '/../conf/quads.yml'
+    quads_config_file = os.path.dirname(__file__) + '/../conf/.yml'
     quads_config = quads_load_config(quads_config_file)
 
     if 'data_dir' not in quads_config:

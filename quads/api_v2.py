@@ -16,7 +16,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
+conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
 
 default_config = conf["data_dir"] + "/schedule.yaml"
@@ -88,6 +88,10 @@ class DocumentMethodHandler(MethodHandlerBase):
                 return json.dumps({'result': 'Cloud %s Not Found' % data['cloudonly']})
             else:
                 return c.to_json()
+        if self.name == "host":
+            h = model.Host.objects()
+            if not h:
+                return json.dumps({'result': ["Nothing to do."]})
         return self.model.objects(**args).to_json()
 
     # post data comes in **data
@@ -128,6 +132,12 @@ class DocumentMethodHandler(MethodHandlerBase):
                         cherrypy.response.status = "201 Resource Created"
                         result.append('Created %s %s' % (self.name,
                                                          data[self.name]))
+                    history_result, history_data = model.CloudHistory.prep_data(data)
+                    if history_result:
+                        result.append('Data validation failed: %s' % ', '.join(history_result))
+                        cherrypy.response.status = "400 Bad Request"
+                    else:
+                        model.CloudHistory(**history_data).save()
                 except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
