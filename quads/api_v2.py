@@ -1,7 +1,33 @@
 import cherrypy
 import json
+import logging
+import os
+import sys
+import time
 
 from quads import model
+from quads.quads import Quads
+from helpers import quads_load_config
+
+logger = logging.getLogger('api_v2')
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
+conf = quads_load_config(conf_file)
+
+default_config = conf["data_dir"] + "/schedule.yaml"
+default_state_dir = conf["data_dir"] + "/state"
+default_move_command = "/bin/echo"
+quads = Quads(
+    default_config,
+    default_state_dir,
+    default_move_command,
+    None, False, False, False
+)
 
 
 class MethodHandlerBase(object):
@@ -17,10 +43,38 @@ class MethodHandlerBase(object):
 
 
 @cherrypy.expose
-class GenericMethodHandler(MethodHandlerBase):
-    def GET(self, **data):
+class MovesMethodHandler(MethodHandlerBase):
+    def POST(self, **data):
         if self.name == "moves":
-            return "Attempted a move"
+            try:
+                result = []
+                # statedir, datearg
+                if 'date' not in data:
+                    data['date'] = [time.strftime("%Y-%m-%d %H:%M")]
+                else:
+                    if len(data['date']) == 0:
+                        result.append("Could not parse date parameter")
+                if 'statedir' not in data:
+                    result.append("Missing required parameter: statedir")
+                else:
+                    if len(data['statedir']) == 0:
+                        result.append("Could not parse statedir parameter")
+                if len(result) > 0:
+                    return json.dumps({'result': result})
+
+                result = quads.pending_moves(
+                    data['statedir'][0],
+                    data['date'][0]
+                )
+
+                return json.dumps({'result': result})
+            except Exception:
+                logger.info("%s - %s - %s %s" % (self.client_address[0],
+                                                 self.command,
+                                                 self.path,
+                                                 "400 Bad Request"))
+                cherrypy.response.status = "400 Bad Request"
+                return json.dumps({'result': ['400 Bad Request']})
 
 
 @cherrypy.expose
@@ -158,4 +212,4 @@ class QuadsServerApiV2(object):
         self.host = DocumentMethodHandler(model.Host, 'host')
         self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
         self.interfaces = PropertyMethodHandler(model.Host, 'host', 'interfaces')
-        self.moves = GenericMethodHandler('moves', 'moves')
+        self.moves = MovesMethodHandler('moves', 'moves')
