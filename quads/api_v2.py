@@ -7,7 +7,7 @@ import time
 
 from quads import model
 from quads.quads import Quads
-from helpers import quads_load_config
+from quads.helpers import quads_load_config
 
 logger = logging.getLogger('api_v2')
 ch = logging.StreamHandler(sys.stdout)
