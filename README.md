@@ -264,8 +264,25 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
-#### Ansible Dell Boot Order Playbooks
-   - For Dell bare-metal systems we employ [optional boot interface order Ansible playbooks](https://github.com/redhat-performance/quads/tree/master/ansible), both for juggling interface order via racadm for OpenStack deployments but also to provide a way for users to set and manage their Dell BIOS boot interface order settings directly from Foreman.
+   - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
+   
+### Running Quads from inside Docker (Experimental)
+   - Run a daemonized mongo container
+```bash
+docker run --name quads-mongo -d mongo
+```
+   - Run a daemonized quads server linked to our mongo instance
+```bash
+docker run -d --name quads -p 8080:8080 --link quads-mongo:mongo -e MONGODB_IP=mongo --rm grafuls/quads-dev
+```
+   - Run commands against containerized quads via docker exec
+```bash
+docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+```
+   - Enter mongo interactive mode
+```bash
+docker exec -it quads mongo --host mongo
+```
 
 ## QUADS Usage Documentation
 
