@@ -1,0 +1,168 @@
+.page-sidebar-tech-banker {
+   background-color: #284049;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a {
+   border-top: 1px solid rgba(238, 238, 238, .19);
+   color: #fff;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>i {
+   color: #fff!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>i[class*=icon-],
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>i[class^=icon-] {
+   color: #959595;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>.arrow:before {
+   color: #777;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.heading>h3 {
+   color: #9e9e9e;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:hover>a {
+   background: rgba(82, 103, 125, .55)!important;
+   color: #d9d9d9;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a>i,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:hover>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:hover>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:hover>a>i {
+   color: #888;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open>a,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a {
+   background: #d64635;
+   border-top-color: transparent;
+   color: #fff;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open>a:hover,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a:hover {
+   background: #d64635;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open>a>i,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a>i {
+   color: #fff;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active+li>a {
+   border-top-color: transparent;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active.open+li>a {
+   border-top: 1px solid rgba(238, 238, 238, .19);
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:last-child>a {
+   border-bottom: 1px solid transparent!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li>a>.arrow:before {
+   color: #777;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li:hover>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li:hover>a>.arrow:before {
+   color: #888;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li.active>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li.active>a>.arrow:before {
+   color: #fff;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a>i {
+   color: #fff!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a>i[class*=icon-],
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a>i[class^=icon-] {
+   color: #959595;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li>a>.arrow:before {
+   color: #777;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.active>a,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.open>a,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li:hover>a {
+   background: rgba(82, 103, 125, .55)!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.active>a>i,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.open>a>i,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li:hover>a>i {
+   color: #bbb;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.active>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.active>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.open>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li.open>a>.arrow:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li:hover>a>.arrow.open:before,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu>li:hover>a>.arrow:before {
+   color: #888;
+}
+
+@media (min-width:992px) {
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu {
+      box-shadow: 5px 5px rgba(48, 48, 48, .2);
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu.sidebar-search-wrapper {
+      box-shadow: none;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-closed>li:hover {
+      box-shadow: 5px 5px rgba(48, 48, 48, .2);
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-closed>li:hover.sidebar-search-wrapper {
+      box-shadow: none;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-closed>li:hover>.sub-menu {
+      box-shadow: 5px 5px rgba(48, 48, 48, .2);
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-closed>li:hover>.sub-menu.sidebar-search-wrapper {
+      box-shadow: none;
+   }
+   .page-sidebar-menu-tech-banker-hover-submenu li:hover a>.arrow {
+      border-right: 8px solid #3a3a3a;
+   }
+   .page-sidebar-menu-tech-banker-hover-submenu li:hover>.sub-menu {
+      background: #3a3a3a!important;
+   }
+}
+
+@media (max-width:991px) {
+   .page-sidebar-tech-banker {
+      background-color: #284049;
+   }
+   .page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a {
+      border-top: 1px solid rgba(238, 238, 238, .19);
+   }
+   .page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a,
+   .page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:hover>a {
+      background: #818a9c;
+   }
+   .page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li:last-child>a {
+      background: rgba(82, 103, 125, .55)!important;
+   }
+}

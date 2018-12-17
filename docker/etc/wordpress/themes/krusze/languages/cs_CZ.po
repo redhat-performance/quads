@@ -1,0 +1,264 @@
+# Translation of Krusze in Czech
+# This file is distributed under the same license as the Krusze package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2015-08-18 15:08+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Project-Id-Version: Krusze\n"
+"POT-Creation-Date: \n"
+"Last-Translator: krusze.com <contact@krusze.com>\n"
+"Language-Team: \n"
+"Language: cs_CZ\n"
+"X-Generator: Poedit 1.8\n"
+
+msgid "Continue reading"
+msgstr "Celý příspěvek"
+
+msgid "Sidebar"
+msgstr "Postranní panel"
+
+msgid "Footer"
+msgstr "Sloupec zápatí"
+
+msgid "Colophon"
+msgstr ""
+
+msgid "Protected Comments: Please enter your password to view comments."
+msgstr "Chráněné komentáře: Pokud je chcete zobrazit, zadejte svoje heslo."
+
+msgid "One Response to %2$s"
+msgid_plural "%1$s Responses to %2$s"
+msgstr[0] "Jedna reakce na %2$s"
+msgstr[1] "%1$s reakce na %2$s"
+
+msgid "Older Comments"
+msgstr "Starší komentáře"
+
+msgid "Newer Comments"
+msgstr "Novější komentáře"
+
+msgid "Comments are closed."
+msgstr "Komentáře nejsou povoleny."
+
+msgid "Navigation Menu"
+msgstr "Navigační menu"
+
+msgid "Categories"
+msgstr "Rubriky"
+
+msgid "Tags"
+msgstr "Štítky"
+
+msgid "Original dimensions"
+msgstr "Aktuální rozměry"
+
+msgid "Link to image"
+msgstr "Odkaz na obrázek"
+
+msgid "Format"
+msgstr ""
+
+msgid "Edit"
+msgstr "Upravit"
+
+msgid "Published on"
+msgstr "Publikováno"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Leave a comment"
+msgstr "Napsat komentář"
+
+msgid "1 Comment"
+msgstr "1 komentář"
+
+msgid "% Comments"
+msgstr "% Komentáře"
+
+msgid "Published in"
+msgstr ""
+
+msgid "Page not found."
+msgstr "Stránka nebyla nalezena."
+
+msgid "Powered by WordPress"
+msgstr "Vytvořeno pomocí WordPressu"
+
+msgid "Skip to content"
+msgstr "Přejít k obsahu webu"
+
+msgid "No posts found."
+msgstr "Nebyly nalezeny žádné příspěvky."
+
+msgctxt "submit button"
+msgid "Search"
+msgstr "Hledat"
+
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr "Hledat &hellip;"
+
+msgctxt "label"
+msgid "Search for:"
+msgstr "Vyhledávání"
+
+msgid "Search results for: %s"
+msgstr ""
+
+msgid "Sorry, no posts matched your criteria."
+msgstr "Nebyl nalezen žádný příspěvek, který by odpovídal vašemu požadavku."
+
+msgid "Page"
+msgstr ""
+
+msgid "Pages:"
+msgstr "Stránky:"
+
+msgid "Previous"
+msgstr "Předchozí"
+
+msgid "Next"
+msgstr "Další"
+
+msgid "Next post:"
+msgstr ""
+
+msgid "Previous post:"
+msgstr ""
+
+msgid "Comment navigation"
+msgstr "Navigace pro komentáře"
+
+msgid "Default"
+msgstr "Výchozí"
+
+msgid "View all posts by %s"
+msgstr "Zobrazit všechny příspěvky, jejichž autorem je %s"
+
+msgid "Navigation"
+msgstr "Navigace"
+
+msgid "Header"
+msgstr "Záhlaví"
+
+msgid "Layout"
+msgstr "Rozvržení stránky"
+
+msgid "Boxed"
+msgstr "Pevná šířka"
+
+msgid "Wide"
+msgstr "Maximální šířka"
+
+msgid "One column"
+msgstr "1 sloupec"
+
+msgid "Two columns, right sidebar"
+msgstr "2 sloupce, Postranní panel vpravo"
+
+msgid "Two columns, left sidebar"
+msgstr "2 sloupce, Postranní panel vlevo"
+
+msgid "Comment"
+msgstr "Komentář"
+
+msgctxt "header image description"
+msgid "Black"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Blue"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Brown"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Gray"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Green"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Orange"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Pink"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Purple"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Red"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Silver"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Tan"
+msgstr ""
+
+msgctxt "header image description"
+msgid "White"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Yellow"
+msgstr ""
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "Site layout"
+msgstr ""
+
+msgid "Post layout"
+msgstr ""
+
+msgid "Google Font"
+msgstr ""
+
+msgid "Google Font family"
+msgstr ""
+
+msgid "Google Font subset"
+msgstr ""
+
+msgid "Background"
+msgstr "Pozadí"
+
+msgid "Background container"
+msgstr ""
+
+msgid "Link"
+msgstr "Odkaz"
+
+msgid "Link hover"
+msgstr ""
+
+msgid "Link background"
+msgstr ""
+
+msgid "Link background hover"
+msgstr ""
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Content"
+msgstr "Obsah"
+
+msgid "Main content"
+msgstr ""

@@ -27,12 +27,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
-         * [Installing other QUADS Components](#installing-other-quads-components)
-            * [QUADS Wiki](#quads-wiki)
-            * [Foreman Hammer CLI](#foreman-hammer-cli)
-            * [Ansible CMDB](#ansible-cmdb)
-            * [QUADS Move Command](#quads-move-command)
-            * [Ansible Dell Boot Order Playbooks](#ansible-dell-boot-order-playbooks)
+         * [Running Quads with Docker-compose (Experimental)](#running-quads-with-docker-compose-experimental)
+         * [Running Quads from inside Docker (Experimental)](#running-quads-from-inside-docker-experimental)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
@@ -265,6 +261,25 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
+   
+### Running Quads with Docker compose (Experimental)
+   - Clone repo and move to docker directory
+```bash
+git clone https://github.com/grafuls/quads.git && cd quads/docker
+```
+   - Run docker-compose
+```bash
+docker-compose up
+```
+   - Access Quads Wiki via browser at `http://localhost`
+   - Run commands against containerized quads via docker exec
+```bash
+docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+```
+   - Enter mongo interactive mode
+```bash
+docker exec -it quads mongo --host mongo
+```
    
 ### Running Quads from inside Docker (Experimental)
    - Run a daemonized mongo container

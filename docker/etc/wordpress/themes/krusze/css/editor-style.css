@@ -1,0 +1,434 @@
+/*
+Theme Name: Krusze
+Description: Used to style the TinyMCE editor.
+*/
+
+body { 
+	color: #333333; 
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	max-width: 660px;
+	text-rendering: optimizeLegibility;
+	vertical-align: baseline;
+}
+
+/* Tables */
+table {
+	margin-bottom: 20px;
+	max-width: 100%;
+	width: 100%;
+}
+
+table > thead > tr > th,
+table > tbody > tr > th,
+table > tfoot > tr > th,
+table > thead > tr > td,
+table > tbody > tr > td,
+table > tfoot > tr > td {
+	border-top: 1px solid #dddddd;
+	line-height: 1.5;
+	padding: 8px;
+	vertical-align: top;
+}
+
+table > thead > tr > th {
+	border-bottom: 2px solid #dddddd;
+	vertical-align: bottom;
+}
+
+table > caption + thead > tr:first-child > th,
+table > colgroup + thead > tr:first-child > th,
+table > thead:first-child > tr:first-child > th,
+table > caption + thead > tr:first-child > td,
+table > colgroup + thead > tr:first-child > td,
+table > thead:first-child > tr:first-child > td {
+	border-top: 0;
+}
+
+table > tbody + tbody {
+	border-top: 2px solid #dddddd;
+}
+
+table {
+	background-color: #ffffff;
+}
+
+th {
+	text-align: left;
+}
+
+/* Text elements */
+a {
+	color: #707070;
+	text-decoration: none;
+}
+
+a:hover,
+a:focus {
+	color: #337ab7;
+	text-decoration: underline;
+}
+
+a:focus {
+	outline: thin dotted;
+	outline: 5px auto -webkit-focus-ring-color;
+	outline-offset: -2px;
+}
+
+a img {
+	border: none;
+	text-decoration: none;
+}
+
+abbr,
+acronym {
+	border-bottom: 1px dotted;
+	cursor: help;
+}
+
+address {
+	font-style: normal;
+	line-height: 1.5;
+	margin-bottom: 20px;
+}
+
+blockquote {
+	border-left: 5px solid #eeeeee;
+	font-size: 17.5px;
+	margin: 0 0 20px;
+	padding: 10px 20px;
+	quotes: none;
+}
+
+blockquote:before,
+blockquote:after {
+	content: "";
+}
+
+blockquote p:last-child,
+blockquote ul:last-child,
+blockquote ol:last-child {
+	margin-bottom: 0;
+}
+
+caption {
+	color: #707070;
+	padding-bottom: 8px;
+	padding-top: 8px;
+	text-align: left;
+}
+
+cite {
+	font-style: normal;
+}
+
+code {
+	-webkit-border-radius: 4px;
+	-moz-border-radius:	   4px;
+	border-radius:		   4px;
+	background-color: #f9f2f4;
+	color: #c7254e;
+	font-size: 90%;
+	padding: 2px 4px;
+}
+
+del {
+	text-decoration: line-through;
+}
+
+dl {
+	margin-bottom: 20px;
+	margin-top: 0;
+}
+
+dt {
+	font-weight: bold;
+}
+
+dd {
+	margin-left: 0;
+}
+
+em {
+	font-style: italic;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: inherit;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+}
+
+h1,
+h2,
+h3 {
+	margin-bottom: 10px;
+}
+
+h4,
+h5,
+h6 {
+	margin-bottom: 10px;
+}
+
+/* Reset heading elements to have their margin-top removed. */
+h1, h2, h3, h4, h5, h6, 
+.h1, .h2, .h3, .h4, .h5, .h6 {
+	margin-top: 0;
+}
+
+h1 {
+	font-size: 40px;
+}
+
+h2 {
+	font-size: 32px;
+}
+
+h3 {
+	font-size: 28px;
+}
+
+h4 {
+	font-size: 24px;
+}
+
+h5 {
+	font-size: 20px;
+}
+
+h6 {
+	font-size: 16px;
+}
+
+hr {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: 	content-box;
+	box-sizing: 		content-box;
+	border: 0;
+	border-top: 1px solid #eeeeee;
+	height: 0;
+	margin-bottom: 20px;
+	margin-top: 20px;
+}
+
+i {
+	font-style: italic;
+}
+
+img {
+	vertical-align: middle;
+}
+
+/* Images: make sure images are scaled correctly. */
+img {
+	height: auto;
+	max-width: 100%;
+}
+
+ins {
+	background-color: #fff6bf;
+	text-decoration: none;
+}
+
+kbd {
+	-webkit-border-radius: 3px;
+	-moz-border-radius:	   3px;
+	border-radius:		   3px;
+	-webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .25);
+	-moz-box-shadow:	inset 0 -1px 0 rgba(0, 0, 0, .25);
+	box-shadow:			inset 0 -1px 0 rgba(0, 0, 0, .25);
+	background-color: #333333;
+	color: #ffffff;
+	font-size: 90%;
+	padding: 2px 4px;
+}
+
+kbd kbd {
+	-webkit-box-shadow: none;
+	-moz-box-shadow:	none;
+	box-shadow:			none;
+	font-size: 100%;
+	font-weight: bold;
+	padding: 0;
+}
+
+p {
+	margin: 0 0 10px;
+}
+
+pre {
+	-webkit-border-radius: 4px;
+	-moz-border-radius:	   4px;
+	border-radius:		   4px;
+	background-color: #f5f5f5;
+	border: 1px solid #cccccc;
+	color: #333333;
+	display: block;
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 0 0 10px;
+	padding: 9.5px;
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+ul,
+ol {
+	margin-bottom: 10px;
+	margin-top: 0;
+}
+
+ul ul,
+ol ul,
+ul ol,
+ol ol {
+	margin-bottom: 0;
+}
+
+ol ol {
+	list-style: upper-alpha;
+}
+
+ol ol ol {
+	list-style: lower-roman;
+}
+
+ol ol ol ol {
+	list-style: lower-alpha;
+}
+
+/* Images: align. */
+.alignleft { 
+	float: left;
+	margin: 5px 20px 20px 0;
+}
+
+.alignright {
+	float: right;
+	margin: 5px 0 20px 20px;
+}
+
+.aligncenter {
+	display: block;
+	margin-bottom: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.alignnone {
+	display: inline-block;
+}
+
+img.wp-smiley,
+.rsswidget img {
+	-webkit-border-radius: 0;
+	-moz-border-radius:	   0;
+	border-radius:		   0;
+	-webkit-box-shadow: none;
+	-moz-box-shadow:    none;
+	box-shadow:         none;	
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+/* Images: caption. */
+.wp-caption {
+	background-color: transparent;
+	border: none;
+    max-width: 96%;
+    text-align: center;
+}
+
+.wp-caption img {
+	margin: 0;
+	padding: 0;
+}
+
+.wp-caption-text,
+.wp-caption-dd {
+	font-size: 16px;
+	font-style: italic;
+	margin: 0;
+}
+
+/* Images: gallery. */
+.gallery {
+	margin-bottom: 40px !important;
+}
+
+.gallery-item {
+	display: inline-block;
+	margin-bottom: 0;
+	margin-top: 0 !important;
+	padding: 2%;
+	text-align: center;
+	vertical-align: top;
+	width: 100%;
+}
+
+figure.gallery-item {
+	margin: 0;
+}
+
+.gallery-columns-2 .gallery-item {
+	max-width: 50%;
+}
+
+.gallery-columns-3 .gallery-item {
+	max-width: 33.33%;
+}
+
+.gallery-columns-4 .gallery-item {
+	max-width: 25%;
+}
+
+.gallery-columns-5 .gallery-item {
+	max-width: 20%;
+}
+
+.gallery-columns-6 .gallery-item {
+	max-width: 16.66%;
+}
+
+.gallery-columns-7 .gallery-item {
+	max-width: 14.28%;
+}
+
+.gallery-columns-8 .gallery-item {
+	max-width: 12.5%;
+}
+
+.gallery-columns-9 .gallery-item {
+	max-width: 11.11%;
+}
+
+.gallery-icon img {
+	margin: 0 auto;
+}
+
+.gallery-icon img { 
+	border: none !important;
+}
+
+.gallery-caption {
+	color: #707070;
+	display: block;
+	padding: 5px 0;
+}
+
+.gallery-columns-6 .gallery-caption,
+.gallery-columns-7 .gallery-caption,
+.gallery-columns-8 .gallery-caption,
+.gallery-columns-9 .gallery-caption {
+	display: none;
+	visibility: hidden;
+}

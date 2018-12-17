@@ -1,0 +1,264 @@
+# Translation of Krusze in Finnish
+# This file is distributed under the same license as the Krusze package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2015-08-18 15:09+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Project-Id-Version: Krusze\n"
+"POT-Creation-Date: \n"
+"Last-Translator: krusze.com <contact@krusze.com>\n"
+"Language-Team: \n"
+"Language: fi\n"
+"X-Generator: Poedit 1.8\n"
+
+msgid "Continue reading"
+msgstr "Lue loppuun"
+
+msgid "Sidebar"
+msgstr "Sivupalkki"
+
+msgid "Footer"
+msgstr "Footer"
+
+msgid "Colophon"
+msgstr ""
+
+msgid "Protected Comments: Please enter your password to view comments."
+msgstr "Suojattuja kommentteja: syötä salasanasi lukeaksesi niitä."
+
+msgid "One Response to %2$s"
+msgid_plural "%1$s Responses to %2$s"
+msgstr[0] "Yksi vastaus artikkeliin %2$s"
+msgstr[1] "%1$s vastausta artikkeliin %2$s"
+
+msgid "Older Comments"
+msgstr "Vanhemmat kommentit"
+
+msgid "Newer Comments"
+msgstr "Uudemmat kommentit"
+
+msgid "Comments are closed."
+msgstr "Kommentointi on suljettu."
+
+msgid "Navigation Menu"
+msgstr "Navigaatiovalikko"
+
+msgid "Categories"
+msgstr "Kategoriat"
+
+msgid "Tags"
+msgstr "Avainsanat"
+
+msgid "Original dimensions"
+msgstr ""
+
+msgid "Link to image"
+msgstr "Linkki kuvaan"
+
+msgid "Format"
+msgstr ""
+
+msgid "Edit"
+msgstr "Muokkaa"
+
+msgid "Published on"
+msgstr "Julkaistu"
+
+msgid "Author"
+msgstr "Kirjoittaja"
+
+msgid "Leave a comment"
+msgstr "Jätä kommentti"
+
+msgid "1 Comment"
+msgstr "1 kommentti"
+
+msgid "% Comments"
+msgstr "% kommenttia"
+
+msgid "Published in"
+msgstr ""
+
+msgid "Page not found."
+msgstr "Sivua ei löydy."
+
+msgid "Powered by WordPress"
+msgstr "Moottorina WordPress"
+
+msgid "Skip to content"
+msgstr "Siirry sisältöön"
+
+msgid "No posts found."
+msgstr "Artikkeleita ei löytynyt."
+
+msgctxt "submit button"
+msgid "Search"
+msgstr "Hae"
+
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr "Haku &hellip;"
+
+msgctxt "label"
+msgid "Search for:"
+msgstr "Haku:"
+
+msgid "Search results for: %s"
+msgstr ""
+
+msgid "Sorry, no posts matched your criteria."
+msgstr "Pahoittelut, yhtään ehtoja vastaavia artikkeleita ei löytynyt."
+
+msgid "Page"
+msgstr ""
+
+msgid "Pages:"
+msgstr "Sivut:"
+
+msgid "Previous"
+msgstr "Edellinen"
+
+msgid "Next"
+msgstr "Seuraava"
+
+msgid "Next post:"
+msgstr ""
+
+msgid "Previous post:"
+msgstr ""
+
+msgid "Comment navigation"
+msgstr "Kommenttien selaus"
+
+msgid "Default"
+msgstr "Oletus"
+
+msgid "View all posts by %s"
+msgstr "Näytä kaikki kirjoittajan %s artikkelit"
+
+msgid "Navigation"
+msgstr "Navigointi"
+
+msgid "Header"
+msgstr "Otsake"
+
+msgid "Layout"
+msgstr "Asettelu"
+
+msgid "Boxed"
+msgstr "Kiinteä leveys"
+
+msgid "Wide"
+msgstr "Leveys maks."
+
+msgid "One column"
+msgstr "1 sarake"
+
+msgid "Two columns, right sidebar"
+msgstr "2 saraketta, Oikea sivupalkki"
+
+msgid "Two columns, left sidebar"
+msgstr "2 saraketta, Vasen sivupalkki"
+
+msgid "Comment"
+msgstr "Kommentti"
+
+msgctxt "header image description"
+msgid "Black"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Blue"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Brown"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Gray"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Green"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Orange"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Pink"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Purple"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Red"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Silver"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Tan"
+msgstr ""
+
+msgctxt "header image description"
+msgid "White"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Yellow"
+msgstr ""
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "Site layout"
+msgstr ""
+
+msgid "Post layout"
+msgstr ""
+
+msgid "Google Font"
+msgstr ""
+
+msgid "Google Font family"
+msgstr ""
+
+msgid "Google Font subset"
+msgstr ""
+
+msgid "Background"
+msgstr "Tausta"
+
+msgid "Background container"
+msgstr ""
+
+msgid "Link"
+msgstr "Linkki"
+
+msgid "Link hover"
+msgstr ""
+
+msgid "Link background"
+msgstr ""
+
+msgid "Link background hover"
+msgstr ""
+
+msgid "Text"
+msgstr "Teksti"
+
+msgid "Content"
+msgstr "Sisältö"
+
+msgid "Main content"
+msgstr "Pääsisältö"

@@ -1,0 +1,99 @@
+
+.contact_bank_icon {
+   background: url(../../../global/img/icon.png) no-repeat top left;
+   display: inline-block;
+   height: 16px;
+   vertical-align: sub;
+   width: 20px;
+}
+
+.fluid-layout {
+   width: 99%;
+   margin-top: 1%;
+   *zoom: 1;
+}
+
+.fluid-layout .layout-span12 {
+   width: 100%;
+   *width: 99.94680851063829%;
+}
+
+.fluid-layout .layout-span11 {
+   width: 91.48936170212765%;
+   *width: 91.43617021276594%;
+}
+
+.fluid-layout .layout-span10 {
+   width: 82.97872340425532%;
+   *width: 82.92553191489361%;
+}
+
+.fluid-layout .layout-span9 {
+   width: 74.46808510638297%;
+   *width: 74.41489361702126%;
+}
+
+.fluid-layout .layout-span8 {
+   width: 65.95744680851064%;
+   *width: 65.90425531914893%;
+}
+
+.fluid-layout .layout-span7 {
+   width: 57.44680851063829%;
+   *width: 57.39361702127659%;
+}
+
+.fluid-layout .layout-span6 {
+   width: 48.93617021276595%;
+   *width: 48.88297872340425%;
+}
+
+.fluid-layout .layout-span5 {
+   width: 40.42553191489362%;
+   *width: 40.37234042553192%;
+}
+
+.fluid-layout .layout-span4 {
+   width: 31.914893617021278%;
+   *width: 31.861702127659576%;
+}
+
+.fluid-layout .layout-span3 {
+   width: 23.404255319148934%;
+   *width: 23.351063829787233%;
+}
+
+.fluid-layout .layout-span2 {
+   width: 14.893617021276595%;
+   *width: 14.840425531914894%;
+}
+
+.fluid-layout .layout-span1 {
+   width: 6.382978723404255%;
+   *width: 6.329787234042553%;
+}
+
+.custom-layout-label {
+   width: 140px;
+   display: inline-block;
+}
+
+.thickbox-loading
+{
+   height: 65% !important;
+   top: 100px !important;
+}
+
+.description-contact-bank
+{
+   margin-left : 40px !important
+}
+#add_contact_form_id_description
+{
+   margin-left : 22px !important
+}
+#TB_ajaxContent
+{
+   width: 100% !important;
+   height: 100% !important;
+}

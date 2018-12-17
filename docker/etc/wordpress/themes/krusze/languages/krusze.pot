@@ -1,0 +1,262 @@
+# Copyright (C) 2015 Luke Kruszewski-Zelman http://krusze.com
+# This file is distributed under the same license as the Krusze package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Krusze 0.9.7\n"
+"Report-Msgid-Bugs-To: http://krusze.com\n"
+"POT-Creation-Date: 2015-06-22 09:00:00+00:00\n"
+"PO-Revision-Date: 2015-06-28 12:00+0100\n"
+"Last-Translator: krusze.com <contact@krusze.com>\n"
+"Language-Team: krusze.com <contact@krusze.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Continue reading"
+msgstr ""
+
+msgid "Sidebar"
+msgstr ""
+
+msgid "Footer"
+msgstr ""
+
+msgid "Colophon"
+msgstr ""
+
+msgid "Protected Comments: Please enter your password to view comments."
+msgstr ""
+
+msgid "One Response to %2$s"
+msgid_plural "%1$s Responses to %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Older Comments"
+msgstr ""
+
+msgid "Newer Comments"
+msgstr ""
+
+msgid "Comments are closed."
+msgstr ""
+
+msgid "Navigation Menu"
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+msgid "Original dimensions"
+msgstr ""
+
+msgid "Link to image"
+msgstr ""
+
+msgid "Format"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Published on"
+msgstr ""
+
+msgid "Author"
+msgstr ""
+
+msgid "Leave a comment"
+msgstr ""
+
+msgid "1 Comment"
+msgstr ""
+
+msgid "% Comments"
+msgstr ""
+
+msgid "Published in"
+msgstr ""
+
+msgid "Page not found."
+msgstr ""
+
+msgid "Powered by WordPress"
+msgstr ""
+
+msgid "Skip to content"
+msgstr ""
+
+msgid "No posts found."
+msgstr ""
+
+msgctxt "submit button"
+msgid "Search"
+msgstr ""
+
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr ""
+
+msgctxt "label"
+msgid "Search for:"
+msgstr ""
+
+msgid "Search results for: %s"
+msgstr ""
+
+msgid "Sorry, no posts matched your criteria."
+msgstr ""
+
+msgid "Page"
+msgstr ""
+
+msgid "Pages:"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "Next post:"
+msgstr ""
+
+msgid "Previous post:"
+msgstr ""
+
+msgid "Comment navigation"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "View all posts by %s"
+msgstr ""
+
+msgid "Navigation"
+msgstr ""
+
+msgid "Header"
+msgstr ""
+
+msgid "Layout"
+msgstr ""
+
+msgid "Boxed"
+msgstr ""
+
+msgid "Wide"
+msgstr ""
+
+msgid "One column"
+msgstr ""
+
+msgid "Two columns, right sidebar"
+msgstr ""
+
+msgid "Two columns, left sidebar"
+msgstr ""
+
+msgid "Comment"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Black"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Blue"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Brown"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Gray"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Green"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Orange"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Pink"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Purple"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Red"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Silver"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Tan"
+msgstr ""
+
+msgctxt "header image description"
+msgid "White"
+msgstr ""
+
+msgctxt "header image description"
+msgid "Yellow"
+msgstr ""
+
+msgid "https://wordpress.org/"
+msgstr ""
+
+msgid "Site layout"
+msgstr ""
+
+msgid "Post layout"
+msgstr ""
+
+msgid "Google Font"
+msgstr ""
+
+msgid "Google Font family"
+msgstr ""
+
+msgid "Google Font subset"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Background container"
+msgstr ""
+
+msgid "Link"
+msgstr ""
+
+msgid "Link hover"
+msgstr ""
+
+msgid "Link background"
+msgstr ""
+
+msgid "Link background hover"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Content"
+msgstr ""
+
+msgid "Main content"
+msgstr ""

@@ -1,0 +1,475 @@
+.page-bar:after,
+.page-container:after,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.sidebar-search-wrapper:after {
+   clear: both;
+}
+
+@media print {
+   .page-bar,
+   .page-sidebar-wrapper-tech-banker {
+      display: none;
+   }
+   .page-container {
+      margin: 0!important;
+      padding: 0!important;
+   }
+   .page-content {
+      min-height: 300px!important;
+      padding: 0 20px 20px!important;
+      margin: 0!important;
+      background-color: #fff!important;
+   }
+}
+
+.page-container {
+   margin: 0;
+   padding: 0;
+   position: relative;
+   margin-top: 24px!important;
+   margin-right: 24px!important;
+   margin-left: 24px!important;
+}
+
+.page-container:after,
+.page-container:before {
+   content: " ";
+   display: table;
+}
+
+@media (max-width:991px) {
+   .page-container {
+      margin: 0!important;
+      padding: 0!important;
+   }
+}
+
+.ie8 .page-sidebar-tech-banker {
+   width: 235px;
+   float: left;
+   position: relative;
+   margin-right: -100%;
+}
+
+.page-sidebar-tech-banker.navbar-collapse {
+   padding: 0;
+   box-shadow: none;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker {
+   list-style: none;
+   margin: 0;
+   padding: 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li {
+   display: block;
+   margin: 0;
+   padding: 0;
+   border: 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.sidebar-search-wrapper {
+   border: 0!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.sidebar-search-wrapper:after,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.sidebar-search-wrapper:before {
+   content: " ";
+   display: table;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.start>a {
+   border-top-color: transparent!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.last>a {
+   border-bottom-color: transparent!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a {
+   display: block;
+   position: relative;
+   margin: 0;
+   border: 0;
+   padding: 10px 15px;
+   text-decoration: none;
+   font-size: 13px;
+   font-weight: 300;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>i {
+   font-size: 12px;
+   margin-right: 5px;
+   text-shadow: none;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>i.glyphicon {
+   top: 3px;
+   margin-left: 1px;
+   margin-right: 4px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li>a>[class^=icon-] {
+   top: 2px;
+   margin-left: 1px;
+   margin-right: 4px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.heading {
+   padding: 15px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.heading>h3 {
+   margin: 0;
+   padding: 0;
+   font-size: 14px;
+   font-weight: 300;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.heading+li>a {
+   border-top: 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.open>a {
+   font-size: 13px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a {
+   border: none;
+   text-shadow: none;
+   font-size: 13px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker>li.active>a>.selected {
+   display: block;
+   float: right;
+   position: absolute;
+   right: 0;
+   top: 8px;
+   background: 0 0;
+   width: 0;
+   height: 0;
+   border-top: 12px solid transparent;
+   border-bottom: 12px solid transparent;
+   border-right: 12px solid #fff;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li>a>.arrow:before {
+   float: right;
+   width: 10px;
+   text-align: center;
+   margin-top: -1px;
+   margin-right: 5px;
+   margin-left: 5px;
+   display: inline;
+   font-size: 16px;
+   font-family: FontAwesome;
+   height: auto;
+   content: "\f104";
+   font-weight: 300;
+   text-shadow: none;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li>a>.arrow.open:before {
+   content: "\f107";
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li>a>.badge {
+   float: right;
+   margin-top: 1px;
+   margin-right: 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu {
+   list-style: none;
+   display: none;
+   padding: 0;
+   margin: 8px 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li {
+   background: 0 0;
+   margin: 0;
+   padding: 0;
+   margin-top: 1px!important;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>.sub-menu,
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>.sub-menu>li>.sub-menu {
+   margin: 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>a {
+   display: block;
+   margin: 0;
+   padding: 6px 15px 6px 30px;
+   text-decoration: none;
+   font-size: 13px;
+   font-weight: 300;
+   background: 0 0;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>a>i {
+   font-size: 12px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>.sub-menu>li>a {
+   padding-left: 60px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker .sub-menu li>.sub-menu>li>.sub-menu>li>a {
+   padding-left: 80px;
+}
+
+.page-sidebar-tech-banker .page-sidebar-menu-tech-banker li.active>.sub-menu {
+   display: block;
+}
+
+@media (min-width:992px) {
+   .page-sidebar-tech-banker {
+      width: 235px;
+   }
+   .page-sidebar-tech-banker.navbar-collapse {
+      max-height: none!important;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li .sub-menu {
+      display: none;
+      width: 210px;
+      z-index: 2000;
+      position: absolute;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -ms-border-radius: 4px;
+      -o-border-radius: 4px;
+      border-radius: 4px;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li .sub-menu>li>a {
+      margin: 3px;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li.active .sub-menu,
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li.open .sub-menu {
+      display: none!important;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li a>.arrow {
+      display: none;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li:hover>a>.arrow {
+      display: block;
+      float: right;
+      position: absolute;
+      right: 0;
+      margin-top: -20px;
+      background: 0 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-top: 12px double transparent;
+      border-bottom: 12px double transparent;
+      border-left: 0;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li:hover>a>.arrow:after,
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li:hover>a>.arrow:before {
+      display: none;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu li:hover>.sub-menu {
+      display: inline-block!important;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>a>.arrow {
+      z-index: 1;
+      right: 0;
+      margin-top: -23px;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>a>.selected {
+      display: none;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu {
+      margin-left: 235px;
+      margin-top: -40px;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu>li>a {
+      padding-left: 15px;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu>li .sub-menu {
+      margin-left: 210px;
+      margin-top: -38px!important;
+   }
+   .page-sidebar-menu-tech-banker.page-sidebar-menu-tech-banker-hover-submenu>li:hover>.sub-menu>li .sub-menu>li>a {
+      padding-left: 10px;
+      padding-right: 10px;
+   }
+}
+
+@media (max-width:991px) {
+   .page-sidebar-tech-banker {
+      border-top: 0!important;
+      margin: 20px;
+   }
+   .page-sidebar-tech-banker .selected {
+      display: none!important;
+   }
+   .page-sidebar-tech-banker.navbar-collapse {
+      max-height: none;
+   }
+   .page-sidebar-tech-banker.navbar-collapse.in {
+      border-top: 0!important;
+      margin: 20px;
+      position: relative;
+      overflow: hidden!important;
+      overflow-y: auto!important;
+      display: block!important;
+   }
+}
+
+@media (max-width:480px) {
+   .page-sidebar-tech-banker,
+   .page-sidebar-tech-banker.in {
+      margin: 0 10px 10px!important;
+   }
+}
+
+.page-content-wrapper,
+.page-sidebar-wrapper-tech-banker {
+   transition: margin-left .3s;
+}
+
+.page-bar {
+   padding: 0;
+   background-color: #f7f7f7;
+   margin-bottom: 25px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
+   -ms-border-radius: 4px;
+   -o-border-radius: 4px;
+   border-radius: 4px;
+}
+
+.page-bar:after,
+.page-bar:before {
+   content: " ";
+   display: table;
+}
+
+.page-bar .page-breadcrumb {
+   display: inline-block;
+   float: left;
+   padding: 8px;
+   margin: 0;
+   list-style: none;
+}
+
+.page-bar .page-breadcrumb>li {
+   display: inline-block;
+}
+
+.ie8 .page-bar .page-breadcrumb>li {
+   margin-right: 1px;
+}
+
+.page-bar .page-breadcrumb>li>a,
+.page-bar .page-breadcrumb>li>span {
+   color: #888;
+}
+
+.page-bar .page-breadcrumb>li>i {
+   color: #aaa;
+   font-size: 14px;
+   text-shadow: none;
+}
+
+.page-bar .page-breadcrumb>li>i[class*=icon-],
+.page-bar .page-breadcrumb>li>i[class^=icon-] {
+   color: gray;
+}
+
+@media (min-width:992px) {
+   .page-content-wrapper {
+      float: left;
+      width: 100%;
+   }
+   .page-content-wrapper .page-content {
+      margin-right: 235px;
+      margin-top: 0;
+      padding: 25px 20px 10px;
+      background-color: #fff!important;
+   }
+}
+
+@media (max-width:991px) {
+   .page-content-wrapper .page-content {
+      margin: 18px!important;
+      padding: 20px!important;
+      min-height: 280px;
+      background-color: #fff!important;
+   }
+}
+
+@media (max-width:767px) {
+   .page-content-wrapper .page-content {
+      padding: 20px 10px 10px!important;
+      overflow: hidden;
+   }
+   .page-content-wrapper .page-content .page-title {
+      margin-bottom: 20px;
+      font-size: 18px;
+   }
+   .page-content-wrapper .page-content .page-title small {
+      font-size: 13px;
+      padding-top: 3px;
+   }
+}
+
+@media (max-width:480px) {
+   .page-content-wrapper .page-content .page-title small {
+      display: block;
+      clear: both;
+   }
+}
+
+@media (max-width:1200px) {
+   .page-content-wrapper {
+      width: 89%;
+   }
+}
+
+@media (max-width:986px) {
+   .page-content-wrapper {
+      width: 100%;
+   }
+}
+
+.page-header-container {
+   color: #a4cd39;
+   font-size: 14px;
+   background-color: #284049;
+   padding-top: 10px;
+   margin-bottom: 25px;
+   border-radius: 4px;
+}
+
+.page-header-column a,
+.page-header-column a:visited {
+   text-decoration: none;
+   color: #efefef;
+}
+
+.page-header-column .btn {
+   color: #ffffff;
+   background-color: #a4cd39;
+   padding-top: 10px;
+   padding-bottom: 10px;
+   border-radius: 5px;
+   margin-top: 15px;
+}
+
+.page-header-column ul li {
+   font-size: 13px;
+   padding: 5px;
+}
+.badge
+{
+   float: right;
+   margin-right: 0px;
+   color: #fff;
+   background-color: #ed6b75;
+   padding : 2px 5px; 
+}

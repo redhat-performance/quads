@@ -1,0 +1,264 @@
+# Translation of Krusze in Polish
+# This file is distributed under the same license as the Krusze package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2015-08-18 15:11+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Project-Id-Version: Krusze\n"
+"POT-Creation-Date: \n"
+"Last-Translator: krusze.com <contact@krusze.com>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"X-Generator: Poedit 1.8\n"
+
+msgid "Continue reading"
+msgstr "Czytaj dalej"
+
+msgid "Sidebar"
+msgstr "Sidebar"
+
+msgid "Footer"
+msgstr "Stopka"
+
+msgid "Colophon"
+msgstr "Colophon"
+
+msgid "Protected Comments: Please enter your password to view comments."
+msgstr "Zabezpieczone komentarze: Proszę wprowadzić swoje hasło, aby zobaczyć komentarze."
+
+msgid "One Response to %2$s"
+msgid_plural "%1$s Responses to %2$s"
+msgstr[0] "Jedna odpowiedź na %2$s"
+msgstr[1] "%1$s odpowiedzi na %2$s"
+
+msgid "Older Comments"
+msgstr "Starsze komentarze"
+
+msgid "Newer Comments"
+msgstr "Nowsze komentarze"
+
+msgid "Comments are closed."
+msgstr "Możliwość komentowania jest wyłączona."
+
+msgid "Navigation Menu"
+msgstr "Nawigacyjne menu"
+
+msgid "Categories"
+msgstr "Kategorie"
+
+msgid "Tags"
+msgstr "Tagi"
+
+msgid "Original dimensions"
+msgstr "Oryginalny rozmiar"
+
+msgid "Link to image"
+msgstr "Odnośnik do obrazka"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Edit"
+msgstr "Edytuj"
+
+msgid "Published on"
+msgstr "Opublikowany"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Leave a comment"
+msgstr "Dodaj komentarz"
+
+msgid "1 Comment"
+msgstr "1 komentarz"
+
+msgid "% Comments"
+msgstr "% komentarzy"
+
+msgid "Published in"
+msgstr "Opublikowany w"
+
+msgid "Page not found."
+msgstr "Strona nie została znaleziona."
+
+msgid "Powered by WordPress"
+msgstr "Oparte na WordPressie"
+
+msgid "Skip to content"
+msgstr "Przeskocz do treści"
+
+msgid "No posts found."
+msgstr "Nie znaleziono żadnych wpisów."
+
+msgctxt "submit button"
+msgid "Search"
+msgstr "Szukaj"
+
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr "Szukaj &hellip;"
+
+msgctxt "label"
+msgid "Search for:"
+msgstr "Szukaj:"
+
+msgid "Search results for: %s"
+msgstr "Wyniki wyszukiwania dla: %s"
+
+msgid "Sorry, no posts matched your criteria."
+msgstr "Przepraszamy, brak wpisów spełniających podane kryteria."
+
+msgid "Page"
+msgstr "Strona"
+
+msgid "Pages:"
+msgstr "Strony:"
+
+msgid "Previous"
+msgstr "Poprzednie"
+
+msgid "Next"
+msgstr "Następne"
+
+msgid "Next post:"
+msgstr "Następny post:"
+
+msgid "Previous post:"
+msgstr "Poprzedni post:"
+
+msgid "Comment navigation"
+msgstr "Nawigacja po komentarzach"
+
+msgid "Default"
+msgstr "Domyślny"
+
+msgid "View all posts by %s"
+msgstr "Zobacz wszystkie wpisy, których autorem jest %s"
+
+msgid "Navigation"
+msgstr "Nawigacja"
+
+msgid "Header"
+msgstr "Nagłówek"
+
+msgid "Layout"
+msgstr "Układ"
+
+msgid "Boxed"
+msgstr "Ustalona szerokość"
+
+msgid "Wide"
+msgstr "Maksymalna szerokość"
+
+msgid "One column"
+msgstr "Jedna kolumna"
+
+msgid "Two columns, right sidebar"
+msgstr "Dwie kolumny, panel boczny po prawej"
+
+msgid "Two columns, left sidebar"
+msgstr "Dwie kolumny, panel boczny po lewej"
+
+msgid "Comment"
+msgstr "Komentarz"
+
+msgctxt "header image description"
+msgid "Black"
+msgstr "Czarny"
+
+msgctxt "header image description"
+msgid "Blue"
+msgstr "Niebieski"
+
+msgctxt "header image description"
+msgid "Brown"
+msgstr "Brązowy"
+
+msgctxt "header image description"
+msgid "Gray"
+msgstr "Szary"
+
+msgctxt "header image description"
+msgid "Green"
+msgstr "Zielony"
+
+msgctxt "header image description"
+msgid "Orange"
+msgstr "Pomarańczowy"
+
+msgctxt "header image description"
+msgid "Pink"
+msgstr "Różowy"
+
+msgctxt "header image description"
+msgid "Purple"
+msgstr "Fioletowy"
+
+msgctxt "header image description"
+msgid "Red"
+msgstr "Czerwony"
+
+msgctxt "header image description"
+msgid "Silver"
+msgstr "Srebrny"
+
+msgctxt "header image description"
+msgid "Tan"
+msgstr "Brązowy"
+
+msgctxt "header image description"
+msgid "White"
+msgstr "Biały"
+
+msgctxt "header image description"
+msgid "Yellow"
+msgstr "Żółty"
+
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+msgid "Site layout"
+msgstr "Układ strony"
+
+msgid "Post layout"
+msgstr "Układ postu"
+
+msgid "Google Font"
+msgstr "Google Font"
+
+msgid "Google Font family"
+msgstr "Google Font family"
+
+msgid "Google Font subset"
+msgstr "Google Font subset"
+
+msgid "Background"
+msgstr "Tło"
+
+msgid "Background container"
+msgstr "Tło kontener"
+
+msgid "Link"
+msgstr "Odnośnik"
+
+msgid "Link hover"
+msgstr "Odnośnik podświetlony"
+
+msgid "Link background"
+msgstr "Odnośnik tło"
+
+msgid "Link background hover"
+msgstr "Odnośnik tło podświetlone"
+
+msgid "Text"
+msgstr "Tekst"
+
+msgid "Content"
+msgstr "Treść"
+
+msgid "Main content"
+msgstr "Główna zawartość"

@@ -1,0 +1,999 @@
+= 2.1.41 =
+
+* FIX: Major Issue with Roles & Capabilities
+
+= 2.1.40 =
+
+* FIX: Major Issues
+* TWEAK: Code Optimized
+* TWEAK: Obsolete Code Removed
+* TRANSLATION: Translation Issues
+
+= 2.1.39 =
+
+* FIX: Major Issues
+* TWEAK: Code Optimized
+
+= 2.1.38 =
+
+* TWEAK: Proper Sanitization, Escaping, Validation of all Post Calls
+* TWEAK: Removal of all function_exists, class_exists, typeof from all the files.
+* TWEAK: Uninstall File moved to root folder and changes done as per wordpress guidelines.
+* TWEAK: Error Reporting in file Removed
+* TWEAK: Auto Updates Removed
+* TWEAK: Curl Calls Removed
+
+= 2.1.37 =
+
+* TWEAK: Code Removed from Skip Action Hook on Wizard Page
+* TWEAK: Code Removed from De-activation Hook in case of Skipped Wizard Page
+* TWEAK: Code Removed from Uninstall Hook in case of Skipped Wizard Page
+
+= 2.1.36 =
+
+* TWEAK: Wizard Page Added
+* TWEAK: Error Reporting Added
+
+= 2.1.35 =
+
+* FIX: Major Issue with Shapely Theme
+
+= 2.1.34 =
+
+* FIX: Few Urgent Issues
+* TWEAK: Error Message & Success Messages Added
+* FIX: Front End Issues
+
+= 2.1.33 =
+
+* FIX: Few White Space Issues
+* TRANSLATION: All Languages Updated
+* TWEAK: Compatibility with 4.7.3
+
+= 2.1.32 =
+
+* TRANSLATION: Translation Files Updated
+* TRANSLATION: All Languages Updated
+* TRANSLATION: Translation Constant Bug Fixed
+
+= 2.1.31 =
+
+* TWEAK: Obsolete Code removed
+* TWEAK: Unused Files removed
+* TWEAK: Code Optimized
+* TRANSLATION: Translation File Updated
+
+= 2.1.30 =
+
+* TWEAK: Obsolete Code removed
+* TWEAK: Unused Files removed
+* TWEAK: Code Optimized
+
+= 2.1.29 =
+
+* FIX: Success Message Redirect Issue
+* TWEAK: Code Optimized
+* FIX: Few Minor Issues
+
+= 2.1.28 =
+
+* TWEAK: Code Optimized
+* FIX:   Few Issues
+
+= 2.1.27 =
+
+* TWEAK: Security Patch
+* TWEAK: Code Optimized
+
+= 2.1.26 =
+
+* TWEAK: Compatiblity with 4.6
+* TWEAK: Code Optimized
+* FIX: Few Issues
+
+= 2.1.25 =
+
+* TWEAK: Code Optimized
+* FIX: Few Issues
+
+= 2.1.24 =
+
+* FIX: Cross Site Scripting Security 
+* TWEAK: Code Optimized
+* FIX: Few Issues
+
+= 2.1.23 =
+
+* FIX: Cross Site Scripting Security
+* TWEAK: Code Optimized
+
+= 2.1.21 =
+
+* TRANSLATION: Languages Updated
+* FIX: Few Issues
+* TWEAK: Code Optimized
+
+= 2.1.19 =
+
+* FIX: Few Issues
+
+= 2.1.18 =
+
+* TWEAK: Other Services Section Updated
+* TWEAK: Code Optimized
+
+= 2.1.17 =
+
+* FIX: Few Issues
+* TWEAK: Pricing Table Changed
+
+= 2.1.16 =
+
+* TWEAK: Compatibility with 4.5.3
+* TWEAK: Code Optimized
+
+= 2.1.15 =
+
+* Few Issues
+
+= 2.1.14 =
+
+* TWEAK: Code Optimized
+
+= 2.1.13 =
+
+* FIX: Few Issues
+
+= 2.1.12 =
+
+* TWEAK: Code Optimized
+
+= 2.1.11 =
+
+* FIX: Few Issues
+
+= 2.1.10 =
+
+* TWEAK: Compatibility with 4.5.2
+* TWEAK: Code Optimized
+
+= 2.1.9 =
+
+* FIX: Few Issues
+
+= 2.1.8 =
+
+* TWEAK: Compatibility with 4.5.1
+* TWEAK: Code Optimized
+
+= 2.1.7 =
+
+* TWEAK: Compatibility with 4.5
+* FIX:   Few Issues
+
+= 2.1.6 =
+
+* TRANSLATION: Finnish Language Updated
+* FIX: Few Issues
+
+= 2.1.5 =
+
+* TWEAK: Code Optimized
+
+= 2.1.4 =
+
+* FIX: Few Issues
+
+= 2.1.3 =
+
+* FIX: Few Issues
+
+= 2.1.2 =
+
+* FIX: Few Issues
+
+= 2.1.1 =
+
+* TRANSLATION: German language Updated.
+* TWEAK: Remove Unwanted CSS files.
+* TWEAK: Optimized Code.
+
+= 2.1.0 =
+
+* TWEAK: Major Version Release
+* TWEAK: Code Optimized
+* TWEAK: Saving of Data Changed
+* TWEAK: Removed Unwanted Javascript Functions
+* TWEAK: Forms are Serialized and Encoded with a Secure Algorithm
+
+= 2.0.353 =
+
+* FIX: Few Issues
+
+= 2.0.352 =
+
+* FIX: Few Formatting Issues
+
+= 2.0.351 =
+
+* TWEAK: Compatibility with 4.4.2
+
+= 2.0.350 =
+
+* FIX: Few Issues
+
+= 2.0.349 =
+
+* FIX: Few Issues
+
+= 2.0.348 =
+
+* TWEAK: Compatibility with 4.4.1
+
+= 2.0.347 =
+
+* FIX: Few Issues
+
+= 2.0.346 =
+
+* FIX: Few Issues
+
+= 2.0.345 =
+
+* FIX: Few Issues
+
+= 2.0.344 =
+
+* TWEAK: Compatibility with 4.4
+
+= 2.0.343 =
+
+* FIX: Few Issues
+
+= 2.0.342 =
+
+* FIX: Few Formatting Issues
+
+= 2.0.341 =
+
+* FIX: Few Issues
+
+= 2.0.340 =
+
+* FIX: Few Formatting Issues
+
+= 2.0.339 =
+
+* FIX: Few Issues
+
+= 2.0.338 =
+
+* FIX: Css Issues
+
+= 2.0.337 =
+
+* FIX: Few Issues
+
+= 2.0.336 =
+
+* FIX: Few Issues
+
+= 2.0.335 =
+
+* TWEAK: Database Engine updated
+
+= 2.0.334 =
+
+* FIX: Few Issues
+
+= 2.0.333 =
+
+* FIX: Css Issues
+
+= 2.0.332 =
+
+* FIX: Few Issues
+
+= 2.0.331 =
+
+* FIX: Few Issues
+
+= 2.0.330 =
+
+* FIX: Few Issues
+
+= 2.0.229 =
+
+* FIX: Few Issues
+
+= 2.0.228 =
+
+* TWEAK: constructor method for WP_Widget is updated.
+
+= 2.0.227 =
+
+* TWEAK: Compatibility with 4.3
+* FIX: Pretty Photo XSS Security Issue
+
+= 2.0.226 =
+
+* FIX: Few Issues
+* FIX: Few Possible Security Issues
+
+= 2.0.225 =
+
+* FIX: Few Issues
+
+= 2.0.224 =
+
+* TWEAK: Compatibility with 4.2.4
+
+= 2.0.223 =
+
+* FIX: Few Urgent Issues
+
+= 2.0.222 =
+
+* TWEAK: Compatibility with 4.2.3
+
+= 2.0.221 =
+
+* FIX: Auto Update Issue
+
+= 2.0.220 =
+
+* FIX: Few Urgent Issues
+
+= 2.0.119 =
+
+* FIX: Few Issue
+* TWEAK: Changed Variables to avoid conflictions with other plugins.
+
+= 2.0.118 =
+
+* FIX: Few Minor Issues
+* FIX: Few Issues
+
+= 2.0.117 =
+
+* FIX: Few Urgent Issues
+
+= 2.0.116 =
+
+* FIX: Major Issue Regarding RSS Feeds
+
+= 2.0.115 =
+
+* FIX: Few Urgent Issues
+
+= 2.0.114 =
+
+* FIX: Few Minor CSS Issues
+* FIX: Few Issues
+
+= 2.0.113 =
+
+* FIX: Few Issues
+* TWEAK: Removed Unwanted Js Files
+
+= 2.0.112 =
+
+* FIX: Few Minor Issues
+* TWEAK: Removed Unwanted Js Files
+
+= 2.0.111 =
+
+* TWEAK: Added Compatible with WordPress 4.2.2
+
+= 2.0.110 =
+
+* TWEAK: Added Compatible with WordPress 4.2.1
+
+= 2.0.109 =
+
+* TWEAK: Added Compatible with WordPress 4.2
+
+= 2.0.108 =
+
+* TWEAK: Added Compatible with WordPress 4.1.2
+
+= 2.0.107 =
+
+* FIX: Minor Issues
+
+= 2.0.106 =
+
+* FIX: Minor Issues
+
+= 2.0.105 =
+
+* FIX: Formatting Issue
+
+= 2.0.104 =
+
+* FIX: Minor Issue
+
+= 2.0.103 =
+
+* FIX: Minor Issue
+* TWEAK: Premium Editions Section Updated.
+
+= 2.0.102 =
+
+* FIX: Minor Issue Related to User Roles.
+
+= 2.0.101 =
+
+* FIX: Minor Issue
+* TWEAK: Other Services Section Updated.
+* TWEAK: Premium Editions Section Updated.
+
+= 2.0.100 =
+
+* TRANSLATION: Languages Updated.
+
+= 2.0.99 =
+
+* TWEAK: Layout Settings Updated.
+* TWEAK: Roles & Capabilities Updated
+* TWEAK: Save Button Changed to Submit Button
+* TWEAK: Install Script Modified.
+
+= 2.0.98 =
+
+* TRANSLATION: Finnish Language Updated.
+
+= 2.0.97 =
+
+* TWEAK: Added new feature of Feature Request.
+
+= 2.0.96 =
+
+* TWEAK: Hide/Show Title on Front End.
+* TWEAK: Hide/Show Description on Front End.
+* FIX: Form Title Missing on Frontend
+* FIX: Form Description Missing on Frontend
+
+= 2.0.95 =
+
+* FIX: Layout Issues
+* TRANSLATION: Languages Updated.
+* TRANSLATION: New Languages Added
+* FIX: Coding Issue related to Radio Buttons
+
+= 2.0.94 =
+
+* FIX: Layout Issue
+* FIX: Major Issue with WooCommerce Compatibility
+* FIX: Major Issue with Install Script
+* FIX: Whitespacing Issues
+* FIX: Notification Email Issues
+* TRANSLATION: Languages Updated.
+
+= 2.0.93 =
+
+* FIX: Email Notification Major Issue
+* FIX: Layout Issue
+
+= 2.0.92 =
+
+* FIX: Few Issues
+* TWEAK: Widgets Section Introduced
+* TWEAK: Front End for Forms
+* FIX: Css Conflictions
+* TWEAK: Automatic Contact Bank Plugin Update Enable/Disable.
+
+= 2.0.91 =
+
+* FIX: Few Issues
+* TWEAK: Allowed to Add upto 2 Forms in Lite Edition
+
+= 2.0.90 =
+
+* TWEAK: Look & Feel of Front End Form changed
+* FIX: Fixed Few Issues
+* TWEAK: Added Control Drag & Drop Sorting Functionality
+* TWEAK: Added Dummy Form for Beginners
+* TWEAK: Allow 2 Forms to be created in Lite Edition
+
+= 2.0.89 =
+
+* TWEAK: Added google-maps-bank in recommended-plugins file
+
+= 2.0.88 =
+
+* FIX: Few Issues
+
+= 2.0.87 =
+
+* TWEAK: Pretty Photo License Updated
+
+= 2.0.86 =
+
+* TWEAK: Pricing Changed
+
+= 2.0.85 =
+
+* FIX: Minor Issues
+
+= 2.0.84 =
+
+* TWEAK: Compatibility with WordPress 4.1
+* FIX: Minor Issues
+
+= 2.0.83 =
+
+* TWEAK: Changed Variables to avoid conflictions with other plugins.
+
+= 2.0.82 =
+
+* TWEAK: Changed Variables for Roles and Capabilities to avoid conflictions with other plugins.
+
+= 2.0.81 =
+
+* FIX: Minor Issues
+* TWEAK: Changes in Few Files.
+
+= 2.0.80 =
+
+* TWEAK: Added Update Message for New Versions
+* TWEAK: Changes in Few Files.
+
+= 2.0.79 =
+
+* TWEAK: Added Compatibility with Multisite WordPress
+* TWEAK: Added Compatible with WordPress 4.0.1
+* TWEAK: Updated Pricing Table
+* TWEAK: Optimized Code
+* FIX: Other Issues and Errors
+
+= 2.0.78 =
+
+* FIX: Conflict with JetPack
+* TWEAK: Optimized Code
+
+= 2.0.77 =
+
+* TRANSLATION: Udpated  Po & Mo Files for all Languages
+* TWEAK: Updated Css
+* TWEAK: Optimized Code
+
+= 2.0.76 =
+
+* TRANSLATION: Udpated  Po & Mo Files
+* FIX: Updated Css
+* TWEAK: Updated Our Services Section
+* TWEAK: Optimized Code
+* TWEAK: Removed unwanted Files
+
+= 2.0.74 =
+
+* TWEAK: Demo links Updated
+* TWEAK: Recommended Section Added
+* TWEAK: Pricing Section Added
+* TWEAK: Other Services Section Added
+
+= 2.0.73 =
+
+* TWEAK: Banner Updated
+* FIX: Few Issues
+
+= 2.0.72 =
+
+* TWEAK: Banner Updated
+
+= 2.0.71 =
+
+* FIX: Major XSS Issue
+* TWEAK: Banner Updated
+
+= 2.0.70 =
+
+* FIX: Major XSS Issue
+
+= 2.0.69 =
+
+* TWEAK: Banner Updated
+
+= 2.0.68 =
+
+* TWEAK: Banner Updated
+* FIX: Few Issue
+
+= 2.0.67 =
+
+* TWEAK: Banner Updated
+
+= 2.0.66 =
+
+* FIX: Few Issue
+
+= 2.0.65 =
+
+* TWEAK: Compatibility with 4.0
+* FIX: Few Issue
+* TWEAK: Banner Updated
+
+= 2.0.64 =
+
+* FIX: Few Issues
+* TWEAK: Banner Updated
+
+= 2.0.63 =
+
+* FIX: Few Issues
+* TWEAK: Banner Updated
+
+= 2.0.62 =
+
+* FIX: Few Issues
+
+= 2.0.61 =
+
+* TRANSLATION: Croatian Language Updated
+
+= 2.0.60 =
+
+* FIX: Few Issues
+
+= 2.0.59 =
+
+* FIX: Few Issues
+
+= 2.0.58 =
+
+* FIX: Few Issues
+
+= 2.0.57 =
+
+* FIX: Few Issues
+
+= 2.0.56 =
+
+* TRANSLATION: Greek Language Updated
+
+= 2.0.55 =
+
+* FIX: Few Issues
+
+= 2.0.54 =
+
+* FIX: Few Issues
+
+= 2.0.53 =
+
+* FIX: Few Issues
+* TWEAK: Few Possible Security Issues Addressed
+
+= 2.0.52 =
+
+* FIX: Few Issues
+* TWEAK: Banners Updated
+
+= 2.0.51 =
+
+* TWEAK: Few Possible Security Issues Addressed
+
+= 2.0.50 =
+
+* TRANSLATION: Slovak Language Updated
+
+= 2.0.49 =
+
+* TRANSLATION: Czech Language Updated
+
+= 2.0.48 =
+
+* TRANSLATION: Chinese Language Updated
+
+= 2.0.47 =
+
+* TWEAK: Advanced Security for Plugin Implemented
+
+= 2.0.46 =
+
+* FIX: Major Issuse Related to Frontend
+* FIX: Major Issue Related to Saving of Options
+
+= 2.0.45 =
+
+* FIX: Few Issue Related to Frontend
+
+= 2.0.44 =
+
+* FIX: Few Issues
+* TWEAK: Banners Updated
+
+= 2.0.43 =
+
+* TRANSLATION: Swedish Language Updated
+
+= 2.0.42 =
+
+* TRANSLATION: Turkish Language Updated
+
+= 2.0.41 =
+
+* FIX: Database Saving Issue
+
+= 2.0.40 =
+
+* FIX: Few Issues
+* TWEAK: Banners Updated
+
+= 2.0.39 =
+
+* FIX: Email Special Characters Issue
+
+= 2.0.38 =
+
+* FIX: Few Issues
+* TWEAK: Banners Updated
+
+= 2.0.37 =
+
+* TRANSLATION: Polish Language Updated
+
+= 2.0.36 =
+
+* FIX: Few Issues
+* TWEAK: Banners Updated
+
+= 2.0.35 =
+
+* FIX: Issue with Menu Links shown to Subscriber and other roles.
+
+= 2.0.34 =
+
+* FIX: Few Issues
+* TRANSLATION: Danish Language Updated
+
+= 2.0.33 =
+
+* FIX: Few Issues
+
+= 2.0.32 =
+
+* FIX: Few Issues
+* TRANSLATION: Italian Language Updated
+* TWEAK: Add New Form Link Added
+
+= 2.0.31 =
+
+* FIX: Few Issue
+* TWEAK: Unwanted Banners Removed
+
+= 2.0.30 =
+
+* TRANSLATION: Turkish Language Updated
+
+= 2.0.29 =
+
+* FIX: Few Issues
+* TWEAK: Banner updated
+
+= 2.0.28 =
+
+* FIX: Activation Issue
+
+= 2.0.27 =
+
+* FIX: Few Issues
+
+= 2.0.26 =
+
+* FIX: Email Attachment Issue
+* FIX: Settings PopUp Issue
+
+= 2.0.25 =
+
+* FIX: Email Issue
+
+= 2.0.24 =
+
+* FIX: Email Issue
+* TWEAK: Compatibility with 3.9.1
+
+= 2.0.23 =
+
+* TRANSLATION: Languages Updated.
+
+= 2.0.22 =
+
+* TWEAK: Banner Updated.
+
+= 2.0.21 =
+
+* TWEAK: Licenses Updated.
+
+= 2.0.20 =
+
+* FIX: Security Issues.
+* TRANSLATION: Language Updated - Hebrew.
+
+= 2.0.19 =
+
+* FIX: Few Issues.
+* TWEAK: New Layout Introduced.
+* TWEAK: Help Video Added.
+
+= 2.0.18 =
+
+* FIX: Few Issues.
+* TWEAK: Compatibility to 3.9
+
+= 2.0.17 =
+
+* TWEAK: Compatibility to 3.8.3
+* TWEAK: New Help PopUp Introduced.
+
+= 2.0.16 =
+
+* TRANSLATION: Language Updated - French.
+* TRANSLATION: Language Updated - Portuguese.
+* TRANSLATION: New Language Added - Estonian.
+
+
+= 2.0.15 =
+
+* TRANSLATION: Language Updated - German.
+
+= 2.0.14 =
+
+* TRANSLATION: Language Updated - Hungarian.
+
+= 2.0.13 =
+
+* FIX: Few Issues.
+* TWEAK: Unwanted Banner Removed.
+
+= 2.0.12 =
+
+* FIX: Few Issues.
+
+= 2.0.11 =
+
+* FIX: Few Issues.
+* TRANSLATION: Dutch Language Updated.
+
+= 2.0.10 =
+
+* FIX: Few Issues.
+* TRANSLATION: Spanish Language Updated.
+* TWEAK: Email Header Changed.
+
+= 2.0.9 =
+
+* FIX: Few Issues.
+
+= 2.0.8 =
+
+* TRANSLATION: Russian Language Updated.
+
+= 2.0.7 =
+
+* FIX: Email Issues.
+* FIX: Unexpected Error.
+* TRANSLATION: Updated all Languages.
+
+= 2.0.6 =
+
+* FIX: Few Issues.
+* FIX: Unexpected Error.
+
+
+= 2.0.5 =
+
+* FIX: Few Issues.
+* FIX: Unexpected Error.
+
+= 2.0.4 =
+
+* FIX: Few Issues.
+
+= 2.0.3 =
+
+* FIX: Few Issues.
+* TWEAK: Added New Feature - Form Description.
+* TWEAK: Removed Unwanted Files.
+* TWEAK: Updated Uninstall Script.
+
+= 2.0.2 =
+
+* FIX: Few Issues.
+* TRANSLATION: Updated Languages.
+
+= 2.0.1 =
+
+* FIX: Few Issues.
+* TRANSLATION: Updated Languages.
+* TWEAK: Add how to add Short code to your Page/Post.
+
+= 2.0.0 =
+
+* Major Release
+* FIX: Wrong form entries displayed when showing form entries.
+* TWEAK: Forms are now being saved when added instantly
+* TWEAK: Fields are now being saved in a key/value pair.
+* TWEAK: Improved Performance
+* TWEAK: Improved Database to manage Contact Bank
+* TWEAK: Indexing on Tables to grab results quickly
+* TWEAK: Highly Optimized Code
+* TWEAK: Responsive Layout
+* TWEAK: Easily adaptable environment for any device.
+* TWEAK: Bulk Upload of Forms
+* TWEAK: New Short-code Wizard
+* TWEAK: New Layout Settings(**Premium Versions**)
+* TWEAK: New Global Settings(**Premium Versions**)
+* TWEAK: New Label Settings(**Premium Versions**)
+* TWEAK: New Input Control Settings(**Premium Versions**)
+* TWEAK: New Button Settings(**Premium Versions**)
+* TWEAK: Widgets(**Premium Versions**)
+* TWEAK: Pagination(**Premium Versions**)
+* TWEAK: Filter Settings(**Premium Versions**)
+* TWEAK: Roles & Capabilities(**Premium Versions**)
+
+= 1.7.4 =
+
+* TWEAK: Minor Database Upgrade before Major Release in few days.
+
+= 1.7.3 =
+
+* TWEAK: Compatibility with 3.8.1
+
+= 1.7.2 =
+
+* TWEAK: Compatibility with 3.8
+
+= 1.7.1 =
+
+* FIX: Issue related to Email Management
+
+= 1.7 =
+
+* FIX: Issuse with short codes in subject field for both mails.
+
+= 1.6 =
+
+* Fix: CSS Issues.
+* FIX: Database Issues.
+* TWEAK: Widget Added.
+* TWEAK: Code Optimized.
+
+= 1.5 =
+
+* FIX: Issues with Multiple Controls.
+* FIX: Database Issues.
+* FIX: Front End Issues.
+* TWEAK: Code Optimized.
+
+= 1.4 =
+
+* FIX: Database Issues.
+* FIX: Front End Issues.
+* TWEAK: Code Changed to improve Performace for Backend Form Generation.
+* TWEAK: Code Opimized.
+
+= 1.3 =
+
+* TRANSLATION: All Languages Updated.
+* TWEAK: Documentation Added.
+* TWEAK: Improved CSS Issues.
+* TWEAK: Confirmation Added with Link to Redirect on Front End.
+
+= 1.2 =
+
+* TRANSLATION: All Languages Updated.
+* TWEAK: Logic of Saving Forms Changed.
+* TWEAK: Improved CSS Issues.
+* TWEAK: Improved Front End Performance.
+
+= 1.1 =
+
+* TWEAK: Introduction of Dynamic Form Creation.
+* TWEAK: Email Confirmations.
+* TWEAK: Records of forms filled shown.
+
+= 1.0 =
+
+* Initial Release
