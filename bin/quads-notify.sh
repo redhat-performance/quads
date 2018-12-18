@@ -140,8 +140,8 @@ function craft_future_initial_message() {
     if [ ! -d ${report_dir} ]; then
         mkdir -p ${report_dir}
     fi
-    if [ ! -f ${report_file}/${report_file} ]; then
-        touch ${report_file}/${report_file}
+    if [ ! -f ${report_dir}/${report_file} ]; then
+        touch ${report_dir}/${report_file}
         if ${quads["email_notify"]} ; then
             cat > $msg_file <<EOI
 To: $owner@${quads["domain"]}
