@@ -56,14 +56,19 @@ function craft_initial_message() {
     ircbot_channel=${quads["ircbot_channel"]}
     cloudinfo="$($quads --summary | grep $env_to_report)"
     report_file=${env_to_report}-${owner}-initial-$($quads --ls-ticket --cloud-only ${env_to_report})
+    report_dir=${quads["report_dir"]}
     additional_cc="$(for cc in $($quads --ls-cc-users --cloud-only ${env_to_report} | sed 's/,/ /g') ; do echo $cc | sed "s/$/@${quads["domain"]}/" ; done)"
     cc_field=${quads["report_cc"]}
     if [ "$additional_cc" ]; then
         cc_field="$cc_field,$(echo $additional_cc | sed 's/ /,/g')"
     fi
-    if [ ! -f ${data_dir}/report/${report_file} ]; then
+    # create notification reporting structure if it doesn't exist
+    if [ ! -d ${report_dir} ]; then
+        mkdir -p ${report_dir}
+    fi
+    if [ ! -f ${report_dir}/${report_file} ]; then
         if environment_released $owner $env_to_report ; then
-            touch ${data_dir}/report/${report_file}
+            touch ${report_dir}/${report_file}
             if ${quads["email_notify"]} ; then
                 cat > $msg_file <<EOI
 To: $owner@${quads["domain"]}
