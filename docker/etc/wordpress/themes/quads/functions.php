@@ -1,8 +1,8 @@
 <?php
 
 $option = array(
-    'blogname' => 'quads-wiki',
-    'blogdescription' => 'Quads Wiki',
+    'blogname' => 'RDU2 Scale Lab',
+    'blogdescription' => 'Dynamic Inventory',
 );
 
 foreach ( $option as $key => $value ) {
