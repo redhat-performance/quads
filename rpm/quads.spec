@@ -79,8 +79,8 @@ rm -rf %{buildroot}
 /opt/quads/bin/*
 /opt/quads/lib/*
 /var/www/html/visual/*
-%config /opt/quads/conf/quads.yml
-%config /opt/quads/conf/vlans.yml
+%config(noreplace) /opt/quads/conf/quads.yml
+%config(noreplace) /opt/quads/conf/vlans.yml
 
 %post
 systemctl enable quads-daemon
