@@ -17,12 +17,18 @@ elastic_host: localhost
 elastic_port: 9200
 
 # used for reporting
+# add your email here to receive copies of notification emails
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
 
 # notification options
+# location for notification stub files
+# these are markers that track notification send status
+report_dir: /opt/quads/data/report
+
 # set to true to receive notifications when:
-# 1) upon systems assignment
-# 2) 1,3,5,7 days out from when assignment ends
+# 1) upon cloud definition for a future workload
+# 2) upon passing of validated tests
+# 3) 1,3,5,7 days out from when assignment ends
 email_notify: true
 # set to true to receive notifications when:
 # 1) upon systems assignment
