@@ -49,7 +49,6 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [API POST Operations](#api-post-operations)
          * [Working Examples](#working-examples)
          * [More Examples with API POST](#more-examples-with-api-post)
-      * [Contributing](#contributing)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -820,79 +819,6 @@ epresley
 epresley
 rnixon
 ```
-
-* We have Jenkins CI run against all Gerrit patchsets via the [QUADS Simulator 5000](https://github.com/redhat-performance/quads/blob/master/testing/test-quads.sh) CI test script.
-
-## Contributing
-  - You can use the ```testing/quads-sandbox.sh``` tool to create a local sandbox for testing and development.
-  - We use [Gerrit](https://review.gerrithub.io/#/q/project:redhat-performance/quads) for code review, to submit a patch perform the following:
-  - You can also find us on IRC at **#quads** on ```irc.freenode.net```
-
-* Clone our repository:
-
-```
-git clone https://github.com/redhat-performance/quads
-```
-
-* Create a [Github issue](https://github.com/redhat-performance/quads/issues/new) to track your work.
-  - Provide a meaningful explanation, citing code lines when relevant.
-  - Explain what you are trying to fix, or what you're trying to contribute.
-
-* Setup username/email for git and gerrithub (one time only):
-  - Ensure Github and Gerrithub are linked by [signing into Gerrithub via Github](https://review.gerrithub.io/login)
-  - match ```gitreview.username``` to your Github username
-  - match ```user.name``` to your real name or how you want credit for commits to display in Git history.
-  - match ```user.email``` to your email address associated with Github.
-
-```
-git config --global user.email "venril@karnors-castle.com"
-git config --global user.name "Venril Sathir"
-git config --global --add gitreview.username "vsathir"
-```
-
-* Make your changes
-
-```
-cd quads
-vi lib/Quads.py
-```
-* Add a local commit with a meaningful, short title followed by a space and a summary (you can check our commit history for examples).
-* Add a line that relates to a new or existing github issue, e.g. ```fixes: https://github.com/redhat-performance/quads/issues/5``` or ```related-to: https://github.com/redhat-performance/quads/issues/25```
-
-
-```
-git add lib/Quads.py
-git commit
-```
-
-* Install git-review and run it for first time.
-
-```
-yum install git-review
-git review -s
-```
-
-* Now submit your patchset with git review (future patches you only need to run ```git review```)
-  - A Change-ID will be generated when you create your first patchset, make sure this is the last line in the commit message preceded by an empty line.
-
-```
-git review
-```
-
-* If you want to make changes to your patchset you can run the ```git commit --amend``` command.
-
-```
-vi lib/Quads.py
-git commit --amend
-git review
-```
-
-Jenkins CI currently checks the following for every submitted patchset:
-  - shellcheck - checks for common shell syntax errors and issues
-  - flake8 - checks Python tools for common syntax errors and issues
-  - quads sandbox test - instantiates and runs common QUADS operations with fake data
-    * This is all run from ```testing/test-quads.sh```
-    * We currently do not expose CI logs externally, please reply on your patchset comments if you'd like a paste of it.
 
 ## QUADS Talks and Media
 [![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
