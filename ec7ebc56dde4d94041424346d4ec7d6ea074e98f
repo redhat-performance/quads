@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52297266_a0238221",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-12-19T18:48:06Z",
+      "side": 1,
+      "message": "white space nit :P",
+      "revId": "ec7ebc56dde4d94041424346d4ec7d6ea074e98f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e91feaf_1fb6b674",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-12-19T18:48:06Z",
+      "side": 1,
+      "message": "+1!!",
+      "revId": "ec7ebc56dde4d94041424346d4ec7d6ea074e98f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1143084_4fbeb44f",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-12-19T18:48:06Z",
+      "side": 1,
+      "message": "+1000000000000!",
+      "revId": "ec7ebc56dde4d94041424346d4ec7d6ea074e98f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ecc19ec_61039c4b",
+        "filename": "CONTRIBUTING.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1003618
+      },
+      "writtenOn": "2018-12-19T18:48:06Z",
+      "side": 1,
+      "message": "git checkout -b (to do it in one step)",
+      "revId": "ec7ebc56dde4d94041424346d4ec7d6ea074e98f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
