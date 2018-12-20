@@ -3,8 +3,8 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of servers and networks.
 
-* Please use our [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
-* We use [Waffle.io](https://waffle.io/redhat-performance/quads) for additional development tracking and priorities.
+* Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
+* [Waffle.io](https://waffle.io/redhat-performance/quads) is also available for additional development tracking and priorities.
 
 ![quads](/image/quads.jpg?raw=true)
 
@@ -23,14 +23,17 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Example: Calendar View](#example-calendar-view)
       * [Example: Systems Visualization Map](#example-systems-visualization-map)
       * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
+      * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
             * [Foreman Hammer CLI](#foreman-hammer-cli)
+            * [QUADS Move Command](#quads-move-command)
       * [QUADS Usage Documentation](#quads-usage-documentation)
-      * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
+         * [How Provisioning Works](#how-provisioning-works)
+            * [QUADS Move Host Command](#quads-move-host-command)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
             * [QUADS VLAN Options](#quads-vlan-options)
@@ -249,6 +252,9 @@ echo 'alias quads="/opt/quads/bin/quads-cli"' >> /root/.bashrc
 #### Foreman Hammer CLI
    - For full Foreman functionality you'll want to have a working [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) setup on your QUADS host as well.
 
+#### QUADS Move Command
+   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+
 ## QUADS Usage Documentation
 
    - Define the various cloud environments
@@ -342,15 +348,18 @@ You should see the following verbosity from a move operation
 INFO: Moving c08-h21-r630.example.com from cloud01 to cloud02 c08-h21-r630.example.com cloud01 cloud02
 ```
 
-In the above example the default move command was called ```/bin/echo``` for illustration purposes.  In order for this to do something more meaningful you should invoke the script with the ```--move-command``` option, which should be the path to a valid command.  The script takes three arguments (hostname, current cloud, new cloud).
+### How Provisioning Works
+#### QUADS move host command
+In the above example the default move command called ```/bin/echo``` for illustration purposes.  In order for this to do something more meaningful you should invoke a script with the ```--move-command``` option, which should be the path to a valid command or provisioning script/workflow.
 
-
-   - Move a host using --move-command
-     - You can append a script, command or other action as a post-hook (perhaps to fire off system provisioning).
+* Define your move command by pointing QUADS to an external command, trigger or script.
+* This expects three arguments `hostname current-cloud new-cloud`.
 
 ```
-/opt/quads/bin/quads-cli --move-hosts --path-to-command /usr/bin/movecommand.sh
+/opt/quads/bin/quads-cli --move-hosts --path-to-command /opt/quads/bin/move-and-rebuild-host.sh
 ```
+
+* You can look at the [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script as an example.  It's useful to note that with `bin/move-and-rebuild-host.sh` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
 ## Common Administration Tasks
 
