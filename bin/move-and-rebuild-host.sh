@@ -3,21 +3,29 @@
 # Takes three arguments
 # e.g. : c08-h21-r630.example.com cloud01 cloud02
 #
-# Harcoding some assumptions:
-# cloud01 uses:
-#     em2 - vlan1101
-#     em3 - vlan1102
-#     em4 - vlan1103
-# cloud02 uses:
-#     em2 - vlan1111
-#     em3 - vlan1112
-#     em4 - vlan1113
-# cloud03 uses:
-#     em2 - vlan1121
-#     em3 - vlan1122
-#     em4 - vlan1123
+# Passing any fourth argument will skip the actual provisioning
+# steps and only run the network expect automation to move VLANS
+# for the internal 4 x interfaces to either Q-in-Q 0/1 mode and
+# move hosts into their own isolated environment
 #
-# ... (currently up to cloud10)
+# Hardcoding some assumptions:
+# cloud01 uses:
+#     em1 - vlan1101
+#     em2 - vlan1102
+#     em3 - vlan1103
+#     em4 - vlan1104
+# cloud02 uses:
+#     em1 - vlan1111
+#     em2 - vlan1112
+#     em3 - vlan1113
+#     em4 - vlan1114
+# cloud03 uses:
+#     em1 - vlan1121
+#     em3 - vlan1122
+#     em3 - vlan1123
+#     em4 - vlan1124
+#
+# ... (currently up to cloud31)
 #
 ####
 
@@ -199,7 +207,7 @@ if $rebuild ; then
     hammer host info --name $host_to_move > $TMPIFFILE
 
     # remove extraneous interfaces collected prior to previous host usage
-    if [ "$skip_bmc_id" ]; then 
+    if [ "$skip_bmc_id" ]; then
         skip_regex="$skip_id|$skip_bmc_id"
     else
         skip_regex="$skip_id"
