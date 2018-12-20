@@ -3,21 +3,29 @@
 # Takes three arguments
 # e.g. : c08-h21-r630.example.com cloud01 cloud02
 #
-# Harcoding some assumptions:
-# cloud01 uses:
-#     em2 - vlan1101
-#     em3 - vlan1102
-#     em4 - vlan1103
-# cloud02 uses:
-#     em2 - vlan1111
-#     em3 - vlan1112
-#     em4 - vlan1113
-# cloud03 uses:
-#     em2 - vlan1121
-#     em3 - vlan1122
-#     em4 - vlan1123
+# Passing any fourth argument will skip the actual provisioning
+# steps and only run the network expect automation to move VLANS
+# for the internal 4 x interfaces to either Q-in-Q 0/1 mode and
+# move hosts into their own isolated environment
 #
-# ... (currently up to cloud10)
+# Hardcoding some assumptions:
+# cloud01 uses:
+#     em1 - vlan1101
+#     em2 - vlan1102
+#     em3 - vlan1103
+#     em4 - vlan1104
+# cloud02 uses:
+#     em1 - vlan1111
+#     em2 - vlan1112
+#     em3 - vlan1113
+#     em4 - vlan1114
+# cloud03 uses:
+#     em1 - vlan1121
+#     em3 - vlan1122
+#     em3 - vlan1123
+#     em4 - vlan1124
+#
+# ... (currently up to cloud31)
 #
 ####
 
@@ -40,6 +48,9 @@ ipmi_username=${quads["ipmi_username"]}
 ipmi_password=${quads["ipmi_password"]}
 ipmi_cloud_username_id=${quads["ipmi_cloud_username_id"]}
 spare_pool_name=${quads["spare_pool_name"]}
+foreman_default_os=${quads["foreman_default_os"]}
+foreman_default_ptable=${quads["foreman_default_ptable"]}
+foreman_default_medium=${quads["foreman_default_medium"]}
 
 [ ! -d $lockdir ] && mkdir -p $lockdir
 
@@ -199,7 +210,7 @@ if $rebuild ; then
     hammer host info --name $host_to_move > $TMPIFFILE
 
     # remove extraneous interfaces collected prior to previous host usage
-    if [ "$skip_bmc_id" ]; then 
+    if [ "$skip_bmc_id" ]; then
         skip_regex="$skip_id|$skip_bmc_id"
     else
         skip_regex="$skip_id"
@@ -214,7 +225,8 @@ if $rebuild ; then
     hammer host set-parameter --host $host_to_move --name rhel73 --value false
     hammer host set-parameter --host $host_to_move --name rhel75 --value false
     # we will also force a specific OS, partition table and media option, you should adjust this to your environment
-    hammer host update --name $host_to_move --build 1 --operatingsystem "RHEL 7" --partition-table "generic-rhel7" --medium "RHEL local"
+    hammer host update --name $host_to_move --build 1 --operatingsystem $foreman_default_os --partition-table $foreman_default_ptable --medium
+    $foreman_default_medium
     # power host off and on for rebuild
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
     sleep 30
