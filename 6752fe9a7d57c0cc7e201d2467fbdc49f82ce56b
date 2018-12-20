@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888f36de_5f638f86",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1015634
+      },
+      "writtenOn": "2018-12-20T16:54:22Z",
+      "side": 1,
+      "message": "I love this.",
+      "revId": "6752fe9a7d57c0cc7e201d2467fbdc49f82ce56b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e35645d0_c0e1cb87",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1015634
+      },
+      "writtenOn": "2018-12-20T16:54:22Z",
+      "side": 1,
+      "message": "+1",
+      "revId": "6752fe9a7d57c0cc7e201d2467fbdc49f82ce56b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c44c1b7_e6a8dbab",
+        "filename": "CODE_OF_CONDUCT.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1015634
+      },
+      "writtenOn": "2018-12-20T16:54:22Z",
+      "side": 1,
+      "message": "This is a reference to that classic scene with Ghenghis Khan in the movie. Obscure, but funny.",
+      "revId": "6752fe9a7d57c0cc7e201d2467fbdc49f82ce56b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
