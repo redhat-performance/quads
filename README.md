@@ -3,8 +3,8 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of servers and networks.
 
-* Please use our [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
-* We use [Waffle.io](https://waffle.io/redhat-performance/quads) for additional development tracking and priorities.
+* Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
+* [Waffle.io](https://waffle.io/redhat-performance/quads) is also available for additional development tracking and priorities.
 
 ![quads](/image/quads.jpg?raw=true)
 
@@ -347,6 +347,7 @@ In the above example the default move command was called ```/bin/echo``` for ill
 
    - Move a host using --move-command
      - You can append a script, command or other action as a post-hook (perhaps to fire off system provisioning).
+     - You can look at our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) command as an example.
 
 ```
 /opt/quads/bin/quads-cli --move-hosts --path-to-command /usr/bin/movecommand.sh
