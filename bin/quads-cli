@@ -72,10 +72,10 @@ def main(_args):
                 print(data)
             if _args.action in ['owner', 'ticket', 'qinq', 'wipe']:
                 for k in data:
-                    print(str(k['cloud']) + ": " + str(k[_args.action]))
+                    print(str(k['name']) + ": " + str(k[_args.action]))
             else:
                 for k in data:
-                    print(k[_args.action])
+                    print(k['name'])
             exit(0)
         else:
             # TODO: is this host or generic?
@@ -84,7 +84,7 @@ def main(_args):
     # Cloud Add / Modify
     elif _args.cloudresource:
         url = os.path.join(api_url, 'cloud')
-        data = {'_id': _args.cloudresource,
+        data = {'name': _args.cloudresource,
                 'description': _args.description,
                 'owner': _args.cloudowner,
                 'ccuser': _args.ccusers,
@@ -109,7 +109,7 @@ def main(_args):
         url = os.path.join(api_url, 'host')
         data = {'host': _args.hostresource,
                 'cloud': _args.hostcloud,
-                'type': _args.hosttype,
+                'host_type': _args.hosttype,
                 'force': _args.force}
         _response = requests.post(url, data)
         output_json_result(_response, data)
@@ -159,7 +159,6 @@ def main(_args):
                 'start': _args.schedstart,
                 'end': _args.schedend}
         _response = requests.post(url, data)
-        print(data)
         output_json_result(_response, {'schedule': 'cli-TODO'})
 
     elif _args.rmschedule is not None:
@@ -179,7 +178,7 @@ def main(_args):
             print('    --schedule-cloud')
             exit(1)
 
-        url = os.path.join(api_url, 'mhs')
+        url = os.path.join(api_url, 'schedule')
         data = {'schedule': _args.modschedule,
                 'start': _args.schedstart,
                 'end': _args.schedend,

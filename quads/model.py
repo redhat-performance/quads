@@ -6,8 +6,7 @@ from mongoengine import (
     BooleanField,
     ListField,
     ReferenceField,
-    DictField,
-    DateTimeField
+    DateTimeField,
 )
 from quads.helpers import param_check
 
@@ -21,7 +20,7 @@ connect(
 
 
 class CloudHistory(Document):
-    cloud = StringField()
+    name = StringField()
     description = StringField()
     owner = StringField()
     ticket = StringField()
@@ -33,7 +32,7 @@ class CloudHistory(Document):
     meta = {
         'indexes': [
             {
-                'fields': ['$cloud']
+                'fields': ['$name']
             }
         ]
     }
@@ -48,17 +47,15 @@ class CloudHistory(Document):
             'wipe': True,
             'date': datetime.now()
         }
-        data['cloud'] = data['_id']
-        data.pop('_id')
 
-        params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
+        params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
 
         return result, data
 
 
 class Cloud(Document):
-    _id = StringField()
+    name = StringField()
     description = StringField()
     owner = StringField()
     ticket = StringField()
@@ -77,30 +74,16 @@ class Cloud(Document):
             'wipe': True
         }
 
-        params = ['_id', 'description', 'owner', 'ticket', 'wipe']
+        params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
-
-        return result, data
-
-
-class Schedule(Document):
-    start = DateTimeField()
-    end = DateTimeField()
-    meta = {'strict': False}
-
-    @staticmethod
-    def prep_data(data):
-        result, data = param_check(data, ['start', 'end'])
 
         return result, data
 
 
 class Host(Document):
     host = StringField()
-    cloud = StringField()
-    interfaces = DictField()
-    schedule = ReferenceField(Schedule)
-    type = StringField()
+    cloud = ReferenceField(Cloud)
+    host_type = StringField()
     meta = {
         'indexes': [
             {
@@ -112,23 +95,21 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['host', 'cloud', 'type'])
+        result, data = param_check(data, ['host', 'cloud', 'host_type'])
 
         return result, data
 
-    @staticmethod
-    def prep_interfaces_data(data):
-        result, data = param_check(data, ['host', 'interface', 'mac',
-                                          'vendor_type', 'port'])
-        host = None
-        if not result:
-            host = Host.objects(host=data['host']).first()
-            if not host:
-                result.append('Host %s not found' % data['host'])
-            else:
-                del data['host']
-            interface = data['interface']
-            del data['interface']
-            data = {'set__interfaces__%s' % interface: data}
 
-        return result, host, data
+class Schedule(Document):
+    cloud = ReferenceField(Cloud)
+    host = ReferenceField(Host)
+    start = DateTimeField()
+    end = DateTimeField()
+    meta = {'strict': False}
+
+    @staticmethod
+    def prep_data(data):
+        result, data = param_check(data, ['cloud', 'host', 'start', 'end'])
+
+        return result, data
+

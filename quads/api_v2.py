@@ -139,17 +139,18 @@ class DocumentMethodHandler(MethodHandlerBase):
                         )
                     # otherwise create it
                     else:
-                        obj = self.model(**data).save()
+                        self.model(**data).save()
                         cherrypy.response.status = "201 Resource Created"
                         result.append(
                             'Created %s %s' % (self.name, obj_name)
                         )
-                    history_result, history_data = model.CloudHistory.prep_data(data)
-                    if history_result:
-                        result.append('Data validation failed: %s' % ', '.join(history_result))
-                        cherrypy.response.status = "400 Bad Request"
-                    else:
-                        model.CloudHistory(**history_data).save()
+                    if self.name == "cloud":
+                        history_result, history_data = model.CloudHistory.prep_data(data)
+                        if history_result:
+                            result.append('Data validation failed: %s' % ', '.join(history_result))
+                            cherrypy.response.status = "400 Bad Request"
+                        else:
+                            model.CloudHistory(**history_data).save()
                 except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
@@ -184,8 +185,7 @@ class PropertyMethodHandler(MethodHandlerBase):
     # post data comes in **data
     def POST(self, **data):
         # make sure post data passed in is ready to pass to mongo engine
-        prep_data = getattr(self.model, 'prep_%s_data' % self.property)
-        result, obj, data = prep_data(data)
+        result, data = model.Schedule.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -193,7 +193,10 @@ class PropertyMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
         else:
             try:
-                obj.update(**data)
+                q = {self.name: data[self.name]}
+                obj = model.Host.objects(**q).first()
+                data['host'] = obj['id']
+                model.Schedule(**data).save()
                 cherrypy.response.status = "201 Resource Created"
                 result.append('Added %s %s' % (self.property, data))
             except Exception as e:
@@ -225,7 +228,7 @@ class PropertyMethodHandler(MethodHandlerBase):
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
-        self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
+        self.cloud = DocumentMethodHandler(model.Cloud, 'name')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
         self.ticket = DocumentMethodHandler(model.Cloud, 'ticket')
@@ -233,5 +236,4 @@ class QuadsServerApiV2(object):
         self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
         self.host = DocumentMethodHandler(model.Host, 'host')
         self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
-        self.interfaces = PropertyMethodHandler(model.Host, 'host', 'interfaces')
         self.moves = MovesMethodHandler('moves', 'moves')
