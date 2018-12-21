@@ -63,6 +63,13 @@ class Cloud(Document):
     wipe = BooleanField()
     post_config = ListField()
     ccuser = ListField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$name']
+            }
+        ]
+    }
 
     @staticmethod
     def prep_data(data):

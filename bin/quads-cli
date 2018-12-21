@@ -73,9 +73,13 @@ def main(_args):
             if _args.action in ['owner', 'ticket', 'qinq', 'wipe']:
                 for k in data:
                     print(str(k['name']) + ": " + str(k[_args.action]))
-            else:
-                for k in data:
-                    print(k['name'])
+            elif _args.action in ['schedule']:
+                clouds = set([schedule['cloud'] for schedule in data])
+                for cloud in clouds:
+                    print("%s:" % cloud)
+                    entries = [entry for entry in data if entry['cloud'] == cloud]
+                    for entry in entries:
+                        print("- %s" % str(entry['host']))
             exit(0)
         else:
             # TODO: is this host or generic?
