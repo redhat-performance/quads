@@ -6,8 +6,6 @@ services:
     container_name: nginx
     volumes:
       - wordpress_data:/var/www/html/:ro
-      - ./etc/wordpress/plugins:/var/www/html/wp-content/plugins:ro
-      - ./etc/wordpress/themes:/var/www/html/wp-content/themes:ro
       - ./etc/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
       - ./etc/nginx/conf.d:/etc/nginx/conf.d:ro
     ports:
@@ -27,14 +25,15 @@ services:
       - 9000
     volumes:
       - wordpress_data:/var/www/html/
-      - ./etc/wordpress/plugins:/var/www/html/wp-content/plugins:ro
-      - ./etc/wordpress/themes:/var/www/html/wp-content/themes:ro
+      - ./etc/wordpress/themes:/var/tmp/wp-themes:ro
+      - ./etc/wordpress/plugins:/var/tmp/wp-plugins:ro
+      - ./etc/wordpress/entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
     environment:
       WORDPRESS_DB_HOST: mysql
       WORDPRESS_DB_PASSWORD: 123456
       WORDPRESS_CONFIG_EXTRA: |
-          /* defaults */
-          define('WP_DEFAULT_THEME', 'quads');
+        /* defaults */
+        define('WP_DEFAULT_THEME', 'quads');
 
   wp-db:
     image: mariadb
