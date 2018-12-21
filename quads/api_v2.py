@@ -37,12 +37,7 @@ class MethodHandlerBase(object):
         self.property = _property
 
     def _get_obj(self, obj):
-        q = {self.name: obj}
-        obj = self.model.objects(**q).first()
-        return obj
-
-    def _get_obj_id(self, obj):
-        q = {'_id': obj}
+        q = {'name': obj}
         obj = self.model.objects(**q).first()
         return obj
 
@@ -117,12 +112,8 @@ class DocumentMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
         else:
             # check if object already exists
-            if self.name in data:
-                obj_name = data[self.name]
-                obj = self._get_obj(obj_name)
-            else:
-                obj_name = data["_id"]
-                obj = self._get_obj_id(obj_name)
+            obj_name = data['name']
+            obj = self._get_obj(obj_name)
             if obj and not force:
                 result.append(
                     '%s %s already exists' % (self.name, obj_name)

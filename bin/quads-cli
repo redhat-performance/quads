@@ -79,10 +79,10 @@ def main(_args):
                     print("%s:" % cloud)
                     entries = [entry for entry in data if entry['cloud'] == cloud]
                     for entry in entries:
-                        print("- %s" % str(entry['host']))
-            elif _args.action in ['host']:
-                for host in data:
-                    print(host['host'])
+                        print("- %s" % str(entry['name']))
+            elif _args.action in ['host', 'cloud']:
+                for entry in data:
+                    print(entry['name'])
             exit(0)
         else:
             # TODO: is this host or generic?
@@ -114,7 +114,7 @@ def main(_args):
             print('--define-cloud and --define-host are mutually exclusive.')
             exit(1)
         url = os.path.join(api_url, 'host')
-        data = {'host': _args.hostresource,
+        data = {'name': _args.hostresource,
                 'cloud': _args.hostcloud,
                 'host_type': _args.hosttype,
                 'force': _args.force}

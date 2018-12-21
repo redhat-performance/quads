@@ -88,13 +88,13 @@ class Cloud(Document):
 
 
 class Host(Document):
-    host = StringField()
+    name = StringField()
     cloud = ReferenceField(Cloud)
     host_type = StringField()
     meta = {
         'indexes': [
             {
-                'fields': ['$host']
+                'fields': ['$name']
             }
         ],
         'strict': False
@@ -102,7 +102,7 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['host', 'cloud', 'host_type'])
+        result, data = param_check(data, ['name', 'cloud', 'host_type'])
 
         return result, data
 
