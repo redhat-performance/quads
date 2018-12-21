@@ -97,6 +97,7 @@ class DocumentMethodHandler(MethodHandlerBase):
             h = model.Host.objects()
             if not h:
                 return json.dumps({'result': ["Nothing to do."]})
+            return h.to_json()
         return self.model.objects(**args).to_json()
 
     # post data comes in **data

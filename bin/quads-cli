@@ -80,6 +80,9 @@ def main(_args):
                     entries = [entry for entry in data if entry['cloud'] == cloud]
                     for entry in entries:
                         print("- %s" % str(entry['host']))
+            elif _args.action in ['host']:
+                for host in data:
+                    print(host['host'])
             exit(0)
         else:
             # TODO: is this host or generic?
