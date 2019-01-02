@@ -116,7 +116,7 @@ class Schedule(Document):
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['cloud', 'host', 'start', 'end'])
+        result, data = param_check(data, ['cloud', 'host'])
 
         return result, data
 

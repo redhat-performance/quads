@@ -93,7 +93,9 @@ class DocumentMethodHandler(MethodHandlerBase):
             if not h:
                 return json.dumps({'result': ["Nothing to do."]})
             return h.to_json()
-        return self.model.objects(**args).to_json()
+        if 'cloud_id' in data:
+            obj = self.model.objects(id=data["cloud_id"]).first()
+        return obj.to_json()
 
     # post data comes in **data
     def POST(self, **data):
@@ -171,8 +173,12 @@ class DocumentMethodHandler(MethodHandlerBase):
 @cherrypy.expose
 class PropertyMethodHandler(MethodHandlerBase):
     def GET(self, **data):
-        args = {}
-        return self.model.objects(**args).to_json()
+        _args = {}
+        if "host" in data:
+            q = {'name': data["host"]}
+            obj = self.model.objects(**q).first()
+            _args["host"] = obj["id"]
+        return model.Schedule.objects(**_args).to_json()
 
     # post data comes in **data
     def POST(self, **data):
@@ -185,10 +191,16 @@ class PropertyMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
         else:
             try:
-                q = {self.name: data[self.name]}
-                obj = model.Host.objects(**q).first()
-                data['host'] = obj['id']
+                h_query = {'name': data[self.name]}
+                h_obj = model.Host.objects(**h_query).first()
+                data['host'] = h_obj['id']
+
+                c_query = {'name': data["cloud"]}
+                c_obj = model.Cloud.objects(**c_query).first()
+                data['cloud'] = c_obj['id']
+
                 model.Schedule(**data).save()
+
                 cherrypy.response.status = "201 Resource Created"
                 result.append('Added %s %s' % (self.property, data))
             except Exception as e:
@@ -221,11 +233,13 @@ class PropertyMethodHandler(MethodHandlerBase):
 class QuadsServerApiV2(object):
     def __init__(self):
         self.cloud = DocumentMethodHandler(model.Cloud, 'name')
+        self.cloud_id = DocumentMethodHandler(model.Cloud, '_id')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
         self.ticket = DocumentMethodHandler(model.Cloud, 'ticket')
         self.qinq = DocumentMethodHandler(model.Cloud, 'qinq')
         self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
         self.host = DocumentMethodHandler(model.Host, 'host')
+        self.host_id = DocumentMethodHandler(model.Host, '_id')
         self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
         self.moves = MovesMethodHandler('moves', 'moves')

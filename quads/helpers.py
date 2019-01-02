@@ -2,6 +2,9 @@ import yaml
 
 
 # Load QUADS yaml config
+from mongoengine import ObjectIdField
+
+
 def quads_load_config(quads_config):
     try:
         with open(quads_config, 'r') as config_file:
@@ -31,5 +34,7 @@ def param_check(data, params, defaults={}):
                 result.append("Could not parse %s parameter" % p)
             elif data[p] == 'None':
                 data[p] = None
+            if p == "_id":
+                data["_id"] = ObjectIdField(data[p])
 
     return result, data
