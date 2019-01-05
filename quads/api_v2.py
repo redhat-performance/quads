@@ -94,8 +94,17 @@ class DocumentMethodHandler(MethodHandlerBase):
                 return json.dumps({'result': ["Nothing to do."]})
             return h.to_json()
         if 'cloud_id' in data:
-            obj = self.model.objects(id=data["cloud_id"]).first()
-        return obj.to_json()
+            obj = model.Cloud.objects(id=data["cloud_id"]).first()
+            if not obj:
+                cherrypy.response.status = "404 Not Found"
+                return json.dumps({'result': 'Cloud %s Not Found' % data['cloud_id']})
+            else:
+                return obj.to_json
+        objs = self.model.objects(**args)
+        if objs:
+            return objs.to_json()
+        else:
+            return json.dumps({'result': ["No results."]})
 
     # post data comes in **data
     def POST(self, **data):

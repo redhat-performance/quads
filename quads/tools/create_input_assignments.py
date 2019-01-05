@@ -4,10 +4,10 @@ import os
 import re
 from tools.common import environment_released
 from datetime import datetime
-from helpers import quads_load_config
-from tools.foreman import Foreman
-from quads import Quads
-from util import get_cloud_summary, get_tickets
+from quads.helpers import quads_load_config
+from quads.tools.foreman import Foreman
+from quads.quads import Quads
+from quads.util import get_cloud_summary, get_tickets
 
 conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)

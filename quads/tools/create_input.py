@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import os
+import pathlib
 import re
-from helpers import quads_load_config
-from tools.foreman import Foreman
-from quads import Quads
+from quads.helpers import quads_load_config
+from quads.tools.foreman import Foreman
+from quads.quads import Quads
 
 conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -25,17 +26,22 @@ HEADERS = [
 
 
 def consolidate_ipmi_data(_host, _path, _value):
-    _file_path = os.path.join(conf["data_dir"], "ipmi", _host, _path)
+    ipmi_path = os.path.join(conf["data_dir"], "ipmi")
+    host_path = os.path.join(ipmi_path, _host)
+    _file_path = os.path.join(host_path, _path)
     try:
         with open(_file_path, "r+") as _ipmi_file:
             mac = _ipmi_file.read()
-            if not mac:
+            if not mac and _value:
                 _ipmi_file.seek(0)
                 _ipmi_file.write(_value)
                 _ipmi_file.truncate()
-    except IOError:
+    except (IOError, FileNotFoundError):
+        if not os.path.exists(host_path):
+            pathlib.Path(host_path).mkdir(parents=True, exist_ok=True)
         with open(_file_path, "w") as _ipmi_file:
-            _ipmi_file.write(_value)
+            value = _value if _value else ""
+            _ipmi_file.write(value)
 
 
 def render_header(_rack):
@@ -116,6 +122,9 @@ def main():
             hosts[host] = properties
 
     _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "main.md")
+
+    if not os.path.exists(conf["wp_wiki_git_repo_path"]):
+        pathlib.Path(conf["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
 
     with open(_full_path, "w") as _f:
         _f.seek(0)

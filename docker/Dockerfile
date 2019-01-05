@@ -12,7 +12,7 @@ RUN apt-get update && \
     python3-requests \
     git
 
-RUN pip install cherrypy pyyaml mongoengine requests ipdb
+RUN pip install cherrypy pyyaml mongoengine requests ipdb python-worpress-xmlrpc python-git
 
 RUN git clone https://github.com/grafuls/quads
 WORKDIR quads

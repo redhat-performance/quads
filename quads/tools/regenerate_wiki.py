@@ -3,7 +3,7 @@
 import os
 from tools import create_input, create_input_assignments, racks_wiki
 from datetime import datetime
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 from helpers import quads_load_config
 
 conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
@@ -24,7 +24,10 @@ if __name__ == "__main__":
     main_md = os.path.join(wp_wiki_git_repo_path, "main.md")
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
-            repo = Repo(wp_wiki_git_repo_path)
+            try:
+                repo = Repo(wp_wiki_git_repo_path)
+            except InvalidGitRepositoryError:
+                repo = Repo.init(wp_wiki_git_repo_path, bare=True)
             if repo.git.diff():
                 repo.index.add(main_md)
                 repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
@@ -43,7 +46,11 @@ if __name__ == "__main__":
     assignments_md = os.path.join(wp_wiki_git_repo_path, "assignments.md")
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
-            repo = Repo(wp_wiki_git_repo_path)
+            try:
+                repo = Repo(wp_wiki_git_repo_path)
+            except InvalidGitRepositoryError:
+                repo = Repo.init(wp_wiki_git_repo_path, bare=True)
+
             if repo.git.diff():
                 repo.index.add(assignments_md)
                 repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
