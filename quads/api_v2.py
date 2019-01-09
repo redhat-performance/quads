@@ -97,7 +97,7 @@ class DocumentMethodHandler(MethodHandlerBase):
             if current_schedule:
                 return current_schedule.to_json()
             else:
-                return json.dumps({'result': ["Nothing to do."]})
+                return json.dumps({'result': ["No results."]})
         if self.name == "host":
             if 'id' in data:
                 _host = model.Host.objects(id=data["id"]).first()
