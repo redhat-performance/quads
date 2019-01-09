@@ -58,13 +58,18 @@ def output_json_result(request, data, debug=False):
 def main(_args):
     # List all common call
     if _args.action:
-        url = os.path.join(api_url, _args.action)
+        _action = _args.action
+        if _args.action == "schedule":
+            _action = "current_schedule"
+        url = os.path.join(api_url, _action)
         if _args.debug:
             print(url)
         if _args.cloudonly:
             url += '?cloud=%s' % _args.cloudonly
         if _args.host:
             url += '?host=%s' % _args.host
+        if _args.datearg:
+            url += '?date=%s' % datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
         _response = requests.get(url)
         if _response.ok:
             data = _response.json()
@@ -81,7 +86,7 @@ def main(_args):
                         clouds = set([schedule['cloud']['$oid'] for schedule in data])
                         for cloud in clouds:
                             _url = os.path.join(api_url, 'cloud')
-                            _url += '?cloud_id=%s' % cloud
+                            _url += '?id=%s' % cloud
                             _cloud_response = requests.get(_url)
                             if _cloud_response.ok:
                                 _cloud_data = _cloud_response.json()

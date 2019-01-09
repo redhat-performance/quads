@@ -1,4 +1,5 @@
 import cherrypy
+import datetime
 import json
 import logging
 import os
@@ -6,7 +7,6 @@ import sys
 import time
 
 from quads import model
-from quads.quads import Quads
 from quads.helpers import quads_load_config
 
 logger = logging.getLogger('api_v2')
@@ -18,16 +18,6 @@ logger.addHandler(ch)
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
-
-default_config = conf["data_dir"] + "/schedule.yaml"
-default_state_dir = conf["data_dir"] + "/state"
-default_move_command = "/bin/echo"
-quads = Quads(
-    default_config,
-    default_state_dir,
-    default_move_command,
-    None, False, False, False
-)
 
 
 class MethodHandlerBase(object):
@@ -62,11 +52,6 @@ class MovesMethodHandler(MethodHandlerBase):
                 if len(result) > 0:
                     return json.dumps({'result': result})
 
-                result = quads.pending_moves(
-                    data['statedir'][0],
-                    data['date'][0]
-                )
-
                 return json.dumps({'result': result})
             except Exception:
                 logger.info("%s - %s - %s %s" % (self.client_address[0],
@@ -81,25 +66,46 @@ class MovesMethodHandler(MethodHandlerBase):
 class DocumentMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         args = {}
+        _cloud = None
+        _host = None
         if 'cloudonly' in data:
-            c = model.Cloud.objects(cloud=data['cloudonly'])
-            if not c:
+            _cloud = model.Cloud.objects(cloud=data['cloudonly'])
+            if not _cloud:
                 cherrypy.response.status = "404 Not Found"
                 return json.dumps({'result': 'Cloud %s Not Found' % data['cloudonly']})
             else:
-                return c.to_json()
-        if self.name == "host":
-            h = model.Host.objects()
-            if not h:
-                return json.dumps({'result': ["Nothing to do."]})
-            return h.to_json()
-        if 'cloud_id' in data:
-            obj = model.Cloud.objects(id=data["cloud_id"]).first()
-            if not obj:
-                cherrypy.response.status = "404 Not Found"
-                return json.dumps({'result': 'Cloud %s Not Found' % data['cloud_id']})
+                return _cloud.to_json()
+        if self.name == "current_schedule":
+            if "date" in data:
+                date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
+                current_schedule = self.model.current_schedule(date)
             else:
-                return obj.to_json
+                current_schedule = self.model.current_schedule()
+            if current_schedule:
+                return current_schedule.to_json()
+            else:
+                return json.dumps({'result': ["Nothing to do."]})
+        if self.name == "host":
+            if 'id' in data:
+                _host = model.Host.objects(id=data["id"]).first()
+            elif 'name' in data:
+                _host = model.Host.objects(name=data["name"]).first()
+            elif 'cloud' in data:
+                _host = model.Host.objects(cloud=data["cloud"])
+            else:
+                _host = model.Host.objects()
+            if not _host:
+                return json.dumps({'result': ["Nothing to do."]})
+            return _host.to_json()
+        if self.name == "cloud":
+            if 'id' in data:
+                _cloud = model.Cloud.objects(id=data["id"]).first()
+            elif 'name' in data:
+                _cloud = model.Cloud.objects(name=data["name"]).first()
+            elif 'owner' in data:
+                _cloud = model.Cloud.to_json(owner=data["owner"]).first()
+            if _cloud:
+                return _cloud.to_json()
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
@@ -186,7 +192,7 @@ class PropertyMethodHandler(MethodHandlerBase):
         if "host" in data:
             q = {'name': data["host"]}
             obj = self.model.objects(**q).first()
-            _args["host"] = obj["id"]
+            _args["host"] = obj
         return model.Schedule.objects(**_args).to_json()
 
     # post data comes in **data
@@ -202,11 +208,11 @@ class PropertyMethodHandler(MethodHandlerBase):
             try:
                 h_query = {'name': data[self.name]}
                 h_obj = model.Host.objects(**h_query).first()
-                data['host'] = h_obj['id']
+                data['host'] = h_obj
 
                 c_query = {'name': data["cloud"]}
                 c_obj = model.Cloud.objects(**c_query).first()
-                data['cloud'] = c_obj['id']
+                data['cloud'] = c_obj
 
                 model.Schedule(**data).save()
 
@@ -241,14 +247,13 @@ class PropertyMethodHandler(MethodHandlerBase):
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
-        self.cloud = DocumentMethodHandler(model.Cloud, 'name')
-        self.cloud_id = DocumentMethodHandler(model.Cloud, '_id')
+        self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
         self.ticket = DocumentMethodHandler(model.Cloud, 'ticket')
         self.qinq = DocumentMethodHandler(model.Cloud, 'qinq')
         self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
         self.host = DocumentMethodHandler(model.Host, 'host')
-        self.host_id = DocumentMethodHandler(model.Host, '_id')
         self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
+        self.current_schedule = DocumentMethodHandler(model.Schedule, 'current_schedule')
         self.moves = MovesMethodHandler('moves', 'moves')

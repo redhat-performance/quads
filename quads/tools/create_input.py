@@ -3,9 +3,9 @@
 import os
 import pathlib
 import re
+import requests
 from quads.helpers import quads_load_config
 from quads.tools.foreman import Foreman
-from quads.quads import Quads
 
 conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -23,6 +23,8 @@ HEADERS = [
     "Owner",
     "Graph"
 ]
+
+API = 'v2'
 
 
 def consolidate_ipmi_data(_host, _path, _value):
@@ -51,16 +53,24 @@ def render_header(_rack):
     return "\n".join([h, "", h1, h2])
 
 
-def render_row(_quads, _host, _properties):
+def render_row(_host, _properties):
+    api_url = os.path.join(conf['quads_base_url'], 'api', API)
     u_loc = _host.split("-")[2][1:]
     node = _host[5:]
     owner = ""
     cloud = ""
-    workload = _quads.query_host_cloud(node, None)
-    if workload:
-        cloud_owner = _quads.get_owners(workload)
-        owner = cloud_owner[0][workload]
-        cloud = "[%s](/assignments/#%s)" % (workload, workload)
+    host_url = os.path.join(api_url, "host?name=%s" % node)
+    _response = requests.get(host_url)
+    if _response.status_code == 200:
+        host_data = _response.json()
+        if "cloud" in host_data:
+            cloud_url = os.path.join(api_url, "cloud?name=%s" % host_data["cloud"])
+            _cloud_response = requests.get(cloud_url)
+            if _cloud_response.status_code == 200:
+                cloud_data = _cloud_response.json()
+                if "owner" in cloud_data:
+                    owner = cloud_data["owner"]
+            cloud = "[%s](/assignments/#%s)" % (host_data["cloud"], host_data["cloud"])
 
     # TODO: figure out what to put on grafana field
     grafana = ""
@@ -88,16 +98,6 @@ def rack_has_hosts(rack, hosts):
 
 
 def main():
-    default_config = conf["data_dir"] + "/schedule.yaml"
-    default_state_dir = conf["data_dir"] + "/state"
-    default_move_command = "/bin/echo"
-
-    quads = Quads(
-        default_config,
-        default_state_dir,
-        default_move_command,
-        None, False, False, False,
-    )
     foreman = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
@@ -109,8 +109,8 @@ def main():
     hosts = {}
     for host, properties in all_hosts.items():
         if "mgmt" in host and not blacklist.search(host):
-            properties["host_ip"] = all_hosts.get(host[5:], {"ip": None})["ip"]
-            properties["host_mac"] = all_hosts.get(host[5:], {"mac": None})["mac"]
+            properties["host_ip"] = all_hosts.get(host[5:], {"ip": ""})["ip"]
+            properties["host_mac"] = all_hosts.get(host[5:], {"mac": ""})["mac"]
             consolidate_ipmi_data(host[5:], "macaddr", properties["host_mac"])
             consolidate_ipmi_data(host[5:], "oobmacaddr", properties["mac"])
             svctag_file = os.path.join(conf["data_dir"], "ipmi", host[5:], "svctag")
@@ -134,7 +134,7 @@ def main():
 
                 for host, properties in hosts.items():
                     if rack in host:
-                        _f.write(render_row(quads, host, properties))
+                        _f.write(render_row(host, properties))
                 _f.write("\n")
 
         _f.truncate()

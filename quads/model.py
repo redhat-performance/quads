@@ -7,7 +7,7 @@ from mongoengine import (
     ListField,
     ReferenceField,
     DateTimeField,
-)
+    queryset_manager, Q)
 from quads.helpers import param_check
 
 import os
@@ -55,7 +55,7 @@ class CloudHistory(Document):
 
 
 class Cloud(Document):
-    name = StringField()
+    name = StringField(unique=True)
     description = StringField()
     owner = StringField()
     ticket = StringField()
@@ -88,7 +88,7 @@ class Cloud(Document):
 
 
 class Host(Document):
-    name = StringField()
+    name = StringField(unique=True)
     cloud = ReferenceField(Cloud)
     host_type = StringField()
     meta = {
@@ -119,4 +119,8 @@ class Schedule(Document):
         result, data = param_check(data, ['cloud', 'host'])
 
         return result, data
+
+    @queryset_manager
+    def current_schedule(doc_cls, queryset, when=datetime.now()):
+        return queryset.filter(Q(start__lte=when) & Q(end__gte=when))
 

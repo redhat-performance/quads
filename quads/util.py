@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
-from helpers import quads_load_config
-from quads import Quads
+from quads.helpers import quads_load_config
+from quads.quads import Quads
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
