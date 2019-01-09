@@ -76,7 +76,20 @@ class DocumentMethodHandler(MethodHandlerBase):
             else:
                 return _cloud.to_json()
         if self.name == "current_schedule":
-            if "date" in data:
+            if "host" in data:
+                host = model.Host.objects(name=data["host"]).first()
+                if host:
+                    current_schedule = self.model.objects(host=host).all()
+                    if "date" in data:
+                        date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
+                        for schedule in current_schedule:
+                            if schedule.start <= date < schedule.end:
+                                return [schedule.to_json()]
+                        return json.dumps({'result': ["No results."]})
+
+                    return current_schedule.to_json()
+                current_schedule = self.model.current_schedule()
+            elif "date" in data:
                 date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
                 current_schedule = self.model.current_schedule(date)
             else:
