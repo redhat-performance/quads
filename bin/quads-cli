@@ -94,27 +94,54 @@ def main(_args):
                     print(str(k['name']) + ": " + str(k[_args.action]))
             elif _args.action in ['schedule']:
                 if type(data) == list and data:
-                    clouds = set([schedule['cloud']['$oid'] for schedule in data])
-                    for cloud in clouds:
-                        _url = os.path.join(api_url, 'cloud')
-                        _url += '?id=%s' % cloud
-                        _cloud_response = requests.get(_url)
-                        if _cloud_response.ok:
-                            _cloud_data = _cloud_response.json()
-                            if _cloud_data:
-                                cloud_name = _cloud_data["name"]
-                        else:
-                            # TODO: figure out what to do with schedules which cloud has been removed
-                            continue
-                        print("%s:" % cloud_name)
-                        entries = set([entry["host"]["$oid"] for entry in data if entry['cloud']['$oid'] == cloud])
-                        for entry in entries:
-                            _host_url = os.path.join(api_url, 'host')
-                            _hosts_response = requests.get(_host_url)
-                            _hosts = _hosts_response.json()
-                            if _hosts:
-                                _host = next(iter([host for host in _hosts if entry == host['_id']['$oid']]))
-                            print("- %s" % str(_host['name']))
+                    if _args.host:
+                        _host_url = os.path.join(api_url, 'host?name=%s' % _args.host)
+                        _host_response = requests.get(_host_url)
+                        if _host_response.ok:
+                            _host_data = _host_response.json()
+                            if "cloud" in _host_data:
+                                _default_cloud = _host_data["cloud"]
+                                print("Default cloud: %s" % _default_cloud)
+                        for schedule in data:
+                            _cloud_url = os.path.join(api_url, 'cloud')
+                            _cloud_url += '?id=%s' % schedule["cloud"]["$oid"]
+                            _cloud_response = requests.get(_cloud_url)
+                            _cloud_name = schedule["cloud"]["$oid"]
+                            if _cloud_response.ok:
+                                _cloud_data = _cloud_response.json()
+                                if "name" in _cloud_data:
+                                    _cloud_name = _cloud_data["name"]
+                            start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
+                            end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
+                            print(
+                                "%s| start=%s, end=%s, cloud=%s" % (
+                                    schedule["_id"]["$oid"],
+                                    start,
+                                    end,
+                                    _cloud_name)
+                            )
+                    else:
+                        clouds = set([schedule['cloud']['$oid'] for schedule in data])
+                        for cloud in clouds:
+                            _cloud_url = os.path.join(api_url, 'cloud')
+                            _cloud_url += '?id=%s' % cloud
+                            _cloud_response = requests.get(_cloud_url)
+                            if _cloud_response.ok:
+                                _cloud_data = _cloud_response.json()
+                                if _cloud_data:
+                                    _cloud_name = _cloud_data["name"]
+                            else:
+                                # TODO: figure out what to do with schedules which cloud has been removed
+                                continue
+                            print("%s:" % _cloud_name)
+                            entries = set([entry["host"]["$oid"] for entry in data if entry['cloud']['$oid'] == cloud])
+                            for entry in entries:
+                                _host_url = os.path.join(api_url, 'host')
+                                _hosts_response = requests.get(_host_url)
+                                _hosts = _hosts_response.json()
+                                if _hosts:
+                                    _host = next(iter([host for host in _hosts if entry == host['_id']['$oid']]))
+                                print("- %s" % str(_host['name']))
             elif _args.action in ['host', 'cloud']:
                 if type(data) == list and data:
                     for entry in data:
