@@ -95,22 +95,37 @@ def main(_args):
             elif _args.action in ['schedule']:
                 if type(data) == list and data:
                     if _args.host:
+                        _cloud_url = os.path.join(api_url, 'cloud')
+                        _cloud_response = requests.get(_cloud_url)
+                        _cloud_data = []
+                        if _cloud_response.ok:
+                            _cloud_data = _cloud_response.json()
                         _host_url = os.path.join(api_url, 'host?name=%s' % _args.host)
                         _host_response = requests.get(_host_url)
+                        _default_cloud = "None"
                         if _host_response.ok:
                             _host_data = _host_response.json()
                             if "cloud" in _host_data:
                                 _default_cloud = _host_data["cloud"]
-                                print("Default cloud: %s" % _default_cloud)
+                        print("Default cloud: %s" % _default_cloud)
+                        _schedule_url = os.path.join(api_url, 'current_schedule?host=%s' % _args.host)
+                        _schedule_response = requests.get(_schedule_url)
+                        if _schedule_response.ok:
+                            _schedule_data = _schedule_response.json()
+                            _current_cloud = "cloud01"
+                            for cloud in _cloud_data:
+                                if cloud["_id"] == _schedule_data["cloud"]:
+                                    _current_cloud = cloud["name"]
+                            if "cloud" in _schedule_data:
+                                print("Current cloud: %s" % _current_cloud)
+                                print("Current schedule: %s" % _schedule_data["_id"]["$oid"])
+                            else:
+                                print("Current cloud: %s" % _default_cloud)
                         for schedule in data:
-                            _cloud_url = os.path.join(api_url, 'cloud')
-                            _cloud_url += '?id=%s' % schedule["cloud"]["$oid"]
-                            _cloud_response = requests.get(_cloud_url)
-                            _cloud_name = schedule["cloud"]["$oid"]
-                            if _cloud_response.ok:
-                                _cloud_data = _cloud_response.json()
-                                if "name" in _cloud_data:
-                                    _cloud_name = _cloud_data["name"]
+                            _cloud_name = ""
+                            for cloud in _cloud_data:
+                                if "name" in cloud:
+                                    _cloud_name = cloud["name"]
                             start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
                             end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
                             print(

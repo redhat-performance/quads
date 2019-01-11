@@ -78,24 +78,26 @@ class DocumentMethodHandler(MethodHandlerBase):
         if self.name == "current_schedule":
             if "host" in data:
                 host = model.Host.objects(name=data["host"]).first()
+                schedules = self.model.objects(host=host).all()
                 if host:
-                    current_schedule = self.model.objects(host=host).all()
+                    date = datetime.datetime.now()
                     if "date" in data:
                         date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
-                        for schedule in current_schedule:
-                            if schedule.start <= date < schedule.end:
-                                return [schedule.to_json()]
-                        return json.dumps({'result': ["No results."]})
 
-                    return current_schedule.to_json()
-                current_schedule = self.model.current_schedule()
+                    _schedule = self.model.current_schedule(date)
+                    for schedule in schedules:
+                        if schedule.start <= date < schedule.end:
+                            return [schedule.to_json()]
+                    return json.dumps({'result': ["No results."]})
+
+                return schedules.to_json()
             elif "date" in data:
                 date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
-                current_schedule = self.model.current_schedule(date)
+                schedules = self.model.current_schedule(date)
             else:
-                current_schedule = self.model.current_schedule()
-            if current_schedule:
-                return current_schedule.to_json()
+                schedules = self.model.current_schedule()
+            if schedules:
+                return schedules.to_json()
             else:
                 return json.dumps({'result': ["No results."]})
         if self.name == "host":
