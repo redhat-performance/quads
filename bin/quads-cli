@@ -152,10 +152,10 @@ def main(_args):
                                 continue
                             print("%s:" % _cloud_name)
                             entries = set([entry["host"]["$oid"] for entry in data if entry['cloud']['$oid'] == cloud])
+                            _host_url = os.path.join(api_url, 'host')
+                            _hosts_response = requests.get(_host_url)
+                            _hosts = _hosts_response.json()
                             for entry in entries:
-                                _host_url = os.path.join(api_url, 'host')
-                                _hosts_response = requests.get(_host_url)
-                                _hosts = _hosts_response.json()
                                 if _hosts:
                                     _host = next(iter([host for host in _hosts if entry == host['_id']['$oid']]))
                                 print("- %s" % str(_host['name']))
