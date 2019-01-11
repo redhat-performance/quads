@@ -116,9 +116,9 @@ def main(_args):
                             _schedule_data = _schedule_response.json()
                             _current_cloud = "cloud01"
                             for cloud in _cloud_data:
-                                if cloud["_id"] == _schedule_data["cloud"]:
+                                if "cloud" in _schedule_data and cloud["_id"] == _schedule_data["cloud"]:
                                     _current_cloud = cloud["name"]
-                            if "cloud" in _schedule_data:
+                            if "cloud" in _schedule_data and _current_cloud != "cloud01":
                                 print("Current cloud: %s" % _current_cloud)
                                 print("Current schedule: %s" % _schedule_data["_id"]["$oid"])
                             else:
@@ -360,9 +360,9 @@ if __name__ == '__main__':
     group.add_argument('--define-cloud', dest='cloudresource', type=str, default=None,
                        help='Define a cloud environment')
     group.add_argument('--add-schedule', dest='addschedule', action='store_true', help='Define a host reservation')
-    group.add_argument('--mod-schedule', dest='modschedule', type=int, default=None, help='Modify a host reservation')
+    group.add_argument('--mod-schedule', dest='modschedule', type=str, default=None, help='Modify a host reservation')
     group.add_argument('--add-interface', dest='addinterface', type=str, default=None, help='Define a host interface')
-    group.add_argument('--rm-schedule', dest='rmschedule', type=int, default=None, help='Remove a host reservation')
+    group.add_argument('--rm-schedule', dest='rmschedule', type=str, default=None, help='Remove a host reservation')
     group.add_argument('--rm-interface', dest='rminterface', type=str, default=None, help='Remove a host interface')
     group.add_argument('--ls-hosts', dest='action', action='store_const', const='host', help='List all hosts')
     group.add_argument('--ls-clouds', dest='action', action='store_const', const='cloud', help='List all clouds')
