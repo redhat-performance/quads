@@ -59,24 +59,26 @@ def main(_args):
     # List all common call
     if _args.action:
         _action = _args.action
+        _prefix = ""
+        _sufix = ""
         if _args.action == "schedule":
             _action = "current_schedule"
-        url = os.path.join(api_url, _action)
-        if _args.debug:
-            print(url)
-        _prefix = ""
         if _args.cloudonly:
             _prefix = "?"
-            url += '%scloud=%s' % (_prefix, _args.cloudonly)
+            _sufix += '%scloud=%s' % (_prefix, _args.cloudonly)
         if _args.host:
+            _action = "schedule"
             _prefix = "&" if _prefix else "?"
-            url += '%shost=%s' % (_prefix, _args.host)
+            _sufix += '%shost=%s' % (_prefix, _args.host)
         if _args.datearg:
             _prefix = "&" if _prefix else "?"
-            url += '%sdate=%s' % (
+            _sufix += '%sdate=%s' % (
                 _prefix,
                 datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
             )
+        url = os.path.join(api_url, _action, _sufix)
+        if _args.debug:
+            print(url)
         _response = requests.get(url)
 
         if _response.ok:
@@ -124,7 +126,7 @@ def main(_args):
                         for schedule in data:
                             _cloud_name = ""
                             for cloud in _cloud_data:
-                                if "name" in cloud:
+                                if "name" in cloud and cloud["_id"] == schedule["cloud"]:
                                     _cloud_name = cloud["name"]
                             start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
                             end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
