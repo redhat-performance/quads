@@ -1,11 +1,26 @@
-from mongoengine import *
+from datetime import datetime
+from mongoengine import (
+    connect,
+    Document,
+    StringField,
+    BooleanField,
+    ListField,
+    ReferenceField,
+    DateTimeField,
+    queryset_manager, Q)
 from quads.helpers import param_check
 
-connect('quads')
+import os
 
 
-class Cloud(Document):
-    cloud = StringField()
+connect(
+    'quads',
+    host=os.environ.get("MONGODB_IP", "127.0.0.1")
+)
+
+
+class CloudHistory(Document):
+    name = StringField()
     description = StringField()
     owner = StringField()
     ticket = StringField()
@@ -13,92 +28,99 @@ class Cloud(Document):
     wipe = BooleanField()
     post_config = ListField()
     ccuser = ListField()
+    date = DateTimeField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$name']
+            }
+        ]
+    }
 
     @staticmethod
     def prep_data(data):
-        defaults = {'owner': 'nobody',
-                    'ccuser': [],
-                    'ticket': '000000',
-                    'qinq': False,
-                    'wipe': True}
+        defaults = {
+            'owner': 'nobody',
+            'ccuser': [],
+            'ticket': '000000',
+            'qinq': False,
+            'wipe': True,
+            'date': datetime.now()
+        }
 
-        params = ['cloud', 'description', 'owner', 'ticket', 'wipe']
+        params = ['name', 'description', 'owner', 'ticket', 'wipe']
+        result, data = param_check(data, params, defaults)
+
+        return result, data
+
+
+class Cloud(Document):
+    name = StringField(unique=True)
+    description = StringField()
+    owner = StringField()
+    ticket = StringField()
+    qinq = BooleanField()
+    wipe = BooleanField()
+    post_config = ListField()
+    ccuser = ListField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$name']
+            }
+        ]
+    }
+
+    @staticmethod
+    def prep_data(data):
+        defaults = {
+            'owner': 'nobody',
+            'ccuser': [],
+            'ticket': '000000',
+            'qinq': False,
+            'wipe': True
+        }
+
+        params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
 
         return result, data
 
 
 class Host(Document):
-    host = StringField()
-    cloud = ReferenceField(Cloud, required=True)
-    interfaces = DictField()
-    schedule = ListField(DictField())
-    type = StringField()
+    name = StringField(unique=True)
+    cloud = ReferenceField(Cloud)
+    host_type = StringField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$name']
+            }
+        ],
+        'strict': False
+    }
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['host', 'cloud', 'type'])
-        if not result:
-            cloud = Cloud.objects(cloud=data['cloud']).first()
-            if not cloud:
-                result.append('Cloud %s not found' % data['cloud'])
-            else:
-                data['cloud'] = cloud
+        result, data = param_check(data, ['name', 'cloud', 'host_type'])
 
         return result, data
 
-    @staticmethod
-    def prep_schedule_data(data):
-        result, data = param_check(data, ['cloud', 'host',
-                                          'start', 'end'])
-        host = None
-        if not result:
-            cloud = Cloud.objects(cloud=data['cloud']).first()
-            host = Host.objects(host=data['host']).first()
-            if not cloud:
-                result.append('Cloud %s not found' % data['cloud'])
-            elif not host:
-                result.append('Host %s not found' % data['host'])
-            else:
-                data['cloud'] = cloud
-                del data['host']
 
-            data = {'add_to_set__schedule': [data]}
-
-        return result, host, data
+class Schedule(Document):
+    cloud = ReferenceField(Cloud)
+    host = ReferenceField(Host)
+    start = DateTimeField()
+    end = DateTimeField()
+    meta = {'strict': False}
 
     @staticmethod
-    def prep_interfaces_data(data):
-        result, data = param_check(data, ['host', 'interface', 'mac',
-                                          'vendor_type', 'port'])
-        host = None
-        if not result:
-            host = Host.objects(host=data['host']).first()
-            if not host:
-                result.append('Host %s not found' % data['host'])
-            else:
-                del data['host']
-            interface = data['interface']
-            del data['interface']
-            data = {'set__interfaces__%s' % interface: data}
+    def prep_data(data):
+        result, data = param_check(data, ['cloud', 'host'])
 
-        print(result)
+        return result, data
 
-        return result, host, data
+    @queryset_manager
+    def current_schedule(doc_cls, queryset, when=datetime.now()):
+        return queryset.filter(Q(start__lte=when) & Q(end__gte=when))
 
-
-class History(Document):
-    pass
-
-
-class CloudHistory(Document):
-    cloud = ReferenceField(Cloud, required=True)
-    dt_stamp = DateTimeField()
-    name = StringField()
-    description = StringField()
-    owner = StringField()
-    ticket = StringField()
-    qing = BooleanField()
-    wipe = BooleanField()
-    post_config = ListField()
-    ccusers = ListField()

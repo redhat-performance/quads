@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 import os
+import pathlib
 import re
-from tools.common import environment_released
 from datetime import datetime
-from helpers import quads_load_config
-from tools.foreman import Foreman
-from quads import Quads
-from util import get_cloud_summary, get_tickets
+
+import requests
+
+from quads.helpers import quads_load_config
+from quads.tools.common import environment_released
+from quads.tools.foreman import Foreman
 
 conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -22,6 +24,9 @@ HEADERS = [
     # "Graph",
 ]
 
+API = 'v2'
+API_URL = os.path.join(conf['quads_base_url'], 'api', API)
+
 
 def print_header():
     lines = [
@@ -31,7 +36,7 @@ def print_header():
     return lines
 
 
-def print_summary(_quads):
+def print_summary():
     _summary = []
     _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**", "**INSTACKENV**"]
     if conf["gather_ansible_facts"]:
@@ -42,26 +47,21 @@ def print_summary(_quads):
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
-    _cloud_summary = get_cloud_summary(_quads, None, True)
+    _cloud_response = requests.get(os.path.join(API_URL, "cloud"))
+    _cloud_summary = []
+    if _cloud_response.status_code == 200:
+        _cloud_summary = _cloud_response.json()
 
-    for line in _cloud_summary:
-        cloud = line.split()[0]
-        desc = line.strip().split(":")[1].strip()
-        owner = ""
-        if cloud:
-            cloud_owner = _quads.get_owners(cloud)
-            owner = cloud_owner[0][cloud]
-        cloud_ticket = get_tickets(_quads, cloud)
-        ticket = ""
-        link = ""
-        if cloud_ticket:
-            ticket = cloud_ticket[0].split()[1]
-            link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"],
-                                                              ticket, ticket)
+    for cloud in _cloud_summary:
+        cloud = cloud["name"]
+        desc = cloud["description"]
+        owner = cloud["owner"]
+        ticket = cloud["ticket"]
+        link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"], ticket, ticket)
         cloud_specific_tag = "%s_%s_%s" % (cloud, owner, ticket)
 
         style_tag_end = "</span>"
-        if environment_released(_quads, None, None) or cloud == "cloud01":
+        if environment_released(None, None) or cloud == "cloud01":
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud)
             instack_text = "download"
@@ -107,7 +107,11 @@ def print_summary(_quads):
 
         if conf["gather_dell_configs"]:
             dellstyle_tag_end = "</span>"
-            if os.path.exists(conf["json_web_path"], "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)):
+            dell_config_path = os.path.join(
+                conf["json_web_path"],
+                "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)
+            )
+            if os.path.exists(dell_config_path):
                 dellstyle_tag_start = '<span style="color:green">'
                 dellconfig_link = os.path.join(
                     conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)
@@ -126,7 +130,13 @@ def print_summary(_quads):
                     % (dellconfig_link, dellstyle_tag_start, dellconfig_text, dellstyle_tag_end)
                 )
         _summary.append("| %s |\n" % " | ".join(_data))
-    _host_count = len(_quads.get_hosts())
+
+    _host_response = requests.get(os.path.join(API_URL, "host"))
+    _hosts = []
+    if _host_response.status_code == 200:
+        _hosts = _host_response.json()
+
+    _host_count = len(_hosts)
     _summary.append("| Total | %s |\n" % _host_count)
     _summary.append("\n")
     _summary.append("[Unmanaged Hosts](#unmanaged)\n")
@@ -136,7 +146,7 @@ def print_summary(_quads):
     return _summary
 
 
-def print_unmanaged(quads, hosts, broken_hosts):
+def print_unmanaged(hosts, broken_hosts):
     lines = ["\n", '### <a name="unmanaged"></a>Unmanaged systems ###\n', "\n"]
     _headers = ["**SystemHostname**", "**OutOfBand**"]
     lines.append("| %s |\n" % " | ".join(_headers))
@@ -145,7 +155,13 @@ def print_unmanaged(quads, hosts, broken_hosts):
         if not broken_hosts.get(host, False):
             real_host = host[5:]
             short_host = real_host.split(".")[0]
-            if not quads.query_host_cloud(real_host, None):
+
+            _host_response = requests.get(os.path.join(API_URL, "host?name=%s" % real_host))
+            _host = {}
+            if _host_response.status_code == 200:
+                _host = _host_response.json()
+
+            if not _host or "name" not in _host:
                 lines.append(
                     "| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host)
                 )
@@ -163,24 +179,39 @@ def print_faulty(broken_hosts):
     return lines
 
 
-def add_row(quads, host):
+def add_row(host):
     lines = []
-    short_host = host.split(".")[0]
-    default_cloud, current_cloud, current_schedule, full_schedule = quads.query_host_schedule(host, None)
+    current_schedule = ""
+    short_host = host["name"].split(".")[0]
+    _url = os.path.join(API_URL, "current_schedule")
+    _response = requests.get(_url)
+    if _response.status_code == 200:
+        current_schedule = _response.json()
+
+    schedule_response = requests.get(os.path.join(API_URL, "schedule"))
+    schedules = []
+    if schedule_response.status_code == 200:
+        schedules = schedule_response.json()
+
+    cloud_response = requests.get(os.path.join(API_URL, "cloud"))
+    clouds = []
+    if cloud_response.status_code == 200:
+        clouds = cloud_response.json()
+
     if not current_schedule:
         date_start = "∞"
         date_end = "∞"
         total_time = "∞"
         total_time_left = "∞"
     else:
-        for item in full_schedule:
-            for override, schedule in item.items():
-                if override == current_schedule:
+        for schedule in schedules:
+            for cloud in clouds:
+                if schedule["cloud"] == cloud["_id"]:
                     for schedkey, schedval in schedule.items():
                         if schedkey == "start":
-                            date_start = schedval
+                            date_start = schedval["$date"]
                         if schedkey == "end":
-                            date_end = schedval
+                            date_end = schedval["$date"]
         _date_now = datetime.now()
         _date_start = datetime.strptime(date_start, "%Y-%m-%d %H:%M")
         _date_end = datetime.strptime(date_end, "%Y-%m-%d %H:%M")
@@ -205,15 +236,6 @@ def add_row(quads, host):
 
 
 def main():
-    default_config = conf["data_dir"] + "/schedule.yaml"
-    default_state_dir = conf["data_dir"] + "/state"
-    default_move_command = "/bin/echo"
-    quads = Quads(
-        default_config,
-        default_state_dir,
-        default_move_command,
-        None, False, False, False
-    )
     foreman = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
@@ -239,35 +261,43 @@ def main():
             mgmt_hosts[host] = properties
 
     lines.append("### **SUMMARY**\n")
-    _summary = print_summary(quads)
+    _summary = print_summary()
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
     # TODO: call this only once
-    _cloud_summary = get_cloud_summary(quads, None, True)
-    _cloud_hosts = quads.query_cloud_hosts(None)
-    for line in _cloud_summary:
-        cloud = line.split()[0]
-        owner = quads.get_owners(cloud)
-        lines.append("### <a name=%s></a>\n" % cloud.strip())
-        real_owner = owner
-        if isinstance(owner, list):
-            real_owner = owner[0][cloud]
-        lines.append("### **%s -- %s**\n\n" % (line.strip(), real_owner))
+    cloud_response = requests.get(os.path.join(API_URL, "cloud"))
+    _cloud_summary = []
+    if cloud_response.status_code == 200:
+        _cloud_summary = cloud_response.json()
+    host_response = requests.get(os.path.join(API_URL, "host"))
+    _cloud_hosts = []
+    if host_response.status_code == 200:
+        _cloud_hosts = host_response.json()
+    for cloud in _cloud_summary:
+        name = cloud["name"]
+        owner = cloud["owner"]
+        lines.append("### <a name=%s></a>\n" % name.strip())
+        lines.append("### **%s -- %s**\n\n" % (name.strip(), owner))
         lines.extend(print_header())
-        for host in _cloud_hosts[cloud]:
-            lines.extend(add_row(quads, host))
+        for host in _cloud_hosts:
+            if host["cloud"] == name:
+                lines.extend(add_row(host))
         lines.append("\n")
 
-    lines.extend(print_unmanaged(quads, mgmt_hosts, domain_broken_hosts))
+    lines.extend(print_unmanaged(mgmt_hosts, domain_broken_hosts))
     lines.extend(print_faulty(domain_broken_hosts))
 
     _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "assignments.md")
 
-    with open(_full_path, "w") as _f:
+    if not os.path.exists(conf["wp_wiki_git_repo_path"]):
+        pathlib.Path(conf["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
+
+    with open(_full_path, "w+") as _f:
         _f.seek(0)
-        for line in lines:
-            _f.write(line)
+        for cloud in lines:
+            _line = cloud if cloud else ""
+            _f.write(_line)
 
         _f.truncate()
 

@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
-from helpers import quads_load_config
-from quads import Quads
+from quads.helpers import quads_load_config
+from quads.quads import Quads
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -150,7 +150,7 @@ def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
         print(cloud)
 
 
-def main():
+def main(argv=None):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
@@ -236,14 +236,14 @@ def main():
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Model/Make/Type of host DellR620  for example')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.logpath:
         quads_config["log"] = args.logpath
 
     if not os.path.exists(quads_config["log"]):
         try:
             open(quads_config["log"], 'a').close()
-        except Exception:
+        except IOError:
             logger.error("Log file does not exist : {}".format(quads_config["log"]))
             exit(1)
 

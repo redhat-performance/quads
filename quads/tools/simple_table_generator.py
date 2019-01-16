@@ -58,20 +58,24 @@ def generator(_host_file, _days, _month, _year, _gentime):
             line = {"hostname": str(data[item][0])}
             __days = []
             for j in range(1, _days):
-                day = {}
-                day["day"] = j
-                day["chosen_color"] = data_colors[item][j - 1]
-                day["color"] = color_array[int(day["chosen_color"]) - 1]
-                day["cell_date"] = "%s-%s-%.2d 00:00" % (_year, _month, int(j))
-                day["cell_time"] = datetime.strptime(day["cell_date"], '%Y-%m-%d %H:%M')
+                chosen_color = data_colors[item][j - 1]
+                cell_date = "%s-%s-%.2d 00:00" % (_year, _month, int(j))
+                _day = {
+                    "day": j,
+                    "chosen_color": chosen_color,
+                    "color": color_array[int(chosen_color) - 1],
+                    "cell_date": cell_date,
+                    "cell_time": datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
+                }
+
                 history = quads.get_history()
-                for cloud in sorted(history["cloud" + str(day["chosen_color"])]):
-                    if datetime.fromtimestamp(cloud) <= day["cell_time"]:
-                        day["display_description"] = history["cloud" + str(day["chosen_color"])][cloud]["description"]
-                        day["display_owner"] = history["cloud" + str(day["chosen_color"])][cloud]["owner"]
-                        day["display_ticket"] = history["cloud" + str(day["chosen_color"])][cloud]["ticket"]
+                for cloud in sorted(history["cloud" + str(_day["chosen_color"])]):
+                    if datetime.fromtimestamp(cloud) <= _day["cell_time"]:
+                        _day["display_description"] = history["cloud" + str(_day["chosen_color"])][cloud]["description"]
+                        _day["display_owner"] = history["cloud" + str(_day["chosen_color"])][cloud]["owner"]
+                        _day["display_ticket"] = history["cloud" + str(_day["chosen_color"])][cloud]["ticket"]
                         break
-                __days.append(day)
+                __days.append(_day)
 
             line["days"] = __days
             lines.append(line)
