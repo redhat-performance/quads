@@ -30,6 +30,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
             * [Foreman Hammer CLI](#foreman-hammer-cli)
+            * [Ansible CMDB](#ansible-cmdb)
             * [QUADS Move Command](#quads-move-command)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
@@ -172,8 +173,6 @@ b02-h01-r620.example.com
 ```
 git clone https://github.com/redhat-performance/quads /opt/quads
 ```
-   - Install [hammer CLI](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) for Foreman integration.
-
    - Install pre-requisite Python packages
 ```
 yum install PyYAML ansible expectk python2-aexpect python-requests
@@ -251,6 +250,15 @@ echo 'alias quads="/opt/quads/bin/quads-cli"' >> /root/.bashrc
 
 #### Foreman Hammer CLI
    - For full Foreman functionality you'll want to have a working [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) setup on your QUADS host as well.
+
+#### Ansible CMDB
+   - We use the [Ansible CMDB](https://github.com/fboender/ansible-cmdb) project as an additional validation step and to generate a one-time Ansible facts-generated web page for all the hosts in each QUADS assignment.
+   - Install the package for this or consume it via Github.
+
+```
+yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1.27/ansible-cmdb-1.27-2.noarch.rpm
+```
+   - You can turn off this functionality in `/opt/quads/conf/quads.yml` via `gather_ansible_facts: false`
 
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
