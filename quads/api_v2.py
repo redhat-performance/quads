@@ -27,6 +27,10 @@ class MethodHandlerBase(object):
         self.property = _property
 
     def _get_obj(self, obj):
+        """
+
+        :rtype: object
+        """
         q = {'name': obj}
         obj = self.model.objects(**q).first()
         return obj
@@ -193,6 +197,7 @@ class DocumentMethodHandler(MethodHandlerBase):
         obj = self._get_obj(obj_name)
         if obj:
             obj.delete()
+            cherrypy.response.status = "204 No Content"
             result = ['deleted %s %s' % (self.name, obj_name)]
         else:
             cherrypy.response.status = "404 Not Found"
