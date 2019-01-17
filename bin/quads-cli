@@ -5,6 +5,7 @@ import datetime
 import logging
 import os
 from json import JSONDecodeError
+from quads.quads import Api as QuadsApi
 
 import requests
 import subprocess
@@ -57,26 +58,26 @@ def output_json_result(request, data, debug=False):
 
 def main(_args):
     # List all common call
+    quads = QuadsApi(api_url)
+
     if _args.action:
         _action = _args.action
-        _prefix = ""
-        _sufix = ""
+        _kwargs = {}
         if _args.action == "schedule":
             _action = "current_schedule"
         if _args.cloudonly:
-            _prefix = "?"
-            _sufix += '%scloud=%s' % (_prefix, _args.cloudonly)
+            _kwargs["cloud"] = _args.cloudonly
         if _args.host:
             _action = "schedule"
-            _prefix = "&" if _prefix else "?"
-            _sufix += '%shost=%s' % (_prefix, _args.host)
+            _kwargs["host"] = _args.host
         if _args.datearg:
-            _prefix = "&" if _prefix else "?"
-            _sufix += '%sdate=%s' % (
-                _prefix,
-                datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
-            )
-        url = os.path.join(api_url, _action, _sufix)
+            _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
+        params = []
+        for param in _kwargs.items():
+            params.append("=".join(param))
+        uri = "&".join(params)
+        _suffix = "?".join([_action, uri])
+        url = os.path.join(api_url, _suffix)
         if _args.debug:
             print(url)
         _response = requests.get(url)
@@ -97,35 +98,27 @@ def main(_args):
             elif _args.action in ['schedule']:
                 if type(data) == list and data:
                     if _args.host:
-                        _cloud_url = os.path.join(api_url, 'cloud')
-                        _cloud_response = requests.get(_cloud_url)
-                        _cloud_data = []
-                        if _cloud_response.ok:
-                            _cloud_data = _cloud_response.json()
-                        _host_url = os.path.join(api_url, 'host?name=%s' % _args.host)
-                        _host_response = requests.get(_host_url)
+                        _cloud_obj = quads.get_cloud()
+                        _host_response = quads.get_hosts(_args.host)
                         _default_cloud = "None"
-                        if _host_response.ok:
-                            _host_data = _host_response.json()
-                            if "cloud" in _host_data:
-                                _default_cloud = _host_data["cloud"]
+                        if _host_response:
+                            if "cloud" in _host_response:
+                                _default_cloud = _host_response["cloud"]
                         print("Default cloud: %s" % _default_cloud)
-                        _schedule_url = os.path.join(api_url, 'current_schedule?host=%s' % _args.host)
-                        _schedule_response = requests.get(_schedule_url)
-                        if _schedule_response.ok:
-                            _schedule_data = _schedule_response.json()
+                        _schedule_response = quads.get_current_schedule(host=_args.host)
+                        if _schedule_response:
                             _current_cloud = "cloud01"
-                            for cloud in _cloud_data:
-                                if "cloud" in _schedule_data and cloud["_id"] == _schedule_data["cloud"]:
+                            for cloud in _cloud_obj:
+                                if "cloud" in _schedule_response and cloud["_id"] == _schedule_response["cloud"]:
                                     _current_cloud = cloud["name"]
-                            if "cloud" in _schedule_data and _current_cloud != "cloud01":
+                            if "cloud" in _schedule_response and _current_cloud != "cloud01":
                                 print("Current cloud: %s" % _current_cloud)
-                                print("Current schedule: %s" % _schedule_data["_id"]["$oid"])
+                                print("Current schedule: %s" % _schedule_response["_id"]["$oid"])
                             else:
                                 print("Current cloud: %s" % _default_cloud)
                         for schedule in data:
                             _cloud_name = ""
-                            for cloud in _cloud_data:
+                            for cloud in _cloud_obj:
                                 if "name" in cloud and cloud["_id"] == schedule["cloud"]:
                                     _cloud_name = cloud["name"]
                             start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
@@ -140,25 +133,19 @@ def main(_args):
                     else:
                         clouds = set([schedule['cloud']['$oid'] for schedule in data])
                         for cloud in clouds:
-                            _cloud_url = os.path.join(api_url, 'cloud')
-                            _cloud_url += '?id=%s' % cloud
-                            _cloud_response = requests.get(_cloud_url)
-                            if _cloud_response.ok:
-                                _cloud_data = _cloud_response.json()
-                                if _cloud_data:
-                                    _cloud_name = _cloud_data["name"]
+                            _cloud_obj = quads.get_cloud(cloud)
+                            if _cloud_obj:
+                                _cloud_name = _cloud_obj["name"]
+                                print("%s:" % _cloud_name)
                             else:
                                 # TODO: figure out what to do with schedules which cloud has been removed
                                 continue
-                            print("%s:" % _cloud_name)
                             entries = set([entry["host"]["$oid"] for entry in data if entry['cloud']['$oid'] == cloud])
-                            _host_url = os.path.join(api_url, 'host')
-                            _hosts_response = requests.get(_host_url)
-                            _hosts = _hosts_response.json()
-                            for entry in entries:
-                                if _hosts:
-                                    _host = next(iter([host for host in _hosts if entry == host['_id']['$oid']]))
-                                print("- %s" % str(_host['name']))
+                            _hosts_response = quads.get_hosts()
+                            if _hosts_response:
+                                for entry in entries:
+                                    _host = next(iter([host for host in _hosts_response if entry == host['_id']['$oid']]))
+                                    print("- %s" % str(_host['name']))
             elif _args.action in ['host', 'cloud']:
                 if type(data) == list and data:
                     for entry in data:
