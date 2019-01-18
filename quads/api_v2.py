@@ -205,7 +205,6 @@ class ScheduleMethodHandler(MethodHandlerBase):
 
     # post data comes in **data
     def POST(self, **data):
-        import ipdb;ipdb.set_trace()
         # make sure post data passed in is ready to pass to mongo engine
         result, data = model.Schedule.prep_data(data)
 
