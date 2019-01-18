@@ -79,31 +79,6 @@ class DocumentMethodHandler(MethodHandlerBase):
                 return json.dumps({'result': 'Cloud %s Not Found' % data['cloudonly']})
             else:
                 return _cloud.to_json()
-        if self.name == "current_schedule":
-            if "host" in data:
-                host = model.Host.objects(name=data["host"]).first()
-                schedules = self.model.objects(host=host).all()
-                if host:
-                    date = datetime.datetime.now()
-                    if "date" in data:
-                        date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
-
-                    _schedule = self.model.current_schedule(date)
-                    for schedule in schedules:
-                        if schedule.start <= date < schedule.end:
-                            return [schedule.to_json()]
-                    return json.dumps({'result': ["No results."]})
-
-                return schedules.to_json()
-            elif "date" in data:
-                date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
-                schedules = self.model.current_schedule(date)
-            else:
-                schedules = self.model.current_schedule()
-            if schedules:
-                return schedules.to_json()
-            else:
-                return json.dumps({'result': ["No results."]})
         if self.name == "host":
             if 'id' in data:
                 _host = model.Host.objects(id=data["id"]).first()
@@ -206,14 +181,27 @@ class DocumentMethodHandler(MethodHandlerBase):
 
 
 @cherrypy.expose
-class PropertyMethodHandler(MethodHandlerBase):
+class ScheduleMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         _args = {}
+        if "date" in data:
+            date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
+            _args["date"] = date
         if "host" in data:
-            q = {'name': data["host"]}
-            obj = self.model.objects(**q).first()
-            _args["host"] = obj
-        return model.Schedule.objects(**_args).to_json()
+            host = model.Host.objects(name=data["host"]).first()
+            if host:
+                _args["host"] = host
+        if "cloud" in data:
+            cloud = model.Cloud.objects(name=data["cloud"]).first()
+            if cloud:
+                _args["cloud"] = cloud
+        if self.name == "current_schedule":
+            _schedule = self.model.current_schedule(**_args)
+            if _schedule:
+                return _schedule.to_json()
+            else:
+                return json.dumps({'result': ["No results."]})
+        return self.model.objects(**_args).to_json()
 
     # post data comes in **data
     def POST(self, **data):
@@ -226,7 +214,7 @@ class PropertyMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
         else:
             try:
-                h_query = {'name': data[self.name]}
+                h_query = {'name': data['host']}
                 h_obj = model.Host.objects(**h_query).first()
                 data['host'] = h_obj
 
@@ -274,6 +262,6 @@ class QuadsServerApiV2(object):
         self.qinq = DocumentMethodHandler(model.Cloud, 'qinq')
         self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
         self.host = DocumentMethodHandler(model.Host, 'host')
-        self.schedule = PropertyMethodHandler(model.Host, 'host', 'schedule')
-        self.current_schedule = DocumentMethodHandler(model.Schedule, 'current_schedule')
+        self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
+        self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
         self.moves = MovesMethodHandler('moves', 'moves')

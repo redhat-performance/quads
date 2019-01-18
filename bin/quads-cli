@@ -41,12 +41,15 @@ API = 'v2'
 
 def output_json_result(request, data, debug=False):
     try:
-        js = request.json()
-        if debug:
-            print('%s %s: %s' % (request.status_code, request.reason, data))
+        if request.status_code == 204:
+            print('Removed: %s' % data)
         else:
-            for result in js['result']:
-                print(result)
+            js = request.json()
+            if debug:
+                print('%s %s: %s' % (request.status_code, request.reason, data))
+            else:
+                for result in js['result']:
+                    print(result)
     except JSONDecodeError:
         print('Could not parse json reply.')
         if debug:
@@ -61,99 +64,78 @@ def main(_args):
     quads = QuadsApi(api_url)
 
     if _args.action:
-        _action = _args.action
         _kwargs = {}
-        if _args.action == "schedule":
-            _action = "current_schedule"
         if _args.cloudonly:
             _kwargs["cloud"] = _args.cloudonly
         if _args.host:
-            _action = "schedule"
             _kwargs["host"] = _args.host
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
-        params = []
-        for param in _kwargs.items():
-            params.append("=".join(param))
-        uri = "&".join(params)
-        _suffix = "?".join([_action, uri])
-        url = os.path.join(api_url, _suffix)
-        if _args.debug:
-            print(url)
-        _response = requests.get(url)
 
-        if _response.ok:
-            data = _response.json()
-            if _args.debug:
-                print(data)
-            if type(data) == dict:
-                if "No results." in data.get('result', []):
-                    print("No results.")
-                    exit(0)
-                else:
-                    data = [data]
-            if _args.action in ['owner', 'ticket', 'qinq', 'wipe']:
+        if _args.action in ['owner', 'ticket', 'qinq', 'wipe']:
+            data = quads.get(_args.action)
+            if data:
                 for k in data:
                     print(str(k['name']) + ": " + str(k[_args.action]))
-            elif _args.action in ['schedule']:
-                if type(data) == list and data:
-                    if _args.host:
-                        _cloud_obj = quads.get_cloud()
-                        _host_response = quads.get_hosts(_args.host)
-                        _default_cloud = "None"
-                        if _host_response:
-                            if "cloud" in _host_response:
-                                _default_cloud = _host_response["cloud"]
-                        print("Default cloud: %s" % _default_cloud)
-                        _schedule_response = quads.get_current_schedule(host=_args.host)
-                        if _schedule_response:
-                            _current_cloud = "cloud01"
-                            for cloud in _cloud_obj:
-                                if "cloud" in _schedule_response and cloud["_id"] == _schedule_response["cloud"]:
-                                    _current_cloud = cloud["name"]
-                            if "cloud" in _schedule_response and _current_cloud != "cloud01":
-                                print("Current cloud: %s" % _current_cloud)
-                                print("Current schedule: %s" % _schedule_response["_id"]["$oid"])
-                            else:
-                                print("Current cloud: %s" % _default_cloud)
-                        for schedule in data:
-                            _cloud_name = ""
-                            for cloud in _cloud_obj:
-                                if "name" in cloud and cloud["_id"] == schedule["cloud"]:
-                                    _cloud_name = cloud["name"]
-                            start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
-                            end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
-                            print(
-                                "%s| start=%s, end=%s, cloud=%s" % (
-                                    schedule["_id"]["$oid"],
-                                    start,
-                                    end,
-                                    _cloud_name)
-                            )
+                exit(0)
+
+        if _args.action == 'schedule':
+            if _args.host:
+                _clouds = quads.get_clouds()
+                _host = quads.get_hosts(name=_args.host)
+                _default_cloud = "Cloud01"
+                _current_cloud = _default_cloud
+                if _host:
+                    if "cloud" in _host:
+                        _default_cloud = _host["cloud"]
+                print("Default cloud: %s" % _default_cloud)
+                _current_schedule = quads.get_current_schedule(**_kwargs)
+                _host_schedules = quads.get_schedules(**_kwargs)
+                if _current_schedule and "result" not in _current_schedule:
+                    cloud_name = next(cloud["name"] for cloud in _clouds if cloud["_id"] == _current_schedule[0]["cloud"])
+                    if cloud_name:
+                        _current_cloud = cloud_name
+                    if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
+                        print("Current cloud: %s" % _current_cloud)
+                        print("Current schedule: %s" % _current_schedule[0]["_id"]["$oid"])
                     else:
-                        clouds = set([schedule['cloud']['$oid'] for schedule in data])
-                        for cloud in clouds:
-                            _cloud_obj = quads.get_cloud(cloud)
-                            if _cloud_obj:
-                                _cloud_name = _cloud_obj["name"]
-                                print("%s:" % _cloud_name)
-                            else:
-                                # TODO: figure out what to do with schedules which cloud has been removed
-                                continue
-                            entries = set([entry["host"]["$oid"] for entry in data if entry['cloud']['$oid'] == cloud])
-                            _hosts_response = quads.get_hosts()
-                            if _hosts_response:
-                                for entry in entries:
-                                    _host = next(iter([host for host in _hosts_response if entry == host['_id']['$oid']]))
-                                    print("- %s" % str(_host['name']))
-            elif _args.action in ['host', 'cloud']:
-                if type(data) == list and data:
-                    for entry in data:
-                        print(entry['name'])
-            exit(0)
-        else:
-            # TODO: is this host or generic?
-            print('%s host %s %s' % (_response.status_code, _args.rmhost, _response.reason))
+                        print("Current cloud: %s" % _default_cloud)
+                else:
+                    print("Current cloud: %s" % _default_cloud)
+                for schedule in _host_schedules:
+                    _cloud_name = ""
+                    for cloud in _clouds:
+                        if "name" in cloud and cloud["_id"] == schedule["cloud"]:
+                            _cloud_name = cloud["name"]
+                    start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
+                    end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
+                    print(
+                        "%s| start=%s, end=%s, cloud=%s" % (
+                            schedule["_id"]["$oid"],
+                            start,
+                            end,
+                            _cloud_name)
+                    )
+            else:
+                clouds = quads.get_clouds()
+                if clouds:
+                    for cloud in clouds:
+                        _cloud_name = cloud["name"]
+                        print("%s:" % _cloud_name)
+                        _kwargs["cloud"] = _cloud_name
+                        _schedules = quads.get_current_schedule(**_kwargs)
+                        if _schedules and "result" not in _schedules:
+                            for entry in _schedules:
+                                host = quads.get_hosts(id=entry["host"]["$oid"])
+                                print("- %s" % str(host['name']))
+
+        elif _args.action in ['host', 'cloud']:
+            entries = quads.get(_args.action)
+            if entries:
+                for entry in entries:
+                    print(entry['name'])
+
+        exit(0)
 
     # Cloud Add / Modify
     elif _args.cloudresource:
