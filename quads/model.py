@@ -12,7 +12,6 @@ from quads.helpers import param_check
 
 import os
 
-
 connect(
     'quads',
     host=os.environ.get("MONGODB_IP", "127.0.0.1")
