@@ -91,8 +91,8 @@ def main(_args):
                 print("Default cloud: %s" % _default_cloud)
                 _current_schedule = quads.get_current_schedule(**_kwargs)
                 if _current_schedule and "result" not in _current_schedule:
-                    cloud_name = next(
-                        cloud["name"] for cloud in _clouds if cloud["_id"] == _current_schedule[0]["cloud"])
+                    _cloud_id = _current_schedule[0]["cloud"]
+                    cloud_name = next(cloud["name"] for cloud in _clouds if cloud["_id"] == _cloud_id)
                     if cloud_name:
                         _current_cloud = cloud_name
                     if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
