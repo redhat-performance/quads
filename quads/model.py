@@ -121,6 +121,10 @@ class Schedule(Document):
         return result, data
 
     @queryset_manager
-    def current_schedule(doc_cls, queryset, when=datetime.now()):
-        return queryset.filter(Q(start__lte=when) & Q(end__gte=when))
-
+    def current_schedule(doc_cls, queryset, date=datetime.now(), host=None, cloud=None):
+        _query = Q(start__lte=date) & Q(end__gte=date)
+        if host:
+            _query = _query & Q(host=host)
+        if cloud:
+            _query = _query & Q(cloud=cloud)
+        return queryset.filter(_query)

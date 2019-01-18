@@ -23,28 +23,29 @@ class Api(object):
         return data
 
     @staticmethod
-    def _uri_constructor(base_uri, args):
+    def _uri_constructor(_base_uri, _args):
         params = []
-        if args:
-            for param in args.items():
+        if _args:
+            for param in _args.items():
                 params.append("=".join(param))
             params_uri = "&".join(params)
-            base_uri = "?".join([base_uri, params_uri])
-        return base_uri
+            _base_uri = "?".join([_base_uri, params_uri])
+        return _base_uri
 
-    def get(self, endpoint):
-        _response = self.session.get(os.path.join(self.base_url, endpoint))
+    def get(self, endpoint, **kwargs):
+        uri = self._uri_constructor(endpoint, kwargs)
+        _response = self.session.get(os.path.join(self.base_url, uri))
         return self._parse_and_check_quads(_response)
 
     def get_hosts(self, **kwargs):
         uri = self._uri_constructor("host", kwargs)
         return self.get(uri)
 
-    def get_cloud(self, **kwargs):
+    def get_clouds(self, **kwargs):
         uri = self._uri_constructor("cloud", kwargs)
         return self.get(uri)
 
-    def get_schedule(self, **kwargs):
+    def get_schedules(self, **kwargs):
         uri = self._uri_constructor("schedule", kwargs)
         return self.get(uri)
 
