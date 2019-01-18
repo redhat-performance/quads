@@ -8,6 +8,7 @@ import time
 
 from quads import model
 from quads.helpers import quads_load_config
+from mongoengine.errors import DoesNotExist
 
 logger = logging.getLogger('api_v2')
 ch = logging.StreamHandler(sys.stdout)
@@ -48,20 +49,35 @@ class MovesMethodHandler(MethodHandlerBase):
                 else:
                     if len(data['date']) == 0:
                         result.append("Could not parse date parameter")
-                if 'statedir' not in data:
-                    result.append("Missing required parameter: statedir")
-                else:
-                    if len(data['statedir']) == 0:
-                        result.append("Could not parse statedir parameter")
                 if len(result) > 0:
                     return json.dumps({'result': result})
+                _hosts = model.Host.objects()
+
+                result = []
+                for _host in _hosts:
+
+                    _current = "cloud01"
+                    _new = _current
+                    _current_schedule = self.model.current_schedule(host=_host)
+                    _schedule = self.model.current_schedule(host=_host, date=data['date'])
+                    try:
+                        if _current_schedule:
+                            _current = _current_schedule["cloud"]["name"]
+                        if _schedule:
+                            _new = _schedule[0]["cloud"]["name"]
+                        if _current != _new:
+                            result.append(
+                                {
+                                    "host": _host["name"],
+                                    "current": _current,
+                                    "new": _new
+                                })
+                    except DoesNotExist:
+                        continue
 
                 return json.dumps({'result': result})
             except Exception:
-                logger.info("%s - %s - %s %s" % (self.client_address[0],
-                                                 self.command,
-                                                 self.path,
-                                                 "400 Bad Request"))
+                logger.info("400 Bad Request")
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({'result': ['400 Bad Request']})
 
@@ -264,4 +280,4 @@ class QuadsServerApiV2(object):
         self.host = DocumentMethodHandler(model.Host, 'host')
         self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
         self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
-        self.moves = MovesMethodHandler('moves', 'moves')
+        self.moves = MovesMethodHandler(model.Schedule, 'moves')

@@ -90,9 +90,9 @@ def main(_args):
                         _default_cloud = _host["cloud"]
                 print("Default cloud: %s" % _default_cloud)
                 _current_schedule = quads.get_current_schedule(**_kwargs)
-                _host_schedules = quads.get_schedules(**_kwargs)
                 if _current_schedule and "result" not in _current_schedule:
-                    cloud_name = next(cloud["name"] for cloud in _clouds if cloud["_id"] == _current_schedule[0]["cloud"])
+                    _cloud_id = _current_schedule[0]["cloud"]
+                    cloud_name = next(cloud["name"] for cloud in _clouds if cloud["_id"] == _cloud_id)
                     if cloud_name:
                         _current_cloud = cloud_name
                     if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
@@ -102,6 +102,9 @@ def main(_args):
                         print("Current cloud: %s" % _default_cloud)
                 else:
                     print("Current cloud: %s" % _default_cloud)
+                if "date" in _kwargs:
+                    _kwargs.pop("date")
+                _host_schedules = quads.get_schedules(**_kwargs)
                 for schedule in _host_schedules:
                     _cloud_name = ""
                     for cloud in _clouds:
@@ -125,8 +128,12 @@ def main(_args):
                         _kwargs["cloud"] = _cloud_name
                         _schedules = quads.get_current_schedule(**_kwargs)
                         if _schedules and "result" not in _schedules:
-                            for entry in _schedules:
-                                host = quads.get_hosts(id=entry["host"]["$oid"])
+                            if type(_schedules) == list:
+                                for entry in _schedules:
+                                    host = quads.get_hosts(id=entry["host"]["$oid"])
+                                    print("- %s" % str(host['name']))
+                            else:
+                                host = quads.get_hosts(id=_schedules["host"]["$oid"])
                                 print("- %s" % str(host['name']))
 
         elif _args.action in ['host', 'cloud']:
@@ -248,7 +255,7 @@ def main(_args):
             print('--move-hosts and --date are mutually exclusive unless using --dry-run.')
             exit(1)
         url = os.path.join(api_url, 'moves')
-        data = {'statedir': _args.statedir}
+        data = {}
         if _args.datearg is not None:
             data['date'] = _args.datearg
         _response = requests.post(url, data)
@@ -262,30 +269,20 @@ def main(_args):
                 current = result['current']
                 new = result['new']
                 # now we need to know if we should wipe
-                url = os.path.join(api_url, 'lswipe')
-                data = {'cloudonly': new}
-                _response = requests.post(url, data)
-                wipe_js = _response.json()
-                wipe_value = '1'
-                if 'wipe' in wipe_js:
-                    if len(wipe_js['wipe']) == 0:
-                        print('ERROR')
-                        exit(1)
-                    for wipe in wipe_js['wipe']:
-                        wipe_value = wipe[new]
-                print('Moving ' + host + ' from ' + current + ' to ' + new + ', wipe = ' + wipe_value)
+                cloud = quads.get_clouds(name=new)
+                wipe_value = 1
+                if cloud:
+                    wipe_value = int(cloud["wipe"])
+                print('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
                 if not _args.dryrun:
                     try:
-                        if wipe_value == '1':
+                        if wipe_value == 1:
                             subprocess.check_call([_args.movecommand, host, current, new])
                         else:
                             subprocess.check_call([_args.movecommand, host, current, new, 'nowipe'])
                     except Exception as ex:
                         logger.error('Move command failed: %s' % ex)
                         exit(1)
-                    stream = open(_args.statedir + '/' + host, 'w')
-                    stream.write(new + '\n')
-                    stream.close()
 
             exit(0)
         print('No result received')
