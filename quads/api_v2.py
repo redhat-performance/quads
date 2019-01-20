@@ -240,10 +240,15 @@ class ScheduleMethodHandler(MethodHandlerBase):
         else:
             try:
                 schedule = model.Schedule()
-                schedule.insert_schedule(**data)
+                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M')
+                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
+                if model.Schedule.is_host_free(host=data["host"], start=_start, end=_end):
+                    schedule.insert_schedule(**data)
+                    cherrypy.response.status = "201 Resource Created"
+                    result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
+                else:
+                    result.append("Host is not available during that time frame")
 
-                cherrypy.response.status = "201 Resource Created"
-                result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
             except Exception as e:
                 # TODO: make sure when this is thrown the output
                 #       points back to here and gives the end user

@@ -143,6 +143,17 @@ class Schedule(Document):
         self.end = end
         return self.save()
 
+    @queryset_manager
+    def is_host_free(self, queryset, host, start, end):
+        _host = Host.objects(name=host).first()
+        _query = Q(host=_host)
+        results = queryset.filter(_query)
+        for result in results:
+            if result["start"] <= start <= result["end"]:
+                return False
+            if result["start"] <= end <= result["end"]:
+                return False
+        return True
 
     @queryset_manager
     def current_schedule(self, queryset, date=datetime.now(), host=None, cloud=None):
