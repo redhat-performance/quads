@@ -223,26 +223,42 @@ class ScheduleMethodHandler(MethodHandlerBase):
         # make sure post data passed in is ready to pass to mongo engine
         result, data = model.Schedule.prep_data(data)
 
+        _start = None
+        _end = None
+
+        if "start" in data:
+            _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M')
+
+        if "end" in data:
+            _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
+
         # Check if there were data validation errors
         if result:
             result = ['Data validation failed: %s' % ', '.join(result)]
             cherrypy.response.status = "400 Bad Request"
         elif "index" in data:
-            data["host"] = model.Host.objects(name=data["host"]).first()
+            _host = data["host"]
+            data["host"] = model.Host.objects(name=_host).first()
             schedule = self.model.objects(index=data["index"], host=data["host"]).first()
             if "cloud" in data:
                 data["cloud"] = model.Cloud.objects(name=data["cloud"]).first()
             if schedule:
-                schedule.update(**data)
-                result.append(
-                    'Updated %s %s' % (self.name, schedule["index"])
-                )
+                if not _start:
+                    _start = schedule["start"]
+                if not _end:
+                    _end = schedule["end"]
+                if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
+                    schedule.update(**data)
+                    result.append(
+                        'Updated %s %s' % (self.name, schedule["index"])
+                    )
+                else:
+                    result.append("Host is not available during that time frame")
+
         else:
             try:
                 schedule = model.Schedule()
-                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M')
-                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
-                if model.Schedule.is_host_free(host=data["host"], start=_start, end=_end):
+                if model.Schedule.is_host_available(host=data["host"], start=_start, end=_end):
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
                     result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))

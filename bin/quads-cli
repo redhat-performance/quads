@@ -146,7 +146,6 @@ def main(_args):
 
     # Cloud Add / Modify
     elif _args.cloudresource:
-        url = os.path.join(api_url, 'cloud')
         data = {'name': _args.cloudresource,
                 'description': _args.description,
                 'owner': _args.cloudowner,
@@ -155,8 +154,7 @@ def main(_args):
                 'wipe': _args.wipe,
                 'ticket': _args.cloudticket,
                 'force': _args.force}
-        _response = requests.post(url, data)
-        output_json_result(_response, data)
+        print(quads.insert_cloud(data)["result"])
 
     # Cloud Remove
     elif _args.rmcloud is not None:

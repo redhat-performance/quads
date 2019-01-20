@@ -71,3 +71,6 @@ class Api(object):
 
     def insert_schedule(self, data):
         return self.post("schedule", data)
+
+    def insert_cloud(self, data):
+        return self.post("cloud", data)

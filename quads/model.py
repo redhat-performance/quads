@@ -144,14 +144,18 @@ class Schedule(Document):
         return self.save()
 
     @queryset_manager
-    def is_host_free(self, queryset, host, start, end):
+    def is_host_available(self, queryset, host, start, end, exclude=None):
         _host = Host.objects(name=host).first()
         _query = Q(host=_host)
+        if exclude:
+            _query = _query & Q(index__ne=exclude)
         results = queryset.filter(_query)
         for result in results:
             if result["start"] <= start <= result["end"]:
                 return False
             if result["start"] <= end <= result["end"]:
+                return False
+            if start < result["start"] and end > result["end"]:
                 return False
         return True
 
