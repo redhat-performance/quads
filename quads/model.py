@@ -7,7 +7,10 @@ from mongoengine import (
     ListField,
     ReferenceField,
     DateTimeField,
-    queryset_manager, Q)
+    queryset_manager,
+    Q,
+    SequenceField,
+    IntField)
 from quads.helpers import param_check
 
 import os
@@ -106,11 +109,17 @@ class Host(Document):
         return result, data
 
 
+class Counters(Document):
+    _id = StringField()
+    seq = SequenceField()
+
+
 class Schedule(Document):
     cloud = ReferenceField(Cloud)
     host = ReferenceField(Host)
     start = DateTimeField()
     end = DateTimeField()
+    index = IntField()
     meta = {'strict': False}
 
     @staticmethod
@@ -119,8 +128,24 @@ class Schedule(Document):
 
         return result, data
 
+    @staticmethod
+    def get_next_sequence(name):
+        Counters.objects(_id=name).update_one(upsert=True, inc__seq=1)
+        return Counters.objects(_id=name).first()["seq"]
+
+    def insert_schedule(self, cloud, host, start, end):
+        if host:
+            self.index = self.get_next_sequence(host)
+            self.host = Host.objects(name=host).first()
+        if cloud:
+            self.cloud = Cloud.objects(name=cloud).first()
+        self.start = start
+        self.end = end
+        return self.save()
+
+
     @queryset_manager
-    def current_schedule(doc_cls, queryset, date=datetime.now(), host=None, cloud=None):
+    def current_schedule(self, queryset, date=datetime.now(), host=None, cloud=None):
         _query = Q(start__lte=date) & Q(end__gte=date)
         if host:
             _query = _query & Q(host=host)

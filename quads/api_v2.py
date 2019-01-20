@@ -176,7 +176,6 @@ class DocumentMethodHandler(MethodHandlerBase):
                     #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
                     result.append('Error: %s' % e)
-        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):
@@ -228,27 +227,29 @@ class ScheduleMethodHandler(MethodHandlerBase):
         if result:
             result = ['Data validation failed: %s' % ', '.join(result)]
             cherrypy.response.status = "400 Bad Request"
+        elif "index" in data:
+            data["host"] = model.Host.objects(name=data["host"]).first()
+            schedule = self.model.objects(index=data["index"], host=data["host"]).first()
+            if "cloud" in data:
+                data["cloud"] = model.Cloud.objects(name=data["cloud"]).first()
+            if schedule:
+                schedule.update(**data)
+                result.append(
+                    'Updated %s %s' % (self.name, schedule["index"])
+                )
         else:
             try:
-                h_query = {'name': data['host']}
-                h_obj = model.Host.objects(**h_query).first()
-                data['host'] = h_obj
-
-                c_query = {'name': data["cloud"]}
-                c_obj = model.Cloud.objects(**c_query).first()
-                data['cloud'] = c_obj
-
-                model.Schedule(**data).save()
+                schedule = model.Schedule()
+                schedule.insert_schedule(**data)
 
                 cherrypy.response.status = "201 Resource Created"
-                result.append('Added %s %s' % (self.property, data))
+                result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
             except Exception as e:
                 # TODO: make sure when this is thrown the output
                 #       points back to here and gives the end user
                 #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
                 result.append('Error: %s' % e)
-        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):
@@ -256,15 +257,17 @@ class ScheduleMethodHandler(MethodHandlerBase):
         # using PUT would duplicate most of POST
         return self.POST(**data)
 
-    def DELETE(self, item, obj_name):
-        obj = self._get_obj(obj_name)
-        if obj:
-            data = {'unset__%s__%s' % (self.property, item): True}
-            obj.update(**data)
-            result = ['deleted %s from %s' % (self.property, obj_name)]
-        else:
-            cherrypy.response.status = "404 Not Found"
-            result = ['%s Not Found for %s %s' % (self.property, self.name, obj_name)]
+    def DELETE(self, **data):
+        _host = model.Host.objects(name=data["host"]).first()
+        if _host:
+            schedule = self.model.objects(host=_host, index=data["index"])
+            if schedule:
+                schedule.delete()
+                cherrypy.response.status = "204 No Content"
+                result = ['deleted %s ' % self.name]
+            else:
+                cherrypy.response.status = "404 Not Found"
+                result = ['%s Not Found' % self.name]
         return json.dumps({'result': result})
 
 
