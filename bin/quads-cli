@@ -114,14 +114,14 @@ def main(_args):
                     end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
                     print(
                         "%s| start=%s, end=%s, cloud=%s" % (
-                            schedule["_id"]["$oid"],
+                            schedule["index"],
                             start,
                             end,
                             _cloud_name)
                     )
             else:
                 clouds = quads.get_clouds()
-                if clouds:
+                if clouds and "result" not in clouds:
                     for cloud in clouds:
                         _cloud_name = cloud["name"]
                         print("%s:" % _cloud_name)
@@ -138,7 +138,7 @@ def main(_args):
 
         elif _args.action in ['host', 'cloud']:
             entries = quads.get(_args.action)
-            if entries:
+            if entries and "result" not in entries:
                 for entry in entries:
                     print(entry['name'])
 
@@ -146,7 +146,6 @@ def main(_args):
 
     # Cloud Add / Modify
     elif _args.cloudresource:
-        url = os.path.join(api_url, 'cloud')
         data = {'name': _args.cloudresource,
                 'description': _args.description,
                 'owner': _args.cloudowner,
@@ -155,8 +154,7 @@ def main(_args):
                 'wipe': _args.wipe,
                 'ticket': _args.cloudticket,
                 'force': _args.force}
-        _response = requests.post(url, data)
-        output_json_result(_response, data)
+        print(quads.insert_cloud(data)["result"])
 
     # Cloud Remove
     elif _args.rmcloud is not None:
@@ -216,18 +214,20 @@ def main(_args):
             print('    --schedule-start')
             print('    --schedule-end')
             print('    --schedule-cloud')
-        url = os.path.join(api_url, 'schedule')
+            exit(1)
         data = {'cloud': _args.schedcloud,
                 'host': _args.host,
                 'start': _args.schedstart,
                 'end': _args.schedend}
-        _response = requests.post(url, data)
-        output_json_result(_response, {'schedule': 'cli-TODO'})
+        print(quads.insert_schedule(data)['result'])
 
     elif _args.rmschedule is not None:
-        url = os.path.join(api_url, 'schedule', str(_args.rmschedule), _args.host)
-        _response = requests.delete(url)
-        output_json_result(_response, {'schedule': 'cli-TODO'}, debug=_args.debug)
+        if _args.host:
+            data = {"host": _args.host, "index": str(_args.rmschedule)}
+            print(quads.remove_schedule(**data))
+        else:
+            print('Missing option. Need --host when using --rm-schedule')
+            exit(1)
 
     elif _args.modschedule is not None:
         if _args.host is None:
@@ -241,14 +241,12 @@ def main(_args):
             print('    --schedule-cloud')
             exit(1)
 
-        url = os.path.join(api_url, 'schedule')
-        data = {'schedule': _args.modschedule,
+        data = {'index': _args.modschedule,
                 'start': _args.schedstart,
                 'end': _args.schedend,
                 'cloud': _args.schedcloud,
                 'host': _args.host}
-        _response = requests.post(url, data)
-        output_json_result(_response, data['schedule'])
+        print(quads.insert_schedule(data)["result"])
 
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:

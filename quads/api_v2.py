@@ -176,7 +176,6 @@ class DocumentMethodHandler(MethodHandlerBase):
                     #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
                     result.append('Error: %s' % e)
-        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):
@@ -224,31 +223,54 @@ class ScheduleMethodHandler(MethodHandlerBase):
         # make sure post data passed in is ready to pass to mongo engine
         result, data = model.Schedule.prep_data(data)
 
+        _start = None
+        _end = None
+
+        if "start" in data:
+            _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M')
+
+        if "end" in data:
+            _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
+
         # Check if there were data validation errors
         if result:
             result = ['Data validation failed: %s' % ', '.join(result)]
             cherrypy.response.status = "400 Bad Request"
+        elif "index" in data:
+            _host = data["host"]
+            data["host"] = model.Host.objects(name=_host).first()
+            schedule = self.model.objects(index=data["index"], host=data["host"]).first()
+            if "cloud" in data:
+                data["cloud"] = model.Cloud.objects(name=data["cloud"]).first()
+            if schedule:
+                if not _start:
+                    _start = schedule["start"]
+                if not _end:
+                    _end = schedule["end"]
+                if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
+                    schedule.update(**data)
+                    result.append(
+                        'Updated %s %s' % (self.name, schedule["index"])
+                    )
+                else:
+                    result.append("Host is not available during that time frame")
+
         else:
             try:
-                h_query = {'name': data['host']}
-                h_obj = model.Host.objects(**h_query).first()
-                data['host'] = h_obj
+                schedule = model.Schedule()
+                if model.Schedule.is_host_available(host=data["host"], start=_start, end=_end):
+                    schedule.insert_schedule(**data)
+                    cherrypy.response.status = "201 Resource Created"
+                    result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
+                else:
+                    result.append("Host is not available during that time frame")
 
-                c_query = {'name': data["cloud"]}
-                c_obj = model.Cloud.objects(**c_query).first()
-                data['cloud'] = c_obj
-
-                model.Schedule(**data).save()
-
-                cherrypy.response.status = "201 Resource Created"
-                result.append('Added %s %s' % (self.property, data))
             except Exception as e:
                 # TODO: make sure when this is thrown the output
                 #       points back to here and gives the end user
                 #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
                 result.append('Error: %s' % e)
-        print(result)
         return json.dumps({'result': result})
 
     def PUT(self, **data):
@@ -256,15 +278,17 @@ class ScheduleMethodHandler(MethodHandlerBase):
         # using PUT would duplicate most of POST
         return self.POST(**data)
 
-    def DELETE(self, item, obj_name):
-        obj = self._get_obj(obj_name)
-        if obj:
-            data = {'unset__%s__%s' % (self.property, item): True}
-            obj.update(**data)
-            result = ['deleted %s from %s' % (self.property, obj_name)]
-        else:
-            cherrypy.response.status = "404 Not Found"
-            result = ['%s Not Found for %s %s' % (self.property, self.name, obj_name)]
+    def DELETE(self, **data):
+        _host = model.Host.objects(name=data["host"]).first()
+        if _host:
+            schedule = self.model.objects(host=_host, index=data["index"])
+            if schedule:
+                schedule.delete()
+                cherrypy.response.status = "204 No Content"
+                result = ['deleted %s ' % self.name]
+            else:
+                cherrypy.response.status = "404 Not Found"
+                result = ['%s Not Found' % self.name]
         return json.dumps({'result': result})
 
 
