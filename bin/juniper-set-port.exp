@@ -11,6 +11,8 @@ spawn ssh "$ip"
 expect ">"
 send "edit\r";
 expect "#"
+send "rollback\r";
+expect "#"
 send "delete interfaces $interfacename\r";
 expect "#"
 send "set interfaces $interfacename apply-groups QinQ_vl$newvlan\r";
