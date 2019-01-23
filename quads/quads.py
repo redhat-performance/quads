@@ -74,3 +74,7 @@ class Api(object):
 
     def insert_cloud(self, data):
         return self.post("cloud", data)
+
+    def get_available(self, **kwargs):
+        uri = self._uri_constructor("available", kwargs)
+        return self.get(uri)

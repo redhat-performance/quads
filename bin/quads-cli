@@ -97,7 +97,7 @@ def main(_args):
                         _current_cloud = cloud_name
                     if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
                         print("Current cloud: %s" % _current_cloud)
-                        print("Current schedule: %s" % _current_schedule[0]["_id"]["$oid"])
+                        print("Current schedule: %s" % _current_schedule[0]["index"])
                     else:
                         print("Current cloud: %s" % _default_cloud)
                 else:
@@ -141,6 +141,26 @@ def main(_args):
             if entries and "result" not in entries:
                 for entry in entries:
                     print(entry['name'])
+
+        elif _args.action == "available":
+            if _args.schedstart is None or _args.schedend is None:
+                print('Missing option. All these options are required for --ls-available:')
+                print('    --schedule-start')
+                print('    --schedule-end')
+                exit(1)
+
+            _start = datetime.datetime.strptime(_args.schedstart, '%Y-%m-%d %H:%M').isoformat()
+            _end = datetime.datetime.strptime(_args.schedend, '%Y-%m-%d %H:%M').isoformat()
+
+            data = {
+                "start": _start,
+                "end": _end,
+            }
+
+            available_hosts = quads.get_available(**data)
+
+            for host in available_hosts["result"]:
+                print(host)
 
         exit(0)
 
@@ -353,6 +373,8 @@ if __name__ == '__main__':
                         help='Force host or cloud update when already defined')
     parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
+    parser.add_argument('--ls-available', dest='action', action='store_const', const='available',
+                        help='List available hosts on a specific time frame')
     parser.add_argument('--schedule-query', dest='schedquery', action='store_true',
                         help='Query the schedule for a specific month')
     parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month,
