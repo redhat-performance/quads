@@ -91,7 +91,7 @@ class Cloud(Document):
 
 class Host(Document):
     name = StringField(unique=True)
-    cloud = ReferenceField(Cloud)
+    default_cloud = ReferenceField(Cloud)
     host_type = StringField()
     meta = {
         'indexes': [
@@ -104,7 +104,7 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['name', 'cloud', 'host_type'])
+        result, data = param_check(data, ['name', 'default_cloud', 'host_type'])
 
         return result, data
 

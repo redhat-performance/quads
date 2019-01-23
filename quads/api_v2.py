@@ -116,6 +116,22 @@ class DocumentMethodHandler(MethodHandlerBase):
                 _cloud = model.Cloud.to_json(owner=data["owner"]).first()
             if _cloud:
                 return _cloud.to_json()
+        if self.name == "available":
+
+            _start = _end = datetime.datetime.now()
+            if "start" in data:
+                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%dT%H:%M:%S')
+
+            if "end" in data:
+                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%dT%H:%M:%S')
+
+            available = []
+            all_hosts = model.Host.objects().all()
+            for host in all_hosts:
+                if model.Schedule.is_host_available(host=host["name"], start=_start, end=_end):
+                    available.append(host["name"])
+            return json.dumps({'result': available})
+
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
@@ -304,4 +320,5 @@ class QuadsServerApiV2(object):
         self.host = DocumentMethodHandler(model.Host, 'host')
         self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
         self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
+        self.available = DocumentMethodHandler(model.Schedule, 'available')
         self.moves = MovesMethodHandler(model.Schedule, 'moves')
