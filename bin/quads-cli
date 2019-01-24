@@ -307,6 +307,21 @@ def main(_args):
 
         exit(0)
 
+    elif _args.cloudonly:
+        _kwargs = {"cloud": _args.cloudonly}
+        if _args.datearg:
+            _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
+        schedules = quads.get_current_schedule(**_kwargs)
+        if "result" not in schedules:
+            for schedule in schedules:
+                host = quads.get_hosts(id=schedule["host"]["$oid"])
+                print(str(host['name']))
+
+            exit(0)
+    print('No result received')
+
+    exit(0)
+
 
 if __name__ == '__main__':
     quads_config_file = os.path.dirname(__file__) + '/../conf/quads.yml'
