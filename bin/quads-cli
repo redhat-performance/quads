@@ -314,6 +314,18 @@ def main(_args):
 
             exit(0)
 
+    elif _args.host:
+        _kwargs = {"host": _args.host}
+        if _args.datearg:
+            _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
+        schedules = quads.get_current_schedule(**_kwargs)
+        if "result" not in schedules:
+            for schedule in schedules:
+                cloud = quads.get_clouds(id=schedule["cloud"]["$oid"])
+                print(str(cloud['name']))
+
+            exit(0)
+
     elif _args.cloudonly:
         _kwargs = {"cloud": _args.cloudonly}
         if _args.datearg:

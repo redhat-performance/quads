@@ -138,7 +138,13 @@ class DocumentMethodHandler(MethodHandlerBase):
             import ipdb;ipdb.set_trace()
             for cloud in _clouds:
                 count = self.model.current_schedule(cloud=cloud).count()
-                clouds_summary.append({"name": cloud["name"], "count": count, "description": cloud["description"]})
+                clouds_summary.append(
+                    {
+                        "name": cloud["name"],
+                        "count": count,
+                        "description": cloud["description"],
+                        "owner": cloud["owner"]
+                    })
 
             return json.dumps(clouds_summary)
         objs = self.model.objects(**args)
