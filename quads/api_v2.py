@@ -130,8 +130,17 @@ class DocumentMethodHandler(MethodHandlerBase):
             for host in all_hosts:
                 if model.Schedule.is_host_available(host=host["name"], start=_start, end=_end):
                     available.append(host["name"])
-            return json.dumps({'result': available})
+            return json.dumps(available)
 
+        if self.name == "summary":
+            _clouds = model.Cloud.objects().all()
+            clouds_summary = []
+            import ipdb;ipdb.set_trace()
+            for cloud in _clouds:
+                count = self.model.current_schedule(cloud=cloud).count()
+                clouds_summary.append({"name": cloud["name"], "count": count, "description": cloud["description"]})
+
+            return json.dumps(clouds_summary)
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
@@ -321,4 +330,5 @@ class QuadsServerApiV2(object):
         self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
         self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
         self.available = DocumentMethodHandler(model.Schedule, 'available')
+        self.summary = DocumentMethodHandler(model.Schedule, 'summary')
         self.moves = MovesMethodHandler(model.Schedule, 'moves')

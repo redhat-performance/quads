@@ -78,3 +78,7 @@ class Api(object):
     def get_available(self, **kwargs):
         uri = self._uri_constructor("available", kwargs)
         return self.get(uri)
+
+    def get_summary(self, **kwargs):
+        uri = self._uri_constructor("summary", kwargs)
+        return self.get(uri)

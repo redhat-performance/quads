@@ -141,6 +141,7 @@ def main(_args):
             if entries and "result" not in entries:
                 for entry in entries:
                     print(entry['name'])
+            exit(0)
 
         elif _args.action == "available":
             if _args.schedstart is None or _args.schedend is None:
@@ -159,10 +160,10 @@ def main(_args):
 
             available_hosts = quads.get_available(**data)
 
-            for host in available_hosts["result"]:
-                print(host)
+            for host in available_hosts:
+                print("%s: %s (%s)" % (host["name"], host["count"], host["description"]))
 
-        exit(0)
+            exit(0)
 
     # Cloud Add / Modify
     elif _args.cloudresource:
@@ -175,12 +176,14 @@ def main(_args):
                 'ticket': _args.cloudticket,
                 'force': _args.force}
         print(quads.insert_cloud(data)["result"])
+        exit(0)
 
     # Cloud Remove
     elif _args.rmcloud is not None:
         url = os.path.join(api_url, 'cloud', _args.rmcloud)
         _response = requests.delete(url)
         output_json_result(_response, {'cloud': _args.rmcloud})
+        exit(0)
 
     # Host Add / Modify
     elif _args.hostresource:
@@ -194,12 +197,14 @@ def main(_args):
                 'force': _args.force}
         _response = requests.post(url, data)
         output_json_result(_response, data)
+        exit(0)
 
     # Host Remove
     elif _args.rmhost is not None:
         url = os.path.join(api_url, 'host', _args.rmhost)
         _response = requests.delete(url)
         output_json_result(_response, {'host': _args.rmhost})
+        exit(0)
 
     # Add Interface
     elif _args.addinterface:
@@ -219,11 +224,13 @@ def main(_args):
         _response = requests.post(url, data)
         print(data)
         output_json_result(_response, {'interfaces': 'cli-TODO'})
+        exit(0)
 
     elif _args.rminterface is not None:
         url = os.path.join(api_url, 'interfaces', str(_args.rminterface), _args.host)
         _response = requests.delete(url)
         output_json_result(_response, {'interface': 'cli-TODO'}, debug=_args.debug)
+        exit(0)
 
     # Add Schedule
     elif _args.addschedule:
@@ -240,11 +247,13 @@ def main(_args):
                 'start': _args.schedstart,
                 'end': _args.schedend}
         print(quads.insert_schedule(data)['result'])
+        exit(0)
 
     elif _args.rmschedule is not None:
         if _args.host:
             data = {"host": _args.host, "index": str(_args.rmschedule)}
             print(quads.remove_schedule(**data))
+            exit(0)
         else:
             print('Missing option. Need --host when using --rm-schedule')
             exit(1)
@@ -267,6 +276,7 @@ def main(_args):
                 'cloud': _args.schedcloud,
                 'host': _args.host}
         print(quads.insert_schedule(data)["result"])
+        exit(0)
 
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:
@@ -303,9 +313,6 @@ def main(_args):
                         exit(1)
 
             exit(0)
-        print('No result received')
-
-        exit(0)
 
     elif _args.cloudonly:
         _kwargs = {"cloud": _args.cloudonly}
@@ -318,6 +325,18 @@ def main(_args):
                 print(str(host['name']))
 
             exit(0)
+
+    elif _args.summary or _args.fullsummary:
+        _kwargs = {}
+        if _args.datearg:
+            _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
+        summary = quads.get_summary()
+        for cloud in summary:
+            if _args.fullsummary or cloud["count"] > 0:
+                print("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
+
+        exit(0)
+
     print('No result received')
 
     exit(0)
