@@ -225,7 +225,7 @@ if $rebuild ; then
     hammer host set-parameter --host $host_to_move --name rhel73 --value false
     hammer host set-parameter --host $host_to_move --name rhel75 --value false
     # we will also force a specific OS, partition table and media option, you should adjust this to your environment
-    hammer host update --name $host_to_move --build 1 --operatingsystem $foreman_default_os --partition-table $foreman_default_ptable --medium $foreman_default_medium
+    hammer host update --name $host_to_move --build 1 --operatingsystem "$foreman_default_os" --partition-table "$foreman_default_ptable" --medium "$foreman_default_medium"
     # power host off and on for rebuild
     ipmitool -I lanplus -H mgmt-$host_to_move -U $ipmi_username -P $ipmi_password chassis power off
     sleep 30
