@@ -208,8 +208,11 @@ class DocumentMethodHandler(MethodHandlerBase):
                                 update_data["owner"] = data["owner"]
                             if "ticket" in data:
                                 update_data["ticket"] = data["ticket"]
-                            vlan_obj.update(**update_data)
-                            regenerate_vlans_wiki()
+                            if vlan_obj:
+                                vlan_obj.update(**update_data)
+                                regenerate_vlans_wiki()
+                            else:
+                                result.append("WARN: No VLAN reference for that ID")
 
                         history_result, history_data = model.CloudHistory.prep_data(data)
                         if history_result:
@@ -283,18 +286,26 @@ class ScheduleMethodHandler(MethodHandlerBase):
         if result:
             result = ['Data validation failed: %s' % ', '.join(result)]
             cherrypy.response.status = "400 Bad Request"
-        elif "index" in data:
+            return json.dumps({'result': result})
+
+        if "cloud" in data:
+            cloud_obj = model.Cloud.objects(name=data["cloud"]).first()
+            if not cloud_obj:
+                result.append("Provided cloud does not exist")
+                cherrypy.response.status = "400 Bad Request"
+                return json.dumps({'result': result})
+
+        if "index" in data:
             _host = data["host"]
             data["host"] = model.Host.objects(name=_host).first()
             schedule = self.model.objects(index=data["index"], host=data["host"]).first()
-            if "cloud" in data:
-                data["cloud"] = model.Cloud.objects(name=data["cloud"]).first()
             if schedule:
                 if not _start:
                     _start = schedule["start"]
                 if not _end:
                     _end = schedule["end"]
                 if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
+                    data["cloud"] = cloud_obj
                     schedule.update(**data)
                     result.append(
                         'Updated %s %s' % (self.name, schedule["index"])
@@ -306,9 +317,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
             try:
                 schedule = model.Schedule()
                 if model.Schedule.is_host_available(host=data["host"], start=_start, end=_end):
+                    data["cloud"] = cloud_obj
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
-                    result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
+                    result.append('Added schedule for %s on %s' % (data["host"], cloud_obj.name))
                 else:
                     result.append("Host is not available during that time frame")
 

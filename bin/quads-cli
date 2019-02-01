@@ -136,6 +136,8 @@ def main(_args):
                                 host = quads.get_hosts(id=_schedules["host"]["$oid"])
                                 print("- %s" % str(host['name']))
 
+            exit(0)
+
         elif _args.action in ['host', 'cloud']:
             entries = quads.get(_args.action)
             if entries and "result" not in entries:
@@ -161,7 +163,7 @@ def main(_args):
             available_hosts = quads.get_available(**data)
 
             for host in available_hosts:
-                print("%s: %s (%s)" % (host["name"], host["count"], host["description"]))
+                print(host)
 
             exit(0)
 
@@ -193,7 +195,7 @@ def main(_args):
             exit(1)
         url = os.path.join(api_url, 'host')
         data = {'name': _args.hostresource,
-                'cloud': _args.hostcloud,
+                'default_cloud': _args.hostcloud,
                 'host_type': _args.hosttype,
                 'force': _args.force}
         _response = requests.post(url, data)

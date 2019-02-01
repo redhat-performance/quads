@@ -178,7 +178,10 @@ class Schedule(Document):
             self.index = self.get_next_sequence(host)
             self.host = Host.objects(name=host).first()
         if cloud:
-            self.cloud = Cloud.objects(name=cloud).first()
+            if type(cloud) == Cloud:
+                self.cloud = cloud
+            else:
+                self.cloud = Cloud.objects(name=cloud).first()
         self.start = start
         self.end = end
         return self.save()
