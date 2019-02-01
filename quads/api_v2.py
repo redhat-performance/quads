@@ -10,6 +10,8 @@ from quads import model
 from quads.helpers import quads_load_config
 from mongoengine.errors import DoesNotExist
 
+from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
+
 logger = logging.getLogger('api_v2')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
@@ -135,7 +137,6 @@ class DocumentMethodHandler(MethodHandlerBase):
         if self.name == "summary":
             _clouds = model.Cloud.objects().all()
             clouds_summary = []
-            import ipdb;ipdb.set_trace()
             for cloud in _clouds:
                 count = self.model.current_schedule(cloud=cloud).count()
                 clouds_summary.append(
@@ -161,8 +162,11 @@ class DocumentMethodHandler(MethodHandlerBase):
         if 'force' in data:
             del data['force']
 
+        _vlan = None
+        if 'vlan' in data:
+            _vlan = data.pop("vlan")
         # make sure post data passed in is ready to pass to mongo engine
-        result, data = self.model.prep_data(data)
+        result, obj_data = self.model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -183,18 +187,30 @@ class DocumentMethodHandler(MethodHandlerBase):
                     # if force and found object do an update
                     if force and obj:
                         # TODO: DEFAULTS OVERWRITE EXISTING VALUES
-                        obj.update(**data)
+                        obj.update(**obj_data)
                         result.append(
                             'Updated %s %s' % (self.name, obj_name)
                         )
                     # otherwise create it
                     else:
-                        self.model(**data).save()
+                        self.model(**obj_data).save()
                         cherrypy.response.status = "201 Resource Created"
                         result.append(
                             'Created %s %s' % (self.name, obj_name)
                         )
                     if self.name == "cloud":
+
+                        if _vlan:
+                            update_data = {}
+                            vlan_obj = model.Vlan.objects(vlan_id=_vlan).first()
+                            update_data["cloud"] = self.model.objects(name=data["name"]).first()
+                            if "owner" in data:
+                                update_data["owner"] = data["owner"]
+                            if "ticket" in data:
+                                update_data["ticket"] = data["ticket"]
+                            vlan_obj.update(**update_data)
+                            regenerate_vlans_wiki()
+
                         history_result, history_data = model.CloudHistory.prep_data(data)
                         if history_result:
                             result.append('Data validation failed: %s' % ', '.join(history_result))

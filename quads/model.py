@@ -10,7 +10,7 @@ from mongoengine import (
     queryset_manager,
     Q,
     SequenceField,
-    IntField)
+    IntField, LongField)
 from quads.helpers import param_check
 
 import os
@@ -83,8 +83,48 @@ class Cloud(Document):
             'wipe': True
         }
 
+        if "vlan" in data:
+            data.pop("vlan")
         params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
+
+        return result, data
+
+
+class Vlan(Document):
+    gateway = StringField()
+    ip_free = IntField()
+    ip_range = StringField()
+    netmask = StringField()
+    owner = StringField()
+    ticket = LongField()
+    vlan_id = LongField()
+    cloud = ReferenceField(Cloud)
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$vlan_id']
+            }
+        ]
+    }
+
+    @staticmethod
+    def prep_data(data):
+        _fields = [
+            'gateway',
+            'ip_free',
+            'ip_range',
+            'netmask',
+            'owner',
+            'vlan_id',
+        ]
+        if "ipfree" in data:
+            data["ip_free"] = data.pop("ipfree")
+        if "iprange" in data:
+            data["ip_range"] = data.pop("iprange")
+        if "vlanid" in data:
+            data["vlan_id"] = data.pop("vlanid")
+        result, data = param_check(data, _fields)
 
         return result, data
 
