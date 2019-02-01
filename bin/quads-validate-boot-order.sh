@@ -16,6 +16,7 @@ data_dir=${quads["data_dir"]}
 quads=${quads["install_dir"]}/bin/quads-cli
 foreman_param=${quads["foreman_director_parameter"]}
 lockdir=$data_dir/lock
+domain=${quads["domain"]}
 
 [ ! -d $lockdir ] && mkdir -p $lockdir
 
@@ -38,7 +39,8 @@ if [ ! -d $data_dir/bootstate ]; then
     mkdir $data_dir/bootstate
 fi
 
-for h in $(hammer host list --search params.${foreman_param}=true | grep redhat.com  | awk '{ print $3 }' ) ; do
+# ensure we don't flop boot order until host is built if marked for build in nullos: true or director setting
+for h in $(hammer host list --search params.${foreman_param}=true | grep ${domain} | awk '{ print $3 }' ) ; do
     if [ -f $data_dir/bootstate/$h ]; then
         current_state=$(cat $data_dir/bootstate/$h)
         if [ "$current_state" != "director" ]; then
@@ -50,7 +52,7 @@ for h in $(hammer host list --search params.${foreman_param}=true | grep redhat.
     fi
 done
 
-for h in $(hammer host list --search params.${foreman_param}=false | grep redhat.com  | awk '{ print $3 }' ) ; do
+for h in $(hammer host list --search params.${foreman_param}=false | grep ${domain} | awk '{ print $3 }' ) ; do
     if [ -f $data_dir/bootstate/$h ]; then
         current_state=$(cat $data_dir/bootstate/$h)
         if [ "$current_state" != "foreman" ]; then

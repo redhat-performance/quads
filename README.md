@@ -32,6 +32,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
             * [Foreman Hammer CLI](#foreman-hammer-cli)
             * [Ansible CMDB](#ansible-cmdb)
             * [QUADS Move Command](#quads-move-command)
+            * [Ansible Dell Boot Order Playbooks](#ansible-dell-boot-order-playbooks)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
@@ -83,7 +84,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
-   - We use Ansible for optional Dell and SuperMicro playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
+   - We use [Ansible](https://github.com/redhat-performance/quads/tree/master/ansible) for optional Dell playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
    - The package [ansible-cmdb](https://github.com/fboender/ansible-cmdb) needs to be available if you want to see per assignment Ansible facts of the inventory. It can be obtained from [here](https://github.com/fboender/ansible-cmdb/releases)
 
 ## QUADS Workflow
@@ -262,6 +263,9 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
 
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+
+#### Ansible Dell Boot Order Playbooks
+   - For Dell bare-metal systems we employ [optional boot interface order Ansible playbooks](https://github.com/redhat-performance/quads/tree/master/ansible), both for juggling interface order via racadm for OpenStack deployments but also to provide a way for users to set and manage their Dell BIOS boot interface order settings directly from Foreman.
 
 ## QUADS Usage Documentation
 
