@@ -10,6 +10,8 @@ from quads import model
 from quads.helpers import quads_load_config
 from mongoengine.errors import DoesNotExist
 
+from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
+
 logger = logging.getLogger('api_v2')
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
@@ -130,8 +132,22 @@ class DocumentMethodHandler(MethodHandlerBase):
             for host in all_hosts:
                 if model.Schedule.is_host_available(host=host["name"], start=_start, end=_end):
                     available.append(host["name"])
-            return json.dumps({'result': available})
+            return json.dumps(available)
 
+        if self.name == "summary":
+            _clouds = model.Cloud.objects().all()
+            clouds_summary = []
+            for cloud in _clouds:
+                count = self.model.current_schedule(cloud=cloud).count()
+                clouds_summary.append(
+                    {
+                        "name": cloud["name"],
+                        "count": count,
+                        "description": cloud["description"],
+                        "owner": cloud["owner"]
+                    })
+
+            return json.dumps(clouds_summary)
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
@@ -146,8 +162,11 @@ class DocumentMethodHandler(MethodHandlerBase):
         if 'force' in data:
             del data['force']
 
+        _vlan = None
+        if 'vlan' in data:
+            _vlan = data.pop("vlan")
         # make sure post data passed in is ready to pass to mongo engine
-        result, data = self.model.prep_data(data)
+        result, obj_data = self.model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -168,18 +187,33 @@ class DocumentMethodHandler(MethodHandlerBase):
                     # if force and found object do an update
                     if force and obj:
                         # TODO: DEFAULTS OVERWRITE EXISTING VALUES
-                        obj.update(**data)
+                        obj.update(**obj_data)
                         result.append(
                             'Updated %s %s' % (self.name, obj_name)
                         )
                     # otherwise create it
                     else:
-                        self.model(**data).save()
+                        self.model(**obj_data).save()
                         cherrypy.response.status = "201 Resource Created"
                         result.append(
                             'Created %s %s' % (self.name, obj_name)
                         )
                     if self.name == "cloud":
+
+                        if _vlan:
+                            update_data = {}
+                            vlan_obj = model.Vlan.objects(vlan_id=_vlan).first()
+                            update_data["cloud"] = self.model.objects(name=data["name"]).first()
+                            if "owner" in data:
+                                update_data["owner"] = data["owner"]
+                            if "ticket" in data:
+                                update_data["ticket"] = data["ticket"]
+                            if vlan_obj:
+                                vlan_obj.update(**update_data)
+                                regenerate_vlans_wiki()
+                            else:
+                                result.append("WARN: No VLAN reference for that ID")
+
                         history_result, history_data = model.CloudHistory.prep_data(data)
                         if history_result:
                             result.append('Data validation failed: %s' % ', '.join(history_result))
@@ -252,18 +286,26 @@ class ScheduleMethodHandler(MethodHandlerBase):
         if result:
             result = ['Data validation failed: %s' % ', '.join(result)]
             cherrypy.response.status = "400 Bad Request"
-        elif "index" in data:
+            return json.dumps({'result': result})
+
+        if "cloud" in data:
+            cloud_obj = model.Cloud.objects(name=data["cloud"]).first()
+            if not cloud_obj:
+                result.append("Provided cloud does not exist")
+                cherrypy.response.status = "400 Bad Request"
+                return json.dumps({'result': result})
+
+        if "index" in data:
             _host = data["host"]
             data["host"] = model.Host.objects(name=_host).first()
             schedule = self.model.objects(index=data["index"], host=data["host"]).first()
-            if "cloud" in data:
-                data["cloud"] = model.Cloud.objects(name=data["cloud"]).first()
             if schedule:
                 if not _start:
                     _start = schedule["start"]
                 if not _end:
                     _end = schedule["end"]
                 if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
+                    data["cloud"] = cloud_obj
                     schedule.update(**data)
                     result.append(
                         'Updated %s %s' % (self.name, schedule["index"])
@@ -275,9 +317,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
             try:
                 schedule = model.Schedule()
                 if model.Schedule.is_host_available(host=data["host"], start=_start, end=_end):
+                    data["cloud"] = cloud_obj
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
-                    result.append('Added schedule for %s on %s' % (data["host"], data["cloud"]))
+                    result.append('Added schedule for %s on %s' % (data["host"], cloud_obj.name))
                 else:
                     result.append("Host is not available during that time frame")
 
@@ -321,4 +364,5 @@ class QuadsServerApiV2(object):
         self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
         self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
         self.available = DocumentMethodHandler(model.Schedule, 'available')
+        self.summary = DocumentMethodHandler(model.Schedule, 'summary')
         self.moves = MovesMethodHandler(model.Schedule, 'moves')
