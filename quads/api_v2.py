@@ -24,7 +24,7 @@ conf = quads_load_config(conf_file)
 
 
 class MethodHandlerBase(object):
-    def __init__(self, _model, name, _property=None):
+    def __init__(self, _model, name=None, _property=None):
         self.model = _model
         self.name = name
         self.property = _property
@@ -178,7 +178,7 @@ class DocumentMethodHandler(MethodHandlerBase):
             obj = self._get_obj(obj_name)
             if obj and not force:
                 result.append(
-                    '%s %s already exists' % (self.name, obj_name)
+                    '%s %s already exists.' % (self.name.capitalize(), obj_name)
                 )
                 cherrypy.response.status = "409 Conflict"
             else:
@@ -352,6 +352,95 @@ class ScheduleMethodHandler(MethodHandlerBase):
 
 
 @cherrypy.expose
+class InterfaceMethodHandler(MethodHandlerBase):
+    def GET(self, **data):
+        _args = {}
+        if "host" in data:
+            host = model.Host.objects(name=data["host"]).first()
+            if host:
+                result = []
+                for i in host.interfaces:
+                    result.append(i.to_json())
+                return json.dumps({'result': result})
+        return json.dumps({'result': "No host provided"})
+
+    # post data comes in **data
+    def POST(self, **data):
+        # handle force
+        force = data.get('force', False) == 'True'
+        if 'force' in data:
+            del data['force']
+
+        _host_name = data.pop("host")
+
+        # make sure post data passed in is ready to pass to mongo engine
+        result, data = self.model.prep_data(data)
+
+        # Check if there were data validation errors
+        if result:
+            result = ['Data validation failed: %s' % ', '.join(result)]
+            cherrypy.response.status = "400 Bad Request"
+        else:
+            _host = model.Host.objects(name=_host_name, interfaces__name=data["name"]).first()
+            if _host and not force:
+                result.append(
+                    '%s %s already exists.' % (self.name.capitalize(), data["name"])
+                )
+                cherrypy.response.status = "409 Conflict"
+            else:
+                try:
+                    interface = self.model(**data)
+                    if force and _host:
+                        updated = model.Host.objects(
+                            name=_host_name,
+                            interfaces__name=data["name"]
+                        ).update_one(set__interfaces__S=interface)
+                        if updated:
+                            cherrypy.response.status = "201 Resource Created"
+                            result.append('Updated %s %s' % (self.name, data["name"]))
+                        else:
+                            cherrypy.response.status = "400 Bad Request"
+                            result.append('Host %s not found.' % _host_name)
+                    else:
+                        updated = model.Host.objects(name=_host_name).update_one(push__interfaces=interface)
+                        if updated:
+                            cherrypy.response.status = "201 Resource Created"
+                            result.append('Created %s %s' % (self.name, data["name"]))
+                        else:
+                            cherrypy.response.status = "400 Bad Request"
+                            result.append('Host %s not found.' % _host_name)
+                except Exception as e:
+                    # TODO: make sure when this is thrown the output
+                    #       points back to here and gives the end user
+                    #       enough information to fix the issue
+                    cherrypy.response.status = "500 Internal Server Error"
+                    result.append('Error: %s' % e)
+        return json.dumps({'result': result})
+
+    def PUT(self, **data):
+        # update operations are done through POST
+        # using PUT would duplicate most of POST
+        return self.POST(**data)
+
+    def DELETE(self, **data):
+        _host = model.Host.objects(name=data["host"], interfaces__name=data["name"]).first()
+        result = []
+        if _host:
+            try:
+                model.Host.objects(
+                    name=data["host"],
+                    interfaces__name=data["name"]
+                ).update_one(pull__interfaces__name=data["name"])
+                cherrypy.response.status = "204 No Content"
+                result.append('Removed %s.' % data["name"])
+            except Exception as e:
+                cherrypy.response.status = "500 Internal Server Error"
+                result.append('Error: %s' % e)
+
+        return json.dumps({'result': result})
+
+
+@cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
         self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
@@ -365,4 +454,5 @@ class QuadsServerApiV2(object):
         self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
         self.available = DocumentMethodHandler(model.Schedule, 'available')
         self.summary = DocumentMethodHandler(model.Schedule, 'summary')
+        self.interfaces = InterfaceMethodHandler(model.Interface, 'interface')
         self.moves = MovesMethodHandler(model.Schedule, 'moves')

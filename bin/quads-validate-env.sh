@@ -54,9 +54,6 @@ EOM
     echo "Results:" >> $msgfile
     cat $resultfile >> $msgfile
     /usr/sbin/sendmail -t < $msgfile 1>/dev/null 2>&1
-    if [ ${quads["elastic_stats_enabled"]} ]; then
-      ${tools_dir}/index_data.py --resultfile $resultfile --index validation-errors --type validation-log --owner $owner --ticket $ticket --cloud $env
-    fi
     rm -f $msgfile
 }
 
