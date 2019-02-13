@@ -139,7 +139,7 @@ function validate_environment() {
         touch $data_dir/release/${env}-${owner}-${ticket}
         if [ -f $data_dir/release/.failreport.${env}-${owner}-${ticket} ]; then
             for file in $data_dir/vlans/${env}*; do
-                if ! find $file &> /dev/null; then
+                if [ ! -f $file ]; then
                     report_success $env $owner $ticket
                 fi;
             done
