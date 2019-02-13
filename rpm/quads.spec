@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 1.0.1
+%define version 1.0.2
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -99,6 +99,13 @@ fi;
 :;
 
 %changelog
+
+* Wed Feb 13 2019 - 1.0.2: Will Foster <wfoster@redhat.com>
+- Bump version to match 1.0.2 tag
+- Bug fixes in wiki generation and VLAN stub creation
+- Removal of bin/quads.py in lieu of quads-cli
+- Lots of documentation updates and additions
+- Fixes to Juniper automation to rollback uncommitted changes
 
 * Thu Nov 22 2018 - 1.0.1: Will Foster <wfoster@redhat.com>
 - Bump version to match 1.0.1 tag
