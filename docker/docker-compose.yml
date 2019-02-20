@@ -55,7 +55,7 @@ services:
       - MONGODB_IP=quads-db
       - WORDPRESS_IP=wordpress
     volumes:
-      - /opt/quads:/opt/quads
+      - ${COMPOSE_PROJECT_NAME}:/opt/quads:z
 
   quads-db:
     image: mongo:4.0.4-xenial
