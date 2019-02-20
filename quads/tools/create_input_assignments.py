@@ -248,8 +248,8 @@ def main():
 
     broken_hosts = foreman.get_broken_hosts()
     domain_broken_hosts = {
-        host: properties
-        for host, properties in broken_hosts.items()
+        host: properties 
+        for host, properties in broken_hosts.items() 
         if conf["domain"] in host
     }
 

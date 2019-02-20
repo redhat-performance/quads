@@ -4,8 +4,9 @@
 # to an existing wordpress page.
 # requires: python-wordpress-xmlrpc or python3-wordpress-xmlrpc
 
-from wordpress_xmlrpc import Client, WordPressPage
-from wordpress_xmlrpc.methods.posts import EditPost
+from wordpress_xmlrpc import *
+from wordpress_xmlrpc.methods.posts import *
+from wordpress_xmlrpc.methods.users import *
 import argparse
 
 
