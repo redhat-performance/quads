@@ -35,7 +35,7 @@ logger.addHandler(ch)
 API = 'v2'
 
 
-def output_json_result(request, item, data, debug=False):
+def output_json_result(request, data, debug=False):
     try:
         js = request.json()
         if debug:
@@ -194,13 +194,13 @@ def main():
                 'ticket': args.cloudticket,
                 'force': args.force}
         r = requests.post(url, data)
-        output_json_result(r, 'cloud', data)
+        output_json_result(r, data)
 
     # Cloud Remove
     elif args.rmcloud is not None:
         url = os.path.join(api_url, 'cloud', args.rmcloud)
         r = requests.delete(url)
-        output_json_result(r, 'cloud', {'cloud': args.rmcloud})
+        output_json_result(r, {'cloud': args.rmcloud})
 
     # Host Add / Modify
     elif args.hostresource:
@@ -214,13 +214,13 @@ def main():
                 'type': args.hosttype,
                 'force': args.force}
         r = requests.post(url, data)
-        output_json_result(r, 'host', data)
+        output_json_result(r, data)
 
     # Host Remove
     elif args.rmhost is not None:
         url = os.path.join(api_url, 'host', args.rmhost)
         r = requests.delete(url)
-        output_json_result(r, 'host', {'host': args.rmhost})
+        output_json_result(r, {'host': args.rmhost})
 
     # Add Interface
     elif args.addinterface:
@@ -239,13 +239,13 @@ def main():
                 'interface': args.addinterface}
         r = requests.post(url, data)
         print(data)
-        output_json_result(r, 'interfaces', {'interfaces': 'cli-TODO'})
+        output_json_result(r, {'interfaces': 'cli-TODO'})
 
 
     elif args.rminterface is not None:
         url = os.path.join(api_url, 'interfaces', str(args.rminterface), args.host)
         r = requests.delete(url)
-        output_json_result(r, 'interfaces', {'interface': 'cli-TODO'}, debug=args.debug)
+        output_json_result(r, {'interface': 'cli-TODO'}, debug=args.debug)
 
     # Add Schedule
     elif args.addschedule:
@@ -263,12 +263,12 @@ def main():
                 'end': args.schedend}
         r = requests.post(url, data)
         print(data)
-        output_json_result(r, 'schedule', {'schedule': 'cli-TODO'})
+        output_json_result(r, {'schedule': 'cli-TODO'})
 
     elif args.rmschedule is not None:
         url = os.path.join(api_url, 'schedule', str(args.rmschedule), args.host)
         r = requests.delete(url)
-        output_json_result(r, 'schedule', {'schedule': 'cli-TODO'}, debug=args.debug)
+        output_json_result(r, {'schedule': 'cli-TODO'}, debug=args.debug)
 
     elif args.modschedule is not None:
         if args.host is None:
@@ -291,7 +291,7 @@ def main():
 
 
         r = requests.post(url, data)
-        output_json_result(r, 'schedule', data['schedule'])
+        output_json_result(r, data['schedule'])
 
     elif args.movehosts:
         if args.datearg is not None and not args.dryrun:
