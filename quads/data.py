@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
-from quads.cloudhistory import CloudHistory
-from quads.clouds import Clouds
-from quads.history import History
-from quads.hosts import Hosts
+from cloudhistory import CloudHistory
+from clouds import Clouds
+from history import History
+from hosts import Hosts
 
 
 
@@ -25,10 +25,10 @@ class QuadsData(object):
         """
         Initialize the QuadsData object.
         """
-        self.hosts = Hosts.Hosts(data)
-        self.clouds = Clouds.Clouds(data)
-        self.history = History.History(data)
-        self.cloud_history = CloudHistory.CloudHistory(data)
+        self.hosts = Hosts(data)
+        self.clouds = Clouds(data)
+        self.history = History(data)
+        self.cloud_history = CloudHistory(data)
 
     def put(self, data):
         self.hosts.put(data)

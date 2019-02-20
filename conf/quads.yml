@@ -69,16 +69,6 @@ foreman_url: http://foreman.example.com/hosts/
 foreman_api_url: https://foreman.example.com/api/v2
 foreman_username: admin
 foreman_password: password
-# this should be the default os, medium and partition table
-# that you want to set for provisioned hosts
-foreman_default_os: "RHEL 7"
-foreman_default_ptable: "generic-rhel7"
-foreman_default_medium: "RHEL local"
-
-# set this to true if you want to check Foreman for faulty hosts
-# prior to scheduling e.g. --add-schedule.  Requires host parameter of
-# "broken_state: true/false" for each QUADS-managed host
-foreman_check_host_health: false
 
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
