@@ -38,7 +38,7 @@ def consolidate_ipmi_data(_host, _path, _value):
                 _ipmi_file.seek(0)
                 _ipmi_file.write(_value)
                 _ipmi_file.truncate()
-    except (IOError, FileNotFoundError):
+    except IOError:
         if not os.path.exists(host_path):
             pathlib.Path(host_path).mkdir(parents=True, exist_ok=True)
         with open(_file_path, "w") as _ipmi_file:
