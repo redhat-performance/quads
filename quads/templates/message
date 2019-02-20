@@ -1,0 +1,26 @@
+
+This is a message to alert you that in {{ days_to_report }} days
+your allocated environment:
+
+{{ cloud_info }}
+
+(Details)
+http://{{ wp_wiki }}/assignments/#{{ cloud }}
+
+will have some or all of the hosts expire.  The following
+hosts will automatically be reprovisioned and returned to
+the pool of available hosts.
+
+{% for host in hosts %}
+{{host}}
+{% endfor %}
+
+For additional information regarding the Scale Lab usage
+please see the following documentation:
+
+http://{{ wp_wiki }}/faq/
+http://{{ wp_wiki }}/usage/
+
+Thank you for your attention.
+
+Perf/Scale DevOps Team

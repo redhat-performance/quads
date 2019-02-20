@@ -1,0 +1,37 @@
+<html>
+<head>
+{% if gentime %}
+    <title>{{ gentime }}</title>
+{% else %}
+    <title> Monthly Allocation </title>
+{% endif %}
+</head>
+<body>
+{% if gentime %}
+    <b>{{ gentime }}</b><br>
+{% endif %}
+    <br>
+<table>
+<tr>
+<th>Name</th>
+{% for _day in range(0, _days) %}
+    <th width=20>{{ "%.2d" % _day }}</th>
+{% endfor %}
+</tr>
+{% for line in lines %}
+    <tr>
+    <td>{{ line["hostname"] }}</td>
+    {% for day in sorted(line["days"], key=lambda _line: _line["day"]) %}
+        <td {{ day["color_property"] }}="{{ day["color"] }}" data-toggle="tooltip"
+        title="Description: {{ day["display_description"] }}
+               Env: cloud{{ day["chosen_color"] }}
+               Owner: {{ day["display_owner"] }}
+               RT: {{ day["display_ticket"] }}
+               Day: {{ day["day"] }}
+        "></td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>

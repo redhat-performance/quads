@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
-from helpers import quads_load_config
-from quads import Quads
+from quads.helpers import quads_load_config
+from quads.quads import Quads
 
 logger = logging.getLogger('quads')
 ch = logging.StreamHandler(sys.stdout)
@@ -40,13 +40,20 @@ def print_owners(quads, cloudonly):
         print(item)
 
 
-def print_cc(quads, cloudonly):
-    for item in quads.get_cc(cloudonly):
+def get_cc(quads, cloud_only):
+    _cc = []
+    for item in quads.get_cc(cloud_only):
         for cloud, cc_list in item.items():
             if cc_list is not None:
-                print("{}: {}".format(cloud, ''.join(cc_list)))
+                _cc.append("{}: {}".format(cloud, ''.join(cc_list)))
             else:
-                print(cloud)
+                _cc.append(cloud)
+    return _cc
+
+
+def print_cc(quads, cloud_only):
+    for item in get_cc(quads, cloud_only):
+        print(item)
 
 
 def get_tickets(quads, cloudonly):
@@ -72,19 +79,27 @@ def print_host_cloud(quads, host, datearg):
     print(quads.query_host_cloud(host, datearg))
 
 
-def print_cloud_hosts(quads, datearg, cloudonly):
+def get_cloud_hosts(quads, datearg, cloudonly):
+    hosts = []
     cloud_hosts = quads.query_cloud_hosts(datearg)
     if cloudonly is not None:
         if cloudonly in cloud_hosts:
             for host in cloud_hosts[cloudonly]:
-                print(host)
+                hosts.append(host)
         else:
             print("Requested cloud does not exist")
     else:
         for cloud, hostlist in sorted(cloud_hosts.items()):
-            print("{}:".format(cloud))
+            hosts.append("{}:".format(cloud))
             for host in hostlist:
-                print(" - {}".format(host))
+                hosts.append(" - {}".format(host))
+    return hosts
+
+
+def print_cloud_hosts(quads, datearg, cloudonly):
+    cloud_hosts = get_cloud_hosts(quads, datearg, cloudonly)
+    for host in cloud_hosts:
+        print(host)
 
 
 def print_host_schedule(quads, host, datearg):
@@ -135,7 +150,7 @@ def print_cloud_postconfig(quads, datearg, activesummary, postconfig):
         print(cloud)
 
 
-def main():
+def main(argv=None):
     quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
     quads_config = quads_load_config(quads_config_file)
 
@@ -221,14 +236,14 @@ def main():
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Model/Make/Type of host DellR620  for example')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.logpath:
         quads_config["log"] = args.logpath
 
     if not os.path.exists(quads_config["log"]):
         try:
             open(quads_config["log"], 'a').close()
-        except Exception:
+        except IOError:
             logger.error("Log file does not exist : {}".format(quads_config["log"]))
             exit(1)
 

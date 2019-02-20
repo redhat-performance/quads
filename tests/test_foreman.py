@@ -2,7 +2,7 @@
 
 import os
 from quads.helpers import quads_load_config
-from quads.foreman import Foreman
+from quads.tools.foreman import Foreman
 
 conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(conf_file)
@@ -16,6 +16,10 @@ class TestForeman(object):
             conf["ipmi_password"],
         )
 
-    def test_get_hosts(self):
-        hosts = self.foreman.get_hosts()
+    def test_get_all_hosts(self):
+        hosts = self.foreman.get_all_hosts()
+        assert isinstance(hosts, type(dict))
+
+    def test_get_broken_hosts(self):
+        hosts = self.foreman.get_broken_hosts()
         assert isinstance(hosts, type(dict))

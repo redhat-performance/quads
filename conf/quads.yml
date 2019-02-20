@@ -50,7 +50,7 @@ wp_wiki_main_page_id: 4
 wp_wiki_assignments_title: assignments
 wp_wiki_assignments_page_id: 357
 # these values are used for auto-generation of a VLAN wiki page markdown
-# when routable public VLANs are required (--extnet)
+# when routable public VLANs are required (--vlan)
 wp_wiki_vlans_title: Public VLAN Allocations
 wp_wiki_vlans_page_id: 14244
 # optional management of wordpress content via git repo
@@ -106,7 +106,6 @@ untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 
 # phpical
 phpical_dir: /srv/cal
-ical_web_location: /var/www/html/ical/schedule.ics
 
 # ipmi QUADS admin user/pass
 # this is the IPMI account QUADS uses
