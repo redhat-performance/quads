@@ -10,6 +10,7 @@ from pathlib import Path
 from quads import Quads
 from tools.common import environment_released
 from tools.netcat import Netcat
+from tools.index_data import index_data
 from util import get_cloud_summary, get_tickets, get_cc
 
 
@@ -102,6 +103,9 @@ def create_message(
                         hosts=host_list_expire,
                     )
                     send_email("QUADS upcoming expiration notification", real_owner, cc_users, content)
+        if conf["elastic_stats_enabled"]:
+            hosts = set(current_hosts) | set(future_hosts)
+            index_data(hosts, real_owner, cloud, ticket, "allocations", "initial-allocation")
 
     return
 
@@ -157,6 +161,10 @@ def create_future_message(
                     hosts=host_list_expire,
                 )
                 send_email("QUADS upcoming assignment notification", real_owner, cc_users, content)
+
+        if conf["elastic_stats_enabled"]:
+            hosts = set(current_hosts) | set(future_hosts)
+            index_data(hosts, real_owner, cloud, ticket, "allocations", "initial-allocation")
 
     return
 
