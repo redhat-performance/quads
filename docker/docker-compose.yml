@@ -8,12 +8,12 @@ services:
       - wordpress_data:/var/www/html/:ro
       - ./etc/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
       - ./etc/nginx/conf.d:/etc/nginx/conf.d:ro
-    ports:
-      - 80:80
-      - 443:443
     links:
       - wordpress:php
       - wp-db:db
+    ports:
+      - 80:80
+      - 443:443
 
   wordpress:
     image: wordpress:5.0.0-php5.6-fpm-alpine

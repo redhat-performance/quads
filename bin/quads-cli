@@ -14,6 +14,9 @@ import yaml
 
 
 # Load QUADS yaml config
+from quads.tools.move_and_rebuild_hosts import move_and_rebuild
+
+
 def quads_load_config(_quads_config):
     quads_config_yaml = None
     try:
@@ -77,6 +80,16 @@ def main(_args):
             if data:
                 for k in data:
                     print(str(k['name']) + ": " + str(k[_args.action]))
+                exit(0)
+
+        if _args.action == 'interface':
+            if _args.host is None:
+                print('Missing option. --host option is required for --ls-interface:')
+                exit(1)
+            data = quads.get_interfaces(**_kwargs)
+            if data:
+                for interface in data["result"]:
+                    print(interface)
                 exit(0)
 
         if _args.action == 'schedule':
@@ -143,6 +156,8 @@ def main(_args):
             if entries and "result" not in entries:
                 for entry in entries:
                     print(entry['name'])
+            elif "result" in entries:
+                print(entries['result'])
             exit(0)
 
         elif _args.action == "available":
@@ -195,7 +210,7 @@ def main(_args):
             exit(1)
         url = os.path.join(api_url, 'host')
         data = {'name': _args.hostresource,
-                'default_cloud': _args.hostcloud,
+                'cloud': _args.hostcloud,
                 'host_type': _args.hosttype,
                 'force': _args.force}
         _response = requests.post(url, data)
@@ -211,28 +226,35 @@ def main(_args):
 
     # Add Interface
     elif _args.addinterface:
-        if _args.ifmac is None or _args.iftype is None \
-                or _args.ifport is None or _args.host is None:
+        if _args.ifmac is None \
+                or _args.ifip is None or _args.ifport is None \
+                or _args.ifvlan is None or _args.host is None:
             print('Missing option. All these options are required for --add-interface:')
             print('    --host')
             print('    --interface-mac')
-            print('    --interface-type')
+            print('    --interface-ip')
             print('    --interface-port')
+            print('    --interface-vlan')
         url = os.path.join(api_url, 'interfaces')
-        data = {'mac': _args.ifmac,
-                'vendor_type': _args.iftype,
-                'host': _args.host,
-                'port': _args.ifport,
-                'interface': _args.addinterface}
+        data = {
+            'name': _args.addinterface,
+            'mac_address': _args.ifmac,
+            'ip_address': _args.ifip,
+            'vlan': _args.ifvlan,
+            'switch_port': _args.ifport,
+            'host': _args.host,
+            'force': _args.force
+        }
         _response = requests.post(url, data)
-        print(data)
-        output_json_result(_response, {'interfaces': 'cli-TODO'})
+        output_json_result(_response, data)
         exit(0)
 
     elif _args.rminterface is not None:
-        url = os.path.join(api_url, 'interfaces', str(_args.rminterface), _args.host)
-        _response = requests.delete(url)
-        output_json_result(_response, {'interface': 'cli-TODO'}, debug=_args.debug)
+        if _args.host is None:
+            print('Missing option. --host option is required for --rm-interface:')
+            exit(1)
+        data = {'host': _args.host, 'name': _args.rminterface}
+        print(quads.remove_interface(**data))
         exit(0)
 
     # Add Schedule
@@ -289,7 +311,7 @@ def main(_args):
         data = {}
         if _args.datearg is not None:
             data['date'] = _args.datearg
-        _response = requests.post(url, data)
+        _response = requests.get(url, data)
         js = _response.json()
         if 'result' in js:
             if len(js['result']) == 0:
@@ -307,10 +329,13 @@ def main(_args):
                 print('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
                 if not _args.dryrun:
                     try:
-                        if wipe_value == 1:
-                            subprocess.check_call([_args.movecommand, host, current, new])
+                        if _args.movecommand == default_move_command:
+                            move_and_rebuild(host, current, new, wipe_value)
                         else:
-                            subprocess.check_call([_args.movecommand, host, current, new, 'nowipe'])
+                            if wipe_value:
+                                subprocess.check_call([args.movecommand, host, current, new])
+                            else:
+                                subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
                     except Exception as ex:
                         logger.error('Move command failed: %s' % ex)
                         exit(1)
@@ -380,7 +405,7 @@ if __name__ == '__main__':
 
     default_config = quads_config['data_dir'] + '/schedule.yaml'
     default_state_dir = quads_config['data_dir'] + '/state'
-    default_move_command = '/bin/echo'
+    default_move_command = '/opt/quads/quads/tools/move_and_rebuild_hosts.py'
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
     group = parser.add_mutually_exclusive_group()
@@ -405,6 +430,8 @@ if __name__ == '__main__':
                        help='List available hosts on a specific time frame')
     group.add_argument('--ls-schedule', dest='action', action='store_const', const='schedule',
                        help='List the host reservations')
+    group.add_argument('--ls-interface', dest='action', action='store_const', const='interface',
+                       help='List the host interfaces')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
                         help='Limit full report to hosts only in this cloud')
@@ -435,11 +462,11 @@ if __name__ == '__main__':
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
-    parser.add_argument('--interface-mac', dest='ifmac', type=str, default=None, help='')
-    parser.add_argument('--interface-type', dest='iftype', type=str, default=None, help='')
-    parser.add_argument('--interface-port', dest='ifport', type=str, default=None, help='')
-    parser.add_argument('--ls-interface', dest='action', action='store_const', const='interfaces',
-                        help='List the host interfaces')
+    parser.add_argument('--interface-mac', dest='ifmac', type=str, default=None, help='MAC address for --add-interface')
+    parser.add_argument('--interface-ip', dest='ifip', type=str, default=None, help='IP address for --add-interface')
+    parser.add_argument('--interface-vlan', dest='ifvlan', type=str, default=None, help='VLAN name for --add-interface')
+    parser.add_argument('--interface-port', dest='ifport', type=str, default=None,
+                        help='Switch port for --add-interface')
     parser.add_argument('--statedir', dest='statedir', type=str, default=default_state_dir, help='Default state dir')
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
                         help='Move hosts if schedule has changed')
