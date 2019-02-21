@@ -8,9 +8,6 @@ services:
       - wordpress_data:/var/www/html/:ro
       - ./etc/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
       - ./etc/nginx/conf.d:/etc/nginx/conf.d:ro
-    ports:
-      - 80:80
-      - 443:443
     links:
       - wordpress:php
       - wp-db:db
@@ -21,8 +18,6 @@ services:
     restart: always
     links:
       - wp-db:mysql
-    expose:
-      - 9000
     volumes:
       - wordpress_data:/var/www/html/
       - ./etc/wordpress/themes:/var/tmp/wp-themes:ro
@@ -49,8 +44,6 @@ services:
       - quads-db
     build: .
     container_name: quads
-    ports:
-      - 8080:8080
     environment:
       - MONGODB_IP=quads-db
       - WORDPRESS_IP=wordpress
@@ -60,8 +53,6 @@ services:
   quads-db:
     image: mongo:4.0.4-xenial
     container_name: quads_db
-    ports:
-      - 27017:27017
     volumes:
       - data_db:/data/db
 

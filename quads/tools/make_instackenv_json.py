@@ -4,11 +4,9 @@ import requests
 from datetime import datetime
 from quads.tools.foreman import Foreman
 from quads.tools.csv_to_instack import csv_to_instack
-from quads.helpers import quads_load_config
+from quads.config import conf
 from tempfile import NamedTemporaryFile
 
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 API = 'v2'
 API_URL = os.path.join(conf['quads_base_url'], 'api', API)
@@ -36,7 +34,7 @@ old_jsons = [file for file in os.listdir(conf["json_web_path"]) if ".json" in fi
 for file in old_jsons:
     os.remove(os.path.join(conf["json_web_path"], file))
 
-over_cloud = foreman.get_parametrized(conf["foreman_director_parameter"], "true")
+over_cloud = foreman.get_parametrized("params.%s" % conf["foreman_director_parameter"], "true")
 
 columns = ["macaddress", "ipmi url", "ipmi user", "ipmi password", "ipmi tool"]
 lines = []
