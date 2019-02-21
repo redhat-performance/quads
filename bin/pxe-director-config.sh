@@ -20,15 +20,11 @@ fi
 
 source $(dirname $0)/load-config.sh
 quads=${quads["install_dir"]}/bin/quads-cli
-bindir=${quads["install_dir"]}/bin
-data_dir=${quads["data_dir"]}
 foreman_director_parameter=${quads["foreman_director_parameter"]}
 
 TARGET=$1
 CLOUD=$2
 SCHEDULER=$quads
-
-configdir=$data_dir/ports
 
 CLOUD_LIST=$($SCHEDULER --ls-clouds)
 
