@@ -4,11 +4,8 @@ import os
 import pathlib
 import re
 import requests
-from quads.helpers import quads_load_config
 from quads.tools.foreman import Foreman
-
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
+from quads.config import conf
 
 HEADERS = [
     "U",

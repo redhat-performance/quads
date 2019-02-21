@@ -118,6 +118,9 @@ ipmi_cloud_username: quads
 ipmi_cloud_password: password
 ipmi_cloud_username_id: 4
 
+# This stores the username for connecting to junos switches
+junos_username: scaleadmin
+
 # visual web dir is where the visual HTML representation of the lab usage goes
 visual_web_dir: /var/www/html/visual
 
