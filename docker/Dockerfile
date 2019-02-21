@@ -15,8 +15,7 @@ RUN apt-get update && \
 RUN pip install cherrypy pyyaml mongoengine requests ipdb python-wordpress-xmlrpc python-git flake8
 
 WORKDIR /opt
-RUN git clone https://github.com/radez/quads
+RUN git clone --single-branch --branch master https://github.com/redhat-performance/quads
 WORKDIR /opt/quads
-RUN git checkout cherrypy
 ENV PYTHONPATH=/opt/quads
-ENTRYPOINT bin/quads-server
+ENTRYPOINT python bin/quads-server
