@@ -57,6 +57,16 @@ class Api(object):
         uri = self._uri_constructor("cloud", kwargs)
         return self.get(uri)
 
+    def get_cloud_hosts(self, cloud_name):
+        hosts = []
+        schedules = self.get_current_schedule(cloud=cloud_name)
+        if "result" not in schedules:
+            for schedule in schedules:
+                host = self.get_hosts(id=schedule["host"]["$oid"])
+                hosts.append(host)
+
+        return hosts
+
     def get_schedules(self, **kwargs):
         uri = self._uri_constructor("schedule", kwargs)
         return self.get(uri)
@@ -67,6 +77,10 @@ class Api(object):
 
     def remove_schedule(self, **kwargs):
         uri = self._uri_constructor("schedule", kwargs)
+        return self.delete(uri)
+
+    def remove_interface(self, **kwargs):
+        uri = self._uri_constructor("interfaces", kwargs)
         return self.delete(uri)
 
     def insert_schedule(self, data):
@@ -81,4 +95,8 @@ class Api(object):
 
     def get_summary(self, **kwargs):
         uri = self._uri_constructor("summary", kwargs)
+        return self.get(uri)
+
+    def get_interfaces(self, **kwargs):
+        uri = self._uri_constructor("interfaces", kwargs)
         return self.get(uri)

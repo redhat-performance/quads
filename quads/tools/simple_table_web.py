@@ -3,10 +3,8 @@ import os
 
 from datetime import datetime, timedelta
 from tools.simple_table_generator import generator
-from helpers import quads_load_config
+from quads.config import conf
 
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 months_out = 4
 now = datetime.now()
@@ -22,7 +20,7 @@ if not os.path.exists(conf["visual_web_dir"]):
 
 for _date in dates:
     gen_time = "Allocation Map for %s-%s<br>(Hover cursor over squares for details on allocation)" % (
-    _date.year, _date.month)
+        _date.year, _date.month)
     content = generator(None, calendar.mdays[_date.month], _date.month, _date.year, gen_time)
     file_path = os.path.join(conf["visual_web_dir"], "%s-%s.html" % (_date.year, _date.month))
     with open(file_path, "w+") as _file:

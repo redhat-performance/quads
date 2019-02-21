@@ -1,12 +1,7 @@
 import argparse
-import os
 import yaml
 
-from quads.helpers import quads_load_config
 from quads.model import Vlan, Cloud
-
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 
 def main(_args):
@@ -20,7 +15,8 @@ def main(_args):
                     exit(1)
                 for vlan, properties in vlans.items():
                     vlan_obj = Vlan.objects(vlan_id=properties["vlanid"]).first()
-                    cloud_name = "cloud0%s" % properties["cloud"] if int(properties["cloud"]) < 10 else "cloud%s" % properties["cloud"]
+                    cloud_name = "cloud0%s" % properties["cloud"] if int(properties["cloud"]) < 10 \
+                        else "cloud%s" % properties["cloud"]
                     cloud_obj = Cloud.objects(name=cloud_name).first()
                     result, data = Vlan.prep_data(properties)
                     if not result:

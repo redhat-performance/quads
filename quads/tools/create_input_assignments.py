@@ -7,12 +7,8 @@ from datetime import datetime
 
 import requests
 
-from quads.helpers import quads_load_config
-from quads.tools.common import environment_released
+from quads.config import conf
 from quads.tools.foreman import Foreman
-
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 HEADERS = [
     "SystemHostname",
@@ -47,30 +43,30 @@ def print_summary():
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
-    _cloud_response = requests.get(os.path.join(API_URL, "cloud"))
+    _cloud_response = requests.get(os.path.join(API_URL, "summary"))
     _cloud_summary = []
     if _cloud_response.status_code == 200:
         _cloud_summary = _cloud_response.json()
 
     for cloud in _cloud_summary:
-        cloud = cloud["name"]
+        cloud_name = cloud["name"]
         desc = cloud["description"]
         owner = cloud["owner"]
         ticket = cloud["ticket"]
         link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"], ticket, ticket)
-        cloud_specific_tag = "%s_%s_%s" % (cloud, owner, ticket)
+        cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
 
         style_tag_end = "</span>"
-        if environment_released(None, None) or cloud == "cloud01":
+        if cloud["released"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud)
+            instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
         else:
             style_tag_start = '<span style="color:red">'
             instack_link = os.path.join(conf["quads_url"], "underconstruction")
             instack_text = "validating"
 
-        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud, style_tag_end, cloud), desc, owner, link]
+        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
 
         if conf["gather_ansible_facts"]:
             factstyle_tag_end = "</span>"
@@ -84,7 +80,7 @@ def print_summary():
             else:
                 factstyle_tag_start = '<span style="color:red">'
                 ansible_facts_link = os.path.join(conf["quads_url"], "underconstruction")
-            if cloud == "cloud01":
+            if cloud_name == "cloud01":
                 _data.append("")
                 _data.append("")
             else:
@@ -97,7 +93,7 @@ def print_summary():
                     % (ansible_facts_link, factstyle_tag_start, factstyle_tag_end)
                 )
         else:
-            if cloud == "cloud01":
+            if cloud_name == "cloud01":
                 _data.append("")
             else:
                 _data.append(
@@ -109,12 +105,12 @@ def print_summary():
             dellstyle_tag_end = "</span>"
             dell_config_path = os.path.join(
                 conf["json_web_path"],
-                "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)
+                "%s-%s-%s-dellconfig.html" % (cloud_name, owner, ticket)
             )
             if os.path.exists(dell_config_path):
                 dellstyle_tag_start = '<span style="color:green">'
                 dellconfig_link = os.path.join(
-                    conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (cloud, owner, ticket)
+                    conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (cloud_name, owner, ticket)
                 )
                 dellconfig_text = "view"
             else:
@@ -122,7 +118,7 @@ def print_summary():
                 dellconfig_link = os.path.join(conf["quads_url"], "underconstruction")
                 dellconfig_text = "unavailable"
 
-            if cloud == "cloud01":
+            if cloud_name == "cloud01":
                 _data.append("")
             else:
                 _data.append(
@@ -182,6 +178,8 @@ def print_faulty(broken_hosts):
 def add_row(host):
     lines = []
     current_schedule = ""
+    date_start = None
+    date_end = None
     short_host = host["name"].split(".")[0]
     _url = os.path.join(API_URL, "current_schedule")
     _response = requests.get(_url)
@@ -199,8 +197,8 @@ def add_row(host):
         clouds = cloud_response.json()
 
     if not current_schedule:
-        date_start = "∞"
-        date_end = "∞"
+        _date_start = "∞"
+        _date_end = "∞"
         total_time = "∞"
         total_time_left = "∞"
     else:
@@ -213,8 +211,8 @@ def add_row(host):
                         if schedkey == "end":
                             date_end = schedval["$date"]
         _date_now = datetime.now()
-        _date_start = datetime.strptime(date_start, "%Y-%m-%d %H:%M")
-        _date_end = datetime.strptime(date_end, "%Y-%m-%d %H:%M")
+        _date_start = datetime.utcfromtimestamp(date_start / 1000)
+        _date_end = datetime.utcfromtimestamp(date_end / 1000)
         total_sec_left = (_date_end - _date_now).total_seconds()
         total_days = (_date_end - _date_start).days
         total_days_left = total_sec_left // 86400
@@ -225,9 +223,9 @@ def add_row(host):
             total_time_left = "%s, %0d hour(s)" % (total_time_left, total_hours_left)
     _columns = [
         short_host,
-        "<a href=http://mgmt-%s/ target=_blank>console</a>" % host,
-        date_start,
-        date_end,
+        "<a href=http://mgmt-%s/ target=_blank>console</a>" % host["name"],
+        _date_start.strftime("%Y-%m-%d"),
+        _date_end.strftime("%Y-%m-%d"),
         total_time,
         total_time_left,
     ]

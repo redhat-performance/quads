@@ -1,35 +1,17 @@
+#!/usr/bin/env python
+
 import os
-import smtplib
 
 from datetime import datetime, timedelta
-from email.message import EmailMessage
-from email.headerregistry import Address
-from helpers import quads_load_config
 from jinja2 import Template
 from pathlib import Path
-from quads import Quads
-from tools.common import environment_released
-from tools.netcat import Netcat
-from tools.index_data import index_data
-from util import get_cloud_summary, get_tickets, get_cc
-
-
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
+from quads.config import conf
+from quads.quads import Api as QuadsApi
+from quads.tools.netcat import Netcat
+from tools.postman import Postman
 
 TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
-
-
-def send_email(subject, to, cc, content):
-    msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = Address("QUADS", "quads", conf["domain"])
-    msg["To"] = Address(username=to, domain=conf["domain"])
-    msg["Cc"] = ",".join(cc)
-    msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
-    msg.attach(content)
-    with smtplib.SMTP('localhost') as s:
-        s.send_message(msg)
+API = 'v2'
 
 
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
@@ -56,7 +38,9 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
                     ticket=ticket,
                     foreman_url=conf["foreman_url"],
                 )
-                send_email("New QUADS Assignment Allocated", real_owner, cc_users, content)
+
+                postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+                postman.send_email()
         if conf["irc_notify"]:
             with Netcat(irc_bot_ip, irc_bot_port) as nc:
                 nc.write(
@@ -102,10 +86,8 @@ def create_message(
                         cloud=cloud,
                         hosts=host_list_expire,
                     )
-                    send_email("QUADS upcoming expiration notification", real_owner, cc_users, content)
-        if conf["elastic_stats_enabled"]:
-            hosts = set(current_hosts) | set(future_hosts)
-            index_data(hosts, real_owner, cloud, ticket, "allocations", "initial-allocation")
+                    postman = Postman("QUADS upcoming expiration notification", real_owner, cc_users, content)
+                    postman.send_email()
 
     return
 
@@ -125,7 +107,8 @@ def create_future_initial_message(real_owner, cloud, cloud_info, ticket, cc):
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
             )
-            send_email("New QUADS Assignment Allocated", real_owner, cc_users, content)
+            postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+            postman.send_email()
 
     return
 
@@ -160,11 +143,8 @@ def create_future_message(
                     cloud=cloud,
                     hosts=host_list_expire,
                 )
-                send_email("QUADS upcoming assignment notification", real_owner, cc_users, content)
-
-        if conf["elastic_stats_enabled"]:
-            hosts = set(current_hosts) | set(future_hosts)
-            index_data(hosts, real_owner, cloud, ticket, "allocations", "initial-allocation")
+                postman = Postman("QUADS upcoming assignment notification", real_owner, cc_users, content)
+                postman.send_email()
 
     return
 
@@ -173,40 +153,21 @@ def main():
     days = [1, 3, 5, 7]
     future_days = 7
 
-    default_config = conf["data_dir"] + "/schedule.yaml"
-    default_state_dir = conf["data_dir"] + "/state"
-    default_move_command = "/bin/echo"
+    api_url = os.path.join(conf['quads_base_url'], 'api', API)
+    quads = QuadsApi(api_url)
 
-    quads = Quads(
-        default_config,
-        default_state_dir,
-        default_move_command,
-        None, False, False, False
-    )
-
-    _cloud_summary = get_cloud_summary(quads, None, True)
-    _clouds = [cloud.split()[0] for cloud in _cloud_summary]
-    _clouds_full = get_cloud_summary(quads, None, False)
+    _clouds = quads.get_summary()
 
     for cloud in _clouds:
-        owner = quads.get_owners(cloud)
-        real_owner = owner
-        if isinstance(owner, list):
-            real_owner = owner[0][cloud]
-        if real_owner == "nobody":
-            continue
-        cloud_info = next(ci for ci in _cloud_summary if cloud in ci)
-        ticket = get_tickets(quads, cloud)
-        cc = get_cc(quads, cloud)
-        released = environment_released(quads, real_owner, cloud)
+        cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
         print('=============== Initial Message')
         create_initial_message(
-            real_owner,
-            cloud,
+            cloud["owner"],
+            cloud["name"],
             cloud_info,
-            ticket,
-            cc,
-            released
+            cloud["ticket"],
+            cloud["ccuser"],
+            cloud["released"]
         )
         alerted = False
         for day in days:
@@ -215,55 +176,48 @@ def main():
                 today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
                 future = now + timedelta(days=day)
                 future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-                current_hosts = [host for host in quads.query_cloud_hosts(today_date)[cloud]]
-                future_hosts = [host for host in quads.query_cloud_hosts(future_date)[cloud]]
+                current_hosts = quads.get_hosts(cloud=cloud.name, date=today_date)
+                future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
                 diff = set(current_hosts) - set(future_hosts)
                 if diff:
                     print('=============== Additional Message')
                     create_message(
-                        real_owner,
+                        cloud["owner"],
                         day,
-                        cloud,
+                        cloud["name"],
                         cloud_info,
-                        ticket,
-                        cc,
-                        released,
+                        cloud["ticket"],
+                        cloud["ccuser"],
+                        cloud["released"],
                         current_hosts,
                         future_hosts
                     )
                     alerted = True
 
+    _clouds_full = quads.get_clouds()
+
     for cloud in _clouds_full:
         if cloud not in _clouds:
-            owner = quads.get_owners(cloud)
-            real_owner = owner
-            if isinstance(owner, list):
-                real_owner = owner[0][cloud]
-            if real_owner == "nobody":
-                continue
-            cloud_info = next(ci for ci in _cloud_summary if cloud in ci)
-            ticket = get_tickets(quads, cloud)
-            cc = get_cc(quads, cloud)
-            released = environment_released(quads, real_owner, cloud)
+            cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
             print('=============== Future Initial Message')
-            create_future_initial_message(real_owner, cloud, cloud_info, ticket, cc)
+            create_future_initial_message(cloud["owner"], cloud["name"], cloud_info, cloud["ticket"], cloud["ccuser"])
             now = datetime.now()
             today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
             future = now + timedelta(days=future_days)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-            current_hosts = [host for host in quads.query_cloud_hosts(today_date)[cloud]]
-            future_hosts = [host for host in quads.query_cloud_hosts(future_date)[cloud]]
+            current_hosts = quads.get_hosts(cloud=cloud.name, date=today_date)
+            future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
             diff = set(current_hosts) - set(future_hosts)
             if diff:
                 print('=============== Additional Message')
                 create_future_message(
-                    real_owner,
+                    cloud["owner"],
                     future_days,
-                    cloud,
+                    cloud["name"],
                     cloud_info,
-                    ticket,
-                    cc,
-                    released,
+                    cloud["ticket"],
+                    cloud["ccuser"],
+                    cloud["released"],
                     current_hosts,
                     future_hosts,
                 )

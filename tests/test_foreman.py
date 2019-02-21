@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
-import os
-from quads.helpers import quads_load_config
+from quads.config import conf
 from quads.tools.foreman import Foreman
-
-conf_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 
 class TestForeman(object):
