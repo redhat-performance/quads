@@ -2,17 +2,17 @@
 
 import argparse
 import os
-import sys
 import csv
 from datetime import datetime
 from jinja2 import Template
-from quads.helpers import quads_load_config
-from quads.quads import Quads
+from quads.config import conf as quads_config, quads_config_file
+from quads.quads import Api
 
-quads_config_file = os.path.dirname(__file__) + "/../conf/quads.yml"
-quads_config = quads_load_config(quads_config_file)
 
 TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
+
+API = 'v2'
+API_URL = os.path.join(quads_config['quads_base_url'], 'api', API)
 
 
 def generator(_host_file, _days, _month, _year, _gentime):
@@ -24,13 +24,8 @@ def generator(_host_file, _days, _month, _year, _gentime):
     if "install_dir" not in quads_config:
         print("quads: Missing \"install_dir\" in " + quads_config_file)
         exit(1)
-    sys.path.append(quads_config["install_dir"] + "/lib")
-    sys.path.append(os.path.dirname(__file__) + "../lib")
-    defaultstatedir = quads_config["data_dir"] + "/state"
-    defaultmovecommand = "/bin/echo"
-    quads = Quads(quads_config["data_dir"] + "/schedule.yaml",
-                  defaultstatedir, defaultmovecommand,
-                  None, None, False, False)
+
+    quads = Api(API_URL)
 
     def get_spaced_colors(visual_colors):
         result = []
@@ -68,13 +63,15 @@ def generator(_host_file, _days, _month, _year, _gentime):
                     "cell_time": datetime.strptime(cell_date, '%Y-%m-%d %H:%M')
                 }
 
-                history = quads.get_history()
-                for cloud in sorted(history["cloud" + str(_day["chosen_color"])]):
-                    if datetime.fromtimestamp(cloud) <= _day["cell_time"]:
-                        _day["display_description"] = history["cloud" + str(_day["chosen_color"])][cloud]["description"]
-                        _day["display_owner"] = history["cloud" + str(_day["chosen_color"])][cloud]["owner"]
-                        _day["display_ticket"] = history["cloud" + str(_day["chosen_color"])][cloud]["ticket"]
-                        break
+                # TODO: this
+                # history = quads.get_history()
+                # for cloud in sorted(history["cloud" + str(_day["chosen_color"])]):
+                #     if datetime.fromtimestamp(cloud) <= _day["cell_time"]:
+                #         _day["display_description"] = \
+                #             history["cloud" + str(_day["chosen_color"])][cloud]["description"]
+                #         _day["display_owner"] = history["cloud" + str(_day["chosen_color"])][cloud]["owner"]
+                #         _day["display_ticket"] = history["cloud" + str(_day["chosen_color"])][cloud]["ticket"]
+                #         break
                 __days.append(_day)
 
             line["days"] = __days
@@ -96,7 +93,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             your_list = list(reader)
     else:
         your_list = []
-        for h in sorted(quads.data['hosts'].keys()):
+        for h in sorted(quads.get_hosts()):
             your_list.append([h])
     your_list_colors = []
     for h in your_list:
@@ -107,9 +104,9 @@ def generator(_host_file, _days, _month, _year, _gentime):
                 day_string = "0" + str(day)
             else:
                 day_string = str(day)
-            default, current, override = quads.find_current(h[0], "{}-{}-{} 00:00".format(_year, _month, day_string))
+            current = quads.get_current_schedule(host=h[0], date="{}-{}-{} 00:00".format(_year, _month, day_string))
             if current:
-                one_host.append(current.lstrip("cloud"))
+                one_host.append(current["cloud"].lstrip("cloud"))
         your_list_colors.append(one_host)
 
     return print_simple_table(your_list, your_list_colors, _days, _gentime)
@@ -123,7 +120,8 @@ if __name__ == "__main__":
                               help='number of days to generate')
     requiredArgs.add_argument('-m', '--month', dest='month', type=str, required=True, default=None,
                               help='Month to generate')
-    requiredArgs.add_argument('-y', '--year', dest='year', type=str, required=True, default=None, help='Year to generate')
+    requiredArgs.add_argument('-y', '--year', dest='year', type=str, required=True, default=None,
+                              help='Year to generate')
     requiredArgs.add_argument('--host-file', dest='host_file', type=str, required=False, default=None,
                               help='file with list of hosts')
     parser.add_argument('--gentime', '-g', dest='gentime', type=str, required=False, default=None,
