@@ -69,6 +69,10 @@ class Api(object):
         uri = self._uri_constructor("schedule", kwargs)
         return self.delete(uri)
 
+    def remove_interface(self, **kwargs):
+        uri = self._uri_constructor("interfaces", kwargs)
+        return self.delete(uri)
+
     def insert_schedule(self, data):
         return self.post("schedule", data)
 
@@ -81,4 +85,8 @@ class Api(object):
 
     def get_summary(self, **kwargs):
         uri = self._uri_constructor("summary", kwargs)
+        return self.get(uri)
+
+    def get_interfaces(self, **kwargs):
+        uri = self._uri_constructor("interfaces", kwargs)
         return self.get(uri)
