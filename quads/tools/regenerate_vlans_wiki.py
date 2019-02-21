@@ -1,10 +1,9 @@
 from quads.tools.racks_wiki import update_wiki
+from quads.config import conf as quads_config
 from quads.model import Vlan, Cloud
 from tempfile import NamedTemporaryFile
 from mongoengine.errors import DoesNotExist
 
-import os
-import yaml
 
 HEADERS = [
     'VLANID',
@@ -16,25 +15,6 @@ HEADERS = [
     'RTTicket',
     'Cloud',
 ]
-
-
-# Load QUADS yaml config
-def quads_load_config(_quads_config):
-    try:
-        with open(_quads_config, 'r') as config_file:
-            try:
-                quads_config_yaml = yaml.safe_load(config_file)
-            except yaml.YAMLError:
-                print("quads: Invalid YAML config: " + _quads_config)
-                exit(1)
-    except Exception as ex:
-        print(ex)
-        exit(1)
-    return quads_config_yaml
-
-
-quads_config_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-quads_config = quads_load_config(quads_config_file)
 
 
 def render_header(markdown):
