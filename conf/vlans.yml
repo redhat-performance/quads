@@ -1,10 +1,6 @@
 pubnet01:
   cloud: 1
   gateway: 10.12.81.254
-<<<<<<< HEAD
-  id: 1
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 510
   iprange: 10.12.80.0/23,
   netmask: 255.255.254.0
@@ -14,10 +10,6 @@ pubnet01:
 pubnet02:
   cloud: 2
   gateway: 10.12.83.254
-<<<<<<< HEAD
-  id: 2
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 510
   iprange: 10.12.82.0/23,
   netmask: 255.255.254.0
@@ -27,10 +19,6 @@ pubnet02:
 pubnet03:
   cloud: 3
   gateway: 10.12.84.254
-<<<<<<< HEAD
-  id: 3
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.84.0/24,
   netmask: 255.255.255.0
@@ -40,10 +28,6 @@ pubnet03:
 pubnet04:
   cloud: 4
   gateway: 10.12.85.254
-<<<<<<< HEAD
-  id: 4
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.85.0/24,
   netmask: 255.255.255.0
@@ -53,10 +37,6 @@ pubnet04:
 pubnet05:
   cloud: 5
   gateway: 10.12.86.254
-<<<<<<< HEAD
-  id: 5
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.86.0/24,
   netmask: 255.255.255.0
@@ -66,10 +46,6 @@ pubnet05:
 pubnet06:
   cloud: 6
   gateway: 10.12.87.254
-<<<<<<< HEAD
-  id: 6
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.87.0/24,
   netmask: 255.255.255.0
@@ -79,10 +55,6 @@ pubnet06:
 pubnet07:
   cloud: 7
   gateway: 10.12.88.254
-<<<<<<< HEAD
-  id: 7
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.88.0/24,
   netmask: 255.255.255.0
@@ -92,10 +64,6 @@ pubnet07:
 pubnet08:
   cloud: 08
   gateway: 10.12.89.254
-<<<<<<< HEAD
-  id: 8
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.89.0/24,
   netmask: 255.255.255.0
@@ -105,10 +73,6 @@ pubnet08:
 pubnet09:
   cloud: 09
   gateway: 10.12.90.254
-<<<<<<< HEAD
-  id: 9
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.90.0/24,
   netmask: 255.255.255.0
@@ -118,10 +82,6 @@ pubnet09:
 pubnet10:
   cloud: 10
   gateway: 10.12.91.254
-<<<<<<< HEAD
-  id: 10
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 254
   iprange: 10.12.91.0/24,
   netmask: 255.255.255.0
@@ -131,10 +91,6 @@ pubnet10:
 pubnet11:
   cloud: 11
   gateway: 10.12.92.126
-<<<<<<< HEAD
-  id: 11
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.92.0/25,
   netmask: 255.255.255.128
@@ -144,10 +100,6 @@ pubnet11:
 pubnet12:
   cloud: 12
   gateway: 10.12.92.254
-<<<<<<< HEAD
-  id: 12
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.92.128/25,
   netmask: 255.255.255.128
@@ -157,10 +109,6 @@ pubnet12:
 pubnet13:
   cloud: 13
   gateway: 10.12.93.126
-<<<<<<< HEAD
-  id: 13
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.93.0/25,
   netmask: 255.255.255.128
@@ -170,10 +118,6 @@ pubnet13:
 pubnet14:
   cloud: 14
   gateway: 10.12.93.254
-<<<<<<< HEAD
-  id: 14
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.93.128/25,
   netmask: 255.255.255.128
@@ -183,10 +127,6 @@ pubnet14:
 pubnet15:
   cloud: 15
   gateway: 10.12.94.126
-<<<<<<< HEAD
-  id: 15
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.94.0/25,
   netmask: 255.255.255.128
@@ -196,10 +136,6 @@ pubnet15:
 pubnet16:
   cloud: 16
   gateway: 10.12.94.254
-<<<<<<< HEAD
-  id: 16
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 126
   iprange: 10.12.94.128/25,
   netmask: 255.255.255.128
@@ -209,10 +145,6 @@ pubnet16:
 pubnet17:
   cloud: 17
   gateway: 10.12.95.62
-<<<<<<< HEAD
-  id: 17
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 62
   iprange: 10.12.95.0/26,
   netmask: 255.255.255.192
@@ -222,10 +154,6 @@ pubnet17:
 pubnet18:
   cloud: 18
   gateway: 10.12.95.126
-<<<<<<< HEAD
-  id: 18
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 62
   iprange: 10.12.95.64/26,
   netmask: 255.255.255.192
@@ -235,10 +163,6 @@ pubnet18:
 pubnet19:
   cloud: 19
   gateway: 10.12.95.190
-<<<<<<< HEAD
-  id: 19
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 62
   iprange: 10.12.95.128/26,
   netmask: 255.255.255.192
@@ -248,17 +172,10 @@ pubnet19:
 pubnet20:
   cloud: 20
   gateway: 10.12.95.254
-<<<<<<< HEAD
-  id: 20
-=======
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
   ipfree: 62
   iprange: 10.12.95.192/26,
   netmask: 255.255.255.192
   owner: nobody
   ticket: 0
-<<<<<<< HEAD
   vlanid: 620
-=======
-  vlanid: 620
->>>>>>> ed6bb39... Added logic for public Vlans in the form of the optional argument
+
