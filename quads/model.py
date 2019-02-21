@@ -2,15 +2,19 @@ from datetime import datetime
 from mongoengine import (
     connect,
     Document,
+    EmbeddedDocument,
+    queryset_manager,
+    Q,
     StringField,
     BooleanField,
     ListField,
     ReferenceField,
     DateTimeField,
-    queryset_manager,
-    Q,
     SequenceField,
-    IntField, LongField)
+    IntField,
+    LongField,
+    EmbeddedDocumentField
+)
 from quads.helpers import param_check
 
 import os
@@ -65,6 +69,9 @@ class Cloud(Document):
     wipe = BooleanField()
     post_config = ListField()
     ccuser = ListField()
+    released = BooleanField(default=False)
+    validated = BooleanField(default=False)
+    notified = BooleanField(default=False)
     meta = {
         'indexes': [
             {
@@ -129,10 +136,29 @@ class Vlan(Document):
         return result, data
 
 
+class Interface(EmbeddedDocument):
+    name = StringField()
+    mac_address = StringField()
+    ip_address = StringField()
+    vlan = StringField()
+    switch_port = StringField()
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ['name', 'mac_address', 'ip_address', 'vlan', 'switch_port']
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
 class Host(Document):
     name = StringField(unique=True)
     default_cloud = ReferenceField(Cloud)
     host_type = StringField()
+    interfaces = ListField(EmbeddedDocumentField(Interface))
+    nullos = BooleanField(default=True)
+    build = BooleanField(default=False)
+    last_build = DateTimeField()
     meta = {
         'indexes': [
             {
@@ -155,8 +181,8 @@ class Counters(Document):
 
 
 class Schedule(Document):
-    cloud = ReferenceField(Cloud)
-    host = ReferenceField(Host)
+    cloud = ReferenceField(Cloud, required=True)
+    host = ReferenceField(Host, required=True)
     start = DateTimeField()
     end = DateTimeField()
     index = IntField()
