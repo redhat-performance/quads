@@ -1,12 +1,7 @@
 import argparse
-import os
 import yaml
 
-from quads.helpers import quads_load_config
 from quads.model import Vlan, Cloud
-
-conf_file = os.path.join(os.path.dirname(__file__), "../../conf/quads.yml")
-conf = quads_load_config(conf_file)
 
 
 def main(_args):

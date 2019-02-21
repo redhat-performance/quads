@@ -12,7 +12,7 @@ RUN apt-get update && \
     python3-requests \
     git
 
-RUN pip install cherrypy pyyaml mongoengine requests ipdb python-wordpress-xmlrpc python-git flake8
+RUN pip install cherrypy pyyaml mongoengine requests ipdb python-wordpress-xmlrpc python-git flake8 paramiko
 
 WORKDIR /opt
 RUN git clone --single-branch --branch master https://github.com/redhat-performance/quads
