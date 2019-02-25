@@ -13,21 +13,15 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
-      * [Notes](#notes)
+      * [Design](#design)
       * [Requirements](#requirements)
       * [QUADS Workflow](#quads-workflow)
-      * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
-      * [Example: Automated Scheduling](#example-automated-scheduling)
-      * [Example: Systems Wiki](#example-systems-wiki)
-      * [Example: Workload Assignments](#example-workload-assignments)
-      * [Example: Calendar View](#example-calendar-view)
-      * [Example: Systems Visualization Map](#example-systems-visualization-map)
-      * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
+         * [Installing QUADS with Docker Compose (Recommended)](#installing-quads-with-docker-compose-recommended)
+            * [Running QUADS from inside Docker](#running-quads-from-inside-docker)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
-         * [Running Quads with Docker-compose (Experimental)](#running-quads-with-docker-compose-experimental)
          * [Running Quads from inside Docker (Experimental)](#running-quads-from-inside-docker-experimental)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
@@ -53,8 +47,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
-   - Create and manage a date/time based YAML schedule for machine allocations
+   - Create and manage a date/time schedule for machine allocations
    - Drive system provisioning and network switch changes based on workload assignment via external commands
+   - Control PDU sockets for connected bare-metal systems for power actions
    - Automated network and provisioning validation prior to delivering sets of machines/networks to users.
    - Generates instackenv.json for each OpenStack environment.
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
@@ -70,100 +65,67 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - RT (or similiar ticketing system) integration.
    - IRC bot and email notifications for new provisioning tasks and ones ending completion
 
-## Notes
-   - Very simple design (flat files, no external DB)
-   - Allows for calling external provisioning commands via ```--path-to-command```
-   - We use [Foreman](https://theforeman.org/) for the systems provisioning backend, but this can be substituted.
+## Design
+   - Main components: `Python3, Cherrypy, MongoDB, Jinja2`
+   - Installation via Docker compose, RPM (Fedora or EL8+) or Github sources
+   - We use [badfish](https://github.com/redhat-performance/badfish) for managing bare-metal IPMI
+   - We use [Foreman](https://theforeman.org/) for the systems provisioning backend.
 
 ## Requirements
-   - Python 2.6+ and libyaml (or [pyaml](https://pypi.python.org/pypi/pyaml)) are required for basic operation.
+   - In QUADS 1.1+ we are using Python3, Cherrypy and Jinja2 with MongoDB as the database backend.
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
-   - We use [Ansible](https://github.com/redhat-performance/quads/tree/master/ansible) for optional Dell playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
+   - We use [badfish](https://github.com/redhat-performance/badfish) for optional Dell playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
    - The package [ansible-cmdb](https://github.com/fboender/ansible-cmdb) needs to be available if you want to see per assignment Ansible facts of the inventory. It can be obtained from [here](https://github.com/fboender/ansible-cmdb/releases)
 
 ## QUADS Workflow
 
-![quadsworkflow](/image/quads-workflow.png?raw=true)
-
-## QUADS Foreman Provisioning Workflow
-
-![quadsforemanarch](/image/quads-foreman-workflow.png?raw=true)
-
-## Example: Automated Scheduling
-
-![quads-schedule](/image/quads-example-scheduling.png?raw=true)
-
-## Example: Systems Wiki
-
-![wiki](/image/quads-wiki.png?raw=true)
-
-## Example: Workload Assignments
-
-![wiki](/image/quads-assignments.png?raw=true)
-
-## Example: Workload Assignments Readiness
-
-![wiki](/image/quads-assignment-readiness.png?raw=true)
-
-## Example: Calendar View
-
-![wiki](/image/quads-calendar.png?raw=true)
-
-## Example: Systems Visualization Map
-
-![wiki](/image/quads-visual.png?raw=true)
-
-## Example: IRC and Email Notifications
-   - We notify our Supybot IRC bot to announce when new environments are provisioned
-
-```
-<lucius> QUADS: cloud02 : 9 (OSP Newton Testing) is now active, choo choo! - http://wiki.example.com/assignments/#cloud02
-```
-   - We send email notifications when new environments are defined.
-   - We also send email notifications with the host list for the environment 7 days prior to activation.
-   - Furthermore we send email notifications when new environments are provisioned.
-
-```
-Greetings Citizen,
-
-You've been allocated a new environment!
-
-cloud06 : 13 (OVN and OpenStack ML2/OVS)
-
-(Details)
-http://wiki.example.com/assignments/#cloud06
-
-```
-   - Lastly we send notifications 7, 5, 3, 1 days out from when assignments expire (or any number of machines are set to be removed during the current assignment schedule).
-   - You can use the fields ```--cloud-owner``` and ```--cc-users``` to define who gets notifications.
-```
-This is a message to alert you that in 7 days
-your allocated environment:
-
-cloud08 : 29 (JBOSS Data Grid)
-
-(Details)
-http://wiki.example.com/assignments/#cloud08
-
-will have some or all of the hosts expire.  Some or all of your
-hosts will automatically be reprovisioned and returned to the
-machine pool.
-
-b01-h05-r620.example.com
-b01-h06-r620.example.com
-b02-h01-r620.example.com
-
-```
+You can read about QUADS mechanics, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
 
 ## QUADS Switch and Host Setup
    - To ensure you have setup your switch properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
-   - We offer both RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
-   - It's recommended to use RPM as it requires less setup and upgrades are tied into your distribution package system.
+   - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
+   - It's recommended to use the Docker method as it requires less setup.
 
+### Installing QUADS with Docker Compose (Recommended)
+   - Clone repo and move to docker directory
+```bash
+git clone https://github.com/redhat-performance/quads.git && cd quads/docker
+```
+   - Run docker-compose
+```bash
+docker-compose up
+```
+   - Access Quads Wiki via browser at `http://localhost`
+   - Run commands against containerized quads via docker exec
+```bash
+docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+```
+   - Enter mongo interactive mode
+```bash
+docker exec -it quads mongo --host mongo
+```
+
+#### Running Quads from inside Docker
+   - Run a daemonized mongo container
+```bash
+docker run --name quads-mongo -d mongo
+```
+   - Run a daemonized quads server linked to our mongo instance
+```bash
+docker run -d --name quads -p 8080:8080 --link quads-mongo:mongo -e MONGODB_IP=mongo --rm grafuls/quads-dev
+```
+   - Run commands against containerized quads via docker exec
+```bash
+docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+```
+   - Enter mongo interactive mode
+```bash
+docker exec -it quads mongo --host mongo
+```
 ### Installing QUADS from Github
    - Clone the git repository (substitute paths below as needed)
 
@@ -172,7 +134,7 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 ```
    - Install pre-requisite Python packages
 ```
-yum install PyYAML ansible expectk python2-aexpect python-requests
+yum install expectk python3-aexpect python-requests
 ```
    - Install a webserver (Apache, nginx, etc)
 ```
@@ -197,26 +159,18 @@ vi /opt/quads/conf/quads.yml
    - Enable and start the QUADS systemd service (daemon)
    - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
 ```
-cp /opt/quads/systemd/quads-daemon.service /etc/systemd/system/quads-daemon.service
+cp /opt/quads/systemd/quads-server.service /etc/systemd/system/quads-server.service
 systemctl daemon-reload
-systemctl enable quads-daemon.service
-systemctl start quads-daemon.service
+systemctl enable quads-server.service
+systemctl start quads-server.service
 ```
-   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-daemon``` via an alternative init process or similiar (It's just a Python HTTP application).
+   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar (It's just a Python HTTP application).
 
 ### Installing QUADS from RPM
-   - On Red Hat or CentOS 7+
+   - On Fedora *(and eventually CentOS/RHEL 8+ when it's available)*
 
 ```
-yum install yum-utils -y
-yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS/repo/epel-7/quadsdev-QUADS-epel-7.repo
-yum-config-manager --enable quadsdev-QUADS-epel-7
-yum install quads -y
-```
-   - On Fedora
-
-```
-dnf copr enable quadsdev/QUADS  -y
+dnf copr enable quadsdev/python3-quads  -y
 dnf install quads -y
 ```
    - Read through the [QUADS YAML configuration file](/conf/quads.yml)
@@ -226,8 +180,8 @@ vi /opt/quads/conf/quads.yml
    - Enable and start the QUADS systemd service (daemon)
    - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
 ```
-systemctl enable quads-daemon.service
-systemctl start quads-daemon.service
+systemctl enable quads-server.service
+systemctl start quads-server.service
 ```
    - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
 
@@ -261,43 +215,6 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
-   
-### Running Quads with Docker compose (Experimental)
-   - Clone repo and move to docker directory
-```bash
-git clone https://github.com/redhat-performance/quads.git && cd quads/docker
-```
-   - Run docker-compose
-```bash
-docker-compose up
-```
-   - Access Quads Wiki via browser at `http://localhost`
-   - Run commands against containerized quads via docker exec
-```bash
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
-```
-   - Enter mongo interactive mode
-```bash
-docker exec -it quads mongo --host mongo
-```
-   
-### Running Quads from inside Docker (Experimental)
-   - Run a daemonized mongo container
-```bash
-docker run --name quads-mongo -d mongo
-```
-   - Run a daemonized quads server linked to our mongo instance
-```bash
-docker run -d --name quads -p 8080:8080 --link quads-mongo:mongo -e MONGODB_IP=mongo --rm grafuls/quads-dev
-```
-   - Run commands against containerized quads via docker exec
-```bash
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
-```
-   - Enter mongo interactive mode
-```bash
-docker exec -it quads mongo --host mongo
-```
 
 ## QUADS Usage Documentation
 
@@ -642,13 +559,13 @@ for host in $(cat /tmp/452851); do /opt/quads/bin/quads-cli --rm-schedule $(/opt
 ```
 
 ## Using the QUADS JSON API
-* We've recently introduced a JSON API into QUADS comprised of a systemd service ```quads-daemon``` and a ```quads-cli```
+* We've recently introduced a JSON API into QUADS comprised of a systemd service ```quads-server``` and a ```quads-cli```
 * This is an optional local systemd service you can start and interact with and listens on localhost ```TCP/8080```
 
 ```
-cp systemd/quads-daemon.service /etc/systemd/system/quads-daemon.service
-systemctl enable quads-daemon.service
-systemctl start quads-daemon.service
+cp systemd/quads-server.service /etc/systemd/system/quads-server.service
+systemctl enable quads-server.service
+systemctl start quads-server.service
 ```
 
   - All of the argparse and normal QUADS sub-commands are supported and will accept http ```GET``` and ```POST``` actions in a JSON response body.
@@ -766,8 +683,8 @@ curl -X POST http://localhost:8080/api/v1/rhs -d host=c01-h01-r620.rdu.openstack
 ```
 
 * Using quads-cli
-  - ```/opt/quads/bin/quads-cli``` is a front-end to the ```bin/quads-daemon``` JSON API.
-  - ```/opt/quads/bin/quads-cli``` interacts with ```/opt/quads/bin/quads-daemon``` exactly like the normal ```/opt/quads/bin/quads-cli`` so you can utilize the same documentation above.
+  - ```/opt/quads/bin/quads-cli``` is a front-end to the ```bin/quads-server``` JSON API.
+  - ```/opt/quads/bin/quads-cli``` interacts with ```/opt/quads/bin/quads-server``` exactly like the normal ```/opt/quads/bin/quads-cli`` so you can utilize the same documentation above.
 
 ## Additional Tools and Commands
 
@@ -783,24 +700,6 @@ cloud01:
   - b09-h03-r620.rdu.openstack.engineering.example.com
   - b09-h05-r620.rdu.openstack.engineering.example.com
   - b09-h06-r620.rdu.openstack.engineering.example.com
-```
-
-* You can use ```find-available.py``` to search for free machines for a timerange for allocation.
-  - Use the optional ```-l``` option to filter results
-
-```
-/opt/quads/bin/find-available.py -c 5 -d 10
-```
-```
-================
-First available date = 2016-12-05 08:00
-Requested end date = 2016-12-15 08:00
-hostnames =
-c03-h11-r620.rdu.openstack.example.com
-c03-h13-r620.rdu.openstack.example.com
-c03-h14-r620.rdu.openstack.example.com
-c03-h15-r620.rdu.openstack.example.com
-c03-h17-r620.rdu.openstack.example.com
 ```
 
 * You can use ```find-free-cloud.py``` to search for available clouds to assign new systems into for future assignments.
