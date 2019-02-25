@@ -80,10 +80,8 @@ rm -rf %{buildroot}
 /etc/systemd/system/quads-server.service
 /etc/profile.d/quads.sh
 /opt/quads/bin/*
-/opt/quads/quads/templates/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/tools/core/*
-/opt/quads/cron/*
 /var/www/html/visual/*
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
