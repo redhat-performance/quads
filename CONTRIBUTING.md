@@ -84,10 +84,14 @@ git review
 * Keep an eye on your patchset in Gerrithub, this is where CI will run, where we'll provide feedback and where you can monitor changes and status.  Your git review command will print the correct URL to your patchset.
 
 ### Continuous Integration (CI)
-Jenkins CI currently checks the following for every submitted patchset:
+Jenkins CI pipeline currently checks the following for every submitted patchset:
   - shellcheck - checks for common shell syntax errors and issues
   - flake8 - checks Python tools for common syntax errors and issues
-  - quads sandbox test - instantiates and runs common QUADS operations with fake data
-    * This is all run from ```testing/test-quads.sh```
+  - quads sandbox test - instantiates a full QUADS in containers and runs common QUADS operations with fake data
     * We currently do not expose CI logs externally, please reply on your patchset comments if you'd like a paste of it.
+  - You can trigger CI to run again by commenting on your patchset in gerrit with `retrigger`
+
+#### QUADS CI Architecture
+
+![quads-ci](/image/quads-ci.png?raw=true)
 
