@@ -34,6 +34,7 @@ Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
 Requires: git
+Requires: ipmitool
 Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
@@ -67,7 +68,7 @@ rm -rf %{buildroot}
 mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
-tar cf - bin quads/tools/*.py quads/tools/core/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+tar cf - bin quads/tools/*.py quads/tools/core/*.py quads/templates/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
 cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
@@ -80,10 +81,9 @@ rm -rf %{buildroot}
 /etc/systemd/system/quads-server.service
 /etc/profile.d/quads.sh
 /opt/quads/bin/*
-/opt/quads/quads/templates/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/tools/core/*
-/opt/quads/cron/*
+/opt/quads/quads/templates/*
 /var/www/html/visual/*
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
