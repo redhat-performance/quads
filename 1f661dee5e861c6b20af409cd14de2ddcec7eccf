@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d36f7be1_635fc6d0",
+        "filename": "rpm/quads.spec",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-02-25T15:26:46Z",
+      "side": 1,
+      "message": "/opt/quads/conf/idrac_interfaces.yml",
+      "range": {
+        "startLine": 90,
+        "startChar": 19,
+        "endLine": 90,
+        "endChar": 50
+      },
+      "revId": "1f661dee5e861c6b20af409cd14de2ddcec7eccf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad7c1025_75676a2d",
+        "filename": "systemd/quads-server.service",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-02-25T15:26:46Z",
+      "side": 1,
+      "message": "don\u0027t we want to match file name?",
+      "range": {
+        "startLine": 1,
+        "startChar": 37,
+        "endLine": 1,
+        "endChar": 43
+      },
+      "revId": "1f661dee5e861c6b20af409cd14de2ddcec7eccf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "661ee17b_03631db0",
+        "filename": "systemd/quads-server.service",
+        "patchSetId": 10
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-02-25T15:26:46Z",
+      "side": 1,
+      "message": "server",
+      "range": {
+        "startLine": 20,
+        "startChar": 30,
+        "endLine": 20,
+        "endChar": 36
+      },
+      "revId": "1f661dee5e861c6b20af409cd14de2ddcec7eccf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
