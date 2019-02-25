@@ -2,15 +2,14 @@
 
 Below are common workflows, visualizations and features of QUADS.
 
-   * [QUADS Workflow and Examples)](#quads-workflow-and-examples)
-      * [QUADS Workflow](#quads-workflow)
-      * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
-      * [Example: Automated Scheduling](#example-automated-scheduling)
-      * [Example: Systems Wiki](#example-systems-wiki)
-      * [Example: Workload Assignments](#example-workload-assignments)
-      * [Example: Calendar View](#example-calendar-view)
-      * [Example: Systems Visualization Map](#example-systems-visualization-map)
-      * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
+* [QUADS Workflow and Examples)](#quads-workflow-and-visuals)
+    * [QUADS Workflow](#quads-workflow)
+    * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
+    * [Example: Automated Scheduling](#example-automated-scheduling)
+    * [Example: Systems Wiki](#example-systems-wiki)
+    * [Example: Workload Assignments](#example-workload-assignments)
+    * [Example: Systems Visualization Map](#example-systems-visualization-map)
+    * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
 
 ## QUADS Workflow
 
@@ -35,10 +34,6 @@ Below are common workflows, visualizations and features of QUADS.
 ## Example: Workload Assignments Readiness
 
 ![wiki](../image/quads-assignment-readiness.png?raw=true)
-
-## Example: Calendar View
-
-![wiki](../image/quads-calendar.png?raw=true)
 
 ## Example: Systems Visualization Map
 

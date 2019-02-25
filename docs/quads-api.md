@@ -2,11 +2,11 @@
 
 We provide a RESTful API based on CherryPy endpoints with QUADS.
 
-      * [Using the QUADS JSON API](#using-the-quads-json-api)
-         * [API GET Operations](#api-get-operations)
-         * [API POST Operations](#api-post-operations)
-         * [Working Examples](#working-examples)
-         * [More Examples with API POST](#more-examples-with-api-post)
+* [Using the QUADS JSON API](#quads-api-documentation)
+    * [API GET Operations](#api-get-operations)
+    * [API POST Operations](#api-post-operations)
+    * [Working Examples](#working-examples)
+    * [More Examples with API POST](#more-examples-with-api-post)
 
 ## Using the QUADS JSON API
 * All QUADS actions under the covers uses the JSON API v2
