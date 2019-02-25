@@ -19,10 +19,8 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS with Docker Compose (Recommended)](#installing-quads-with-docker-compose-recommended)
-            * [Running QUADS from inside Docker](#running-quads-from-inside-docker)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
-         * [Running Quads from inside Docker (Experimental)](#running-quads-from-inside-docker-experimental)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
@@ -105,23 +103,6 @@ docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
 docker exec -it quads mongo --host mongo
 ```
 
-#### Running Quads from inside Docker
-   - Run a daemonized mongo container
-```bash
-docker run --name quads-mongo -d mongo
-```
-   - Run a daemonized quads server linked to our mongo instance
-```bash
-docker run -d --name quads -p 8080:8080 --link quads-mongo:mongo -e MONGODB_IP=mongo --rm grafuls/quads-dev
-```
-   - Run commands against containerized quads via docker exec
-```bash
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
-```
-   - Enter mongo interactive mode
-```bash
-docker exec -it quads mongo --host mongo
-```
 ### Installing QUADS from Github
    - Clone the git repository (substitute paths below as needed)
 
