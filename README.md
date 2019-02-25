@@ -9,7 +9,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 ![quads](/image/quads.jpg?raw=true)
 
 
-![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS/package/quads/status_image/last_build.png)
+![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
