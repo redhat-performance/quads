@@ -89,9 +89,13 @@ You can read about QUADS mechanics, provisioning, visuals and workflow [in our d
 ```
 git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads
 ```
+   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
+```
+vi /opt/docker/quads/conf/quads.yml
+```
    - Run docker-compose to instantiate a full QUADS stack
 ```
-docker-compose -f quads/docker/docker-compose.yml up -d
+docker-compose -f /opt/docker/quads/docker/docker-compose.yml up -d
 ```
    - Access Quads Wiki via browser at `http://localhost`
    - Run commands against containerized quads via docker exec
@@ -133,7 +137,7 @@ mkdir -p /var/www/html/visual
 ```
 cp -p /opt/quads/images/{button*,texture*}.png /var/www/html/visual/
 ```
-   - - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
+   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
 ```
 vi /opt/quads/conf/quads.yml
 ```
