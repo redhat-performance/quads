@@ -17,14 +17,15 @@ git clone --single-branch --branch master https://github.com/redhat-performance/
 
   - Change directory to the code and create your own branch to work
 ```
-cd quads/docker
-git branch yourname_change
+cd /opt/docker/quads/docker
+git branch name_of_change
 git checkout !$
 ```
 
   - Instantiate the QUADS containers
 
 ```
+cd /opt/docker/quads/docker
 docker-compose -f docker-compose.yml up
 ```
   - This will not background the docker orchestration, so open other terminals to work.
