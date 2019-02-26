@@ -10,9 +10,6 @@
 #
 #  ./test-quads.sh 2>&1 | less
 #
-# If you're looking for a full sandbox setup
-# please use quads-sandbox.sh instead.
-#
 ############################################
 
 if [ -z "$1" ]; then
