@@ -84,23 +84,27 @@ You can read about QUADS mechanics, provisioning, visuals and workflow [in our d
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
    - It's recommended to use the Docker method as it requires less setup.
 
-### Installing QUADS with Docker Compose (Recommended)
-   - Clone repo and move to docker directory
-```bash
-git clone https://github.com/redhat-performance/quads.git && cd quads/docker
+### Installing QUADS with Docker Compose *(Recommended)*
+   - Clone the QUADS Github repository
 ```
-   - Run docker-compose
-```bash
-docker-compose up
+git clone --single-branch --branch master https://github.com/redhat-performance/quads
+```
+   - Run docker-compose to instantiate a full QUADS stack
+```
+docker-compose -f quads/docker/docker-compose.yml up -d
 ```
    - Access Quads Wiki via browser at `http://localhost`
    - Run commands against containerized quads via docker exec
-```bash
+
+```
 docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
 ```
-   - Enter mongo interactive mode
-```bash
-docker exec -it quads mongo --host mongo
+
+We find it useful to create an alias on your quads container for executing quads-cli commands inside the container.
+
+   - On your docker host:
+```
+echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
 ```
 
 ### Installing QUADS from Github

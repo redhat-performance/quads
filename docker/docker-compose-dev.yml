@@ -54,6 +54,8 @@ services:
     environment:
       - MONGODB_IP=quads-db
       - WORDPRESS_IP=wordpress
+    volumes:
+      - /opt/docker/quads:/opt/quads
 
   quads-db:
     image: mongo:4.0.4-xenial

@@ -5,8 +5,6 @@ RUN apt-get update && \
     python3-cherrypy3 \
     python3-mongoengine \
     python3-jinja2 \
-    mongodb \
-    mongodb-server \
     python3-passlib \
     python3-yaml \
     python3-requests \
