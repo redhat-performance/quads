@@ -97,7 +97,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     # hammer user update --login $new_cloud --password $foreman_user_password
 
     ipmi_set_pass = [
-        "ipmitool",
+        "/usr/bin/ipmitool",
         "-I", "lanplus",
         "-H", "mgmt-%s" % host,
         "-U", conf["ipmi_username"],
@@ -107,7 +107,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     subprocess.call(ipmi_set_pass)
 
     ipmi_set_operator = [
-        "ipmitool",
+        "/usr/bin/ipmitool",
         "-I", "lanplus",
         "-H", "mgmt-%s" % host,
         "-U", conf["ipmi_username"],
