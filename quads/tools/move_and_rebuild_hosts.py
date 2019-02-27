@@ -7,6 +7,7 @@ from quads.helpers import is_supported
 from quads.model import Host, Cloud
 from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
+from quads.tools.core.logger import Logger
 from quads.tools.ssh_helper import SSHHelper
 
 
@@ -97,26 +98,27 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     # hammer user update --login $new_cloud --password $foreman_user_password
 
     ipmi_set_pass = [
-        "ipmitool",
+        "/usr/bin/ipmitool",
         "-I", "lanplus",
         "-H", "mgmt-%s" % host,
         "-U", conf["ipmi_username"],
         "-P", conf["ipmi_password"],
-        "user", "set", "password", conf["ipmi_cloud_username_id"], ipmi_new_pass
+        "user", "set", "password", str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
     subprocess.call(ipmi_set_pass)
 
     ipmi_set_operator = [
-        "ipmitool",
+        "/usr/bin/ipmitool",
         "-I", "lanplus",
         "-H", "mgmt-%s" % host,
         "-U", conf["ipmi_username"],
         "-P", conf["ipmi_password"],
-        "user", "priv", conf["ipmi_cloud_username_id"], "0x4"
+        "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
     subprocess.call(ipmi_set_operator)
     if rebuild and _new_cloud_obj.name != "cloud01":
-        badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
+        logger = Logger()
+        badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"], logger)
 
         if conf["pdu_management"]:
             # TODO: pdu management
