@@ -70,6 +70,10 @@ foreman_api_url: https://foreman.example.com/api/v2
 foreman_username: admin
 foreman_password: password
 
+foreman_default_os: "RHEL 7"
+foreman_default_ptable: "generic-rhel7"
+foreman_default_medium: "RHEL local"
+
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
 # want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'
