@@ -10,7 +10,7 @@ from mongoengine.errors import DoesNotExist
 
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
-logger = logging.getLogger('api_v2')
+logger = logging.getLogger(__name__)
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -72,7 +72,8 @@ class MovesMethodHandler(MethodHandlerBase):
                         continue
 
                 return json.dumps({'result': result})
-            except Exception:
+            except Exception as ex:
+                logger.debug(ex)
                 logger.info("400 Bad Request")
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({'result': ['400 Bad Request']})

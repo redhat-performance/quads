@@ -5,25 +5,12 @@ import os
 import csv
 from datetime import datetime
 from jinja2 import Template
-from quads.config import conf as quads_config, quads_config_file
+from quads.config import conf as quads_config, API_URL, TEMPLATES_PATH
 from quads.quads import Api
-
-
-TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
-
-API = 'v2'
-API_URL = os.path.join(quads_config['quads_base_url'], 'api', API)
 
 
 def generator(_host_file, _days, _month, _year, _gentime):
     color_array = []
-    # Sanity checks to determine QUADS dir structure is intact
-    if "data_dir" not in quads_config:
-        print("quads: Missing \"data_dir\" in " + quads_config_file)
-        exit(1)
-    if "install_dir" not in quads_config:
-        print("quads: Missing \"install_dir\" in " + quads_config_file)
-        exit(1)
 
     quads = Api(API_URL)
 

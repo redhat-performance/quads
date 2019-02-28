@@ -2,7 +2,7 @@ import calendar
 import os
 
 from datetime import datetime, timedelta
-from tools.simple_table_generator import generator
+from quads.tools.simple_table_generator import generator
 from quads.config import conf
 
 

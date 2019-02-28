@@ -1,31 +1,20 @@
 #! /usr/bin/env python
-
+import logging
 import os
 import socket
 
 from datetime import datetime
-
 from requests import RequestException
 
-from config import conf
+from jinja2 import Template
+from quads.config import conf, TEMPLATES_PATH, TOLERANCE, API_URL, INTERFACES
 from quads.quads import Api
 from quads.model import Cloud, Schedule
-from jinja2 import Template
+from quads.tools.foreman import Foreman
+from quads.tools.postman import Postman
+from quads.tools.ssh_helper import SSHHelper
 
-from tools.foreman import Foreman
-from tools.postman import Postman
-from tools.ssh_helper import SSHHelper
-
-TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
-TOLERANCE = 14400
-API = 'v2'
-
-INTERFACES = {
-    "nic1": ["172.16", "172.20"],
-    "nic2": ["172.17", "172.21"],
-    "nic3": ["172.18", "172.22"],
-    "nic4": ["172.19", "172.23"],
-}
+logger = logging.getLogger(__name__)
 
 
 def notify_failure(_cloud):
@@ -75,13 +64,12 @@ def post_system_test(_cloud):
         _cloud.ticket
     )
 
-    api_url = os.path.join(conf['quads_base_url'], 'api', API)
-    quads = Api(api_url)
+    quads = Api(API_URL)
     try:
         build_hosts = foreman.get_build_hosts()
     except RequestException:
-        print("Unable to query Foreman for cloud: %s" % _cloud.name)
-        print("Verify Foreman password is correct: %s" % _cloud.ticket)
+        logger.error("Unable to query Foreman for cloud: %s" % _cloud.name)
+        logger.error("Verify Foreman password is correct: %s" % _cloud.ticket)
         return False
 
     pending = []
@@ -93,9 +81,9 @@ def post_system_test(_cloud):
                 pending.append(host["name"])
 
         if pending:
-            print("The following hosts are marked for build:")
+            logger.info("The following hosts are marked for build:")
             for host in pending:
-                print(host)
+                logger.info(host)
             return False
 
     return True
@@ -103,8 +91,7 @@ def post_system_test(_cloud):
 
 def post_network_test(_cloud):
 
-    api_url = os.path.join(conf['quads_base_url'], 'api', API)
-    quads = Api(api_url)
+    quads = Api(API_URL)
 
     hosts = quads.get_cloud_hosts(_cloud)
 
@@ -139,11 +126,11 @@ def test_connection(_host, _port=53, _get_ip=False):
     try:
         socket.setdefaulttimeout(3)
         _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        _socket.connect(_host, _port)
+        _socket.connect((_host, _port))
         return True
     except OSError as ex:
-        print(ex)
-        print("Host %s does not seem to be accessible." % _host)
+        logger.debug(ex)
+        logger.error("Host %s does not seem to be accessible." % _host)
     return False
 
 
