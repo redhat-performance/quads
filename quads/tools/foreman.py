@@ -1,24 +1,33 @@
 #!/usr/bin/env python
-
+import logging
 import requests
 import urllib3
+from requests import RequestException
 
 urllib3.disable_warnings()
+
+logger = logging.getLogger(__name__)
 
 
 class Foreman(object):
     def __init__(self, url, username, password):
+        logger.debug(":Initializing Foreman object:")
         self.url = url
         self.username = username
         self.password = password
 
     def get(self, endpoint):
-        response = requests.get(
-            self.url + endpoint,
-            auth=(self.username, self.password),
-            verify=False
+        logger.debug("GET: %s" % endpoint)
+        try:
+            response = requests.get(
+                self.url + endpoint,
+                auth=(self.username, self.password),
+                verify=False
 
-        )
+            )
+        except RequestException as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
         return response.json()
 
     def get_host_dict(self, endpoint):
@@ -30,6 +39,7 @@ class Foreman(object):
         return hosts
 
     def put_host_parameter(self, host_name, name, value):
+        logger.debug("PUT param: {%s:%s}" % (name, value))
         _host_id = self.get_host_id(host_name)
         endpoint = "/hosts/%s" % _host_id
         data = {
@@ -40,23 +50,35 @@ class Foreman(object):
                 ]
             }
         }
-        response = requests.put(endpoint, data)
+        try:
+            response = requests.put(endpoint, data)
+        except RequestException as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return False
         if response.status_code in [200, 204]:
             return True
         return False
 
     def put_parameter(self, host_name, name, value):
+        logger.debug("PUT param: {%s:%s}" % (name, value))
         _host_id = self.get_host_id(host_name)
         endpoint = "/hosts/%s" % _host_id
         data = {
             'host': {name: value}
         }
-        response = requests.put(endpoint, data)
+        try:
+            response = requests.put(endpoint, data)
+        except RequestException as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return False
         if response.status_code in [200, 204]:
             return True
         return False
 
     def put_parameter_by_name(self, host, name, value):
+        logger.debug("PUT param: {%s:%s}" % (name, value))
         param_id = None
         if name == "media":
             put_name = "medium"
@@ -74,6 +96,7 @@ class Foreman(object):
         return False
 
     def get_idrac_host(self, host_name):
+        logger.debug("GET idrac: %s" % host_name)
         _host_id = self.get_host_id(host_name)
         endpoint = "/hosts/%s/interfaces/" % _host_id
         result = self.get_host_dict(endpoint)
@@ -129,7 +152,13 @@ class Foreman(object):
         extraneous_interfaces = self.get_extraneous_interfaces(_host_id)
         for interface in extraneous_interfaces:
             endpoint = "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
-            response = requests.delete(endpoint)
+            try:
+                response = requests.delete(endpoint)
+            except RequestException as ex:
+                logger.debug(ex)
+                logger.error("There was something wrong with your request.")
+                success = False
+                continue
             if response.status_code != 200:
                 success = False
         return success
