@@ -6,8 +6,11 @@
 import argparse
 import csv
 import json
+import logging
 import sys
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
 
 
 def csv_to_instack(input_file):
@@ -46,7 +49,7 @@ def main():
     input_file = args.inputfile
 
     instack_env = csv_to_instack(input_file)
-    print(instack_env)
+    logger.info(instack_env)
     return 0
 
 

@@ -1,60 +1,40 @@
+#! /usr/bin/env python
+
+import logging
 import os
 import subprocess
+from datetime import datetime
 
-import pexpect
+from requests import RequestException
 
 from quads.config import conf, OFFSETS
 from quads.helpers import is_supported
 from quads.model import Host, Cloud
 from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
-from quads.tools.core.logger import Logger
 from quads.tools.foreman import Foreman
+from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
-
-def juniper_set_port(ip_address, switch_port, old_vlan, new_vlan):
-    try:
-        child = pexpect.spawn("ssh -o StrictHostKeyChecking=no %s@%s" % (conf["junos_username"], ip_address))
-        child.expect(">")
-        child.sendline("edit")
-        child.expect("#")
-        child.sendline("rollback")
-        child.expect("#")
-        child.sendline("delete interfaces %s" % switch_port)
-        child.expect("#")
-        child.sendline("set interfaces %s apply-groups QinQ_vl%s" % (switch_port, new_vlan))
-        child.expect("#")
-        child.sendline("delete vlans vlan%s interface %s" % (old_vlan, switch_port))
-        child.expect("#")
-        child.sendline("set vlans vlan%s interface %s" % (new_vlan, switch_port))
-        child.expect("#")
-        child.sendline("commit")
-        child.expect("#")
-        child.sendline("exit")
-        child.expect(">")
-        child.sendline("exit")
-        child.close()
-    except pexpect.exceptions.TIMEOUT:
-        print("Timeout trying to change settings on switch %s" % ip_address)
-        return False
-    return True
+logger = logging.getLogger(__name__)
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
+    logger.debug("Moving and rebuilding host: %s" % host)
     foreman = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
     )
     untouchable_hosts = conf["untouchable_hosts"]
+    logger.debug("Untouchable hosts: %s" % untouchable_hosts)
     _host_obj = Host.objects(name=host).first()
     if not _host_obj.interfaces:
-        print("Host has no interfaces defined.")
+        logger.error("Host has no interfaces defined.")
         return False
 
     if host in untouchable_hosts:
-        print("No way...")
+        logger.error("No way...")
         return False
 
     _old_cloud_obj = Cloud.objects(name=old_cloud).first()
@@ -62,11 +42,12 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     _old_qinq = _old_cloud_obj.qinq
 
     for interface in _host_obj.interfaces:
+        logger.debug("Connecting to switch on: %s" % interface.ip_address)
         ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
         old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
-            print(
+            logger.warning(
                 "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
                 % host, interface.name, interface.ip_address, interface.switch_port
             )
@@ -93,9 +74,9 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 str(new_vlan)
             )
             if success:
-                print("Successfully update switch settings.")
+                logger.info("Successfully update switch settings.")
             else:
-                print("There was something wrong updating switch for %s:%s" % (host, interface.name))
+                logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
 
     make_instackenv_json.main()
 
@@ -112,6 +93,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         "-P", conf["ipmi_password"],
         "user", "set", "password", str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
+    logger.debug("ipmi_set_pass: %s" % ipmi_set_pass)
     subprocess.call(ipmi_set_pass)
 
     ipmi_set_operator = [
@@ -122,33 +104,50 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         "-P", conf["ipmi_password"],
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
+    logger.debug("ipmi_set_operator: %s" % ipmi_set_operator)
     subprocess.call(ipmi_set_operator)
     if rebuild and _new_cloud_obj.name != "cloud01":
-        logger = Logger()
-        badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"], logger)
+        badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
 
         if "pdu_management" in conf and conf["pdu_management"]:
             # TODO: pdu management
             pass
 
         if is_supported(host):
-            badfish.change_boot(
-                "director",
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "../../conf/idrac_interfaces.yml"
+            try:
+                badfish.change_boot(
+                    "director",
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "../../conf/idrac_interfaces.yml"
+                    )
                 )
-            )
+            except SystemExit as ex:
+                logger.debug(ex)
+                logger.error("Could not set boot order via Badfish.")
+                return False
 
-        foreman.remove_extraneous_interfaces(host)
+        try:
+            foreman.remove_extraneous_interfaces(host)
 
-        foreman.put_host_parameter(host, "rhel73", "false")
-        foreman.put_host_parameter(host, "rhel75", "false")
-        foreman.put_parameter(host, "build", 1)
-        foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
-        foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
-        foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
+            foreman.put_host_parameter(host, "rhel73", "false")
+            foreman.put_host_parameter(host, "rhel75", "false")
+            foreman.put_parameter(host, "build", 1)
+            foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
+            foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
+            foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
+        except RequestException as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong communicating with Foreman.")
+            return False
 
-        badfish.set_next_boot_pxe()
+        try:
+            badfish.set_next_boot_pxe()
 
-        badfish.reboot_server()
+            badfish.reboot_server()
+        except SystemExit as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong setting next PXE boot via Badfish.")
+            return False
+
+        _host_obj.update(build=False, last_build=datetime.now())

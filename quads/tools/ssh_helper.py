@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-
-# Simple python cli tool for copying public ssh keys to authorized_keys file
-# on remote host via the python paramiko library.
+import logging
 
 from paramiko import SSHClient, AutoAddPolicy
+
+logger = logging.getLogger(__name__)
 
 
 class SSHHelper(object):
@@ -39,12 +39,12 @@ class SSHHelper(object):
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
 
         if stderr.readlines():
-            print("There was something wrong with your request")
+            logger.error("There was something wrong with your request")
             for line in stderr.readlines():
-                print(line)
+                logger.error(line)
             return False
         else:
-            print("Your command was executed successfully")
+            logger.info("Your command was executed successfully")
             return stdout.readlines()
 
     def copy_ssh_key(self, _ssh_key):
@@ -56,8 +56,8 @@ class SSHHelper(object):
         stdin, stdout, stderr = self.ssh.exec_command(command)
 
         if stderr.readlines():
-            print("There was something wrong with your request")
+            logger.error("There was something wrong with your request")
             for line in stderr.readlines():
-                print(line)
+                logger.error(line)
         else:
-            print("Your key was copied successfully")
+            logger.info("Your key was copied successfully")

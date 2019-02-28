@@ -9,7 +9,7 @@ install_dir: /opt/quads
 #data_dir: /opt/quads/data
 data_dir: .
 domain: example.com
-log: /opt/quads/log/quads.log
+log: /opt/quads/quads.log
 quads_base_url: http://127.0.0.1:8080/
 
 # Enable Elasticsearch indexing

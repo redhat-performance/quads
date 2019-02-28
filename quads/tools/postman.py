@@ -1,8 +1,12 @@
+#! /usr/bin/env/ python3
+import logging
 import smtplib
 
 from email.message import EmailMessage
 from email.headerregistry import Address
 from quads.config import conf
+
+logger = logging.getLogger(__name__)
 
 
 class Postman(object):
@@ -21,4 +25,11 @@ class Postman(object):
         msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
         msg.attach(self.content)
         with smtplib.SMTP('localhost') as s:
-            s.send_message(msg)
+            try:
+                logger.debug(msg)
+                s.send_message(msg)
+            except smtplib.SMTPException as ex:
+                logger.debug(ex)
+                logger.error("Postman got bit by a dog.")
+                return False
+        return True
