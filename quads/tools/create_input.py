@@ -5,7 +5,7 @@ import pathlib
 import re
 import requests
 from quads.tools.foreman import Foreman
-from quads.config import conf
+from quads.config import conf, API_URL
 
 HEADERS = [
     "U",
@@ -20,8 +20,6 @@ HEADERS = [
     "Owner",
     "Graph"
 ]
-
-API = 'v2'
 
 
 def consolidate_ipmi_data(_host, _path, _value):
@@ -51,17 +49,16 @@ def render_header(_rack):
 
 
 def render_row(_host, _properties):
-    api_url = os.path.join(conf['quads_base_url'], 'api', API)
     u_loc = _host.split("-")[2][1:]
     node = _host[5:]
     owner = ""
     cloud = ""
-    host_url = os.path.join(api_url, "host?name=%s" % node)
+    host_url = os.path.join(API_URL, "host?name=%s" % node)
     _response = requests.get(host_url)
     if _response.status_code == 200:
         host_data = _response.json()
         if "cloud" in host_data:
-            cloud_url = os.path.join(api_url, "cloud?name=%s" % host_data["cloud"])
+            cloud_url = os.path.join(API_URL, "cloud?name=%s" % host_data["cloud"])
             _cloud_response = requests.get(cloud_url)
             if _cloud_response.status_code == 200:
                 cloud_data = _cloud_response.json()

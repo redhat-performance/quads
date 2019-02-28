@@ -5,66 +5,41 @@ import datetime
 import logging
 import os
 from json import JSONDecodeError
+
+from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
 
 import requests
 import subprocess
 import sys
-import yaml
 
 
 # Load QUADS yaml config
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild
 
 
-def quads_load_config(_quads_config):
-    quads_config_yaml = None
-    try:
-        with open(_quads_config, 'r') as config_file:
-            try:
-                quads_config_yaml = yaml.safe_load(config_file)
-            except yaml.YAMLError:
-                print("quads: Invalid YAML config: " + _quads_config)
-                exit(1)
-    except Exception as ex:
-        print(ex)
-        exit(1)
-    return quads_config_yaml
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-logger = logging.getLogger('quads')
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-API = 'v2'
-
-
-def output_json_result(request, data, debug=False):
+def output_json_result(request, data):
     try:
         if request.status_code == 204:
-            print('Removed: %s' % data)
+            logger.info('Removed: %s' % data)
         else:
             js = request.json()
-            if debug:
-                print('%s %s: %s' % (request.status_code, request.reason, data))
-            else:
-                for result in js['result']:
-                    print(result)
+            logger.debug('%s %s: %s' % (request.status_code, request.reason, data))
+            for result in js['result']:
+                logger.info(result)
     except JSONDecodeError:
-        print('Could not parse json reply.')
-        if debug:
-            print(request.text)
-        else:
-            print('use --debug to see contents')
+        logger.error('Could not parse json reply.')
+        logger.debug(request.text)
         exit(1)
 
 
 def main(_args):
     # List all common call
-    quads = QuadsApi(api_url)
+    quads = QuadsApi(API_URL)
 
     if _args.action:
         _kwargs = {}
@@ -79,17 +54,17 @@ def main(_args):
             data = quads.get(_args.action)
             if data:
                 for k in data:
-                    print(str(k['name']) + ": " + str(k[_args.action]))
+                    logger.info(str(k['name']) + ": " + str(k[_args.action]))
                 exit(0)
 
         if _args.action == 'interface':
             if _args.host is None:
-                print('Missing option. --host option is required for --ls-interface:')
+                logger.error('Missing option. --host option is required for --ls-interface:')
                 exit(1)
             data = quads.get_interfaces(**_kwargs)
             if data:
                 for interface in data["result"]:
-                    print(interface)
+                    logger.info(interface)
                 exit(0)
 
         if _args.action == 'schedule':
@@ -101,7 +76,7 @@ def main(_args):
                 if _host:
                     if "cloud" in _host:
                         _default_cloud = _host["cloud"]
-                print("Default cloud: %s" % _default_cloud)
+                logger.info("Default cloud: %s" % _default_cloud)
                 _current_schedule = quads.get_current_schedule(**_kwargs)
                 if _current_schedule and "result" not in _current_schedule:
                     _cloud_id = _current_schedule[0]["cloud"]
@@ -109,12 +84,12 @@ def main(_args):
                     if cloud_name:
                         _current_cloud = cloud_name
                     if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
-                        print("Current cloud: %s" % _current_cloud)
-                        print("Current schedule: %s" % _current_schedule[0]["index"])
+                        logger.info("Current cloud: %s" % _current_cloud)
+                        logger.info("Current schedule: %s" % _current_schedule[0]["index"])
                     else:
-                        print("Current cloud: %s" % _default_cloud)
+                        logger.info("Current cloud: %s" % _default_cloud)
                 else:
-                    print("Current cloud: %s" % _default_cloud)
+                    logger.info("Current cloud: %s" % _default_cloud)
                 if "date" in _kwargs:
                     _kwargs.pop("date")
                 _host_schedules = quads.get_schedules(**_kwargs)
@@ -125,7 +100,7 @@ def main(_args):
                             _cloud_name = cloud["name"]
                     start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
                     end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
-                    print(
+                    logger.info(
                         "%s| start=%s, end=%s, cloud=%s" % (
                             schedule["index"],
                             start,
@@ -137,17 +112,17 @@ def main(_args):
                 if clouds and "result" not in clouds:
                     for cloud in clouds:
                         _cloud_name = cloud["name"]
-                        print("%s:" % _cloud_name)
+                        logger.info("%s:" % _cloud_name)
                         _kwargs["cloud"] = _cloud_name
                         _schedules = quads.get_current_schedule(**_kwargs)
                         if _schedules and "result" not in _schedules:
                             if type(_schedules) == list:
                                 for entry in _schedules:
                                     host = quads.get_hosts(id=entry["host"]["$oid"])
-                                    print("- %s" % str(host['name']))
+                                    logger.info("- %s" % str(host['name']))
                             else:
                                 host = quads.get_hosts(id=_schedules["host"]["$oid"])
-                                print("- %s" % str(host['name']))
+                                logger.info("- %s" % str(host['name']))
 
             exit(0)
 
@@ -155,16 +130,16 @@ def main(_args):
             entries = quads.get(_args.action)
             if entries and "result" not in entries:
                 for entry in entries:
-                    print(entry['name'])
+                    logger.info(entry['name'])
             elif "result" in entries:
-                print(entries['result'])
+                logger.info(entries['result'])
             exit(0)
 
         elif _args.action == "available":
             if _args.schedstart is None or _args.schedend is None:
-                print('Missing option. All these options are required for --ls-available:')
-                print('    --schedule-start')
-                print('    --schedule-end')
+                logger.error('Missing option. All these options are required for --ls-available:')
+                logger.error('    --schedule-start')
+                logger.error('    --schedule-end')
                 exit(1)
 
             _start = datetime.datetime.strptime(_args.schedstart, '%Y-%m-%d %H:%M').isoformat()
@@ -178,7 +153,7 @@ def main(_args):
             available_hosts = quads.get_available(**data)
 
             for host in available_hosts:
-                print(host)
+                logger.info(host)
 
             exit(0)
 
@@ -193,12 +168,12 @@ def main(_args):
                 'ticket': _args.cloudticket,
                 'vlan': _args.vlan,
                 'force': _args.force}
-        print(quads.insert_cloud(data)["result"])
+        logger.info(quads.insert_cloud(data)["result"])
         exit(0)
 
     # Cloud Remove
     elif _args.rmcloud is not None:
-        url = os.path.join(api_url, 'cloud', _args.rmcloud)
+        url = os.path.join(API_URL, 'cloud', _args.rmcloud)
         _response = requests.delete(url)
         output_json_result(_response, {'cloud': _args.rmcloud})
         exit(0)
@@ -206,9 +181,9 @@ def main(_args):
     # Host Add / Modify
     elif _args.hostresource:
         if _args.cloudresource:
-            print('--define-cloud and --define-host are mutually exclusive.')
+            logger.error('--define-cloud and --define-host are mutually exclusive.')
             exit(1)
-        url = os.path.join(api_url, 'host')
+        url = os.path.join(API_URL, 'host')
         data = {'name': _args.hostresource,
                 'cloud': _args.hostcloud,
                 'host_type': _args.hosttype,
@@ -219,7 +194,7 @@ def main(_args):
 
     # Host Remove
     elif _args.rmhost is not None:
-        url = os.path.join(api_url, 'host', _args.rmhost)
+        url = os.path.join(API_URL, 'host', _args.rmhost)
         _response = requests.delete(url)
         output_json_result(_response, {'host': _args.rmhost})
         exit(0)
@@ -229,13 +204,13 @@ def main(_args):
         if _args.ifmac is None \
                 or _args.ifip is None or _args.ifport is None \
                 or _args.ifvlan is None or _args.host is None:
-            print('Missing option. All these options are required for --add-interface:')
-            print('    --host')
-            print('    --interface-mac')
-            print('    --interface-ip')
-            print('    --interface-port')
-            print('    --interface-vlan')
-        url = os.path.join(api_url, 'interfaces')
+            logger.error('Missing option. All these options are required for --add-interface:')
+            logger.error('    --host')
+            logger.error('    --interface-mac')
+            logger.error('    --interface-ip')
+            logger.error('    --interface-port')
+            logger.error('    --interface-vlan')
+        url = os.path.join(API_URL, 'interfaces')
         data = {
             'name': _args.addinterface,
             'mac_address': _args.ifmac,
@@ -251,48 +226,48 @@ def main(_args):
 
     elif _args.rminterface is not None:
         if _args.host is None:
-            print('Missing option. --host option is required for --rm-interface:')
+            logger.error('Missing option. --host option is required for --rm-interface:')
             exit(1)
         data = {'host': _args.host, 'name': _args.rminterface}
-        print(quads.remove_interface(**data))
+        logger.info(quads.remove_interface(**data))
         exit(0)
 
     # Add Schedule
     elif _args.addschedule:
         if _args.schedstart is None or _args.schedend is None \
                 or _args.schedcloud is None or _args.host is None:
-            print('Missing option. All these options are required for --add-schedule:')
-            print('    --host')
-            print('    --schedule-start')
-            print('    --schedule-end')
-            print('    --schedule-cloud')
+            logger.error('Missing option. All these options are required for --add-schedule:')
+            logger.error('    --host')
+            logger.error('    --schedule-start')
+            logger.error('    --schedule-end')
+            logger.error('    --schedule-cloud')
             exit(1)
         data = {'cloud': _args.schedcloud,
                 'host': _args.host,
                 'start': _args.schedstart,
                 'end': _args.schedend}
-        print(quads.insert_schedule(data)['result'])
+        logger.info(quads.insert_schedule(data)['result'])
         exit(0)
 
     elif _args.rmschedule is not None:
         if _args.host:
             data = {"host": _args.host, "index": str(_args.rmschedule)}
-            print(quads.remove_schedule(**data))
+            logger.info(quads.remove_schedule(**data))
             exit(0)
         else:
-            print('Missing option. Need --host when using --rm-schedule')
+            logger.error('Missing option. Need --host when using --rm-schedule')
             exit(1)
 
     elif _args.modschedule is not None:
         if _args.host is None:
-            print('Missing option. Need --host when using --mod-schedule')
+            logger.error('Missing option. Need --host when using --mod-schedule')
             exit(1)
 
         if _args.schedstart is None and _args.schedend is None and _args.schedcloud is None:
-            print('Missing option. At least one these options are required for --mod-schedule:')
-            print('    --schedule-start')
-            print('    --schedule-end')
-            print('    --schedule-cloud')
+            logger.error('Missing option. At least one these options are required for --mod-schedule:')
+            logger.error('    --schedule-start')
+            logger.error('    --schedule-end')
+            logger.error('    --schedule-cloud')
             exit(1)
 
         data = {'index': _args.modschedule,
@@ -300,14 +275,14 @@ def main(_args):
                 'end': _args.schedend,
                 'cloud': _args.schedcloud,
                 'host': _args.host}
-        print(quads.insert_schedule(data)["result"])
+        logger.info(quads.insert_schedule(data)["result"])
         exit(0)
 
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:
-            print('--move-hosts and --date are mutually exclusive unless using --dry-run.')
+            logger.error('--move-hosts and --date are mutually exclusive unless using --dry-run.')
             exit(1)
-        url = os.path.join(api_url, 'moves')
+        url = os.path.join(API_URL, 'moves')
         data = {}
         if _args.datearg is not None:
             data['date'] = _args.datearg
@@ -315,7 +290,7 @@ def main(_args):
         js = _response.json()
         if 'result' in js:
             if len(js['result']) == 0:
-                print('Nothing to do.')
+                logger.info('Nothing to do.')
                 exit(0)
             for result in js['result']:
                 host = result['host']
@@ -326,7 +301,7 @@ def main(_args):
                 wipe_value = 1
                 if cloud:
                     wipe_value = int(cloud["wipe"])
-                print('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
+                logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
                 if not _args.dryrun:
                     try:
                         if _args.movecommand == default_move_command:
@@ -350,7 +325,7 @@ def main(_args):
         if "result" not in schedules:
             for schedule in schedules:
                 cloud = quads.get_clouds(id=schedule["cloud"]["$oid"])
-                print(str(cloud['name']))
+                logger.info(str(cloud['name']))
 
             exit(0)
 
@@ -362,7 +337,7 @@ def main(_args):
         if "result" not in schedules:
             for schedule in schedules:
                 host = quads.get_hosts(id=schedule["host"]["$oid"])
-                print(str(host['name']))
+                logger.info(str(host['name']))
 
             exit(0)
 
@@ -373,38 +348,20 @@ def main(_args):
         summary = quads.get_summary()
         for cloud in summary:
             if _args.fullsummary or cloud["count"] > 0:
-                print("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
+                logger.info("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
 
         exit(0)
 
-    print('No result received')
+    logger.info('No result received')
 
     exit(0)
 
 
 if __name__ == '__main__':
-    quads_config_file = os.path.dirname(__file__) + '/../conf/quads.yml'
-    quads_config = quads_load_config(quads_config_file)
 
-    if 'data_dir' not in quads_config:
-        print('quads: Missing \'data_dir\' in ' + quads_config_file)
-        exit(1)
-
-    if 'install_dir' not in quads_config:
-        print('quads: Missing \'install_dir\' in ' + quads_config_file)
-        exit(1)
-
-    if 'quads_base_url' not in quads_config:
-        print('quads: Missing \'quads_base_url\' in ' + quads_config_file)
-        exit(1)
-    else:
-        api_url = os.path.join(quads_config['quads_base_url'], 'api', API)
-
-    sys.path.append(quads_config['install_dir'])
+    sys.path.append(conf['install_dir'])
     sys.path.append(os.path.dirname(__file__) + '/../')
 
-    default_config = quads_config['data_dir'] + '/schedule.yaml'
-    default_state_dir = quads_config['data_dir'] + '/state'
     default_move_command = '/opt/quads/quads/tools/move_and_rebuild_hosts.py'
 
     parser = argparse.ArgumentParser(description='Query current cloud for a given host')
@@ -435,8 +392,6 @@ if __name__ == '__main__':
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
                         help='Limit full report to hosts only in this cloud')
-    parser.add_argument('-c', '--config', dest='config', help='YAML file with cluster data', default=default_config,
-                        type=str)
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None,
                         help='date and time to query; e.g. "2016-06-01 08:00"')
 
@@ -467,7 +422,6 @@ if __name__ == '__main__':
     parser.add_argument('--interface-vlan', dest='ifvlan', type=str, default=None, help='VLAN name for --add-interface')
     parser.add_argument('--interface-port', dest='ifport', type=str, default=None,
                         help='Switch port for --add-interface')
-    parser.add_argument('--statedir', dest='statedir', type=str, default=default_state_dir, help='Default state dir')
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
                         help='Move hosts if schedule has changed')
     parser.add_argument('--move-command', dest='movecommand', type=str, default=default_move_command,

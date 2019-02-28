@@ -7,7 +7,7 @@ from datetime import datetime
 
 import requests
 
-from quads.config import conf
+from quads.config import conf, API_URL
 from quads.tools.foreman import Foreman
 
 HEADERS = [
@@ -19,9 +19,6 @@ HEADERS = [
     "TimeRemaining",
     # "Graph",
 ]
-
-API = 'v2'
-API_URL = os.path.join(conf['quads_base_url'], 'api', API)
 
 
 def print_header():

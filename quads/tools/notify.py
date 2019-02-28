@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
+import logging
 import os
 
 from datetime import datetime, timedelta
 from jinja2 import Template
 from pathlib import Path
-from quads.config import conf
+from quads.config import conf, TEMPLATES_PATH, API_URL
 from quads.quads import Api as QuadsApi
 from quads.tools.netcat import Netcat
-from tools.postman import Postman
+from quads.tools.postman import Postman
 
-TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
-API = 'v2'
+logger = logging.getLogger(__name__)
 
 
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
@@ -153,14 +153,13 @@ def main():
     days = [1, 3, 5, 7]
     future_days = 7
 
-    api_url = os.path.join(conf['quads_base_url'], 'api', API)
-    quads = QuadsApi(api_url)
+    quads = QuadsApi(API_URL)
 
     _clouds = quads.get_summary()
 
     for cloud in _clouds:
         cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
-        print('=============== Initial Message')
+        logger.info('=============== Initial Message')
         create_initial_message(
             cloud["owner"],
             cloud["name"],
@@ -180,7 +179,7 @@ def main():
                 future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
                 diff = set(current_hosts) - set(future_hosts)
                 if diff:
-                    print('=============== Additional Message')
+                    logger.info('=============== Additional Message')
                     create_message(
                         cloud["owner"],
                         day,
@@ -199,7 +198,7 @@ def main():
     for cloud in _clouds_full:
         if cloud not in _clouds:
             cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
-            print('=============== Future Initial Message')
+            logger.info('=============== Future Initial Message')
             create_future_initial_message(cloud["owner"], cloud["name"], cloud_info, cloud["ticket"], cloud["ccuser"])
             now = datetime.now()
             today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
@@ -209,7 +208,7 @@ def main():
             future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
             diff = set(current_hosts) - set(future_hosts)
             if diff:
-                print('=============== Additional Message')
+                logger.info('=============== Additional Message')
                 create_future_message(
                     cloud["owner"],
                     future_days,

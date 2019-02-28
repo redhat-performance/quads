@@ -2,7 +2,6 @@ import cherrypy
 import datetime
 import json
 import logging
-import sys
 import time
 
 from quads import model
@@ -10,12 +9,7 @@ from mongoengine.errors import DoesNotExist
 
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
-logger = logging.getLogger('api_v2')
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+logger = logging.getLogger()
 
 
 class MethodHandlerBase(object):
@@ -72,7 +66,8 @@ class MovesMethodHandler(MethodHandlerBase):
                         continue
 
                 return json.dumps({'result': result})
-            except Exception:
+            except Exception as ex:
+                logger.debug(ex)
                 logger.info("400 Bad Request")
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({'result': ['400 Bad Request']})
