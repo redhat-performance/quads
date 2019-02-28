@@ -94,11 +94,6 @@ rm -rf %{buildroot}
 systemctl enable quads-server
 systemctl enable mongod
 
-[ ! -d /opt/quads/log ] && mkdir /opt/quads/log || true
-[ ! -f /opt/quads/log/quads.log ] && touch /opt/quads/log/quads.log || true
-[ ! -d /var/log/quads ] && mkdir /var/log/quads || true
-:;
-
 %preun
 if [ "$1" -eq 0 ]; then
   systemctl stop quads-server

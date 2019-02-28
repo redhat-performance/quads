@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+import logging
 import os
 import time
 
@@ -5,6 +7,8 @@ from quads.config import API_URL, OFFSETS, conf
 from quads.model import Cloud, Host
 from quads.quads import Api
 from quads.tools.ssh_helper import SSHHelper
+
+logger = logging.getLogger(__name__)
 
 
 def verify(_cloud_name, change=False):
@@ -32,13 +36,13 @@ def verify(_cloud_name, change=False):
                 time.sleep(2)
 
                 if qinq_setting != vlan:
-                    print("WARNING: interface %s not using QinQ_vl%s", interface.switch_port, vlan)
+                    logger.warning("WARNING: interface %s not using QinQ_vl%s", interface.switch_port, vlan)
                 if vlan_member != vlan:
-                    print("WARNING: interface %s appears to be a member of VLAN $s, should be %s",
+                    logger.warning("WARNING: interface %s appears to be a member of VLAN $s, should be %s",
                           interface.switch_port, vlan_member, vlan)
 
                 if change:
-                    print('=== INFO: change requested')
+                    logger.info('=== INFO: change requested')
                     scripts_dir = os.path.join(conf["install_dir"], "scripts")
                     expect_script = os.path.join(scripts_dir, "juniper-set-port.exp")
 

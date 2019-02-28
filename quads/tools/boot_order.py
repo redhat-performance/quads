@@ -1,17 +1,21 @@
 #! /usr/bin/env python
 
+import logging
 import os
 
 from datetime import datetime
 
-from helpers import is_supported
+from quads.helpers import is_supported
 from quads.model import Host
 from quads.tools.badfish import Badfish
 from quads.tools.foreman import Foreman
 from quads.config import conf
 
+logger = logging.getLogger(__name__)
+
 
 def reconfigure(_host, _idrac_host):
+    logger.debug("Reconfiguring host: %s" % _host)
     interfaces = os.path.dirname(__file__) + "/../../conf/idrac_interfaces.yml"
 
     if is_supported(_host.name):
@@ -23,8 +27,9 @@ def reconfigure(_host, _idrac_host):
 
         try:
             badfish.change_boot(host_type, interfaces, True)
-        except SystemExit:
-            print("Something went wrong.")
+        except SystemExit as ex:
+            logger.debug(ex)
+            logger.error("Something went wrong.")
             return
         _host.update(build=False, realeased=True, last_build=datetime.now())
         return
@@ -42,6 +47,7 @@ if __name__ == "__main__":
 
     # get all overcloud hosts
     overclouds = foreman.get_parametrized("params.%s" % conf["foreman_director_parameter"], "true")
+    logger.debug("Overclouds: %s" % overclouds)
     for host in overclouds:
         _quads_host = Host.objects(name=host).first()
         if _quads_host and not _quads_host.nullos:
@@ -51,6 +57,7 @@ if __name__ == "__main__":
 
     # get all undercloud hosts
     underclouds = foreman.get_parametrized("params.%s" % conf["foreman_director_parameter"], "false")
+    logger.debug("Underclouds: %s" % underclouds)
     for host in underclouds:
         _quads_host = Host.objects(name=host).first()
         if _quads_host and _quads_host.nullos:

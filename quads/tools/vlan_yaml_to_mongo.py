@@ -1,7 +1,11 @@
+#! /usr/bin/env python3
+import logging
 import argparse
 import yaml
 
 from quads.model import Vlan, Cloud
+
+logger = logging.getLogger(__name__)
 
 
 def main(_args):
@@ -11,7 +15,7 @@ def main(_args):
                 try:
                     vlans = yaml.safe_load(_vlans_read)
                 except yaml.YAMLError:
-                    print("quads: Invalid YAML config: " + _args.yaml)
+                    logger.error("quads: Invalid YAML config: " + _args.yaml)
                     exit(1)
                 for vlan, properties in vlans.items():
                     vlan_obj = Vlan.objects(vlan_id=properties["vlanid"]).first()
@@ -25,16 +29,17 @@ def main(_args):
                         else:
                             data.pop("cloud")
                     else:
-                        print("Failed to validate all fields")
+                        logger.error("Failed to validate all fields")
                         exit(1)
                     if vlan_obj:
                         vlan_obj.update(**data)
-                        print("Updated vlan: %s" % data["vlan_id"])
+                        logger.info("Updated vlan: %s" % data["vlan_id"])
                     else:
                         Vlan(**data).save()
-                        print("Inserted vlan: %s" % data["vlan_id"])
-        except IOError:
-            print("Error reading %s" % _args.yaml)
+                        logger.info("Inserted vlan: %s" % data["vlan_id"])
+        except IOError as ex:
+            logger.debug(ex)
+            logger.error("Error reading %s" % _args.yaml)
             exit(1)
 
 
