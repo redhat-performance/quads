@@ -12,6 +12,7 @@ class Netcat:
 
     def __enter__(self):
         self.connect()
+        return self
 
     def __exit__(self):
         self.close()
