@@ -31,6 +31,6 @@ class Postman(object):
                 s.send_message(msg)
             except smtplib.SMTPException as ex:
                 logger.debug(ex)
-                logger.error("Postman got bit by a dog.")
+                logger.error("Postman got bit by a dog, woof! woof!")
                 return False
         return True
