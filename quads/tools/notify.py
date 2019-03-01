@@ -12,6 +12,7 @@ from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
@@ -42,15 +43,18 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
                 postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
                 postman.send_email()
         if conf["irc_notify"]:
-            with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                nc.write(
-                    "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
+            try:
+                with Netcat(irc_bot_ip, irc_bot_port) as nc:
+                    message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
                         irc_bot_channel,
                         cloud_info,
                         conf["wp_wiki"],
                         cloud
                     )
-                )
+                    nc.write(bytes(message.encode("utf-8")))
+            except (TypeError, BrokenPipeError) as ex:
+                logger.debug(ex)
+                logger.error("Beep boop netcat can't communicate with your IRC.")
 
     return
 
@@ -175,8 +179,8 @@ def main():
                 today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
                 future = now + timedelta(days=day)
                 future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-                current_hosts = quads.get_hosts(cloud=cloud.name, date=today_date)
-                future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
+                current_hosts = quads.get_hosts(cloud=cloud["name"], date=today_date)
+                future_hosts = quads.get_hosts(cloud=cloud["name"], date=future_date)
                 diff = set(current_hosts) - set(future_hosts)
                 if diff:
                     logger.info('=============== Additional Message')
@@ -204,8 +208,8 @@ def main():
             today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
             future = now + timedelta(days=future_days)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-            current_hosts = quads.get_hosts(cloud=cloud.name, date=today_date)
-            future_hosts = quads.get_hosts(cloud=cloud.name, date=future_date)
+            current_hosts = quads.get_hosts(cloud=cloud["name"], date=today_date)
+            future_hosts = quads.get_hosts(cloud=cloud["name"], date=future_date)
             diff = set(current_hosts) - set(future_hosts)
             if diff:
                 logger.info('=============== Additional Message')

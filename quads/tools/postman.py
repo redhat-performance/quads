@@ -21,14 +21,15 @@ class Postman(object):
         msg["Subject"] = self.subject
         msg["From"] = Address("QUADS", "quads", conf["domain"])
         msg["To"] = Address(username=self.to, domain=conf["domain"])
-        msg["Cc"] = ",".join(self.cc)
+        _cc = ["%s@%s" % (cc, conf["domain"]) for cc in self.cc.split(",")]
+        msg["Cc"] = ",".join(_cc)
         msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
-        msg.attach(self.content)
-        emailhost = conf["email_host"]
-        with smtplib.SMTP(emailhost) as s:
+        msg.set_content(self.content)
+        email_host = conf["email_host"]
+        with smtplib.SMTP(email_host) as s:
             try:
                 logger.debug(msg)
-                s.send_message(msg)
+                s.send_message(msg, from_addr=msg["From"], to_addrs=msg["To"])
             except smtplib.SMTPException as ex:
                 logger.debug(ex)
                 logger.error("Postman got bit by a dog, woof! woof!")

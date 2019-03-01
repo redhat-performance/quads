@@ -16,6 +16,7 @@ RUN pip install \
     python-git \
     flake8 \
     paramiko \
+    jinja2 \
     pexpect
 
 WORKDIR /opt/quads
