@@ -24,7 +24,8 @@ class Postman(object):
         msg["Cc"] = ",".join(self.cc)
         msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
         msg.attach(self.content)
-        with smtplib.SMTP('localhost') as s:
+        emailhost = conf["email_host"]
+    with smtplib.SMTP(emailhost) as s:
             try:
                 logger.debug(msg)
                 s.send_message(msg)
