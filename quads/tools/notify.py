@@ -12,6 +12,7 @@ from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
@@ -42,7 +43,8 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
                 postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
                 postman.send_email()
         if conf["irc_notify"]:
-            with Netcat(irc_bot_ip, irc_bot_port) as nc:
+            try:
+                nc = Netcat(irc_bot_ip, irc_bot_port)
                 nc.write(
                     "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
                         irc_bot_channel,
@@ -51,6 +53,9 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
                         cloud
                     )
                 )
+            except (TypeError, BrokenPipeError) as ex:
+                logger.debug(ex)
+                logger.error("Beep boop netcat can't communicate with your IRC.")
 
     return
 
