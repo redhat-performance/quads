@@ -31,9 +31,16 @@ report_dir: /opt/quads/data/report
 # 2) upon passing of validated tests
 # 3) 1,3,5,7 days out from when assignment ends
 email_notify: true
-# set to true to receive notifications when:
-# 1) upon systems assignment
+
+## email server settings
+# this is for your mail relay host
+# in containers we use the docker container host itself, you should
+# change this to localhost if you want to use the mail relay on the localhost
+# and you're not running quads in containers
+email_host: 172.16.0.1
+
 # * Note* you'll need Supybot with the notify plugin
+# these setting use netcat to send messages to Supybot
 irc_notify: true
 ircbot_ipaddr: 192.168.0.100
 ircbot_port: 5050
