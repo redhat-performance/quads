@@ -10,52 +10,51 @@ from quads.config import conf, TEMPLATES_PATH, API_URL
 from quads.quads import Api as QuadsApi
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
+from quads.model import Cloud
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
+    _cloud_obj = Cloud.objects(name=cloud).first()
     template_file = "initial_message"
     irc_bot_ip = conf["ircbot_ipaddr"]
     irc_bot_port = conf["ircbot_port"]
     irc_bot_channel = conf["ircbot_channel"]
-    report_file = "%s-%s-pre-initial-%s" % (cloud, real_owner, ticket)
     cc_users = [conf["report_cc"]]
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
-    if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
-        if released:
-            Path(report_file).touch()
-            if conf["email_notify"]:
-                with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                    template = Template(_file.read)
-                content = template.render(
-                    cloud_info=cloud_info,
-                    wp_wiki=conf["wp_wiki"],
-                    cloud=cloud,
-                    quads_url=conf["quads_url"],
-                    real_owner=real_owner,
-                    ticket=ticket,
-                    foreman_url=conf["foreman_url"],
+    if released:
+        if conf["email_notify"]:
+            with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+                template = Template(_file.read)
+            content = template.render(
+                cloud_info=cloud_info,
+                wp_wiki=conf["wp_wiki"],
+                cloud=cloud,
+                quads_url=conf["quads_url"],
+                real_owner=real_owner,
+                ticket=ticket,
+                foreman_url=conf["foreman_url"],
+            )
+
+            postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+            postman.send_email()
+    if conf["irc_notify"]:
+        try:
+            with Netcat(irc_bot_ip, irc_bot_port) as nc:
+                message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
+                    irc_bot_channel,
+                    cloud_info,
+                    conf["wp_wiki"],
+                    cloud
                 )
-
-                postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
-                postman.send_email()
-        if conf["irc_notify"]:
-            try:
-                with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                    message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
-                        irc_bot_channel,
-                        cloud_info,
-                        conf["wp_wiki"],
-                        cloud
-                    )
-                    nc.write(bytes(message.encode("utf-8")))
-            except (TypeError, BrokenPipeError) as ex:
-                logger.debug(ex)
-                logger.error("Beep boop netcat can't communicate with your IRC.")
-
+                nc.write(bytes(message.encode("utf-8")))
+        except (TypeError, BrokenPipeError) as ex:
+            logger.debug(ex)
+            logger.error("Beep boop netcat can't communicate with your IRC.")
+    _cloud_obj.update(notified=True)
     return
 
 
@@ -161,41 +160,40 @@ def main():
 
     _clouds = quads.get_summary()
 
-    for cloud in _clouds:
+    for cloud in [_cloud for _cloud in _clouds if int(_cloud["count"]) > 0]:
         cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
         logger.info('=============== Initial Message')
-        create_initial_message(
-            cloud["owner"],
-            cloud["name"],
-            cloud_info,
-            cloud["ticket"],
-            cloud["ccuser"],
-            cloud["released"]
-        )
-        alerted = False
+        if not cloud["notified"]:
+            create_initial_message(
+                cloud["owner"],
+                cloud["name"],
+                cloud_info,
+                cloud["ticket"],
+                cloud["ccuser"],
+                cloud["released"]
+            )
         for day in days:
-            if not alerted:
-                now = datetime.now()
-                today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
-                future = now + timedelta(days=day)
-                future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-                current_hosts = quads.get_hosts(cloud=cloud["name"], date=today_date)
-                future_hosts = quads.get_hosts(cloud=cloud["name"], date=future_date)
-                diff = set(current_hosts) - set(future_hosts)
-                if diff:
-                    logger.info('=============== Additional Message')
-                    create_message(
-                        cloud["owner"],
-                        day,
-                        cloud["name"],
-                        cloud_info,
-                        cloud["ticket"],
-                        cloud["ccuser"],
-                        cloud["released"],
-                        current_hosts,
-                        future_hosts
-                    )
-                    alerted = True
+            now = datetime.now()
+            today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
+            future = now + timedelta(days=day)
+            future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
+            current_hosts = quads.get_hosts(cloud=cloud["name"], date=today_date)
+            future_hosts = quads.get_hosts(cloud=cloud["name"], date=future_date)
+            diff = set(current_hosts) - set(future_hosts)
+            if diff:
+                logger.info('=============== Additional Message')
+                create_message(
+                    cloud["owner"],
+                    day,
+                    cloud["name"],
+                    cloud_info,
+                    cloud["ticket"],
+                    cloud["ccuser"],
+                    cloud["released"],
+                    current_hosts,
+                    future_hosts
+                )
+                continue
 
     _clouds_full = quads.get_clouds()
 

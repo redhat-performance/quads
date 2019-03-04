@@ -150,11 +150,11 @@ def validate_env(_cloud):
     # TODO: quads dell config report
 
     notify_success(_cloud)
-    _cloud.update(validated=True, notified=True)
+    _cloud.update(validated=True)
     return
 
 
 if __name__ == "__main__":
-    clouds = Cloud.objects(released=True, validated=False, notified=False)
+    clouds = Cloud.objects(released=True, validated=False)
     for cloud in clouds:
         validate_env(cloud)
