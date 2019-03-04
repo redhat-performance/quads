@@ -150,4 +150,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             logger.error("There was something wrong setting next PXE boot via Badfish.")
             return False
 
-        _host_obj.update(build=False, last_build=datetime.now())
+    _host_obj.update(build=False, last_build=datetime.now())
+    _old_cloud_obj.update(released=False, validated=False, notified=False)
+    _new_cloud_obj.update(released=True)

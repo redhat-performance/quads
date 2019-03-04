@@ -92,6 +92,8 @@ class Cloud(Document):
 
         if "vlan" in data:
             data.pop("vlan")
+        if "ccuser" in data:
+            data["ccuser"] = data["ccuser"].split()
         params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
 

@@ -28,6 +28,7 @@ class Foreman(object):
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
+            return None
         return response.json()
 
     def get_host_dict(self, endpoint):
