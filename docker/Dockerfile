@@ -13,7 +13,7 @@ RUN pip install \
     requests \
     ipdb \
     python-wordpress-xmlrpc \
-    python-git \
+    gitpython \
     flake8 \
     paramiko \
     jinja2 \
