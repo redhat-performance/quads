@@ -3,13 +3,13 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of servers and networks.
 
+* Visit the [QUADS blog](https://quads.dev)
 * Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
-* [Waffle.io](https://waffle.io/redhat-performance/quads) is also available for additional development tracking and priorities.
 
 ![quads](/image/quads.jpg?raw=true)
 
-
 ![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
+[![Waffle.io](https://badge.waffle.io/redhat-performance/quads.svg?columns=all)](https://waffle.io/redhat-performance/quads) 
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
