@@ -81,6 +81,13 @@ foreman_default_os: "RHEL 7"
 foreman_default_ptable: "generic-rhel7"
 foreman_default_medium: "RHEL local"
 
+# Foreman host health checks
+# by setting the Foreman host parameter: broken_state: true
+# you can mark certain systems as broken and keep them from being scheduled
+# e.g.  hammer host set-parameter --host host01 --name broken_state --value true
+# set the following variable to true if you want this functionality
+foreman_check_host_health:
+
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
 # want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'

@@ -6,7 +6,8 @@ import time
 
 from quads import model
 from mongoengine.errors import DoesNotExist
-
+from quads.config import conf
+from quads.tools.foreman import Foreman
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 logger = logging.getLogger()
@@ -273,6 +274,19 @@ class ScheduleMethodHandler(MethodHandlerBase):
 
         if "end" in data:
             _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
+
+        # check for broken hosts from foreman
+        # to enable checking foreman host health before scheduling
+        # set foreman_check_host_health: true in conf/quads.yml
+        if conf["foreman_check_host_health"]:
+            foreman = Foreman(
+                conf["foreman_api_url"],
+                conf["foreman_username"],
+                conf["foreman_password"]
+            )
+            broken_hosts = foreman.get_broken_hosts()
+            if broken_hosts.get(data['host'][0], False):
+                result.append("Host %s is in broken state" % data['host'][0])
 
         # Check if there were data validation errors
         if result:
