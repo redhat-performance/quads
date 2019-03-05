@@ -11,6 +11,7 @@ from json import JSONDecodeError
 from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild
+from quads.model import Cloud
 
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,8 @@ def main(_args):
                 if _host:
                     if "cloud" in _host:
                         _default_cloud = _host["cloud"]
+                    if "$oid" in _default_cloud:
+                        _default_cloud = Cloud.objects(id=_default_cloud["$oid"]).first()["name"]
                 logger.info("Default cloud: %s" % _default_cloud)
                 _current_schedule = quads.get_current_schedule(**_kwargs)
                 if _current_schedule and "result" not in _current_schedule:
