@@ -22,6 +22,30 @@
       "revId": "6afba9b8a7422b23822187fb3c2ed83199929870",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1eaccdc_dc792c1d",
+        "filename": "quads/api_v2.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-03-05T14:15:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "87dac2db_8e1895ec",
+      "range": {
+        "startLine": 288,
+        "startChar": 44,
+        "endLine": 288,
+        "endChar": 47
+      },
+      "revId": "6afba9b8a7422b23822187fb3c2ed83199929870",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
