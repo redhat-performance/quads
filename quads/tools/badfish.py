@@ -59,7 +59,7 @@ class Badfish:
 
     def get_request(self, uri, _continue=False):
         try:
-            _response = requests.get(uri, auth=(self.username, self.password), verify=False, timeout=30)
+            _response = requests.get(uri, auth=(self.username, self.password), verify=False, timeout=60)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("Failed to communicate with server.")
@@ -232,6 +232,9 @@ class Badfish:
                 systems = data["Systems"]["@odata.id"]
                 response = self.get_request(self.host_uri + systems)
                 if response:
+                    if response.status_code == 401:
+                        logger.error("Failed to authenticate. Verify your credentials.")
+                        sys.exit(1)
                     data = response.json()
                     if data.get(u'Members'):
                         for member in data[u'Members']:
@@ -431,7 +434,7 @@ class Badfish:
 
     def create_bios_config_job(self, uri):
         _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
-        _payload = {"TargetSettingsURI": uri}
+        _payload = {"TargetSettingsURI": "%s%s" % (self.redfish_uri, uri)}
         _headers = {"content-type": "application/json"}
         return self.create_job(_url, _payload, _headers)
 
