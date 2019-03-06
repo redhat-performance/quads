@@ -149,7 +149,7 @@ class Foreman(object):
     def remove_extraneous_interfaces(self, host):
         _host_id = self.get_host_id(host)
         success = True
-        extraneous_interfaces = self.get_extraneous_interfaces(_host_id)
+        extraneous_interfaces = self.get_host_extraneous_interfaces(_host_id)
         for interface in extraneous_interfaces:
             endpoint = "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
             try:
