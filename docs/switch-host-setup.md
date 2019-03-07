@@ -178,6 +178,27 @@ hammer user create --login cloud02 --password password --mail quads@example.com 
 hammer user create --login cloud03 --password password --mail quads@example.com --auth-source-id 1
 ```
 
+   * Lastly you will need to provide a special group these users belong to for generic, persistent filters cloud users will always need.
+
+```
+hammer role create --name clouduser_views
+hammer filter create --role clouduser_views --permissions view_operatingsystems
+```
+   * Now you'll need to update the filters associated with the `cloudusers_views` role with other resource types.
+```
+hammer filter update --role clouduser_views --permissions view_architectures --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
+hammer filter update --role clouduser_views --permissions view_media --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
+hammer filter update --role clouduser_views --permissions view_ptables --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
+```
+   * Next create your `cloudusers` generic group and tie it all together
+```
+hammer user-group create --name cloudusers --roles clouduser_views
+```
+   * Lastly, add all your existing cloud users as members of this group (we use 32 cloud users in this example)
+```
+for clouduser in $(seq 1 9); do hammer user-group add-user --name cloudusers --user cloud0$clouduser; done
+for clouduser in $(seq 10 32); do hammer user-group add-user --name cloudusers --user cloud$clouduser; done
+```
 ### Adding New QUADS Host IPMI
 
    * Ensure QUADS host has access to the out-of-band interfaces
