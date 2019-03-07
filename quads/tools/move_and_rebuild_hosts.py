@@ -5,27 +5,32 @@ import os
 import subprocess
 from datetime import datetime
 
-from requests import RequestException
-
 from quads.config import conf, OFFSETS
 from quads.helpers import is_supported
-from quads.model import Host, Cloud
+from quads.model import Host, Cloud, Vlan
 from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
 from quads.tools.foreman import Foreman
+from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 
 
+def get_vlan(cloud_obj, interface):
+    cloud_offset = int(cloud_obj[5:]) * 10
+    base_vlan = 1090 + cloud_offset
+    if cloud_obj.qinq:
+        vlan = base_vlan + OFFSETS["em1"]
+    else:
+        vlan = base_vlan + OFFSETS[interface.name]
+    return vlan
+
+
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     logger.debug("Moving and rebuilding host: %s" % host)
-    foreman = Foreman(
-        conf["foreman_api_url"],
-        conf["foreman_username"],
-        conf["foreman_password"],
-    )
+
     untouchable_hosts = conf["untouchable_hosts"]
     logger.debug("Untouchable hosts: %s" % untouchable_hosts)
     _host_obj = Host.objects(name=host).first()
@@ -39,11 +44,11 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
     _old_cloud_obj = Cloud.objects(name=old_cloud).first()
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
-    _old_qinq = _old_cloud_obj.qinq
 
-    for interface in _host_obj.interfaces:
-        logger.debug("Connecting to switch on: %s" % interface.ip_address)
-        ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
+    logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
+    ssh_helper = SSHHelper(_host_obj.interfaces[0].ip_address, conf["junos_username"])
+    _public_vlan_obj = Vlan.objects(cloud=_new_cloud_obj).first()
+    for i, interface in enumerate(_host_obj.interfaces):
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
         old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
@@ -52,31 +57,42 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 % host, interface.name, interface.ip_address, interface.switch_port
             )
         else:
-            old_cloud_offset = int(old_cloud[5:]) * 10
-            old_base_vlan = 1090 + old_cloud_offset
-            if _old_qinq:
-                old_vlan = old_base_vlan + OFFSETS["em1"]
-            else:
-                old_vlan = old_base_vlan + OFFSETS[interface.name]
+            old_vlan = get_vlan(_old_cloud_obj, interface)
 
-        cloud_offset = int(new_cloud[5:]) * 10
-        base_vlan = 1090 + cloud_offset
-        if _old_qinq:
-            new_vlan = base_vlan + OFFSETS["em1"]
+        if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
+            logger.info("Setting last interface to public vlan %s." % new_vlan)
+
+            if old_vlan != new_vlan:
+                success = juniper_convert_port_public(
+                    interface.ip_address,
+                    interface.switch_port,
+                    str(old_vlan),
+                    str(new_vlan),
+                    str(_public_vlan_obj.vlan_id)
+                )
+                if success:
+                    logger.info("Successfully update switch settings.")
+                else:
+                    logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
+                    return False
+                _old_vlan_obj = Vlan.objects(cloud=_old_cloud_obj).first()
+                if _old_vlan_obj:
+                    _old_vlan_obj.update(cloud=None)
         else:
-            new_vlan = base_vlan + OFFSETS[interface.name]
+            new_vlan = get_vlan(_new_cloud_obj, interface)
 
-        if old_vlan != new_vlan:
-            success = juniper_set_port(
-                interface.ip_address,
-                interface.switch_port,
-                str(old_vlan),
-                str(new_vlan)
-            )
-            if success:
-                logger.info("Successfully update switch settings.")
-            else:
-                logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
+            if old_vlan != new_vlan:
+                success = juniper_set_port(
+                    interface.ip_address,
+                    interface.switch_port,
+                    str(old_vlan),
+                    str(new_vlan)
+                )
+                if success:
+                    logger.info("Successfully update switch settings.")
+                else:
+                    logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
+                    return False
 
     make_instackenv_json.main()
 
@@ -127,29 +143,31 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 logger.error("Could not set boot order via Badfish.")
                 return False
 
-        try:
-            foreman.remove_extraneous_interfaces(host)
+        foreman = Foreman(
+            conf["foreman_api_url"],
+            conf["foreman_username"],
+            conf["foreman_password"],
+        )
+        foreman_success = foreman.remove_extraneous_interfaces(host)
 
-            foreman.put_host_parameter(host, "rhel73", "false")
-            foreman.put_host_parameter(host, "rhel75", "false")
-            foreman.put_parameter(host, "build", 1)
-            foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
-            foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
-            foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("There was something wrong communicating with Foreman.")
-            return False
+        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel73", "false")
+        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel75", "false")
+        foreman_success = foreman_success and foreman.put_parameter(host, "build", 1)
+        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
+        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
+        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
+        if not foreman_success:
+            logger.error("There was something wrong setting Foreman host parameters.")
 
         try:
             badfish.set_next_boot_pxe()
-
             badfish.reboot_server()
         except SystemExit as ex:
             logger.debug(ex)
             logger.error("There was something wrong setting next PXE boot via Badfish.")
             return False
 
+        logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, last_build=datetime.now())
         _new_cloud_obj.update(released=True)
         _old_cloud_obj.update(released=False, validated=False, notified=False)
