@@ -99,6 +99,23 @@ class DocumentMethodHandler(MethodHandlerBase):
             if not _host:
                 return json.dumps({'result': ["Nothing to do."]})
             return _host.to_json()
+        if self.name == "ccuser":
+            _clouds = model.Cloud.objects().all()
+            clouds_summary = []
+            for cloud in _clouds:
+                count = self.model.current_schedule(cloud=cloud).count()
+                clouds_summary.append(
+                    {
+                        "name": cloud.name,
+                        "count": count,
+                        "description": cloud.description,
+                        "owner": cloud.owner,
+                        "ticket": cloud.ticket,
+                        "ccuser": cloud.ccuser,
+                        "released": cloud.released
+                    })
+
+            return json.dumps(clouds_summary)
         if self.name == "cloud":
             if 'id' in data:
                 _cloud = model.Cloud.objects(id=data["id"]).first()
