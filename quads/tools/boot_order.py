@@ -12,6 +12,7 @@ from quads.tools.foreman import Foreman
 from quads.config import conf
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def reconfigure(_host, _idrac_host):
