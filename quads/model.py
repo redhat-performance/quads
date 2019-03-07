@@ -32,9 +32,7 @@ class CloudHistory(Document):
     ticket = StringField()
     qinq = BooleanField()
     wipe = BooleanField()
-    post_config = ListField()
     ccuser = ListField()
-    date = DateTimeField()
     meta = {
         'indexes': [
             {
@@ -51,7 +49,6 @@ class CloudHistory(Document):
             'ticket': '000000',
             'qinq': False,
             'wipe': True,
-            'date': datetime.now()
         }
 
         params = ['name', 'description', 'owner', 'ticket', 'wipe']
@@ -67,7 +64,6 @@ class Cloud(Document):
     ticket = StringField()
     qinq = BooleanField()
     wipe = BooleanField()
-    post_config = ListField()
     ccuser = ListField()
     released = BooleanField(default=False)
     validated = BooleanField(default=False)
@@ -142,12 +138,11 @@ class Interface(EmbeddedDocument):
     name = StringField()
     mac_address = StringField()
     ip_address = StringField()
-    vlan = StringField()
     switch_port = StringField()
 
     @staticmethod
     def prep_data(data):
-        _fields = ['name', 'mac_address', 'ip_address', 'vlan', 'switch_port']
+        _fields = ['name', 'mac_address', 'ip_address', 'switch_port']
         result, data = param_check(data, _fields)
 
         return result, data

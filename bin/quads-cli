@@ -46,7 +46,7 @@ def main(_args):
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
 
-        if _args.action in ['owner', 'ticket', 'qinq', 'wipe']:
+        if _args.action in ['owner', 'ticket', 'qinq', 'wipe', 'ccuser']:
             data = quads.get(_args.action)
             if data:
                 for k in data:
@@ -201,19 +201,17 @@ def main(_args):
     elif _args.addinterface:
         if _args.ifmac is None \
                 or _args.ifip is None or _args.ifport is None \
-                or _args.ifvlan is None or _args.host is None:
+                or _args.host is None:
             logger.error('Missing option. All these options are required for --add-interface:')
             logger.error('    --host')
             logger.error('    --interface-mac')
             logger.error('    --interface-ip')
             logger.error('    --interface-port')
-            logger.error('    --interface-vlan')
         url = os.path.join(API_URL, 'interfaces')
         data = {
             'name': _args.addinterface,
             'mac_address': _args.ifmac,
             'ip_address': _args.ifip,
-            'vlan': _args.ifvlan,
             'switch_port': _args.ifport,
             'host': _args.host,
             'force': _args.force
@@ -392,7 +390,6 @@ if __name__ == '__main__':
                         help='Limit full report to hosts only in this cloud')
     parser.add_argument('-d', '--datetime', dest='datearg', type=str, default=None,
                         help='date and time to query; e.g. "2016-06-01 08:00"')
-
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
@@ -417,7 +414,6 @@ if __name__ == '__main__':
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
     parser.add_argument('--interface-mac', dest='ifmac', type=str, default=None, help='MAC address for --add-interface')
     parser.add_argument('--interface-ip', dest='ifip', type=str, default=None, help='IP address for --add-interface')
-    parser.add_argument('--interface-vlan', dest='ifvlan', type=str, default=None, help='VLAN name for --add-interface')
     parser.add_argument('--interface-port', dest='ifport', type=str, default=None,
                         help='Switch port for --add-interface')
     parser.add_argument('--move-hosts', dest='movehosts', action='store_true', default=None,
