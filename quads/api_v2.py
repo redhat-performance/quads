@@ -93,7 +93,8 @@ class DocumentMethodHandler(MethodHandlerBase):
             elif 'name' in data:
                 _host = model.Host.objects(name=data["name"]).first()
             elif 'cloud' in data:
-                _host = model.Host.objects(cloud=data["cloud"])
+                _cloud = model.Cloud.objects(name=data["cloud"]).first()
+                _host = model.Host.objects(cloud=_cloud)
             else:
                 _host = model.Host.objects()
             if not _host:
@@ -313,6 +314,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
             cherrypy.response.status = "400 Bad Request"
             return json.dumps({'result': result})
 
+        cloud_obj = None
         if "cloud" in data:
             cloud_obj = model.Cloud.objects(name=data["cloud"]).first()
             if not cloud_obj:
@@ -320,9 +322,11 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({'result': result})
 
+        _host = data["host"]
+        _host_obj = model.Host.objects(name=_host).first()
+
         if "index" in data:
-            _host = data["host"]
-            data["host"] = model.Host.objects(name=_host).first()
+            data["host"] = _host_obj
             schedule = self.model.objects(index=data["index"], host=data["host"]).first()
             if schedule:
                 if not _start:
@@ -337,11 +341,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     )
                 else:
                     result.append("Host is not available during that time frame")
-
         else:
             try:
                 schedule = model.Schedule()
-                if model.Schedule.is_host_available(host=data["host"], start=_start, end=_end):
+                if model.Schedule.is_host_available(host=_host, start=_start, end=_end):
                     data["cloud"] = cloud_obj
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
