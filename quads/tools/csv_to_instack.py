@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This code was shamelessly plucked out of another
 # repo.  Originally written by Joe Talerico <jtaleric at redhat dot com>
