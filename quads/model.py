@@ -83,7 +83,10 @@ class Cloud(Document):
             'ccuser': [],
             'ticket': '000000',
             'qinq': False,
-            'wipe': True
+            'wipe': True,
+            'released': False,
+            'validated': False,
+            'notified': False,
         }
 
         if "vlan" in data:

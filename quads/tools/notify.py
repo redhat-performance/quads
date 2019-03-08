@@ -41,19 +41,19 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
 
             postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
             postman.send_email()
-    if conf["irc_notify"]:
-        try:
-            with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
-                    irc_bot_channel,
-                    cloud_info,
-                    conf["wp_wiki"],
-                    cloud
-                )
-                nc.write(bytes(message.encode("utf-8")))
-        except (TypeError, BrokenPipeError) as ex:
-            logger.debug(ex)
-            logger.error("Beep boop netcat can't communicate with your IRC.")
+        if conf["irc_notify"]:
+            try:
+                with Netcat(irc_bot_ip, irc_bot_port) as nc:
+                    message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
+                        irc_bot_channel,
+                        cloud_info,
+                        conf["wp_wiki"],
+                        cloud
+                    )
+                    nc.write(bytes(message.encode("utf-8")))
+            except (TypeError, BrokenPipeError) as ex:
+                logger.debug(ex)
+                logger.error("Beep boop netcat can't communicate with your IRC.")
     _cloud_obj.update(notified=True)
     return
 
