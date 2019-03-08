@@ -97,8 +97,12 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
     ipmi_new_pass = _new_cloud_obj.ticket if _new_cloud_obj.ticket else conf["$ipmi_password"]
 
-    # TODO: Add user update to Foreman API Wrapper
-    # hammer user update --login $new_cloud --password $foreman_user_password
+    foreman = Foreman(
+        conf["foreman_api_url"],
+        conf["foreman_username"],
+        conf["foreman_password"],
+    )
+    foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
 
     ipmi_set_pass = [
         "/usr/bin/ipmitool",
@@ -142,11 +146,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 logger.error("Could not set boot order via Badfish.")
                 return False
 
-        foreman = Foreman(
-            conf["foreman_api_url"],
-            conf["foreman_username"],
-            conf["foreman_password"],
-        )
         foreman_success = foreman.remove_extraneous_interfaces(host)
 
         foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel73", "false")
