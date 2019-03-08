@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 1.0.99
+%define version 1.0.999
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -73,6 +73,7 @@ cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
 cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
+echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
 
 %clean
 rm -rf %{buildroot}
@@ -101,6 +102,11 @@ fi;
 :;
 
 %changelog
+
+* Fri Mar 09 2019 - 1.0.999: Will Foster <wfoster@redhat.com>
+- Fixes for PYTHONPATH for quads-cli
+- Bump minor release for COPR builds
+- Remove unneeded libs, deprecated tools
 
 * Mon Feb 25 2019 - 1.0.99: Will Foster <wfoster@redhat.com>
 - Initial packaging work for 1.1 beta
