@@ -154,7 +154,9 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "owner": cloud.owner,
                         "ticket": cloud.ticket,
                         "ccuser": cloud.ccuser,
-                        "released": cloud.released
+                        "released": cloud.released,
+                        "validated": cloud.notified,
+                        "notified": cloud.verified
                     })
 
             return json.dumps(clouds_summary)
