@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e769cbbb_a5e5c78e",
+        "filename": "quads/tools/move_and_rebuild_hosts.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-03-08T12:09:49Z",
+      "side": 1,
+      "message": "Are we just using em1 here to obtain what the settings would be for the rest of the interfaces?  Either in qinq0 or qinq1 the first interface (we generically call em1) would always be the same so may not be a good designator?",
+      "range": {
+        "startLine": 25,
+        "startChar": 34,
+        "endLine": 25,
+        "endChar": 41
+      },
+      "revId": "195bde954fed8ef597185409c95b27b446315b81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab5a5561_e6a8bf31",
+        "filename": "quads/tools/move_and_rebuild_hosts.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-03-08T12:09:49Z",
+      "side": 1,
+      "message": "I think we should (probably not now, but in the near future) look to abstract all of this out of move_and_rebuild_hosts.py and into the cloud definition itself.\n\nhttps://github.com/redhat-performance/quads/issues/212",
+      "range": {
+        "startLine": 85,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 33
+      },
+      "revId": "195bde954fed8ef597185409c95b27b446315b81",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
