@@ -173,14 +173,23 @@ def main():
                 cloud["released"]
             )
         for day in days:
-            now = datetime.now()
-            today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
-            future = now + timedelta(days=day)
+            future = datetime.now() + timedelta(days=day)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-            current_hosts = []
-            future_hosts = []
-            current_hosts.append(quads.get_hosts(cloud=cloud["name"], date=today_date))
-            future_hosts.append(quads.get_hosts(cloud=cloud["name"], date=future_date))
+            current_hosts = quads.get_current_schedule(cloud=cloud["name"])
+            future_hosts = quads.get_current_schedule(cloud=cloud["name"], date=future_date)
+
+            if "result" in current_hosts:
+                current_hosts = []
+            else:
+                current_host_ids = [host["host"] for host in current_hosts]
+                current_hosts = [quads.get_hosts(**{"id": host["$oid"]}) for host in current_host_ids]
+
+            if "result" in future_hosts:
+                future_hosts = []
+            else:
+                future_host_ids = [host["host"] for host in future_hosts]
+                future_hosts = [quads.get_hosts(**{"id": host["$oid"]}) for host in future_host_ids]
+
             diff = set(current_hosts) - set(future_hosts)
             if diff:
                 logger.info('=============== Additional Message')
@@ -197,21 +206,30 @@ def main():
                 )
                 continue
 
-    _clouds_full = quads.get_clouds()
+    _clouds_full = quads.get_summary()
 
     for cloud in _clouds_full:
         if cloud not in _clouds:
             cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
             logger.info('=============== Future Initial Message')
             create_future_initial_message(cloud["owner"], cloud["name"], cloud_info, cloud["ticket"], cloud["ccuser"])
-            now = datetime.now()
-            today_date = "%4d-%.2d-%.2d 22:00" % (now.year, now.month, now.day)
-            future = now + timedelta(days=future_days)
+            future = datetime.now() + timedelta(days=future_days)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-            current_hosts = []
-            future_hosts = []
-            current_hosts.append(quads.get_hosts(cloud=cloud["name"], date=today_date))
-            future_hosts.append(quads.get_hosts(cloud=cloud["name"], date=future_date))
+            current_hosts = quads.get_current_schedule(cloud=cloud["name"])
+            future_hosts = quads.get_current_schedule(cloud=cloud["name"], date=future_date)
+
+            if "result" in current_hosts:
+                current_hosts = []
+            else:
+                current_host_ids = [host["host"] for host in current_hosts]
+                current_hosts = [quads.get_hosts(**{"id": host["$oid"]}) for host in current_host_ids]
+
+            if "result" in future_hosts:
+                future_hosts = []
+            else:
+                future_host_ids = [host["host"] for host in future_hosts]
+                future_hosts = [quads.get_hosts(**{"id": host["$oid"]}) for host in future_host_ids]
+
             diff = set(current_hosts) - set(future_hosts)
             if diff:
                 logger.info('=============== Additional Message')

@@ -22,7 +22,7 @@ class Api(object):
             try:
                 data = json_data.json()
             except ValueError:
-                return None
+                return []
             return data
 
     @staticmethod
