@@ -31,10 +31,10 @@ class Foreman(object):
             return None
         return response.json()
 
-    def get_obj_dict(self, endpoint):
+    def get_obj_dict(self, endpoint, identifier="name"):
         response_json = self.get(endpoint)
         objects = {
-            _object["name"]: _object
+            _object[identifier]: _object
             for _object in response_json["results"]
         }
         return objects
@@ -150,7 +150,7 @@ class Foreman(object):
 
     def get_user_id(self, user_name):
         endpoint = "/users?search=login=%s" % user_name
-        result = self.get_obj_dict(endpoint)
+        result = self.get_obj_dict(endpoint, "login")
         _id = result[user_name]["id"]
         return _id
 

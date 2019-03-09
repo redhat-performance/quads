@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_vlan(cloud_obj, index):
-    cloud_offset = int(cloud_obj[5:]) * 10
+    cloud_offset = int(cloud_obj.name[5:]) * 10
     base_vlan = 1090 + cloud_offset
     vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
     return vlan
