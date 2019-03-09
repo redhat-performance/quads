@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
+def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, validated):
     _cloud_obj = Cloud.objects(name=cloud).first()
     template_file = "initial_message"
     irc_bot_ip = conf["ircbot_ipaddr"]
@@ -25,7 +25,7 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, released):
     cc_users = [conf["report_cc"]]
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
-    if released:
+    if validated:
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
                 template = Template(_file.read)
@@ -65,7 +65,7 @@ def create_message(
         cloud_info,
         ticket,
         cc,
-        released,
+        validated,
         current_hosts,
         future_hosts
 ):
@@ -75,7 +75,7 @@ def create_message(
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
-        if released:
+        if validated:
             host_list_expire = set(current_hosts) - set(future_hosts)
             if host_list_expire:
                 Path(report_file).touch()
@@ -123,7 +123,7 @@ def create_future_message(
         cloud_info,
         ticket,
         cc,
-        released,
+        validated,
         current_hosts,
         future_hosts
 ):
@@ -133,7 +133,7 @@ def create_future_message(
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
-        if released:
+        if validated:
             Path(report_file).touch()
             if conf["email_notify"]:
                 host_list_expire = set(current_hosts) - set(future_hosts)
@@ -171,7 +171,7 @@ def main():
                 cloud_info,
                 cloud["ticket"],
                 cloud["ccuser"],
-                cloud["released"]
+                cloud["validated"]
             )
         for day in days:
             future = datetime.now() + timedelta(days=day)
@@ -201,7 +201,7 @@ def main():
                     cloud_info,
                     cloud["ticket"],
                     cloud["ccuser"],
-                    cloud["released"],
+                    cloud["validated"],
                     current_hosts,
                     future_hosts
                 )
@@ -241,10 +241,11 @@ def main():
                     cloud_info,
                     cloud["ticket"],
                     cloud["ccuser"],
-                    cloud["released"],
+                    cloud["validated"],
                     current_hosts,
                     future_hosts,
                 )
+                continue
 
 
 if __name__ == "__main__":
