@@ -3,13 +3,13 @@ QUADS (quick and dirty scheduler)
 
 Automate scheduling and end-to-end provisioning of servers and networks.
 
+* Visit the [QUADS blog](https://quads.dev)
 * Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
-* [Waffle.io](https://waffle.io/redhat-performance/quads) is also available for additional development tracking and priorities.
 
 ![quads](/image/quads.jpg?raw=true)
 
-
 ![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
+[![Waffle.io](https://badge.waffle.io/redhat-performance/quads.svg?columns=all)](https://waffle.io/redhat-performance/quads)
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
@@ -90,12 +90,18 @@ You can read about QUADS mechanics, provisioning, visuals and workflow [in our d
 git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads
 ```
    - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
+   - Make a copy of it and place it on the local filesystem of the Docker host outside the git checkout
 ```
-vi /opt/docker/quads/conf/quads.yml
+mkdir -p /opt/quads/conf
+cp /opt/docker/quads/conf/quads.yml /opt/quads/conf/quads.yml
 ```
-   - Run docker-compose to instantiate a full QUADS stack
+   - Make any changes required to your `/opt/quads/conf/quads.yml`
 ```
-docker-compose -f /opt/docker/quads/docker/docker-compose.yml up -d
+vi /opt/quads/conf/quads.yml
+```
+   - Run docker-compose to bring up a full QUADS stack
+```
+docker-compose -f /opt/docker/quads/docker/docker-compose-production.yml up -d
 ```
    - Access Quads Wiki via browser at `http://localhost`
    - Run commands against containerized quads via docker exec
@@ -103,6 +109,16 @@ docker-compose -f /opt/docker/quads/docker/docker-compose.yml up -d
 ```
 docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
 ```
+
+   * Container Layout
+
+| Container | Purpose | Source Image | Name |
+|-----------|---------|--------------|----------------------|
+| quads | quads server | Official Python3 Image | python:3 |
+| quads_db  | quads database | Official Mongodb Image | mongo:4.0.4-xenial |
+| nginx | wiki proxy| Official Nginx Image | nginx:1.15.7-alpine |
+| wiki | quads wiki | Official WP Image | wordpress:5.0.0-php5.6-fpm-alpine |
+| wiki_db | wiki database | Official MariaDB Image | mariadb ||
 
 We find it useful to create an alias on your quads container for executing quads-cli commands inside the container.
 
