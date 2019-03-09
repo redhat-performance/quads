@@ -66,10 +66,10 @@ class Foreman(object):
         _host_id = self.get_user_id(login)
         endpoint = "/users/%s" % _host_id
         data = {
-            "user": {
+            "user": [
                 {"login": login},
                 {"password": password}
-            }
+            ]
         }
         try:
             response = requests.put(self.url + endpoint, data, verify=False)
