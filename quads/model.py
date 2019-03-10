@@ -50,6 +50,9 @@ class CloudHistory(Document):
             'qinq': False,
             'wipe': True,
         }
+        for flag in ["released", "validated", "notified"]:
+            if flag in data:
+                data.pop(flag)
 
         params = ['name', 'description', 'owner', 'ticket', 'wipe']
         result, data = param_check(data, params, defaults)
