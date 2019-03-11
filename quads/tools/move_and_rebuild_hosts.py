@@ -51,9 +51,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         if not old_vlan:
             logger.warning(
                 "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
-                % host, interface.name, interface.ip_address, interface.switch_port
+                % (host, interface.name, interface.ip_address, interface.switch_port)
             )
-        else:
             old_vlan = get_vlan(_old_cloud_obj, i)
 
         if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
@@ -75,7 +74,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         else:
             new_vlan = get_vlan(_new_cloud_obj, i)
 
-            if old_vlan != new_vlan:
+            if int(old_vlan) != int(new_vlan):
                 success = juniper_set_port(
                     interface.ip_address,
                     interface.switch_port,
@@ -148,12 +147,18 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
 
-        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel73", "false")
-        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel75", "false")
-        foreman_success = foreman_success and foreman.put_parameter(host, "build", 1)
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
+        foreman_success = foreman.set_host_parameter(host, "rhel73", "false") and foreman_success
+        foreman_success = foreman.set_host_parameter(host, "rhel75", "false") and foreman_success
+        foreman_success = foreman.put_parameter(host, "build", 1) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "operatingsystems", conf["foreman_default_os"], "title"
+        ) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "ptables", conf["foreman_default_ptable"]
+        ) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "media", conf["foreman_default_medium"]
+        ) and foreman_success
         if not foreman_success:
             logger.error("There was something wrong setting Foreman host parameters.")
 
