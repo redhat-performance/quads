@@ -39,7 +39,7 @@ Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 
-Url: http://github.com/redhat-performance/quads
+Url: https://quads.dev 
 
 %description
 
