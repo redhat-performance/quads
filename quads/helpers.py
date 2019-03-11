@@ -1,6 +1,6 @@
 from mongoengine import ObjectIdField
 
-from quads.config import SUPPORTED
+from quads.config import SUPPORTED, SUPERMICROS
 
 
 def param_check(data, params, defaults={}):
@@ -26,6 +26,13 @@ def param_check(data, params, defaults={}):
 
 def is_supported(_host_name):
     for host_type in SUPPORTED:
+        if host_type in _host_name:
+            return True
+    return False
+
+
+def is_supermicro(_host_name):
+    for host_type in SUPERMICROS:
         if host_type in _host_name:
             return True
     return False
