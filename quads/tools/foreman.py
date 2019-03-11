@@ -33,26 +33,33 @@ class Foreman(object):
 
     def get_obj_dict(self, endpoint, identifier="name"):
         response_json = self.get(endpoint)
-        objects = {
-            _object[identifier]: _object
-            for _object in response_json["results"]
-        }
+        if "results" in response_json:
+            objects = {
+                _object[identifier]: _object
+                for _object in response_json["results"]
+            }
+        else:
+            objects = {}
         return objects
 
-    def put_host_parameter(self, host_name, name, value):
-        logger.debug("PUT param: {%s:%s}" % (name, value))
+    def set_host_parameter(self, host_name, name, value):
+        host_parameter = self.get_host_parameter_id(host_name, name)
+        if host_parameter:
+            self.put_parameter(host_name, host_parameter, value)
+        else:
+            self.post_host_parameter(host_name, name, value)
+
+    def put_host_parameter(self, host_name, parameter_id, value):
+        logger.debug("PUT param: {%s:%s}" % (parameter_id, value))
         _host_id = self.get_host_id(host_name)
-        endpoint = "/hosts/%s" % _host_id
-        data = {
-            'host': {
-                'host_parameters_attributes': [
-                    {"name": name},
-                    {"value": value}
-                ]
-            }
-        }
+        endpoint = "/hosts/%s/parameters/%s" % (_host_id, parameter_id)
+        data = {'parameter': {"value": value}}
         try:
-            response = requests.put(self.url + endpoint, data, verify=False)
+            response = requests.put(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -61,18 +68,42 @@ class Foreman(object):
             return True
         return False
 
+    def post_host_parameter(self, host_name, name, value):
+        logger.debug("PUT param: {%s:%s}" % (name, value))
+        _host_id = self.get_host_id(host_name)
+        endpoint = "/hosts/%s/parameters" % _host_id
+        data = {"parameter": {"name": name, "value": value}}
+        try:
+            response = requests.post(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
+        except RequestException as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return False
+        if response.status_code in [200, 201, 204]:
+            return True
+        return False
+
     def update_user_password(self, login, password):
         logger.debug("PUT login pass: {%s}" % login)
         _host_id = self.get_user_id(login)
         endpoint = "/users/%s" % _host_id
         data = {
-            "user": [
-                {"login": login},
-                {"password": password}
-            ]
+            "user":
+                {
+                    "login": login,
+                    "password": password
+                }
         }
         try:
-            response = requests.put(self.url + endpoint, data, verify=False)
+            response = requests.put(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -89,7 +120,11 @@ class Foreman(object):
             'host': {name: value}
         }
         try:
-            response = requests.put(self.url + endpoint, data, verify=False)
+            response = requests.put(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -145,7 +180,18 @@ class Foreman(object):
     def get_host_id(self, host_name):
         endpoint = "/hosts?search=name=%s" % host_name
         result = self.get_obj_dict(endpoint)
-        _id = result[host_name]["id"]
+        _id = None
+        if host_name in result:
+            _id = result[host_name]["id"]
+        return _id
+
+    def get_host_parameter_id(self, host_name, parameter_name):
+        host_id = self.get_host_id(host_name)
+        endpoint = "/hosts/%s/parameters?search=name=%s" % (host_id, parameter_name)
+        result = self.get_obj_dict(endpoint)
+        _id = None
+        if parameter_name in result:
+            _id = result[parameter_name]["id"]
         return _id
 
     def get_user_id(self, user_name):
