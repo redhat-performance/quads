@@ -177,6 +177,9 @@ class Host(Document):
             _cloud_obj = Cloud.objects(name=data["cloud"]).first()
             if _cloud_obj:
                 data["cloud"] = _cloud_obj
+            else:
+                return ["Cloud %s does not exist." % data["cloud"]], {}
+
         result, data = param_check(data, ['name', 'cloud', 'host_type'])
 
         return result, data
