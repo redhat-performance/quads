@@ -51,9 +51,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         if not old_vlan:
             logger.warning(
                 "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
-                % host, interface.name, interface.ip_address, interface.switch_port
+                % (host, interface.name, interface.ip_address, interface.switch_port)
             )
-        else:
             old_vlan = get_vlan(_old_cloud_obj, i)
 
         if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
@@ -75,7 +74,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         else:
             new_vlan = get_vlan(_new_cloud_obj, i)
 
-            if old_vlan != new_vlan:
+            if int(old_vlan) != int(new_vlan):
                 success = juniper_set_port(
                     interface.ip_address,
                     interface.switch_port,

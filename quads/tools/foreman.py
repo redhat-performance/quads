@@ -33,10 +33,13 @@ class Foreman(object):
 
     def get_obj_dict(self, endpoint, identifier="name"):
         response_json = self.get(endpoint)
-        objects = {
-            _object[identifier]: _object
-            for _object in response_json["results"]
-        }
+        if "results" in response_json:
+            objects = {
+                _object[identifier]: _object
+                for _object in response_json["results"]
+            }
+        else:
+            objects = {}
         return objects
 
     def put_host_parameter(self, host_name, name, value):
@@ -52,7 +55,11 @@ class Foreman(object):
             }
         }
         try:
-            response = requests.put(self.url + endpoint, data, verify=False)
+            response = requests.put(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -66,13 +73,17 @@ class Foreman(object):
         _host_id = self.get_user_id(login)
         endpoint = "/users/%s" % _host_id
         data = {
-            "user": [
+            "user": {
                 {"login": login},
                 {"password": password}
-            ]
+            }
         }
         try:
-            response = requests.put(self.url + endpoint, data, verify=False)
+            response = requests.put(
+                self.url + endpoint,
+                json=data,
+                auth=(self.username, self.password),
+                verify=False)
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
