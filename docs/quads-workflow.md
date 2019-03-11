@@ -1,8 +1,10 @@
-# QUADS Workflow and Visuals
+# QUADS Architecture, Workflow and Visuals
 
 Below are common workflows, visualizations and features of QUADS.
 
 * [QUADS Workflow and Examples)](#quads-workflow-and-visuals)
+    * [QUADS Architecture](#quads-architecture)
+    * [QUADS Data Structure](#quads-data-structure-and-erd)
     * [QUADS Workflow](#quads-workflow)
     * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
     * [Example: Automated Scheduling](#example-automated-scheduling)
@@ -11,11 +13,23 @@ Below are common workflows, visualizations and features of QUADS.
     * [Example: Systems Visualization Map](#example-systems-visualization-map)
     * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
 
+## QUADS Architecture
+Typically this is how things look via our container orchestration.
+
+![quadsarchitecture](../image/quads-container-architecture.png?raw=true)
+
+## QUADS Data Structure and ERD
+This is how our scheduling data, collections and data model within Mongo collections are stored.
+
+![quads-erd-mongo](../image/quads-erd-mongo.png?raw=true)
+
 ## QUADS Workflow
+More of a flat, "creative" process interpretation.
 
 ![quadsworkflow](../image/quads-workflow.png?raw=true)
 
 ## QUADS Foreman Provisioning Workflow
+This is the workflow behind `quads/tools/move_and_rebuild_hosts.py`
 
 ![quadsforemanarch](../image/quads-foreman-workflow.png?raw=true)
 
