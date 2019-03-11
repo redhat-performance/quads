@@ -289,6 +289,9 @@ def main(_args):
                 logger.info('Nothing to do.')
                 exit(0)
             for result in js['result']:
+                if 'host' not in result:
+                    logger.info('Nothing to do.')
+                    exit(0)
                 host = result['host']
                 current = result['current']
                 new = result['new']
