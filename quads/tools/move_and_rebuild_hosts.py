@@ -6,7 +6,7 @@ import subprocess
 from datetime import datetime
 
 from quads.config import conf, OFFSETS
-from quads.helpers import is_supported
+from quads.helpers import is_supported, is_supermicro
 from quads.model import Host, Cloud, Vlan
 from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
@@ -51,9 +51,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         if not old_vlan:
             logger.warning(
                 "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
-                % host, interface.name, interface.ip_address, interface.switch_port
+                % (host, interface.name, interface.ip_address, interface.switch_port)
             )
-        else:
             old_vlan = get_vlan(_old_cloud_obj, i)
 
         if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
@@ -75,7 +74,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         else:
             new_vlan = get_vlan(_new_cloud_obj, i)
 
-            if old_vlan != new_vlan:
+            if int(old_vlan) != int(new_vlan):
                 success = juniper_set_port(
                     interface.ip_address,
                     interface.switch_port,
@@ -132,6 +131,19 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             # TODO: pdu management
             pass
 
+        if is_supermicro(host):
+            ipmi_pxe_persistent = [
+                "/usr/bin/ipmitool",
+                "-I", "lanplus",
+                "-H", "mgmt-%s" % host,
+                "-U", conf["ipmi_username"],
+                "-P", conf["ipmi_password"],
+                "chassis", "bootdev", "pxe",
+                "options", "=", "persistent"
+            ]
+            logger.debug("ipmi_pxe_persistent: %s" % ipmi_pxe_persistent)
+            subprocess.call(ipmi_pxe_persistent)
+
         if is_supported(host):
             try:
                 badfish.change_boot(
@@ -148,22 +160,30 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
 
-        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel73", "false")
-        foreman_success = foreman_success and foreman.put_host_parameter(host, "rhel75", "false")
-        foreman_success = foreman_success and foreman.put_parameter(host, "build", 1)
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "operatingsystems", conf["foreman_default_os"])
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "ptables", conf["foreman_default_ptable"])
-        foreman_success = foreman_success and foreman.put_parameter_by_name(host, "media", conf["foreman_default_medium"])
+        foreman_success = foreman.set_host_parameter(host, "rhel73", "false") and foreman_success
+        foreman_success = foreman.set_host_parameter(host, "rhel75", "false") and foreman_success
+        foreman_success = foreman.put_parameter(host, "build", 1) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "operatingsystems", conf["foreman_default_os"], "title"
+        ) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "ptables", conf["foreman_default_ptable"]
+        ) and foreman_success
+        foreman_success = foreman.put_parameter_by_name(
+            host, "media", conf["foreman_default_medium"]
+        ) and foreman_success
         if not foreman_success:
             logger.error("There was something wrong setting Foreman host parameters.")
 
         try:
             badfish.set_next_boot_pxe()
             badfish.reboot_server()
-        except SystemExit as ex:
-            logger.debug(ex)
-            logger.error("There was something wrong setting next PXE boot via Badfish.")
-            return False
+        except SystemExit:
+            if is_supermicro(host):
+                logger.warning("Badfish not yet supported on Supermicro: %s." % host)
+            else:
+                logger.exception("There was something wrong setting next PXE boot via Badfish.")
+                return False
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, last_build=datetime.now())

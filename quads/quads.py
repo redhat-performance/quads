@@ -37,16 +37,16 @@ class Api(object):
 
     def get(self, endpoint, **kwargs):
         uri = self._uri_constructor(endpoint, kwargs)
-        _response = self.session.get(os.path.join(self.base_url, uri))
+        _response = self.session.get(os.path.join(self.base_url, uri), verify=False)
         return self._parse_and_check_quads(_response)
 
     def post(self, endpoint, data):
-        _response = self.session.post(os.path.join(self.base_url, endpoint), data)
+        _response = self.session.post(os.path.join(self.base_url, endpoint), data, verify=False)
         return self._parse_and_check_quads(_response)
 
     def delete(self, endpoint, **kwargs):
         uri = self._uri_constructor(endpoint, kwargs)
-        _response = self.session.delete(os.path.join(self.base_url, uri))
+        _response = self.session.delete(os.path.join(self.base_url, uri), verify=False)
         return self._parse_and_check_quads(_response)
 
     def get_hosts(self, **kwargs):

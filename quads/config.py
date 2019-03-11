@@ -25,6 +25,7 @@ quads_config_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(quads_config_file)
 
 SUPPORTED = ["r620", "r630", "r720", "r730", "r930"]
+SUPERMICROS = ["1029p", "1029u", "1028r", "6029p", "6018r", "6048r", "5039ms"]
 OFFSETS = {"em1": 0, "em2": 1, "em3": 2, "em4": 3}
 TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "../templates")
 TOLERANCE = 14400
