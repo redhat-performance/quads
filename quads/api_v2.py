@@ -41,8 +41,8 @@ class MovesMethodHandler(MethodHandlerBase):
                 else:
                     if len(data['date']) == 0:
                         result.append("Could not parse date parameter")
-                if len(result) > 0:
-                    return json.dumps({'result': result})
+                        return json.dumps({'result': result})
+
                 _hosts = model.Host.objects()
 
                 result = []
