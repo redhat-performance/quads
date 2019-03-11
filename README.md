@@ -15,7 +15,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [What does it do?](#what-does-it-do)
       * [Design](#design)
       * [Requirements](#requirements)
-      * [QUADS Workflow](#quads-workflow)
+      * [QUADS Architecture and Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS with Docker Compose (Recommended)](#installing-quads-with-docker-compose-recommended)
@@ -60,10 +60,14 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - IRC bot and email notifications for new provisioning tasks and ones ending completion
 
 ## Design
-   - Main components: `Python3, Cherrypy, MongoDB, Jinja2`
+   - Main components: `Python3, Cherrypy, Mongoengine, MongoDB, Jinja2`
    - Installation via Docker compose, RPM (Fedora or EL8+) or Github sources
    - We use [badfish](https://github.com/redhat-performance/badfish) for managing bare-metal IPMI
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend.
+   - We use [Wordpress](https://wordpress.org/) for auto-generating wiki and documentation.
+   - A typical container-based QUADS deployment might look like this:
+
+![quadsarchitecture](/image/quads-container-architecture.png?raw=true)
 
 ## Requirements
    - In QUADS 1.1+ we are using Python3, Cherrypy and Jinja2 with MongoDB as the database backend.
@@ -73,9 +77,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - We use [badfish](https://github.com/redhat-performance/badfish) for optional Dell playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
    - The package [ansible-cmdb](https://github.com/fboender/ansible-cmdb) needs to be available if you want to see per assignment Ansible facts of the inventory. It can be obtained from [here](https://github.com/fboender/ansible-cmdb/releases)
 
-## QUADS Workflow
+## QUADS Architecture and Workflow
 
-You can read about QUADS mechanics, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
+You can read about QUADS architecture, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
 
 ## QUADS Switch and Host Setup
    - To ensure you have setup your switch properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
@@ -188,7 +192,7 @@ systemctl start quads-server.service
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.  We typically place this as an alias in `/root/.bashrc`.
 ```
-echo 'alias quads="/opt/quads/bin/quads-cli"' >> /root/.bashrc
+echo 'alias quads="quads-cli"' >> /root/.bashrc
 ```
 
 ### Installing other QUADS Components
@@ -223,9 +227,9 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
    - These are the isolated environments QUADS will use and provision into for you.
 
 ```
-/opt/quads/bin/quads-cli --define-cloud cloud01 --description "Primary Cloud Environment"
-/opt/quads/bin/quads-cli --define-cloud cloud02 --description "02 Cloud Environment"
-/opt/quads/bin/quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
+quads-cli --define-cloud cloud01 --description "Primary Cloud Environment"
+quads-cli --define-cloud cloud02 --description "02 Cloud Environment"
+quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 ```
 
    - Define the hosts in the environment (Foreman Example)
@@ -233,18 +237,18 @@ yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1
      - We are excluding anything starting with mgmt- and including servers with the name r630.
 
 ```
-for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do /opt/quads/bin/quads-cli --define-host $h --default-cloud cloud01 --host-type general; done
+for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads-cli --define-host $h --default-cloud cloud01 --host-type general; done
 ```
 
    - The command without Foreman would be simply:
 
 ```
-/opt/quads/bin/quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
+quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 ```
    - To list the hosts:
 
 ```
-/opt/quads/bin/quads-cli --ls-hosts
+quads-cli --ls-hosts
 ```
 You will now see the list of full hosts.
 
@@ -266,7 +270,7 @@ c09-h03-r630.example.com
    - To see the current system allocations:
 
 ```
-/opt/quads/bin/quads-cli --summary
+quads-cli --summary
 ```
 ```
 cloud01 : 45 (Primary Cloud Environment)
@@ -277,13 +281,13 @@ cloud03 : 0 (03 Cloud Environment)
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
 ```
-/opt/quads/bin/quads-cli --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
+quads-cli --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
 ```
 
    - List the schedule for a specific host:
 
 ```
-/opt/quads/bin/quads-cli --ls-schedule --host c08-h21-r630.example.com
+quads-cli --ls-schedule --host c08-h21-r630.example.com
 ```
 
 You'll see the schedule output below
@@ -301,7 +305,7 @@ Defined schedules:
    - Move any hosts that need to be re-allocated based on the current schedule
 
 ```
-/opt/quads/bin/quads-cli --move-hosts
+quads-cli --move-hosts
 ```
 
 You should see the following verbosity from a move operation
@@ -318,7 +322,7 @@ In the above example the default move command called ```/bin/echo``` for illustr
 * This expects three arguments `hostname current-cloud new-cloud`.
 
 ```
-/opt/quads/bin/quads-cli --move-hosts --path-to-command /opt/quads/bin/move-and-rebuild-host.sh
+quads-cli --move-hosts --path-to-command /opt/quads/bin/move-and-rebuild-host.sh
 ```
 
 * You can look at the [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script as an example.  It's useful to note that with `bin/move-and-rebuild-host.sh` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
@@ -344,7 +348,7 @@ Creating a new schedule and assigning machines is currently done through the QUA
 #### Defining a New Cloud ####
 
 ```
-/opt/quads/bin/quads-cli --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 0
+quads-cli --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 0
 ```
 
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
@@ -352,25 +356,26 @@ Creating a new schedule and assigning machines is currently done through the QUA
 
 #### Adding New Hosts to your Cloud ####
 ```
-/opt/quads/bin/quads-cli --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
+quads-cli --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
 ```
 
    - Now we'll allocate all of these hosts with a schedule, by default our system times use UTC.
 
 ```
-for h in $(cat /tmp/RT423624) ; do /opt/quads/bin/quads-cli --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
+for h in $(cat /tmp/RT423624) ; do quads-cli --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
 ```
 
 That's it.  At this point your hosts will be queued for provision and move operations, we check once a minute if there are any pending provisioning tasks.  To check manually:
 
 ```
-for h in $(./quads-cli  --cloud-only cloud03) ; do echo -n ==== $h   :" " ; cat /etc/lab/state/$h ; done
+quads-cli --move-hosts --dry-run
+
 ```
 
 After your hosts are provisioned and moved you should see them populate under the cloud list.
 
 ```
-/opt/quads/bin/quads-cli --cloud-only cloud03
+quads-cli --cloud-only cloud03
 ```
 
 ### Extending the __Schedule__ of an Existing Cloud
@@ -381,7 +386,7 @@ In this example we'll be extending the assignment end date for cloud03
    - First, get the updated list of current assignments
 
 ```
-/opt/quads/bin/quads-cli --summary
+quads-cli --summary
 ```
 ```
 cloud01 : 55 (Pool of available servers)
@@ -396,7 +401,7 @@ cloud10 : 14 (Openshift + OSPD testing)
    - Next, List the owners of the clouds.
 
 ```
-/opt/quads/bin/quads-cli --ls-owner
+quads-cli --ls-owner
 ```
 ```
 cloud01 : nobody
@@ -414,7 +419,7 @@ cloud10 : cnorris
    - Lastly, obtain a list of the current machines in cloud03
 
 ```
-/opt/quads/bin/quads-cli --cloud-only cloud03
+quads-cli --cloud-only cloud03
 ```
 ```
 b09-h01-r620.rdu.openstack.example.com
@@ -435,7 +440,7 @@ b09-h19-r620.rdu.openstack.example.com
    - Take a look at the existing schedule for one of these machines, you'll see it expires 2016-10-30.
 
 ```
-/opt/quads/bin/quads-cli --host b09-h01-r620.rdu.openstack.example.com --ls-schedule
+quads-cli --host b09-h01-r620.rdu.openstack.example.com --ls-schedule
 ```
 ```
 Default cloud: cloud01
@@ -452,7 +457,7 @@ This is the actual command that extends the schedule, the other commands above a
 Below we will be extending the schedule end date from 2016-10-30 to 2016-11-27 at 18:00
 
 ```
-for h in $(/opt/quads/bin/quads-cli --cloud-only cloud03) ; do /opt/quads/bin/quads-cli --host $h --mod-schedule 0 --schedule-end "2016-11-27 18:00"; done
+for h in $(quads-cli --cloud-only cloud03) ; do quads-cli --host $h --mod-schedule 0 --schedule-end "2016-11-27 18:00"; done
 ```
 
   - Cleanup Notification Files
@@ -475,25 +480,25 @@ When in heavy usage some machines primary, active schedule may differ from one a
   - **Approach: 1** Modify the latest assignment
 
 ```
-for h in $(/opt/quads/bin/quads-cli --cloud-only cloud10) ; do echo /opt/quads/bin/quads-cli --mod-schedule $(/opt/quads/bin/quads-cli --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
+for h in $(quads-cli --cloud-only cloud10) ; do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
 ```
 
 Note the difference in commands needed with the ```--mod-schedule``` flag that is required.
 
 ```
-/opt/quads/bin/quads-cli --mod-schedule 0 --host b10-h11-r620.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+quads-cli --mod-schedule 0 --host b10-h11-r620.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 Done.
-/opt/quads/bin/quads-cli --mod-schedule 3 --host c08-h21-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+quads-cli --mod-schedule 3 --host c08-h21-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 Done.
-/opt/quads/bin/quads-cli --mod-schedule 3 --host c08-h22-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+quads-cli --mod-schedule 3 --host c08-h22-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 Done.
-/opt/quads/bin/quads-cli --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
+quads-cli --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
 ```
 
   - **Approach: 2** Reschedule against a certain cloud **and** start date **(RECOMMENDED)**
 
 ```
-for h in $(/opt/quads/bin/quads-cli --cloud-only cloud05); do echo /opt/quads/bin/quads-cli --mod-schedule $(/opt/quads/bin/quads-cli --ls-schedule --host $h | grep cloud05 | grep "start=2017-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-06 05:00" ; echo Done. ; done
+for h in $(quads-cli --cloud-only cloud05); do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep cloud05 | grep "start=2017-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-06 05:00" ; echo Done. ; done
 ```
 
   * If all looks good you can remove **remove the echo lines** and apply.
@@ -503,21 +508,17 @@ for h in $(/opt/quads/bin/quads-cli --cloud-only cloud05); do echo /opt/quads/bi
 QUADS also supports adding new machines into an existing workload (cloud).
 
    - Search Availability Pool for Free Servers
-      - Let's look for any 5 x servers for 10 days
+      - Let's look for any 5 x servers from `2019-03-11 22:00` until `2019-04-22 22:00`
 
 ```
-bin/find-available.py -c 5 -d 10
+quads-cli --ls-available --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00"
+
 ```
 ```
-================
-First available date = 2016-12-05 08:00
-Requested end date = 2016-12-15 08:00
-hostnames =
 c03-h11-r620.rdu.openstack.example.com
 c03-h13-r620.rdu.openstack.example.com
 c03-h14-r620.rdu.openstack.example.com
 c03-h15-r620.rdu.openstack.example.com
-c03-h17-r620.rdu.openstack.example.com
 ```
 
   - Move New Hosts into Existing Cloud
@@ -525,26 +526,23 @@ c03-h17-r620.rdu.openstack.example.com
 Above we see all the free servers during our timeframe, let's move them into cloud10
 
 ```
-/opt/quads/bin/quads-cli --host c03-h11-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-/opt/quads/bin/quads-cli --host c03-h13-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-/opt/quads/bin/quads-cli --host c03-h14-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-/opt/quads/bin/quads-cli --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-/opt/quads/bin/quads-cli --host c03-h17-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads-cli --host c03-h11-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads-cli --host c03-h13-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads-cli --host c03-h14-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads-cli --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
 ```
-
-* Note: You can run ```bin/find-available-py``` with the ```--cli``` flag to generate QUADS commands for you.
 
 ### Removing a Schedule
 
 You can remove an existing schedule across a set of hosts using the ```--rm-schedule``` flag against the schedule ID for each particular machine of that assignment.
 
    - Example: removing the schedule for three machines in cloud
-   - Obtain the schedule ID via ```/opt/quads/bin/quads-cli --ls-schedule --host```
+   - Obtain the schedule ID via ```quads-cli --ls-schedule --host```
    - These machines would happen to have the same cloud assignment as schedule id 2.
 ```
-/opt/quads/bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
-/opt/quads/bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
-/opt/quads/bin/quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
 ```
 
 ### Removing a Schedule across a large set of hosts
@@ -556,7 +554,7 @@ You should search for either the start or end dates to select the right schedule
    - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
 
 ```
-for host in $(cat /tmp/452851); do /opt/quads/bin/quads-cli --rm-schedule $(/opt/quads/bin/quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
+for host in $(cat /tmp/452851); do quads-cli --rm-schedule $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
 ```
 
 ## Using the QUADS JSON API
@@ -569,7 +567,7 @@ for host in $(cat /tmp/452851); do /opt/quads/bin/quads-cli --rm-schedule $(/opt
 * You can display the allocation schedule on any given date via the ```--date``` flag.
 
 ```
-/opt/quads/bin/quads-cli --date "2017-03-06"
+quads-cli --date "2017-03-06"
 ```
 ```
 cloud01:
@@ -589,7 +587,7 @@ cloud01:
 * You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
 
 ```
-/opt/quads/bin/quads-cli --move-hosts --dry-run
+quads-cli --move-hosts --dry-run
 ```
 ```
 INFO: Moving b10-h27-r620.rdu.openstack.example.com from cloud01 to cloud03
@@ -618,7 +616,7 @@ INFO: Moving c01-h06-r620.rdu.openstack.example.com from cloud04 to cloud08
 * When managing notification recipients you can use the ```--ls-cc-users``` and ```--cc-users``` arguments.
 
 ```
-/opt/quads/bin/quads-cli --ls-cc-users --cloud-only cloud04
+quads-cli --ls-cc-users --cloud-only cloud04
 ```
 ```
 epresley
@@ -627,7 +625,7 @@ epresley
    - Get a list of all the atributes and redefine
 
 ```
-/opt/quads/bin/quads-cli --full-summary | grep cloud04 ; /opt/quads/bin/quads-cli --ls-owner | grep cloud04 ; /opt/quads/bin/quads-cli --ls-ticket | grep cloud04 ; /opt/quads/bin/quads-cli --ls-cc-users --cloud-only cloud04
+quads-cli --full-summary | grep cloud04 ; quads-cli --ls-owner | grep cloud04 ; quads-cli --ls-ticket | grep cloud04 ; quads-cli --ls-cc-users --cloud-only cloud04
 ```
 ```
 cloud04 : 52 (Ceph deployment)
@@ -638,12 +636,12 @@ epresley
    - Redefine
 
 ```
-/opt/quads/bin/quads-cli --define-cloud cloud04 --description "Ceph Deployment" --force --cloud-owner jhoffa --cc-users "epresley rnixon" --cloud-ticket 423424
+quads-cli --define-cloud cloud04 --description "Ceph Deployment" --force --cloud-owner jhoffa --cc-users "epresley rnixon" --cloud-ticket 423424
 ```
    - Now you can see the updated cc notifications
 
 ```
-/opt/quads/bin/quads-cli --ls-cc-users --cloud-only cloud04
+quads-cli --ls-cc-users --cloud-only cloud04
 ```
 ```
 epresley
