@@ -28,7 +28,7 @@ class Foreman(object):
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
-            return None
+            return {}
         return response.json()
 
     def get_obj_dict(self, endpoint, identifier="name"):
@@ -154,6 +154,16 @@ class Foreman(object):
         for interface, details in result.items():
             if "mgmt" in interface:
                 return interface
+        return None
+
+    def get_idrac_host_with_details(self, host_name):
+        logger.debug("GET idrac: %s" % host_name)
+        _host_id = self.get_host_id(host_name)
+        endpoint = "/hosts/%s/interfaces/" % _host_id
+        result = self.get_obj_dict(endpoint)
+        for interface, details in result.items():
+            if "mgmt" in interface:
+                return details
         return None
 
     def get_all_hosts(self):

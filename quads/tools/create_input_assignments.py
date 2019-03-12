@@ -239,7 +239,7 @@ def main():
 
     lines = []
     all_hosts = foreman.get_all_hosts()
-    blacklist = re.compile(conf["exclude_hosts"])
+    blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
     broken_hosts = foreman.get_broken_hosts()
     domain_broken_hosts = {
@@ -250,10 +250,14 @@ def main():
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
-        if "mgmt" in host and not blacklist.search(host):
-            properties["host_ip"] = all_hosts.get(host[5:], {"ip": None})["ip"]
-            properties["host_mac"] = all_hosts.get(host[5:], {"mac": None})["mac"]
-            mgmt_hosts[host] = properties
+        if not blacklist.search(host):
+            mgmt_host = foreman.get_idrac_host_with_details(host)
+            if mgmt_host:
+                properties["host_ip"] = all_hosts.get(host, {"ip": None})["ip"]
+                properties["host_mac"] = all_hosts.get(host, {"mac": None})["mac"]
+                properties["ip"] = mgmt_host["ip"]
+                properties["mac"] = mgmt_host["mac"]
+                mgmt_hosts[mgmt_host] = properties
 
     lines.append("### **SUMMARY**\n")
     _summary = print_summary()
@@ -275,8 +279,9 @@ def main():
         lines.append("### <a name=%s></a>\n" % name.strip())
         lines.append("### **%s -- %s**\n\n" % (name.strip(), owner))
         lines.extend(print_header())
+        _cloud_hosts = requests.get(os.path.join(API_URL, "host?cloud=%s" % name))
         for host in _cloud_hosts:
-            if host["cloud"] == name:
+            if host["cloud"] == cloud["_id"]:
                 lines.extend(add_row(host))
         lines.append("\n")
 
