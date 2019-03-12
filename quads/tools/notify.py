@@ -22,13 +22,13 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, validated)
     irc_bot_ip = conf["ircbot_ipaddr"]
     irc_bot_port = conf["ircbot_port"]
     irc_bot_channel = conf["ircbot_channel"]
-    cc_users = [conf["report_cc"]]
+    cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if validated:
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -71,17 +71,17 @@ def create_message(
 ):
     template_file = "message"
     report_file = "%s-%s-%s-%s" % (cloud, real_owner, day, ticket)
-    cc_users = [conf["report_cc"]]
+    cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
         if validated:
             host_list_expire = set(current_hosts) - set(future_hosts)
             if host_list_expire:
-                Path(report_file).touch()
+                Path(os.path.exists(os.path.join(conf["data_dir"], "report", report_file))).touch()
                 if conf["email_notify"]:
                     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                        template = Template(_file.read)
+                        template = Template(_file.read())
                     content = template.render(
                         days_to_report=day,
                         cloud_info=cloud_info,
@@ -98,14 +98,14 @@ def create_message(
 def create_future_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     template_file = "future_initial_message"
     report_file = "%s-%s-pre-initial-%s" % (cloud, real_owner, ticket)
-    cc_users = [conf["report_cc"]]
+    cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
-        Path(report_file).touch()
+        Path(os.path.join(conf["data_dir"], "report", report_file)).touch()
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -129,16 +129,16 @@ def create_future_message(
 ):
     template_file = "future_message"
     report_file = "%s-%s-pre-%s" % (cloud, real_owner, ticket)
-    cc_users = [conf["report_cc"]]
+    cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
         if validated:
-            Path(report_file).touch()
+            Path(os.path.join(conf["data_dir"], "report", report_file)).touch()
             if conf["email_notify"]:
                 host_list_expire = set(current_hosts) - set(future_hosts)
                 with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                    template = Template(_file.read)
+                    template = Template(_file.read())
                 content = template.render(
                     days_to_report=future_days,
                     cloud_info=cloud_info,
@@ -207,45 +207,50 @@ def main():
                 )
                 continue
 
-    _clouds_full = quads.get_summary()
-
-    for cloud in _clouds_full:
-        if cloud not in _active_clouds:
-            cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
-            logger.info('=============== Future Initial Message')
-            create_future_initial_message(cloud["owner"], cloud["name"], cloud_info, cloud["ticket"], cloud["ccuser"])
-            future = datetime.now() + timedelta(days=future_days)
-            future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-            current_hosts = quads.get_current_schedule(cloud=cloud["name"])
-            future_hosts = quads.get_current_schedule(cloud=cloud["name"], date=future_date)
-
-            if "result" in current_hosts:
-                current_hosts = []
-            else:
-                current_host_ids = [host["host"] for host in current_hosts]
-                current_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in current_host_ids]
-
-            if "result" in future_hosts:
-                future_hosts = []
-            else:
-                future_host_ids = [host["host"] for host in future_hosts]
-                future_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in future_host_ids]
-
-            diff = set(current_hosts) - set(future_hosts)
-            if diff:
-                logger.info('=============== Additional Message')
-                create_future_message(
+    for cloud in _clouds:
+        if cloud["name"] != "cloud01" and cloud["owner"] not in ["quads", None]:
+            report_file = "%s-%s-pre-initial-%s" % (cloud["name"], cloud["owner"], cloud["ticket"])
+            if not os.path.exists(os.path.join(conf["data_dir"], "report", report_file)):
+                cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
+                logger.info('=============== Future Initial Message')
+                create_future_initial_message(
                     cloud["owner"],
-                    future_days,
                     cloud["name"],
                     cloud_info,
                     cloud["ticket"],
-                    cloud["ccuser"],
-                    cloud["validated"],
-                    current_hosts,
-                    future_hosts,
+                    cloud["ccuser"]
                 )
-                continue
+                future = datetime.now() + timedelta(days=future_days)
+                future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
+                current_hosts = quads.get_current_schedule(cloud=cloud["name"])
+                future_hosts = quads.get_current_schedule(cloud=cloud["name"], date=future_date)
+
+                if "result" in current_hosts:
+                    current_hosts = []
+                else:
+                    current_host_ids = [host["host"] for host in current_hosts]
+                    current_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in current_host_ids]
+
+                if "result" in future_hosts:
+                    future_hosts = []
+                else:
+                    future_host_ids = [host["host"] for host in future_hosts]
+                    future_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in future_host_ids]
+                diff = set(current_hosts) - set(future_hosts)
+                if diff:
+                    logger.info('=============== Additional Message')
+                    create_future_message(
+                        cloud["owner"],
+                        future_days,
+                        cloud["name"],
+                        cloud_info,
+                        cloud["ticket"],
+                        cloud["ccuser"],
+                        cloud["validated"],
+                        current_hosts,
+                        future_hosts,
+                    )
+                    continue
 
 
 if __name__ == "__main__":

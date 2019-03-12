@@ -21,8 +21,7 @@ class Postman(object):
         msg["Subject"] = self.subject
         msg["From"] = Address("QUADS", "quads", conf["domain"])
         msg["To"] = Address(username=self.to, domain=conf["domain"])
-        _cc = ["%s@%s" % (cc, conf["domain"]) for cc in self.cc.split(",")]
-        msg["Cc"] = ",".join(_cc)
+        msg["Cc"] = ",".join(self.cc)
         msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
         msg.set_content(self.content)
         email_host = conf["email_host"]
