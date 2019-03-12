@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def notify_failure(_cloud):
     template_file = "validation_failed"
     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-        template = Template(_file.read)
+        template = Template(_file.read())
     parameters = {
         "cloud": _cloud.name,
         "owner": _cloud.owner,
@@ -29,14 +29,15 @@ def notify_failure(_cloud):
     content = template.render(**parameters)
 
     subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(**parameters)
-    postman = Postman(subject, _cloud.owner, _cloud.cc_users, content)
+    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.cc_users]
+    postman = Postman(subject, _cloud.owner, _cc_users, content)
     postman.send_email()
 
 
 def notify_success(_cloud):
     template_file = "validation_succeded"
     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-        template = Template(_file.read)
+        template = Template(_file.read())
     parameters = {
         "cloud": _cloud.name,
         "owner": _cloud.owner,
@@ -45,7 +46,8 @@ def notify_success(_cloud):
     content = template.render(**parameters)
 
     subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(**parameters)
-    postman = Postman(subject, _cloud.owner, _cloud.cc_users, content)
+    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.cc_users]
+    postman = Postman(subject, _cloud.owner, _cc_users, content)
     postman.send_email()
 
 
