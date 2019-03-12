@@ -66,7 +66,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             lines.append(line)
 
         with open(os.path.join(TEMPLATES_PATH, "simple_table")) as _file:
-            template = Template(_file.read)
+            template = Template(_file.read())
         content = template.render(
             gentime=_gentime,
             _days=_days,
