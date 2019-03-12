@@ -18,7 +18,6 @@ HEADERS = [
     "IPMIMAC",
     "Workload",
     "Owner",
-    "Graph"
 ]
 
 
@@ -49,8 +48,8 @@ def render_header(_rack):
 
 
 def render_row(_host, _properties):
-    u_loc = _host.split("-")[2][1:]
-    node = _host[5:]
+    u_loc = _host.split("-")[1][1:]
+    node = _host
     owner = ""
     cloud = ""
     host_url = os.path.join(API_URL, "host?name=%s" % node)
@@ -58,13 +57,13 @@ def render_row(_host, _properties):
     if _response.status_code == 200:
         host_data = _response.json()
         if "cloud" in host_data:
-            cloud_url = os.path.join(API_URL, "cloud?name=%s" % host_data["cloud"])
+            cloud_url = os.path.join(API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"])
             _cloud_response = requests.get(cloud_url)
             if _cloud_response.status_code == 200:
                 cloud_data = _cloud_response.json()
                 if "owner" in cloud_data:
                     owner = cloud_data["owner"]
-            cloud = "[%s](/assignments/#%s)" % (host_data["cloud"], host_data["cloud"])
+            cloud = "[%s](/assignments/#%s)" % (cloud_data["name"], cloud_data["name"])
 
     # TODO: figure out what to put on grafana field
     grafana = ""
@@ -75,7 +74,7 @@ def render_row(_host, _properties):
         _properties["host_mac"],
         _properties["host_ip"],
         _properties["ip"],
-        "<a href=http://%s/ target=_blank>console</a>" % _host,
+        "<a href=http://mgmt-%s/ target=_blank>console</a>" % _host,
         _properties["mac"],
         cloud,
         owner,
@@ -99,21 +98,26 @@ def main():
     )
 
     all_hosts = foreman.get_all_hosts()
-    blacklist = re.compile(conf["exclude_hosts"])
+
+    blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
     hosts = {}
     for host, properties in all_hosts.items():
-        if "mgmt" in host and not blacklist.search(host):
-            properties["host_ip"] = all_hosts.get(host[5:], {"ip": ""})["ip"]
-            properties["host_mac"] = all_hosts.get(host[5:], {"mac": ""})["mac"]
-            consolidate_ipmi_data(host[5:], "macaddr", properties["host_mac"])
-            consolidate_ipmi_data(host[5:], "oobmacaddr", properties["mac"])
-            svctag_file = os.path.join(conf["data_dir"], "ipmi", host[5:], "svctag")
-            svctag = ""
-            if os.path.exists(svctag_file):
-                with open(svctag_file) as _file:
-                    svctag = _file.read()
-            properties["svctag"] = svctag.strip()
-            hosts[host] = properties
+        if not blacklist.search(host):
+            mgmt_host = foreman.get_idrac_host_with_details(host)
+            if mgmt_host:
+                properties["host_ip"] = properties["ip"]
+                properties["host_mac"] = properties["mac"]
+                properties["ip"] = mgmt_host["ip"]
+                properties["mac"] = mgmt_host["mac"]
+                consolidate_ipmi_data(host, "macaddr", properties["host_mac"])
+                consolidate_ipmi_data(host, "oobmacaddr", mgmt_host["mac"])
+                svctag_file = os.path.join(conf["data_dir"], "ipmi", host, "svctag")
+                svctag = ""
+                if os.path.exists(svctag_file):
+                    with open(svctag_file) as _file:
+                        svctag = _file.read()
+                properties["svctag"] = svctag.strip()
+                hosts[host] = properties
 
     _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "main.md")
 

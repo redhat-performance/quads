@@ -239,7 +239,7 @@ def main():
 
     lines = []
     all_hosts = foreman.get_all_hosts()
-    blacklist = re.compile(conf["exclude_hosts"])
+    blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
     broken_hosts = foreman.get_broken_hosts()
     domain_broken_hosts = {
@@ -250,34 +250,36 @@ def main():
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
-        if "mgmt" in host and not blacklist.search(host):
-            properties["host_ip"] = all_hosts.get(host[5:], {"ip": None})["ip"]
-            properties["host_mac"] = all_hosts.get(host[5:], {"mac": None})["mac"]
-            mgmt_hosts[host] = properties
+        if not blacklist.search(host):
+            mgmt_host = foreman.get_idrac_host_with_details(host)
+            if mgmt_host:
+                properties["host_ip"] = all_hosts.get(host, {"ip": None})["ip"]
+                properties["host_mac"] = all_hosts.get(host, {"mac": None})["mac"]
+                properties["ip"] = mgmt_host["ip"]
+                properties["mac"] = mgmt_host["mac"]
+                mgmt_hosts[mgmt_host["name"]] = properties
 
     lines.append("### **SUMMARY**\n")
     _summary = print_summary()
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
-    # TODO: call this only once
-    cloud_response = requests.get(os.path.join(API_URL, "cloud"))
+    summary_response = requests.get(os.path.join(API_URL, "summary"))
     _cloud_summary = []
-    if cloud_response.status_code == 200:
-        _cloud_summary = cloud_response.json()
-    host_response = requests.get(os.path.join(API_URL, "host"))
+    if summary_response.status_code == 200:
+        _cloud_summary = summary_response.json()
     _cloud_hosts = []
-    if host_response.status_code == 200:
-        _cloud_hosts = host_response.json()
-    for cloud in _cloud_summary:
+    for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
         lines.append("### **%s -- %s**\n\n" % (name.strip(), owner))
         lines.extend(print_header())
-        for host in _cloud_hosts:
-            if host["cloud"] == name:
-                lines.extend(add_row(host))
+        _cloud_hosts = requests.get(os.path.join(API_URL, "host?cloud=%s" % name))
+        if _cloud_hosts.status_code == 200:
+            for host in _cloud_hosts.json():
+                if "cloud" in host:
+                    lines.extend(add_row(host))
         lines.append("\n")
 
     lines.extend(print_unmanaged(mgmt_hosts, domain_broken_hosts))
