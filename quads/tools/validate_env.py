@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def notify_failure(_cloud):
     template_file = "validation_failed"
     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-        template = Template(_file.read)
+        template = Template(_file.read())
     parameters = {
         "cloud": _cloud.name,
         "owner": _cloud.owner,
@@ -36,7 +36,7 @@ def notify_failure(_cloud):
 def notify_success(_cloud):
     template_file = "validation_succeded"
     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-        template = Template(_file.read)
+        template = Template(_file.read())
     parameters = {
         "cloud": _cloud.name,
         "owner": _cloud.owner,
