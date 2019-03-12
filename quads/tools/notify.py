@@ -28,7 +28,7 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, validated)
     if validated:
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -81,7 +81,7 @@ def create_message(
                 Path(report_file).touch()
                 if conf["email_notify"]:
                     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                        template = Template(_file.read)
+                        template = Template(_file.read())
                     content = template.render(
                         days_to_report=day,
                         cloud_info=cloud_info,
@@ -105,7 +105,7 @@ def create_future_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         Path(report_file).touch()
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -138,7 +138,7 @@ def create_future_message(
             if conf["email_notify"]:
                 host_list_expire = set(current_hosts) - set(future_hosts)
                 with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                    template = Template(_file.read)
+                    template = Template(_file.read())
                 content = template.render(
                     days_to_report=future_days,
                     cloud_info=cloud_info,
