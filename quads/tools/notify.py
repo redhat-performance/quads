@@ -28,7 +28,7 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc, validated)
     if validated:
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -81,7 +81,7 @@ def create_message(
                 Path(report_file).touch()
                 if conf["email_notify"]:
                     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                        template = Template(_file.read)
+                        template = Template(_file.read())
                     content = template.render(
                         days_to_report=day,
                         cloud_info=cloud_info,
@@ -105,7 +105,7 @@ def create_future_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         Path(report_file).touch()
         if conf["email_notify"]:
             with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                template = Template(_file.read)
+                template = Template(_file.read())
             content = template.render(
                 cloud_info=cloud_info,
                 wp_wiki=conf["wp_wiki"],
@@ -138,7 +138,7 @@ def create_future_message(
             if conf["email_notify"]:
                 host_list_expire = set(current_hosts) - set(future_hosts)
                 with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
-                    template = Template(_file.read)
+                    template = Template(_file.read())
                 content = template.render(
                     days_to_report=future_days,
                     cloud_info=cloud_info,
@@ -207,10 +207,8 @@ def main():
                 )
                 continue
 
-    _clouds_full = quads.get_summary()
-
-    for cloud in _clouds_full:
-        if cloud not in _active_clouds:
+    for cloud in _clouds:
+        if cloud not in _active_clouds and cloud["name"] != "cloud01" and cloud["owner"] not in ["quads", None]:
             cloud_info = "%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"])
             logger.info('=============== Future Initial Message')
             create_future_initial_message(cloud["owner"], cloud["name"], cloud_info, cloud["ticket"], cloud["ccuser"])
