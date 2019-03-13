@@ -26,6 +26,7 @@ class SSHHelper(object):
             username=self.user,
             password=self.password,
             allow_agent=False,
+            timeout=30,
         )
         transport = ssh.get_transport()
         channel = transport.open_session()
@@ -44,7 +45,7 @@ class SSHHelper(object):
                 logger.error(line)
             return False
         else:
-            logger.info("Your command was executed successfully")
+            logger.debug("Command executed successfully: %s" % cmd)
             return stdout.readlines()
 
     def copy_ssh_key(self, _ssh_key):
