@@ -3,7 +3,6 @@ import logging
 import smtplib
 
 from email.message import EmailMessage
-from email.headerregistry import Address
 from quads.config import conf
 
 logger = logging.getLogger(__name__)
