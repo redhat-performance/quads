@@ -5,8 +5,8 @@ import os
 import subprocess
 from datetime import datetime
 
-from quads.config import conf, OFFSETS
-from quads.helpers import is_supported, is_supermicro
+from quads.config import conf
+from quads.helpers import is_supported, is_supermicro, get_vlan
 from quads.model import Host, Cloud, Vlan
 from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
@@ -16,13 +16,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-
-
-def get_vlan(cloud_obj, index):
-    cloud_offset = int(cloud_obj.name[5:]) * 10
-    base_vlan = 1090 + cloud_offset
-    vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
-    return vlan
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
@@ -55,10 +49,12 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             )
             old_vlan = get_vlan(_old_cloud_obj, i)
 
+        new_vlan = get_vlan(_new_cloud_obj, i)
+
         if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
             logger.info("Setting last interface to public vlan %s." % new_vlan)
 
-            if old_vlan != _public_vlan_obj.vlan_id:
+            if int(old_vlan) != int(_public_vlan_obj.vlan_id):
                 success = juniper_convert_port_public(
                     interface.ip_address,
                     interface.switch_port,
@@ -72,7 +68,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                     logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
                     return False
         else:
-            new_vlan = get_vlan(_new_cloud_obj, i)
 
             if int(old_vlan) != int(new_vlan):
                 success = juniper_set_port(
@@ -91,6 +86,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             _old_vlan_obj = Vlan.objects(cloud=_old_cloud_obj).first()
             if _old_vlan_obj:
                 _old_vlan_obj.update(cloud=None)
+
+    ssh_helper.disconnect()
 
     make_instackenv_json.main()
 
