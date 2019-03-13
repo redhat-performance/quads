@@ -9,7 +9,7 @@ from quads.config import conf, API_URL
 
 HEADERS = [
     "U",
-    "ServerHostname",
+    "ServerHostnamePublic",
     "Serial",
     "MAC",
     "IP",
