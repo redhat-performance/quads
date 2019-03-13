@@ -11,7 +11,7 @@ from quads.config import conf, API_URL
 from quads.tools.foreman import Foreman
 
 HEADERS = [
-    "SystemHostname",
+    "ServerHostnamePublic",
     "OutOfBand",
     "DateStartAssignment",
     "DateEndAssignment",
