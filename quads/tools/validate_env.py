@@ -9,12 +9,13 @@ from requests import RequestException
 from jinja2 import Template
 from quads.config import conf, TEMPLATES_PATH, TOLERANCE, API_URL, INTERFACES
 from quads.quads import Api
-from quads.model import Cloud, Schedule
+from quads.model import Cloud, Schedule, Host
 from quads.tools.foreman import Foreman
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def notify_failure(_cloud):
@@ -29,7 +30,7 @@ def notify_failure(_cloud):
     content = template.render(**parameters)
 
     subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(**parameters)
-    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.cc_users]
+    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.ccuser]
     postman = Postman(subject, _cloud.owner, _cc_users, content)
     postman.send_email()
 
@@ -92,48 +93,39 @@ def post_system_test(_cloud):
 
 
 def post_network_test(_cloud):
+    _hosts = Host.objects(cloud=_cloud)
 
-    quads = Api(API_URL)
+    test_host = _hosts[0]
+    try:
+        ssh_helper = SSHHelper(test_host.name)
+    except Exception:
+        logger.exception("Could not establish connection with host: %s." % test_host.name)
+        return False
+    host_list = " ".join([host.name for host in _hosts])
 
-    hosts = quads.get_cloud_hosts(_cloud)
-
-    test_host = hosts[0]
-    if not test_connection(test_host):
+    if type(ssh_helper.run_cmd("fping -u %s" % host_list)) != list:
         return False
 
-    ssh_helper = SSHHelper(test_host)
-    host_list = " ".join(hosts)
-    if not ssh_helper.run_cmd("fping -u %s" % host_list):
-        return False
-    for interface, values in INTERFACES.items():
-        for value in values:
-            host_ips = [socket.gethostbyname(host) for host in host_list]
-            new_ips = []
-            for ip in host_ips:
+    for interface in test_host.interfaces:
+        new_ips = []
+        host_ips = [
+            socket.gethostbyname(host.name) for host in _hosts \
+            if interface.name in [_interface.name for _interface in host.interfaces]
+        ]
+        for ip in host_ips:
+            for value in INTERFACES[interface.name]:
                 ip_apart = ip.split(".")
                 octets = value.split(".")
                 ip_apart[0] = octets[0]
                 ip_apart[1] = octets[1]
-                new_ips.append(ip_apart)
+                new_ips.append(".".join(ip_apart))
 
-            if not ssh_helper.run_cmd("fping -u %s" % new_ips):
-                return False
+                if type(ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))) != list:
+                    return False
+
+    ssh_helper.disconnect()
 
     return True
-
-
-def test_connection(_host, _port=53, _get_ip=False):
-    if _get_ip:
-        _host = socket.gethostbyname(_host)
-    try:
-        socket.setdefaulttimeout(3)
-        _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        _socket.connect((_host, _port))
-        return True
-    except OSError as ex:
-        logger.debug(ex)
-        logger.error("Host %s does not seem to be accessible." % _host)
-    return False
 
 
 def validate_env(_cloud):
