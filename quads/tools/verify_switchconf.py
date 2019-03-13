@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import argparse
 import logging
 import os
 import time
@@ -18,8 +19,10 @@ def verify(_cloud_name, change=False):
     hosts = quads.get_cloud_hosts(_cloud_name)
 
     for _host in hosts:
-        _host_obj = Host.objects(name=_host)
+        _host_obj = Host.objects(name=_host["name"]).first()
         if _host_obj.interfaces:
+
+            ssh_helper = SSHHelper(_host_obj.interfaces[0].ip_address, conf["junos_username"])
             for interface in _host_obj.interfaces:
 
                 cloud_offset = int(_cloud_name[5:]) * 10
@@ -29,7 +32,6 @@ def verify(_cloud_name, change=False):
                 else:
                     vlan = base_vlan + OFFSETS[interface.name]
 
-                ssh_helper = SSHHelper(interface.ip_address)
                 # TODO: check output
                 qinq_setting = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
                 vlan_member = ssh_helper.run_cmd("show vlans interfaces %s.0" % interface.switch_port)
@@ -53,3 +55,13 @@ def verify(_cloud_name, change=False):
                          vlan_member,
                          vlan]
                     )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Query current cloud for a given host')
+    parser.add_argument('--cloud', dest='cloud', type=str, default=None,
+                        help='Cloud name to verify switch configuration for.')
+    parser.add_argument('--change', dest='change', action='store_true', help='Commit changes on switch.')
+
+    args = parser.parse_args()
+    verify(args.cloud, args.change)
