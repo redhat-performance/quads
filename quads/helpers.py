@@ -1,6 +1,6 @@
 from mongoengine import ObjectIdField
 
-from quads.config import SUPPORTED, SUPERMICROS
+from quads.config import SUPPORTED, SUPERMICROS, OFFSETS
 
 
 def param_check(data, params, defaults={}):
@@ -36,3 +36,10 @@ def is_supermicro(_host_name):
         if host_type in _host_name:
             return True
     return False
+
+
+def get_vlan(cloud_obj, index):
+    cloud_offset = int(cloud_obj.name[5:]) * 10
+    base_vlan = 1090 + cloud_offset
+    vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
+    return vlan
