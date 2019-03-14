@@ -335,7 +335,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 if not _end:
                     _end = schedule["end"]
                 if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
-                    data["cloud"] = cloud_obj
+                    if cloud_obj:
+                        data["cloud"] = cloud_obj
                     schedule.update(**data)
                     result.append(
                         'Updated %s %s' % (self.name, schedule["index"])

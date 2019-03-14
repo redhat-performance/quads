@@ -78,7 +78,7 @@ def create_message(
         if validated:
             host_list_expire = set(current_hosts) - set(future_hosts)
             if host_list_expire:
-                Path(os.path.exists(os.path.join(conf["data_dir"], "report", report_file))).touch()
+                Path(os.path.join(conf["data_dir"], "report", report_file)).touch()
                 if conf["email_notify"]:
                     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
                         template = Template(_file.read())
