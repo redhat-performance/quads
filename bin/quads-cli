@@ -2,6 +2,8 @@
 import argparse
 import datetime
 import logging
+from collections import defaultdict
+
 import requests
 import subprocess
 import sys
@@ -106,9 +108,9 @@ def main(_args):
                             _cloud_name)
                     )
             else:
-                clouds = quads.get_clouds()
-                if clouds and "result" not in clouds:
-                    for cloud in clouds:
+                _clouds = quads.get_clouds()
+                if _clouds and "result" not in _clouds:
+                    for cloud in _clouds:
                         _cloud_name = cloud["name"]
                         logger.info("%s:" % _cloud_name)
                         _kwargs["cloud"] = _cloud_name
@@ -288,28 +290,38 @@ def main(_args):
             if len(js['result']) == 0:
                 logger.info('Nothing to do.')
                 exit(0)
+
+            _clouds = defaultdict(list)
             for result in js['result']:
-                host = result['host']
-                current = result['current']
-                new = result['new']
-                # now we need to know if we should wipe
-                cloud = quads.get_clouds(name=new)
-                wipe_value = 1
-                if cloud:
-                    wipe_value = int(cloud["wipe"])
-                logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
-                if not _args.dryrun:
-                    try:
-                        if _args.movecommand == default_move_command:
-                            move_and_rebuild(host, current, new, wipe_value)
-                        else:
-                            if wipe_value:
-                                subprocess.check_call([args.movecommand, host, current, new])
+                _clouds[result['new']].append(result)
+
+            for cloud, results in _clouds.items():
+                for result in results:
+                    host = result['host']
+                    current = result['current']
+                    new = result['new']
+                    cloud = quads.get_clouds(name=new)
+                    wipe_value = 1
+                    if cloud:
+                        wipe_value = int(cloud["wipe"])
+                    logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
+                    if not _args.dryrun:
+                        try:
+                            if _args.movecommand == default_move_command:
+                                move_and_rebuild(host, current, new, wipe_value)
                             else:
-                                subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
-                    except Exception as ex:
-                        logger.error('Move command failed: %s' % ex)
-                        exit(1)
+                                if wipe_value:
+                                    subprocess.check_call([args.movecommand, host, current, new])
+                                else:
+                                    subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
+                        except Exception as ex:
+                            logger.error('Move command failed: %s' % ex)
+                            exit(1)
+
+                _new_cloud_obj = Cloud.objects(name=cloud).first()
+                _new_cloud_obj.update(released=True)
+                _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
+                _old_cloud_obj.update(released=False, validated=False, notified=False)
 
             exit(0)
 
