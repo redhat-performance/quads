@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c64758d2_77a5c751",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-03-14T17:56:52Z",
+      "side": 1,
+      "message": "We\u0027ll probably add this back in after 1.1 is stable/released.",
+      "revId": "a10c1ee10a58a3b15e5bd1027aa3647f424f4ee4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
