@@ -8,9 +8,6 @@ You've been allocated a new environment!
 (Details)
 http://{{ wp_wiki }}/assignments/#{{ cloud }}
 
-(Ansible Facts)
-{{ quads_url }}/ansible_facts/{{ cloud }}_{{ real_owner }}_{{ ticket }}_overview.html
-
 You can view your machine list, duration and other
 details above.
 

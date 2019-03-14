@@ -30,9 +30,8 @@ def notify_failure(_cloud):
     content = template.render(**parameters)
 
     subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(**parameters)
-    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.ccuser]
-    _cc_users = _cc_users + conf["report_cc"].split(",")
-    postman = Postman(subject, _cloud.owner, _cc_users, content)
+    _cc_users = conf["report_cc"].split(",")
+    postman = Postman(subject, "dev-null", _cc_users, content)
     postman.send_email()
 
 
@@ -48,9 +47,8 @@ def notify_success(_cloud):
     content = template.render(**parameters)
 
     subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(**parameters)
-    _cc_users = ["%s@%s" % (cc, conf["domain"]) for cc in _cloud.ccuser]
-    _cc_users = _cc_users + conf["report_cc"].split(",")
-    postman = Postman(subject, _cloud.owner, _cc_users, content)
+    _cc_users = conf["report_cc"].split(",")
+    postman = Postman(subject, "dev-null", _cc_users, content)
     postman.send_email()
 
 
