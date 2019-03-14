@@ -5,11 +5,11 @@ services:
     image: nginx:1.15.7-alpine
     container_name: nginx
     volumes:
-      - wordpress_data:/var/www/html/:ro
+      - wordpress_data:/var/www/html/
       - ./etc/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
       - ./etc/nginx/conf.d:/etc/nginx/conf.d:ro
-      - wiki_cloud:/var/www/html/cloud:ro
-      - wiki_visual:/var/www/html/visual:ro
+      - wiki_cloud:/var/www/html/cloud
+      - wiki_visual:/var/www/html/visual
     links:
       - wordpress:php
       - wp-db:db

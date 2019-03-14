@@ -19,6 +19,12 @@ RUN pip install \
     jinja2 \
     pexpect
 
+RUN mkdir -p /var/www/html/visual
+RUN mkdir -p /var/www/html/cloud
+
+COPY image/texture*.png /var/www/html/visual/
+COPY image/button*.png  /var/www/html/visual/
+
 WORKDIR /opt/quads
 ENV PYTHONPATH=/opt/quads
 ENTRYPOINT python bin/quads-server

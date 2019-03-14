@@ -39,7 +39,7 @@ Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 
-Url: https://quads.dev 
+Url: https://quads.dev
 
 %description
 
@@ -71,7 +71,7 @@ mkdir %{buildroot}/etc/profile.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
-cp -p image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
+cp -p docker/image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
 
