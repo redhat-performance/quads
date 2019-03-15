@@ -33,11 +33,13 @@ Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
-Requires: git
-Requires: ipmitool
+Requires: git >= 2.1
+Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
+Requires: python3-ipdb >= 0.10
+Requires: haveged >= 1.8
 
 Url: https://quads.dev
 
@@ -91,49 +93,52 @@ rm -rf %{buildroot}
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
 
 %post
-systemctl enable quads-server
-systemctl enable mongod
+/usr/bin/systemctl enable quads-server
+/usr/bin/systemctl enable mongod
+/usr/bin/systemctl enable httpd
+/usr/bin/systemctl enable haveged
+source /etc/profile.d/quads.sh
 
 %preun
 if [ "$1" -eq 0 ]; then
-  systemctl stop quads-server
-  systemctl disable quads-server
+  /usr/bin/systemctl stop quads-server
+  /usr/bin/systemctl disable quads-server
 fi;
 :;
 
 %changelog
 
-* Fri Mar 09 2019 - 1.0.999: Will Foster <wfoster@redhat.com>
+* Fri Mar 09 2019 Will Foster <wfoster@redhat.com>
 - Fixes for PYTHONPATH for quads-cli
 - Bump minor release for COPR builds
 - Remove unneeded libs, deprecated tools
 
-* Mon Feb 25 2019 - 1.0.99: Will Foster <wfoster@redhat.com>
+* Mon Feb 25 2019 Will Foster <wfoster@redhat.com>
 - Initial packaging work for 1.1 beta
 - This is a work-in-progress, full 1.1 changes will arrive when this fully
   builds.
 
-* Wed Feb 13 2019 - 1.0.2: Will Foster <wfoster@redhat.com>
+* Wed Feb 13 2019 Will Foster <wfoster@redhat.com>
 - Bump version to match 1.0.2 tag
 - Bug fixes in wiki generation and VLAN stub creation
 - Removal of bin/quads.py in lieu of quads-cli
 - Lots of documentation updates and additions
 - Fixes to Juniper automation to rollback uncommitted changes
 
-* Thu Nov 22 2018 - 1.0.1: Will Foster <wfoster@redhat.com>
+* Thu Nov 22 2018 Will Foster <wfoster@redhat.com>
 - Bump version to match 1.0.1 tag
 - PDU control feature added - issue #100
 - Public VLAN management added into cloud definitions - issue #192
 - We can now check against broken hosts in Foreman if broken_state
   host parameter is set before allowing those machines to be scheduled - issue #190
 
-* Fri Apr 20 2018 - 1.0.0: Will Foster <wfoster@redhat.com>
+* Fri Apr 20 2018 Will Foster <wfoster@redhat.com>
 - Bump version to match 1.0.0 tag
 
-* Fri Oct 20 2017 - 0.99.2: Will Foster <wfoster@redhat.com>
+* Fri Oct 20 2017 Will Foster <wfoster@redhat.com>
 - Add httpd dependency and visualization image files
 
-* Wed Aug 30 2017 - 0.99: Will Foster <wfoster@redhat.com>
+* Wed Aug 30 2017 Will Foster <wfoster@redhat.com>
 - Initial spec file and package into RPM
 - This will be available in Fedora COPR, updated in sync with master
   - https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS/
