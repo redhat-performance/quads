@@ -39,7 +39,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
     _public_vlan_obj = Vlan.objects(cloud=_new_cloud_obj).first()
     for i, interface in enumerate(_host_obj.interfaces):
-        ssh_helper = SSHHelper(_host_obj.interfaces[0].ip_address, conf["junos_username"])
+        ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
         old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
@@ -183,6 +183,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 return False
 
         logger.debug("Updating host: %s")
-        _host_obj.update(cloud=_new_cloud_obj, last_build=datetime.now())
-        _new_cloud_obj.update(released=True)
-        _old_cloud_obj.update(released=False, validated=False, notified=False)
+        _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
+    else:
+
+        logger.debug("Updating host: %s")
+        _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
