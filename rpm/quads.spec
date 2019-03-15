@@ -33,11 +33,12 @@ Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
-Requires: git
-Requires: ipmitool
+Requires: git >= 2.1
+Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
+Requires: python3-ipdb >= 0.10
 
 Url: https://quads.dev
 
@@ -91,13 +92,15 @@ rm -rf %{buildroot}
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
 
 %post
-systemctl enable quads-server
-systemctl enable mongod
+/usr/bin/systemctl enable quads-server
+/usr/bin/systemctl enable mongod
+/usr/bin/systemctl enable httpd
+source /etc/profile.d/quads.sh
 
 %preun
 if [ "$1" -eq 0 ]; then
-  systemctl stop quads-server
-  systemctl disable quads-server
+  /usr/bin/systemctl stop quads-server
+  /usr/bin/systemctl disable quads-server
 fi;
 :;
 
