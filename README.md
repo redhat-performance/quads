@@ -9,7 +9,6 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 ![quads](/image/quads.jpg?raw=true)
 
 ![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
-[![Waffle.io](https://badge.waffle.io/redhat-performance/quads.svg?columns=all)](https://waffle.io/redhat-performance/quads)
 
    * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
       * [What does it do?](#what-does-it-do)
@@ -18,7 +17,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [QUADS Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
-         * [Installing QUADS with Docker Compose (Recommended)](#installing-quads-with-docker-compose-recommended)
+         * [Installing QUADS with Docker Compose](#installing-quads-with-docker-compose)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
       * [QUADS Usage Documentation](#quads-usage-documentation)
@@ -88,7 +87,7 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
    - It's recommended to use the Docker method as it requires less setup.
 
-### Installing QUADS with Docker Compose *(Recommended)*
+### Installing QUADS with Docker Compose
    - Clone the QUADS Github repository
 ```
 git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads
@@ -182,11 +181,28 @@ dnf install quads -y
 ```
 vi /opt/quads/conf/quads.yml
 ```
+   - Enable and Start dependent services
+   - [haveged](https://issihosts.com/haveged/) is a replacement entropy service for VM's, its optional so turn it off if you want to use `/dev/random` - this solves certain [performance issues](https://github.com/redhat-performance/quads/issues/221) known to occur with VM's and containers running in a VM.
+```
+systemctl enable httpd
+systemctl enable haveged
+systemctl start haveged
+systemctl start httpd
+systemctl start mongod
+```
    - Enable and start the QUADS systemd service (daemon)
    - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
 ```
-systemctl enable quads-server.service
-systemctl start quads-server.service
+systemctl enable quads-server
+systemctl start quads-server
+```
+   - Source quads binaries in your $PATH (or login with another shell)
+```
+source /etc/profile.d/quads.sh
+```
+   - Now you're ready to go.
+```
+quads-cli --help
 ```
    - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
 
