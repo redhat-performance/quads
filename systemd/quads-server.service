@@ -6,7 +6,7 @@
 [Unit]
 Description = QUADS Daemon
 Documentation = https://github.com/redhat-performance/quads
-After=network.target mongod.service
+After=network.target mongod.service httpd.service haveged.service
 
 [Service]
 Type = simple
