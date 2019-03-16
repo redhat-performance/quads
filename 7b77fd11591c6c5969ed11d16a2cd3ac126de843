@@ -16,6 +16,24 @@
       "revId": "7b77fd11591c6c5969ed11d16a2cd3ac126de843",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d04588be_28f90b43",
+        "filename": "systemd/quads-server.service",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-16T13:44:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc441e7d_3a4ae0b6",
+      "revId": "7b77fd11591c6c5969ed11d16a2cd3ac126de843",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
