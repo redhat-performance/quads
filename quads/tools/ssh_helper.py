@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import logging
+import os
 
-from paramiko import SSHClient, AutoAddPolicy
+from paramiko import SSHClient, AutoAddPolicy, SSHConfig
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,10 @@ class SSHHelper(object):
 
     def connect(self):
         ssh = SSHClient()
+        config = SSHConfig()
+        with open(os.path.expanduser("~/.shh/config")) as _file:
+            config.parse(_file)
+        host_config = config.lookup(self.host)
         ssh.set_missing_host_key_policy(AutoAddPolicy())
         ssh.load_system_host_keys()
 
@@ -25,6 +30,7 @@ class SSHHelper(object):
             self.host,
             username=self.user,
             password=self.password,
+            key_filename=host_config["identityfile"][0],
             allow_agent=False,
             timeout=30,
         )
