@@ -61,6 +61,7 @@ services:
       - /opt/quads/conf/quads.yml:/opt/quads/conf/quads.yml
       - wiki_cloud:/var/www/html/cloud
       - wiki_visual:/var/www/html/visual
+      - ~/.ssh:/root/.ssh
 
   quads-db:
     image: mongo:4.0.4-xenial

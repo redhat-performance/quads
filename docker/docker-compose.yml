@@ -28,6 +28,7 @@ services:
       - ./etc/wordpress/themes:/var/tmp/wp-themes:ro
       - ./etc/wordpress/plugins:/var/tmp/wp-plugins:ro
       - ./etc/wordpress/entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+      - ~/.ssh:/root/.ssh
     environment:
       WORDPRESS_DB_HOST: mysql
       WORDPRESS_DB_PASSWORD: 123456
