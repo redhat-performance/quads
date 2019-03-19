@@ -152,38 +152,38 @@ visual_web_dir: /var/www/html/visual
 # If the first number is -1 then the 2nd value is the name
 # of the image file in the visual_web_dir
 visual_colors:
-  cloud01: 190 193 212
-  cloud02: -1 button01.png
-  cloud03: -1 button02.png
-  cloud04: -1 button03.png
-  cloud05: -1 button04.png
-  cloud06: -1 button05.png
-  cloud07: -1 button06.png
-  cloud08: -1 button07.png
-  cloud09: -1 button08.png
-  cloud10: -1 button09.png
-  cloud11: -1 button10.png
-  cloud12: -1 button11.png
-  cloud13: -1 button12.png
-  cloud14: -1 button13.png
-  cloud15: -1 button14.png
-  cloud16: -1 button15.png
-  cloud17: -1 button16.png
-  cloud18: -1 button17.png
-  cloud19: -1 button18.png
-  cloud20: -1 button19.png 0
-  cloud21: -1 texture03.png 0
-  cloud22: -1 texture04.png 0
-  cloud23: -1 texture05.png 0
-  cloud24: -1 texture06.png 0
-  cloud25: -1 texture07.png 0
-  cloud26: -1 texture08.png 0
-  cloud27: -1 texture09.png 0
-  cloud28: -1 texture10.png 0
-  cloud29: -1 texture11.png 0
-  cloud30: -1 texture12.png 0
-  cloud31: -1 texture13.png 0
-  cloud32: -1 texture14.png 0
+  cloud01: "#000000"
+  cloud02: "#222034"
+  cloud03: "#45283c"
+  cloud04: "#663931"
+  cloud05: "#8f563b"
+  cloud06: "#df7126"
+  cloud07: "#d9a066"
+  cloud08: "#eec39a"
+  cloud09: "#fbf236"
+  cloud10: "#99e550"
+  cloud11: "#6abe30"
+  cloud12: "#37946e"
+  cloud13: "#4b692f"
+  cloud14: "#524b24"
+  cloud15: "#323c39"
+  cloud16: "#3f3f74"
+  cloud17: "#306082"
+  cloud18: "#5b6ee1"
+  cloud19: "#639bff"
+  cloud20: "#5fcde4"
+  cloud21: "#cbdbfc"
+  cloud22: "#ffffff"
+  cloud23: "#9badb7"
+  cloud24: "#847e87"
+  cloud25: "#696a6a"
+  cloud26: "#595652"
+  cloud27: "#76428a"
+  cloud28: "#ac3232"
+  cloud29: "#d95763"
+  cloud30: "#d77bba"
+  cloud31: "#8f974a"
+  cloud32: "#8a6f30"
 
 # parameter to designate "undercloud" (ignored) hosts
 # for overcloud instackenv.json generation as well as

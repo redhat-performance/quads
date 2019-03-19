@@ -21,14 +21,15 @@
 {% for line in lines %}
     <tr>
     <td>{{ line["hostname"] }}</td>
-    {% for day in sorted(line["days"], key=lambda _line: _line["day"]) %}
-        <td {{ day["color_property"] }}="{{ day["color"] }}" data-toggle="tooltip"
-        title="Description: {{ day["display_description"] }}
-               Env: cloud{{ day["chosen_color"] }}
-               Owner: {{ day["display_owner"] }}
-               RT: {{ day["display_ticket"] }}
-               Day: {{ day["day"] }}
-        "></td>
+    {% for day in line["days"] %}
+        <td bgcolor="{{ day["color"] }}" data-toggle="tooltip"
+        title=
+        "Description: {{ day["display_description"] }}
+    Env: cloud{{ day["chosen_color"] }}
+    Owner: {{ day["display_owner"] }}
+    RT: {{ day["display_ticket"] }}
+    Day: {{ day["day"] }}
+    "></td>
     {% endfor %}
     </tr>
 {% endfor %}
