@@ -106,7 +106,7 @@ vi /opt/quads/conf/quads.yml
 ```
 docker-compose -f /opt/docker/quads/docker/docker-compose-production.yml up -d
 ```
-   - Access Quads Wiki via browser at `http://localhost`
+   - Access Quads Wiki via browser at `http://localhost` or `http://quads-container-host` to setup your Wiki environment.
    - Run commands against containerized quads via docker exec
 
 ```
@@ -130,7 +130,15 @@ We find it useful to create an alias on your quads container for executing quads
 echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
 ```
 
+   - e.g. creating an environment and adding hosts
+```
+quads --define-cloud cloud01 --description "spare pool"
+quads --add-host host01 --default-cloud cloud01 --host-type general
+```
+
 ### Installing QUADS from Github
+This method requires you to satisfy all of your Python3 and library dependencies yourself and isn't recommended, however it probably is the only way to run QUADS on some platforms like FreeBSD.  Substitute package names and methods appropriately.
+
    - Clone the git repository (substitute paths below as needed)
 
 ```
@@ -138,11 +146,11 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 ```
    - Install pre-requisite Python packages
 ```
-yum install expectk python3-aexpect python-requests
+dnf install expectk python3-aexpect python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
 ```
    - Install a webserver (Apache, nginx, etc)
 ```
-yum install httpd
+dnf install httpd
 ```
    - Create logging directory (you can edit this in ```conf/quads.yml``` via the ```log:``` parameter).
 ```
@@ -168,7 +176,7 @@ systemctl daemon-reload
 systemctl enable quads-server.service
 systemctl start quads-server.service
 ```
-   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar (It's just a Python HTTP application).
+   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar functionality.
 
 ### Installing QUADS from RPM
    - On Fedora *(and eventually CentOS/RHEL 8+ when it's available)*
@@ -182,7 +190,7 @@ dnf install quads -y
 vi /opt/quads/conf/quads.yml
 ```
    - Enable and Start dependent services
-   - [haveged](https://issihosts.com/haveged/) is a replacement entropy service for VM's, its optional so turn it off if you want to use `/dev/random` - this solves certain [performance issues](https://github.com/redhat-performance/quads/issues/221) known to occur with VM's and containers running in a VM.
+   - [haveged](https://issihosts.com/haveged/) is a replacement entropy service for VM's, its optional so turn it off if you want to use `/dev/random` - this solves certain [performance issues](https://github.com/redhat-performance/quads/issues/221) known to occur with lack of entropy when running QUADS in a VM.
 ```
 systemctl enable httpd
 systemctl enable haveged
