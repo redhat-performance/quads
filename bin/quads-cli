@@ -283,7 +283,7 @@ def main(_args):
         url = os.path.join(API_URL, 'moves')
         data = {}
         if _args.datearg is not None:
-            data['date'] = _args.datearg
+            data['date'] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
         _response = requests.get(url, data)
         js = _response.json()
         if 'result' in js:
