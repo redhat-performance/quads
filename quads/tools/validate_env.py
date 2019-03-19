@@ -150,6 +150,6 @@ def validate_env(_cloud):
 
 
 if __name__ == "__main__":
-    clouds = Cloud.objects(released=True, validated=False)
+    clouds = Cloud.objects(released=True, validated=False, name__ne="cloud01")
     for cloud in clouds:
         validate_env(cloud)

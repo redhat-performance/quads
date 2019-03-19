@@ -131,10 +131,10 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             _start = _end = datetime.datetime.now()
             if "start" in data:
-                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M:%S')
+                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%dT%H:%M:%S')
 
             if "end" in data:
-                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M:%S')
+                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%dT%H:%M:%S')
 
             available = []
             all_hosts = model.Host.objects().all()

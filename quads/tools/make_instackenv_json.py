@@ -42,11 +42,9 @@ def main():
     lines = []
     for cloud in cloud_list:
         lines.append(",".join(columns))
-        tickets = cloud["ticket"]
-        if tickets:
-            foreman_password = tickets[0]
-        else:
-            foreman_password = conf["ipmi_password"]
+        foreman_password = conf["ipmi_password"]
+        if cloud["ticket"]:
+            foreman_password = cloud["ticket"]
 
         for host in host_list:
             is_overcloud = host["name"] in over_cloud.keys()
