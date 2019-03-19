@@ -1,5 +1,13 @@
 <html>
 <head>
+<style>
+.gradient {
+  box-shadow: 4px 4px 4px 1px rgba(255, 255, 255, 0.6) inset;
+  -webkit-box-shadow: 4px 4px 4px 1px rgba(255, 255, 255, 0.6) inset;
+  -moz-box-shadow: 4px 4px 4px 1px rgba(255, 255, 255, 0.6) inset;
+  border-radius: 6px 6px 6px 6px;
+}
+</style>
 {% if gentime %}
     <title>{{ gentime }}</title>
 {% else %}
@@ -14,21 +22,26 @@
 <table>
 <tr>
 <th>Name</th>
-{% for _day in range(0, _days) %}
+{% for _day in range(1, _days + 1) %}
     <th width=20>{{ "%.2d" % _day }}</th>
 {% endfor %}
 </tr>
 {% for line in lines %}
     <tr>
     <td>{{ line["hostname"] }}</td>
-    {% for day in sorted(line["days"], key=lambda _line: _line["day"]) %}
-        <td {{ day["color_property"] }}="{{ day["color"] }}" data-toggle="tooltip"
-        title="Description: {{ day["display_description"] }}
-               Env: cloud{{ day["chosen_color"] }}
-               Owner: {{ day["display_owner"] }}
-               RT: {{ day["display_ticket"] }}
-               Day: {{ day["day"] }}
-        "></td>
+    {% for day in line["days"] %}
+        <td
+        {% if day["chosen_color"]|int > 18:  %}
+        class="gradient"
+        {% endif %}
+        bgcolor="{{ day["color"] }}"
+        data-toggle="tooltip"
+        title=
+        "Description: {{ day["display_description"] }}
+Env: cloud{{ day["chosen_color"] }}
+Owner: {{ day["display_owner"] }}
+RT: {{ day["display_ticket"] }}
+Day: {{ day["day"] }}"></td>
     {% endfor %}
     </tr>
 {% endfor %}
