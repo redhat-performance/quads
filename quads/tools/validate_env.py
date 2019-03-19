@@ -55,7 +55,8 @@ def notify_success(_cloud):
 def env_allocation_time_exceeded(_cloud):
     now = datetime.now()
     schedule = Schedule.objects(cloud=_cloud, start__lt=now).first()
-    if now - schedule.start > TOLERANCE:
+    time_delta = now - schedule.start
+    if time_delta.seconds > TOLERANCE:
         return True
     return False
 

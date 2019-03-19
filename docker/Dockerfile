@@ -3,8 +3,7 @@ FROM python:3
 RUN apt-get update && \
     apt-get -y install \
     ipmitool \
-    git \
-    haveged
+    git
 
 RUN pip install --upgrade pip
 RUN pip install \
@@ -20,7 +19,6 @@ RUN pip install \
     jinja2 \
     pexpect
 
-RUN update-rc.d haveged defaults
 RUN mkdir -p /var/www/html/visual
 RUN mkdir -p /var/www/html/cloud
 
