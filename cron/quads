@@ -1,10 +1,32 @@
-# cronjobs go in here.
+#######################################
 #
-# example:
-# * * * * * docker exec quads bin/quads-cli --move-hosts 1>>/dev/null 2>&1
-# * * * * * docker exec quads quads/tools/validate_env.py 1>>/dev/null 2>&1
+# Only one cron category should be uncommented
+# This is how you control QUADS processes
+#
+# * quads-cli --move-hosts (checks for hosts to move/reclaim)
+# * validate-env.py (checks clouds pending to be released for all
+#   enabled validation checks)
+# * regenerate_wiki.py (keeps your wp wiki updated based on your environment)
+# * simple_table_web.py (keeps your usage visualization up to date)
+# * make_instackenv_json.py (keeps optional openstack director installation
+# files up-to-date)
+#
+#######################################
+##### CONTAINER QUADS SERVER ENTRIES
+#######################################
+# * * * * * docker exec quads bin/quads-cli --move-hosts 1>>/var/log/move-and-rebuild.log 2>&1
+# * * * * * docker exec quads quads/tools/validate_env.py 1>/dev/null 2>&1
 # */5 * * * * docker exec quads quads/tools/regenerate_wiki.py 1>/dev/null 2>&1
 # 0 0 * * * docker exec quads quads/tools/notify.py 1>/dev/null 2>&1
 # 0 0 * * * docker exec quads quads/tools/simple_table_web.py 1>/dev/null 2>&1
-# * * * * * docker exec quads quads/tools/boot_order.py 1>/dev/null 2>&1
 # * * * * * docker exec quads quads/tools/make_instackenv_json.py 1>/dev/null 2>&1
+########################################
+##### NON-CONTAINER QUADS SERVER ENTRIES
+########################################
+# * * * * * /opt/quads/bin/quads-cli --move-hosts 1>>/var/log/move-and-rebuild.log 2>&1
+# * * * * * /opt/quads/quads/tools/validate_env.py 1>/dev/null 2>&1
+# */5 * * * * /opt/quads/tools/regenerate_wiki.py 1>/dev/null 2>&1
+# 0 0 * * * /opt/quads/quads/tools/notify.py 1>/dev/null 2>&1
+# 0 0 * * * /opt/quads/quads/tools/simple_table_web.py 1>/dev/null 2>&1
+# * * * * * /opt/quads/quads/tools/make_instackenv_json.py 1>/dev/null 2>&1
+########################################

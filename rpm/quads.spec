@@ -40,6 +40,7 @@ Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
 Requires: haveged >= 1.8
+Requires: python3-GitPython >= 2.0
 
 Url: https://quads.dev
 
@@ -73,7 +74,6 @@ mkdir %{buildroot}/etc/profile.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 mkdir -p %{buildroot}/var/www/html/visual/
-cp -p docker/image/{texture*,button*}.png  %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
 
