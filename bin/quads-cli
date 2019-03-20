@@ -416,8 +416,6 @@ if __name__ == '__main__':
                         help='Force host or cloud update when already defined')
     parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
-    parser.add_argument('--schedule-query', dest='schedquery', action='store_true',
-                        help='Query the schedule for a specific month')
     parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month,
                         help='Query the schedule for a specific month and year')
     parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year,
@@ -438,17 +436,12 @@ if __name__ == '__main__':
     parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
     parser.add_argument('--post-config', dest='postconfig', type=str, default=None, nargs='+', choices=['openstack'],
                         help='Post provisioning configuration to apply')
-    parser.add_argument('--version', dest='version', type=str, default=None, help='Version of Software to apply')
-    parser.add_argument('--puddle', dest='puddle', type=str, default='latest', help='Puddle to apply')
-    parser.add_argument('--os-control-scale', dest='controlscale', type=int, default=None,
-                        help='Number of controller nodes for OpenStack deployment')
-    parser.add_argument('--os-compute-scale', dest='computescale', type=int, default=None,
-                        help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Model/Make/Type of host DellR620  for example')
     parser.add_argument('--vlan', dest='vlan', type=int, default=None,
                         help='VLAN id number for public routable network')
     parser.add_argument('--debug', action='store_true', default=False, help='Show debugging information.')
+    parser.add_argument('--version', dest='version', type=str, default=None, help='Display version of QUADS')
 
     args = parser.parse_args()
     main(args)

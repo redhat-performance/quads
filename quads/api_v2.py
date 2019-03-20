@@ -468,9 +468,16 @@ class InterfaceMethodHandler(MethodHandlerBase):
         return json.dumps({'result': result})
 
 
+class QuadsVersion(object):
+    @cherrypy.expose
+    def index(version):
+        return self.version
+
+
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
+        self.version = ('QUADS version %s %s' % (conf["QUADSVERSION"], conf["QUADSCODENAME"]))
         self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
