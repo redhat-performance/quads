@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e67e3b7f_df8b328d",
+        "filename": "README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-20T22:51:45Z",
+      "side": 1,
+      "message": "I don\u0027t believe we use this 2 anymore",
+      "range": {
+        "startLine": 149,
+        "startChar": 12,
+        "endLine": 149,
+        "endChar": 35
+      },
+      "revId": "65f30187051ceb392a5d7333109f1ff87dbd9f38",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a36b4e2c_9923b865",
+        "filename": "cron/quads",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-20T22:51:45Z",
+      "side": 1,
+      "message": "we call this on move and rebuild, no need to have it here.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 1
+      },
+      "revId": "65f30187051ceb392a5d7333109f1ff87dbd9f38",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
