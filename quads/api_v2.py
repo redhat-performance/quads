@@ -7,7 +7,7 @@ import time
 
 from quads import model
 from mongoengine.errors import DoesNotExist
-from quads.config import conf
+from quads.config import conf, QUADSVERSION, QUADSCODENAME
 from quads.tools.foreman import Foreman
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
@@ -264,7 +264,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         _args = {}
         if "date" in data:
-            date = datetime.datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+            date = datetime.datetime.strptime(data["date"], "%Y-%m-%d %H:%M:%S")
             _args["date"] = date
         if "host" in data:
             host = model.Host.objects(name=data["host"]).first()
@@ -469,8 +469,15 @@ class InterfaceMethodHandler(MethodHandlerBase):
 
 
 @cherrypy.expose
+class VersionMethodHandler(object):
+    def GET(self):
+        return json.dumps({'result': 'QUADS version %s %s' % (QUADSVERSION, QUADSCODENAME)})
+
+
+@cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
+        self.version = VersionMethodHandler()
         self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
