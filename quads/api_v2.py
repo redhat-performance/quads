@@ -7,7 +7,7 @@ import time
 
 from quads import model
 from mongoengine.errors import DoesNotExist
-from quads.config import conf
+from quads.config import conf, QUADSVERSION, QUADSCODENAME
 from quads.tools.foreman import Foreman
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
@@ -471,6 +471,7 @@ class InterfaceMethodHandler(MethodHandlerBase):
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
+        self.version = print('QUADS version %s %s' % (conf["QUADSVERSION"], conf["QUADSCODENAME"]))
         self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
         self.owner = DocumentMethodHandler(model.Cloud, 'owner')
         self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
