@@ -22,6 +22,30 @@
       "revId": "e8e7e5b62c6a86c6f118ff899d0b11da1e0fc8d3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48a049d2_5502cf2a",
+        "filename": "quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-20T07:29:43Z",
+      "side": 1,
+      "message": "this is all working with datetime objects, there is no need for padding here.\nWhenever we are using a datetime object outside of datetime we do the proper padding and string formatting.\nNo need for that here.",
+      "parentUuid": "2ac121ad_35089265",
+      "range": {
+        "startLine": 17,
+        "startChar": 55,
+        "endLine": 17,
+        "endChar": 72
+      },
+      "revId": "e8e7e5b62c6a86c6f118ff899d0b11da1e0fc8d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
