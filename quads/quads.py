@@ -100,3 +100,8 @@ class Api(object):
     def get_interfaces(self, **kwargs):
         uri = self._uri_constructor("interfaces", kwargs)
         return self.get(uri)
+
+    def get_version(self):
+        uri = self._uri_constructor("version")
+        return self.get(uri)
+
