@@ -22,6 +22,30 @@
       "revId": "77b1aab77229b059034424554d8c39174516eae3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0763478b_313f526e",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-20T07:26:54Z",
+      "side": 0,
+      "message": "I see your point but I beg to differ.\nLet me outline the problems I see with the existing solution.\nFirst, there is this hideous data structure which seems unnecessarily complicated plus the dependency for those images which is currently not present on master codebase.\nI was not able to render those images after generating the visualization files on the new wiki on rdu2.\nI tried to pick a colour palette [1] where the colours were far enough from each other but we could also do css textures [2] for those buttons (can try to figure out some golf pants pattern). Having separate image files for something that can be resolved with css is always an overkill unless [3].\nCorrect me if I am wrong but it is not critical to distinguish between different clouds while looking at the visualizations since we are more interested in those host which are not assigned and on cloud01.\n\n[1] https://lospec.com/palette-list/resurrect-32\n[2] https://codepen.io/bitmap/pen/jfKxm\n[3] http://diana-adrianne.com/purecss-francine/",
+      "parentUuid": "9876d10a_977e3cc1",
+      "range": {
+        "startLine": 184,
+        "startChar": 2,
+        "endLine": 186,
+        "endChar": 29
+      },
+      "revId": "77b1aab77229b059034424554d8c39174516eae3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
