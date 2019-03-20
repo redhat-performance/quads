@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12032739_44f888bf",
+        "filename": "quads/api_v2.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-20T14:45:05Z",
+      "side": 1,
+      "message": "I\u0027m afraid this will cause an exception",
+      "range": {
+        "startLine": 474,
+        "startChar": 8,
+        "endLine": 474,
+        "endChar": 94
+      },
+      "revId": "c300a032bc7b89df6312de5595a8463e5aaf2d99",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
