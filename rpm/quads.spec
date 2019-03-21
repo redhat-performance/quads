@@ -40,6 +40,7 @@ Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
 Requires: haveged >= 1.8
+Requires: python3-GitPython >= 2.0
 
 Url: https://quads.dev
 
