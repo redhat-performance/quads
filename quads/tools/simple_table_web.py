@@ -24,7 +24,7 @@ def main():
         gen_time = "Allocation Map for %s-%.2d<br>(Hover cursor over squares for details on allocation)" % (
             _date.year, _date.month)
         content = generator(None, calendar.mdays[_date.month], _date.month, _date.year, gen_time)
-        file_path = os.path.join(conf["visual_web_dir"], "%s-%s.html" % (_date.year, _date.month))
+        file_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (_date.year, _date.month))
         with open(file_path, "w+") as _file:
             _file.write(content)
         os.chmod(file_path, 644)
