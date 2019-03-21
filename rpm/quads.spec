@@ -87,7 +87,6 @@ rm -rf %{buildroot}
 /opt/quads/quads/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/templates/*
-/var/www/html/visual/*
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
