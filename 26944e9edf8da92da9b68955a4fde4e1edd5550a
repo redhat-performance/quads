@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7643b708_321d1221",
+        "filename": "bin/quads-cli",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-21T10:12:47Z",
+      "side": 1,
+      "message": "There is already a --version argument on L#441, plus we need to add the logic to call that new api entrypoint",
+      "range": {
+        "startLine": 452,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 1
+      },
+      "revId": "26944e9edf8da92da9b68955a4fde4e1edd5550a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "721c6e97_b1d55eb1",
+        "filename": "quads/config.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-21T10:12:47Z",
+      "side": 1,
+      "message": "ahijuna! :D",
+      "range": {
+        "startLine": 28,
+        "startChar": 17,
+        "endLine": 28,
+        "endChar": 23
+      },
+      "revId": "26944e9edf8da92da9b68955a4fde4e1edd5550a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
