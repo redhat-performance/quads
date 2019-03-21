@@ -151,16 +151,16 @@ def main():
                 cloud["ccuser"],
             )
         current_hosts = quads.get_current_schedule(cloud=cloud["name"])
+        if "result" in current_hosts:
+            _current_hosts = []
+        else:
+            current_host_ids = [host["host"] for host in current_hosts]
+            _current_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in current_host_ids]
+
         for day in days:
             future = datetime.now() + timedelta(days=day)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
             future_hosts = quads.get_current_schedule(cloud=cloud["name"], date=future_date)
-
-            if "result" in current_hosts:
-                current_hosts = []
-            else:
-                current_host_ids = [host["host"] for host in current_hosts]
-                current_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in current_host_ids]
 
             if "result" in future_hosts:
                 future_hosts = []
@@ -168,7 +168,7 @@ def main():
                 future_host_ids = [host["host"] for host in future_hosts]
                 future_hosts = [quads.get_hosts(**{"id": host["$oid"]})["name"] for host in future_host_ids]
 
-            diff = set(current_hosts) - set(future_hosts)
+            diff = set(_current_hosts) - set(future_hosts)
             if diff:
                 report_file = "%s-%s-%s-%s" % (cloud, cloud["owner"], day, cloud["ticket"])
                 report_path = os.path.join(conf["data_dir"], "report", report_file)

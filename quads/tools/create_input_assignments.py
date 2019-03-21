@@ -8,6 +8,7 @@ from datetime import datetime
 import requests
 
 from quads.config import conf, API_URL
+from quads.model import Host, Schedule
 from quads.tools.foreman import Foreman
 
 HEADERS = [
@@ -173,42 +174,20 @@ def print_faulty(broken_hosts):
 
 def add_row(host):
     lines = []
-    current_schedule = ""
-    date_start = None
-    date_end = None
     short_host = host["name"].split(".")[0]
-    _url = os.path.join(API_URL, "current_schedule")
-    _response = requests.get(_url)
-    if _response.status_code == 200:
-        current_schedule = _response.json()
 
-    schedule_response = requests.get(os.path.join(API_URL, "schedule"))
-    schedules = []
-    if schedule_response.status_code == 200:
-        schedules = schedule_response.json()
+    _host_obj = Host.objects(name=host["name"]).first()
+    _schedule_obj = Schedule.current_schedule(host=_host_obj).first()
 
-    cloud_response = requests.get(os.path.join(API_URL, "cloud"))
-    clouds = []
-    if cloud_response.status_code == 200:
-        clouds = cloud_response.json()
-
-    if not current_schedule:
+    if not _schedule_obj:
         _date_start = "∞"
         _date_end = "∞"
         total_time = "∞"
         total_time_left = "∞"
     else:
-        for schedule in schedules:
-            for cloud in clouds:
-                if schedule["cloud"] == cloud["_id"]:
-                    for schedkey, schedval in schedule.items():
-                        if schedkey == "start":
-                            date_start = schedval["$date"]
-                        if schedkey == "end":
-                            date_end = schedval["$date"]
         _date_now = datetime.now()
-        _date_start = datetime.utcfromtimestamp(date_start / 1000)
-        _date_end = datetime.utcfromtimestamp(date_end / 1000)
+        _date_start = _schedule_obj.start
+        _date_end = _schedule_obj.end
         total_sec_left = (_date_end - _date_now).total_seconds()
         total_days = (_date_end - _date_start).days
         total_days_left = total_sec_left // 86400
