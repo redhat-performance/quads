@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "221796fd_1e1610f4",
+        "filename": "bin/quads-cli",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-03-21T12:10:33Z",
+      "side": 1,
+      "message": "we are still missing the logic under main() to call the API at it\u0027s new /version entrypoint",
+      "range": {
+        "startLine": 444,
+        "startChar": 4,
+        "endLine": 444,
+        "endChar": 108
+      },
+      "revId": "032cbbf996f8efe0007256a7dda651ae7d77ae51",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
