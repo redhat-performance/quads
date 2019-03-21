@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f301f28f_c2e5b35f",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-03-21T23:34:09Z",
+      "side": 0,
+      "message": "We still need a facility so that users can manually omit certain nodes from the instackenv.json generation entirely.\n\nAlso, the first node of a cloud is typically omitted anyway as it\u0027s used as an undercloud but we need to keep the facility of \"if a user sets another host param to nullos: false it\u0027s also omitted\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 56,
+        "endLine": 39,
+        "endChar": 90
+      },
+      "revId": "947d5f8d17639c429876baca57428824b4ca639c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
