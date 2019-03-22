@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+PYTHONPATH=/opt/quads
 #######################################
 #
 # Only one cron category should be uncommented
@@ -25,7 +27,7 @@
 ########################################
 # * * * * * /opt/quads/bin/quads-cli --move-hosts 1>>/var/log/move-and-rebuild.log 2>&1
 # * * * * * /opt/quads/quads/tools/validate_env.py 1>/dev/null 2>&1
-# */5 * * * * /opt/quads/tools/regenerate_wiki.py 1>/dev/null 2>&1
+# */5 * * * * /opt/quads/quads/tools/regenerate_wiki.py 1>/dev/null 2>&1
 # 0 0 * * * /opt/quads/quads/tools/notify.py 1>/dev/null 2>&1
 # 0 0 * * * /opt/quads/quads/tools/simple_table_web.py 1>/dev/null 2>&1
 # * * * * * /opt/quads/quads/tools/make_instackenv_json.py 1>/dev/null 2>&1
