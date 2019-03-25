@@ -359,6 +359,10 @@ def main(_args):
             if _args.fullsummary or cloud["count"] > 0:
                 logger.info("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
 
+    elif _args.version:
+        version = quads.get_version()
+        if "result" in version:
+            logger.info(version["result"])
         exit(0)
 
     logger.info('No result received')
@@ -416,12 +420,6 @@ if __name__ == '__main__':
                         help='Force host or cloud update when already defined')
     parser.add_argument('--summary', dest='summary', action='store_true', help='Generate a summary report')
     parser.add_argument('--full-summary', dest='fullsummary', action='store_true', help='Generate a summary report')
-    parser.add_argument('--schedule-query', dest='schedquery', action='store_true',
-                        help='Query the schedule for a specific month')
-    parser.add_argument('--month', dest='month', type=str, default=datetime.datetime.now().month,
-                        help='Query the schedule for a specific month and year')
-    parser.add_argument('--year', dest='year', type=str, default=datetime.datetime.now().year,
-                        help='Query the schedule for a specific month and year')
     parser.add_argument('--schedule-start', dest='schedstart', type=str, default=None, help='Schedule start date/time')
     parser.add_argument('--schedule-end', dest='schedend', type=str, default=None, help='Schedule end date/time')
     parser.add_argument('--schedule-cloud', dest='schedcloud', type=str, default=None, help='Schedule cloud')
@@ -436,19 +434,12 @@ if __name__ == '__main__':
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None,
                         help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
-    parser.add_argument('--post-config', dest='postconfig', type=str, default=None, nargs='+', choices=['openstack'],
-                        help='Post provisioning configuration to apply')
-    parser.add_argument('--version', dest='version', type=str, default=None, help='Version of Software to apply')
-    parser.add_argument('--puddle', dest='puddle', type=str, default='latest', help='Puddle to apply')
-    parser.add_argument('--os-control-scale', dest='controlscale', type=int, default=None,
-                        help='Number of controller nodes for OpenStack deployment')
-    parser.add_argument('--os-compute-scale', dest='computescale', type=int, default=None,
-                        help='Number of compute nodes for OpenStack deployment')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Model/Make/Type of host DellR620  for example')
     parser.add_argument('--vlan', dest='vlan', type=int, default=None,
                         help='VLAN id number for public routable network')
     parser.add_argument('--debug', action='store_true', default=False, help='Show debugging information.')
+    parser.add_argument('--version', dest='version', action='store_true', help='Display version of QUADS')
 
     args = parser.parse_args()
     main(args)
