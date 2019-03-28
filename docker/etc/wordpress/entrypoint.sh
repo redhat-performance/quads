@@ -232,6 +232,7 @@ EOPHP
         cp -r /var/tmp/wp-themes/quads /var/www/html/wp-content/themes/
         unzip -n /var/tmp/wp-themes/krusze.0.9.7.zip -d /var/www/html/wp-content/themes/
         unzip -n /var/tmp/wp-plugins/jetpack-markdown.3.9.6.zip -d /var/www/html/wp-content/plugins/
+        unzip -n /var/tmp/wp-plugins/classic-editor.1.4.zip -d /var/www/html/wp-content/plugins/
 
 		TERM=dumb php -- <<'EOPHP'
 <?php
