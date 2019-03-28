@@ -14,8 +14,8 @@ class TestForeman(object):
 
     def test_get_all_hosts(self):
         hosts = self.foreman.get_all_hosts()
-        assert isinstance(hosts, type(dict))
+        assert isinstance(hosts, dict)
 
     def test_get_broken_hosts(self):
         hosts = self.foreman.get_broken_hosts()
-        assert isinstance(hosts, type(dict))
+        assert isinstance(hosts, dict)
