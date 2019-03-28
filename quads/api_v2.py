@@ -270,6 +270,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
             host = model.Host.objects(name=data["host"]).first()
             if host:
                 _args["host"] = host
+            else:
+                return json.dumps({'result': ["Couldn't find host %s on Quads DB." % data["host"]]})
         if "cloud" in data:
             cloud = model.Cloud.objects(name=data["cloud"]).first()
             if cloud:
