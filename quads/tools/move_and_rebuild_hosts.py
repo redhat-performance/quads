@@ -98,6 +98,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         conf["foreman_username"],
         conf["foreman_password"],
     )
+    foreman.remove_role(_old_cloud_obj.name, _host_obj.name)
+    foreman.add_role(_new_cloud_obj.name, _host_obj.name)
     foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
 
     ipmi_set_pass = [
