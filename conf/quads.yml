@@ -207,3 +207,8 @@ ansible_max_proc: 60
 
 # Do you have managed PDUs?
 pdu_management: false
+
+# Openstack variable for generation of instack env json files
+# Setting this to false will prevent quads from generating and
+# displaying instack env json files on quads wiki
+openstack_management: false
