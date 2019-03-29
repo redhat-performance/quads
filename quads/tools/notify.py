@@ -192,7 +192,7 @@ def main():
             if not os.path.exists(report_pre_ini_path) and conf["email_notify"]:
                 logger.info('=============== Future Initial Message')
                 create_future_initial_message(
-                    cloud.name,
+                    cloud.owner,
                     cloud_info,
                     cloud.ccuser,
                     report_pre_ini_path,
