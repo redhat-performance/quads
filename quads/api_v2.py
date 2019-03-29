@@ -37,7 +37,7 @@ class MovesMethodHandler(MethodHandlerBase):
             try:
                 result = []
                 if 'date' not in data:
-                    data['date'] = [time.strftime("%Y-%m-%d %H:%M")]
+                    data['date'] = time.strftime("%Y-%m-%d %H:%M")
                 else:
                     if len(data['date']) == 0:
                         result.append("Could not parse date parameter")
@@ -333,14 +333,16 @@ class ScheduleMethodHandler(MethodHandlerBase):
             schedule = self.model.objects(index=data["index"], host=data["host"]).first()
             if schedule:
                 if not _start:
-                    _start = schedule["start"]
+                    _start = schedule.start
                 if not _end:
-                    _end = schedule["end"]
-                if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule["index"]):
+                    _end = schedule.end
+                if not cloud_obj:
+                    cloud_obj = schedule.cloud
+                if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule.index):
                     data["cloud"] = cloud_obj
                     schedule.update(**data)
                     result.append(
-                        'Updated %s %s' % (self.name, schedule["index"])
+                        'Updated %s %s' % (self.name, schedule.index)
                     )
                 else:
                     result.append("Host is not available during that time frame")

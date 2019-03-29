@@ -65,8 +65,8 @@ class Cloud(Document):
     description = StringField()
     owner = StringField()
     ticket = StringField()
-    qinq = BooleanField()
-    wipe = BooleanField()
+    qinq = BooleanField(default=False)
+    wipe = BooleanField(default=True)
     ccuser = ListField()
     released = BooleanField(default=False)
     validated = BooleanField(default=False)
@@ -81,17 +81,6 @@ class Cloud(Document):
 
     @staticmethod
     def prep_data(data):
-        defaults = {
-            'owner': 'nobody',
-            'ccuser': [],
-            'ticket': '000000',
-            'qinq': False,
-            'wipe': True,
-            'released': False,
-            'validated': False,
-            'notified': False,
-        }
-
         if "vlan" in data:
             data.pop("vlan")
         if "ccuser" in data:
@@ -99,7 +88,7 @@ class Cloud(Document):
         if "qinq" in data:
             data["qinq"] = bool(data["qinq"])
         params = ['name', 'description', 'owner', 'ticket', 'wipe']
-        result, data = param_check(data, params, defaults)
+        result, data = param_check(data, params)
 
         return result, data
 
