@@ -16,6 +16,7 @@ from quads.tools.move_and_rebuild_hosts import move_and_rebuild
 from quads.model import Cloud, Schedule, Host
 
 logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler(sys.stdout))
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
@@ -354,6 +355,7 @@ def main(_args):
         for cloud in summary:
             if _args.fullsummary or cloud["count"] > 0:
                 logger.info("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
+        exit(0)
 
     elif _args.version:
         version = quads.get_version()
