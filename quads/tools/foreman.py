@@ -106,12 +106,11 @@ class Foreman(object):
             return True
         return False
 
-    def put_parameter(self, host_name, name, value):
-        logger.debug("PUT param: {%s:%s}" % (name, value))
-        _host_id = self.get_host_id(host_name)
-        endpoint = "/hosts/%s" % _host_id
+    def put_element(self, element_name, element_id, param_name, param_value):
+        logger.debug("PUT param: {%s:%s}" % (param_name, param_value))
+        endpoint = "/%s/%s" % (element_name, element_id)
         data = {
-            'host': {name: value}
+            element_name: {param_name: param_value}
         }
         try:
             response = requests.put(
@@ -126,6 +125,11 @@ class Foreman(object):
         if response.status_code in [200, 204]:
             return True
         return False
+
+    def put_parameter(self, host_name, name, value):
+        logger.debug("PUT param: {%s:%s}" % (name, value))
+        _host_id = self.get_host_id(host_name)
+        return self.put_element("hosts", _host_id, name, value)
 
     def put_parameter_by_name(self, host, name, value, identifier="name"):
         logger.debug("PUT param: {%s:%s}" % (name, value))
@@ -205,6 +209,12 @@ class Foreman(object):
         _id = result[user_name]["id"]
         return _id
 
+    def get_role_id(self, role):
+        endpoint = "/users?search=name=%s" % role
+        result = self.get_obj_dict(endpoint)
+        _id = result[role]["id"]
+        return _id
+
     def get_host_param(self, host_name, param):
         _id = self.get_host_id(host_name)
         endpoint = "/hosts/%s/parameters?search=name=%s" % (_id, param)
@@ -240,3 +250,25 @@ class Foreman(object):
             if response.status_code != 200:
                 success = False
         return success
+
+    def add_role(self, user_name, role):
+        user_id = self.get_user_id(user_name)
+        role_id = self.get_role_id(role)
+        return self.put_element("users", user_id, "role_ids", role_id)
+
+    def remove_role(self, user_name, role):
+        user_id = self.get_user_id(user_name)
+        role_id = self.get_role_id(role)
+        user_roles = self.get_user_roles(user_id)
+        if role_id in user_roles:
+            user_roles.pop(user_roles.index(role_id))
+        else:
+            logger.warning("Nothing done. User does not have this role assigned.")
+            return True
+        return self.put_element("users", user_id, "role_ids", user_roles)
+
+    def get_user_roles(self, user_id):
+        endpoint = "/user/%s/roles" % user_id
+        result = self.get_obj_dict(endpoint)
+        result.pop("Default role")
+        return [role["id"] for _, role in result.items()]
