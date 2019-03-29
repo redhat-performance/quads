@@ -31,7 +31,9 @@ def print_header():
 
 def print_summary():
     _summary = []
-    _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**", "**INSTACKENV**"]
+    _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**"]
+    if conf["openstack_management"]:
+        _headers.append("**INSTACKENV**")
     if conf["gather_ansible_facts"]:
         _headers.append("**HWFACTS**")
     if conf["gather_dell_configs"]:

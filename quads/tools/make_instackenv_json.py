@@ -34,17 +34,19 @@ def main():
 
         json_data = defaultdict(list)
         for host in host_list[1:]:
-            host_data = foreman.get_idrac_host_with_details(host.name)
-            json_data['nodes'].append({
-                'pm_password': foreman_password,
-                'pm_type': "pxe_ipmitool",
-                'mac': [host_data["mac"]],
-                'cpu': "2",
-                'memory': "1024",
-                'disk': "20",
-                'arch': "x86_64",
-                'pm_user': conf["ipmi_cloud_username"],
-                'pm_addr': "mgmt-%s" % host.name})
+            overcloud = foreman.get_host_param(host.name, "overcloud")
+            if "result" in overcloud and overcloud["result"]:
+                host_data = foreman.get_idrac_host_with_details(host.name)
+                json_data['nodes'].append({
+                    'pm_password': foreman_password,
+                    'pm_type': "pxe_ipmitool",
+                    'mac': [host_data["mac"]],
+                    'cpu': "2",
+                    'memory': "1024",
+                    'disk': "20",
+                    'arch': "x86_64",
+                    'pm_user': conf["ipmi_cloud_username"],
+                    'pm_addr': "mgmt-%s" % host.name})
 
         content = json.dumps(json_data, indent=4, sort_keys=True)
 

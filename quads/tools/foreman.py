@@ -219,8 +219,9 @@ class Foreman(object):
         _id = self.get_host_id(host_name)
         endpoint = "/hosts/%s/parameters?search=name=%s" % (_id, param)
         result = self.get_obj_dict(endpoint)
-        value = result[host_name]["value"]
-        return value
+        if result:
+            return {"result": result[param]["value"]}
+        return
 
     def get_host_build_status(self, host_name):
         endpoint = "/hosts?search=name=%s" % host_name
