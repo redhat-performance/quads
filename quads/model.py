@@ -87,7 +87,7 @@ class Cloud(Document):
             data["ccuser"] = data["ccuser"].split()
         if "qinq" in data:
             data["qinq"] = bool(data["qinq"])
-        params = ['name', 'description', 'owner', 'ticket', 'wipe']
+        params = ['name', 'description', 'owner']
         result, data = param_check(data, params)
 
         return result, data
