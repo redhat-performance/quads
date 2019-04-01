@@ -167,13 +167,14 @@ def main():
                 report_path = os.path.join(conf["data_dir"], "report", report_file)
                 if not os.path.exists(report_path) and conf["email_notify"]:
                     logger.info('=============== Additional Message')
+                    host_list = [schedule.host.name for schedule in diff]
                     create_message(
                         cloud.owner,
                         day,
                         cloud.name,
                         cloud_info,
                         cloud.ccuser,
-                        diff,
+                        host_list,
                         report_path,
                     )
                     break
@@ -206,6 +207,7 @@ def main():
                 future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
 
                 diff = set(current_hosts) - set(future_hosts)
+                host_list = [schedule.host.name for schedule in diff]
                 if diff:
                     logger.info('=============== Additional Message')
                     create_future_message(
@@ -214,7 +216,7 @@ def main():
                         cloud.name,
                         cloud_info,
                         cloud.ccuser,
-                        diff,
+                        host_list,
                         report_pre_path,
                     )
 
