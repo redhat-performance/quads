@@ -12,6 +12,7 @@ import os
 from json import JSONDecodeError
 from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
+from quads.tools import make_instackenv_json
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild
 from quads.model import Cloud, Schedule, Host
 
@@ -325,6 +326,7 @@ def main(_args):
                     _new_cloud_obj.update(released=True)
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     _old_cloud_obj.update(released=False, validated=False, notified=False)
+                    make_instackenv_json.main()
 
             exit(0)
 

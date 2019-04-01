@@ -22,10 +22,6 @@ def main():
         if not os.path.exists(conf["json_web_path"]):
             os.makedirs(conf["json_web_path"])
 
-        old_jsons = [file for file in os.listdir(conf["json_web_path"]) if ".json" in file]
-        for file in old_jsons:
-            os.remove(os.path.join(conf["json_web_path"], file))
-
         for cloud in cloud_list:
             host_list = Host.objects(cloud=cloud).order_by("name")
 
@@ -36,6 +32,9 @@ def main():
             json_data = defaultdict(list)
             for host in host_list[1:]:
                 overcloud = foreman.get_host_param(host.name, "overcloud")
+                if not overcloud:
+                    overcloud = {"result": True}
+
                 if "result" in overcloud and overcloud["result"]:
                     host_data = foreman.get_idrac_host_with_details(host.name)
                     json_data['nodes'].append({
@@ -55,9 +54,6 @@ def main():
                 pathlib.Path(conf["json_web_path"]).mkdir(parents=True, exist_ok=True)
 
             json_file = os.path.join(conf["json_web_path"], "%s_instackenv.json" % cloud.name)
-            now = datetime.now()
-            if os.path.exists(json_file):
-                os.rename(json_file, "%s_%s" % (json_file, now.strftime("%Y-%m-%d_%H:%M:%S")))
             with open(json_file, "w+") as _json_file:
                 _json_file.seek(0)
                 _json_file.write(content)

@@ -8,7 +8,6 @@ from datetime import datetime
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
 from quads.model import Host, Cloud, Vlan
-from quads.tools import make_instackenv_json
 from quads.tools.badfish import Badfish
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -88,8 +87,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 _old_vlan_obj.update(cloud=None)
 
         ssh_helper.disconnect()
-
-    make_instackenv_json.main()
 
     ipmi_new_pass = _new_cloud_obj.ticket if _new_cloud_obj.ticket else conf["$ipmi_password"]
 
