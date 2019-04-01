@@ -3,7 +3,8 @@ import json
 import os
 import pathlib
 from collections import defaultdict
-from datetime import datetime
+from distutils.util import strtobool
+
 from quads.model import Cloud, Host
 from quads.tools.foreman import Foreman
 from quads.config import conf
@@ -33,9 +34,9 @@ def main():
             for host in host_list[1:]:
                 overcloud = foreman.get_host_param(host.name, "overcloud")
                 if not overcloud:
-                    overcloud = {"result": True}
+                    overcloud = {"result": "true"}
 
-                if "result" in overcloud and overcloud["result"]:
+                if "result" in overcloud and strtobool(overcloud["result"]):
                     host_data = foreman.get_idrac_host_with_details(host.name)
                     json_data['nodes'].append({
                         'pm_password': foreman_password,
