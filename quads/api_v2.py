@@ -51,12 +51,9 @@ class MovesMethodHandler(MethodHandlerBase):
                     _scheduled_cloud = "cloud01"
                     _host_defined_cloud = _host.cloud.name
                     _current_schedule = self.model.current_schedule(host=_host).first()
-                    _schedule = self.model.current_schedule(host=_host, date=data['date']).first()
                     try:
                         if _current_schedule:
                             _scheduled_cloud = _current_schedule.cloud.name
-                        if _schedule:
-                            _host_defined_cloud = _schedule.cloud.name
                         if _scheduled_cloud != _host_defined_cloud:
                             result.append(
                                 {
