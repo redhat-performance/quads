@@ -221,10 +221,9 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 
 ### Installing other QUADS Components
 #### QUADS Wiki
-   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.
+   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
-      * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
    - On CentOS/RHEL7 you'll need the [python2-wordpress-xmlrpc](https://github.com/redhat-performance/ops-tools/raw/master/packages/python2-wordpress-xmlrpc-2.3-11.fc28.noarch.rpm) package unless you satisfy it with pip.
    - You'll also need `bind-utils` package installed that provides the `host` command
 
@@ -269,6 +268,18 @@ for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630
 ```
 quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 ```
+
+   - Define the host interfaces, these are the internal interfaces you want QUADS to manage for VLAN automation
+   - Note that `--interface-ip` corresponds to the IP of the switch that hosts interface is connected to.
+   - Do this for every interface you want QUADS to manage per host (we are working on auto-discovery of this step).
+
+```
+quads-cli --add-interface em1 --interface-mac 52:54:00:d9:5d:df --interface-ip 10.12.22.201 --interface-port xe-0/0/1:0 --host <hostname>
+quads-cli --add-interface em2 --interface-mac 52:54:00:d9:5d:dg --interface-ip 10.12.22.201 --interface-port xe-0/0/1:1 --host <hostname>
+quads-cli --add-interface em3 --interface-mac 52:54:00:d9:5d:dh --interface-ip 10.12.22.201 --interface-port xe-0/0/1:2 --host <hostname>
+quads-cli --add-interface em4 --interface-mac 52:54:00:d9:5d:d1 --interface-ip 10.12.22.201 --interface-port xe-0/0/1:3 --host <hostname>
+```
+
    - To list the hosts:
 
 ```
@@ -289,6 +300,17 @@ c08-h29-r630.example.com
 c09-h01-r630.example.com
 c09-h02-r630.example.com
 c09-h03-r630.example.com
+```
+
+   - To list a hosts interface and switch information:
+
+```
+quads --ls-interface --host c08-h21-r630.example.com
+
+{"name": "em1", "mac_address": "52:54:00:d9:5d:df", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:0"}
+{"name": "em2", "mac_address": "52:54:00:d9:5d:dg", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:1"}
+{"name": "em3", "mac_address": "52:54:00:d9:5d:dh", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:2"}
+{"name": "em4", "mac_address": "52:54:00:d9:5d:d1", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:3"}
 ```
 
    - To see the current system allocations:
@@ -588,26 +610,6 @@ for host in $(cat /tmp/452851); do quads-cli --rm-schedule $(quads-cli --ls-sche
 
 ## Additional Tools and Commands
 
-* You can display the allocation schedule on any given date via the ```--date``` flag.
-
-```
-quads-cli --date "2017-03-06"
-```
-```
-cloud01:
-  - b09-h01-r620.rdu.openstack.engineering.example.com
-  - b09-h02-r620.rdu.openstack.engineering.example.com
-  - b09-h03-r620.rdu.openstack.engineering.example.com
-  - b09-h05-r620.rdu.openstack.engineering.example.com
-  - b09-h06-r620.rdu.openstack.engineering.example.com
-```
-
-* You can use ```find-free-cloud.py``` to search for available clouds to assign new systems into for future assignments.
-
-```
-/opt/quads/bin/find-free-cloud.py
-```
-
 * You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
 
 ```
@@ -620,56 +622,6 @@ INFO: Moving c02-h19-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h21-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
-```
-
-* You can query all upcoming changes pending and what hosts are involved via the ```quads-change-list.sh``` tool.
-
-```
-/opt/quads/bin/quads-change-list.sh
-```
-```
-Next change in 3 days
-2016-12-22 05:00
-INFO: Moving c01-h01-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h02-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h03-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h05-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h06-r620.rdu.openstack.example.com from cloud04 to cloud08
-```
-
-* When managing notification recipients you can use the ```--ls-cc-users``` and ```--cc-users``` arguments.
-
-```
-quads-cli --ls-cc-users --cloud-only cloud04
-```
-```
-epresley
-```
-   - To add or remove recipients they need to be added or removed with space separation and you'll need to redefine the cloud definition.
-   - Get a list of all the atributes and redefine
-
-```
-quads-cli --full-summary | grep cloud04 ; quads-cli --ls-owner | grep cloud04 ; quads-cli --ls-ticket | grep cloud04 ; quads-cli --ls-cc-users --cloud-only cloud04
-```
-```
-cloud04 : 52 (Ceph deployment)
-cloud04 : jhoffa
-cloud04 : 423424
-epresley
-```
-   - Redefine
-
-```
-quads-cli --define-cloud cloud04 --description "Ceph Deployment" --force --cloud-owner jhoffa --cc-users "epresley rnixon" --cloud-ticket 423424
-```
-   - Now you can see the updated cc notifications
-
-```
-quads-cli --ls-cc-users --cloud-only cloud04
-```
-```
-epresley
-rnixon
 ```
 
 ## QUADS Talks and Media
