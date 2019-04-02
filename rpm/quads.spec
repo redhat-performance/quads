@@ -26,8 +26,6 @@ Vendor: QUADS Project
 Packager: QUADS Project
 Requires: httpd >= 2.4
 Requires: python3-mongoengine >= 0.8
-Requires: mongodb >= 2.6.12
-Requires: mongodb-server >= 2.6.12
 Requires: python3-cherrypy >= 8.9
 Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
