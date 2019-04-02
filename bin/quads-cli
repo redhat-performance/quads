@@ -453,7 +453,7 @@ if __name__ == '__main__':
                         help='Dont update state when used with --move-hosts')
     parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
-                        help='Model/Make/Type of host DellR620  for example')
+                        help='Open-ended identifier for host: util, baremetal, aws, openstack, libvirt, etc.')
     parser.add_argument('--vlan', dest='vlan', type=int, default=None,
                         help='VLAN id number for public routable network')
     parser.add_argument('--debug', action='store_true', default=False, help='Show debugging information.')
