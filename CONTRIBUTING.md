@@ -22,6 +22,8 @@ git branch name_of_change
 git checkout !$
 ```
 
+#### Docker on Linux or a Linux VM
+
   - Instantiate the QUADS containers
 
 ```
@@ -32,6 +34,18 @@ docker-compose -f /opt/docker/quads/docker/docker-compose.yml up
 
 ```
 echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
+```
+
+#### MAC OSX Specific
+
+  - If you're using Docker on Mac OSX you may want to switch to the [overlay2 driver](https://stackoverflow.com/questions/39455764/change-storage-driver-for-docker-on-os-x#39737553) 
+  - Make the directory structure for your mapped database data
+```
+mkdir -p /opt/docker/quads/docker/{data_db,wiki_db,wordpress_data} 
+```
+  - Instantiate the docker compose
+```
+docker compose -f /opt/docker/quads/docker/docker-compose-osx.yml up
 ```
 
 ### Create a Tracking Issue
