@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da30e93f_e2828423",
+        "filename": "docker/docker-compose-osx.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-04-02T17:19:41Z",
+      "side": 1,
+      "message": "The changes you made above make these volume definitions irrelevant as the containers are not using this but instead just a local directory.\nI believe you could revert the changes above and change the driver on this from local to aufs.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 17
+      },
+      "revId": "9790ef8f4336b6eaf7882d9bb3238d1a47301182",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
