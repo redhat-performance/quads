@@ -30,13 +30,18 @@ Automate scheduling and end-to-end provisioning of servers and networks.
             * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
          * [Extending the <strong>Schedule</strong> of an Existing
            Cloud](#extending-the-schedule-of-an-existing-cloud)
-         * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing
-           Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
+         * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
          * [Extending Machine Allocation to an existing Cloud](#extending-machine-allocation-to-an-existing-cloud)
          * [Removing a Schedule](#removing-a-schedule)
          * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
-      * [Additional Tools and Commands](#additional-tools-and-commands)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
+      * [Additional Tools and Commands](#additional-tools-and-commands)
+         * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
+         * [Find Free Cloud Environment](#find-free-cloud-environments)
+         * [Find Available Hosts](#find-available-hosts)
+      * [Interacting with MongoDB](#interacting-with-mongodb)
+      * [Backing up QUADS](#backing-up-quads)
+      * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -179,7 +184,11 @@ systemctl start quads-server.service
    - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar functionality.
 
 ### Installing QUADS from RPM
-   - On Fedora *(and eventually CentOS/RHEL 8+ when it's available)*
+   - We build RPM packages for Fedora and CentOS/RHEL 8
+   - On Fedora30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
+   - On RHEL/CentOS8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
+
+* Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 
 ```
 dnf copr enable quadsdev/python3-quads  -y
@@ -221,10 +230,9 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 
 ### Installing other QUADS Components
 #### QUADS Wiki
-   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.
+   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
-      * This will be containerized and documented in the near future via [GitHub Issue #102](https://github.com/redhat-performance/quads/issues/102)
    - On CentOS/RHEL7 you'll need the [python2-wordpress-xmlrpc](https://github.com/redhat-performance/ops-tools/raw/master/packages/python2-wordpress-xmlrpc-2.3-11.fc28.noarch.rpm) package unless you satisfy it with pip.
    - You'll also need `bind-utils` package installed that provides the `host` command
 
@@ -258,6 +266,7 @@ quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 
    - Define the hosts in the environment (Foreman Example)
      - Note the ```--host-type``` parameter, this is a mandatory, free-form label that can be anything.  It will be used later for ```post-config``` automation and categorization.
+     - If you don't want systems to be reprovisioned when they move into a cloud environment append ``--no-wipe` to the define command.
      - We are excluding anything starting with mgmt- and including servers with the name r630.
 
 ```
@@ -269,6 +278,18 @@ for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630
 ```
 quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 ```
+
+   - Define the host interfaces, these are the internal interfaces you want QUADS to manage for VLAN automation
+   - Note that `--interface-ip` corresponds to the IP of the switch that hosts interface is connected to.
+   - Do this for every interface you want QUADS to manage per host (we are working on auto-discovery of this step).
+
+```
+quads-cli --add-interface em1 --interface-mac 52:54:00:d9:5d:df --interface-ip 10.12.22.201 --interface-port xe-0/0/1:0 --host <hostname>
+quads-cli --add-interface em2 --interface-mac 52:54:00:d9:5d:dg --interface-ip 10.12.22.201 --interface-port xe-0/0/1:1 --host <hostname>
+quads-cli --add-interface em3 --interface-mac 52:54:00:d9:5d:dh --interface-ip 10.12.22.201 --interface-port xe-0/0/1:2 --host <hostname>
+quads-cli --add-interface em4 --interface-mac 52:54:00:d9:5d:d1 --interface-ip 10.12.22.201 --interface-port xe-0/0/1:3 --host <hostname>
+```
+
    - To list the hosts:
 
 ```
@@ -289,6 +310,17 @@ c08-h29-r630.example.com
 c09-h01-r630.example.com
 c09-h02-r630.example.com
 c09-h03-r630.example.com
+```
+
+   - To list a hosts interface and switch information:
+
+```
+quads --ls-interface --host c08-h21-r630.example.com
+
+{"name": "em1", "mac_address": "52:54:00:d9:5d:df", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:0"}
+{"name": "em2", "mac_address": "52:54:00:d9:5d:dg", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:1"}
+{"name": "em3", "mac_address": "52:54:00:d9:5d:dh", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:2"}
+{"name": "em4", "mac_address": "52:54:00:d9:5d:d1", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:3"}
 ```
 
    - To see the current system allocations:
@@ -484,45 +516,18 @@ Below we will be extending the schedule end date from 2016-10-30 to 2016-11-27 a
 for h in $(quads-cli --cloud-only cloud03) ; do quads-cli --host $h --mod-schedule 0 --schedule-end "2016-11-27 18:00"; done
 ```
 
-  - Cleanup Notification Files
-
-Your tenant may have already been receiving email notifications about machines coming up for reclamation, we want to clear these out so future notifications are up to date.
-On the QUADS host you'll want to remove these files if they exist, in this case they will be called ```cloud03-jhoffa-$notifyday-$ticketid```
-
-```
-rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-5-423624'? y
-rm: remove regular empty file '/etc/lab/report/cloud03-jhoffa-7-423624'? y
-```
-
 ### Extending the __Schedule__ of Existing Cloud with Differing Active Schedules
 
 When in heavy usage some machines primary, active schedule may differ from one another, e.g. 0 versus 1, versus 2, etc.  Because schedules operate on a per-host basis sometimes the same schedule used within a cloud may differ in schedule number.  Here's how you modify them across the board for the current active schedule if the ID differs.
 
-* Example: extend all machines in cloud10 to end on 2016-01-09 05:00 UTC, these have differing primary active schedule IDs.
+* Example: extend all machines in cloud10 to end on 2017-03-06 22:00 UTC (they previously would end 2019-02-09 22:00)
+* These have differing primary active schedule IDs.
 
   - Check your commands via echo first
-  - **Approach: 1** Modify the latest assignment
+  - Reschedule against a certain cloud **and** start date
 
 ```
-for h in $(quads-cli --cloud-only cloud10) ; do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep "urrent s" | awk -F: '{ print $2 }') --host $h --schedule-end "2017-01-09 05:00" ; echo Done. ; done
-```
-
-Note the difference in commands needed with the ```--mod-schedule``` flag that is required.
-
-```
-quads-cli --mod-schedule 0 --host b10-h11-r620.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
-Done.
-quads-cli --mod-schedule 3 --host c08-h21-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
-Done.
-quads-cli --mod-schedule 3 --host c08-h22-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
-Done.
-quads-cli --mod-schedule 2 --host c08-h23-r630.rdu.openstack.example.com --schedule-end 2017-01-09 05:00
-```
-
-  - **Approach: 2** Reschedule against a certain cloud **and** start date **(RECOMMENDED)**
-
-```
-for h in $(quads-cli --cloud-only cloud05); do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep cloud05 | grep "start=2017-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-start "2017-02-09 05:00" --schedule-end "2017-03-06 05:00" ; echo Done. ; done
+for h in $(quads-cli --cloud-only cloud05); do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep cloud05 | grep "end=2017-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-end "2017-03-06 22:00" ; done
 ```
 
   * If all looks good you can remove **remove the echo lines** and apply.
@@ -588,26 +593,7 @@ for host in $(cat /tmp/452851); do quads-cli --rm-schedule $(quads-cli --ls-sche
 
 ## Additional Tools and Commands
 
-* You can display the allocation schedule on any given date via the ```--date``` flag.
-
-```
-quads-cli --date "2017-03-06"
-```
-```
-cloud01:
-  - b09-h01-r620.rdu.openstack.engineering.example.com
-  - b09-h02-r620.rdu.openstack.engineering.example.com
-  - b09-h03-r620.rdu.openstack.engineering.example.com
-  - b09-h05-r620.rdu.openstack.engineering.example.com
-  - b09-h06-r620.rdu.openstack.engineering.example.com
-```
-
-* You can use ```find-free-cloud.py``` to search for available clouds to assign new systems into for future assignments.
-
-```
-/opt/quads/bin/find-free-cloud.py
-```
-
+### Dry Run for Pending Actions
 * You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
 
 ```
@@ -622,54 +608,183 @@ INFO: Moving c02-h25-r620.rdu.openstack.example.com from cloud01 to cloud03
 INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 ```
 
-* You can query all upcoming changes pending and what hosts are involved via the ```quads-change-list.sh``` tool.
+### Find Free Cloud Environment
+
+* You can use `quads-cli --find-free-cloud` to suggest a cloud environment to use that does not have any future hosts scheduled to use it.
 
 ```
-/opt/quads/bin/quads-change-list.sh
-```
-```
-Next change in 3 days
-2016-12-22 05:00
-INFO: Moving c01-h01-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h02-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h03-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h05-r620.rdu.openstack.example.com from cloud04 to cloud08
-INFO: Moving c01-h06-r620.rdu.openstack.example.com from cloud04 to cloud08
+quads-cli --find-free-cloud
 ```
 
-* When managing notification recipients you can use the ```--ls-cc-users``` and ```--cc-users``` arguments.
+```
+cloud12
+cloud16
+cloud17
+cloud18
+```
+
+### Find Available Hosts
+
+* The `--find-available` functionality lets you search for available hosts in the future based on a date range or other criteria.
+
+  - Find based on a date range:
 
 ```
-quads-cli --ls-cc-users --cloud-only cloud04
+quads-cli --ls-available --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00"
 ```
-```
-epresley
-```
-   - To add or remove recipients they need to be added or removed with space separation and you'll need to redefine the cloud definition.
-   - Get a list of all the atributes and redefine
+
+  - Find based on starting now with an end range:
 
 ```
-quads-cli --full-summary | grep cloud04 ; quads-cli --ls-owner | grep cloud04 ; quads-cli --ls-ticket | grep cloud04 ; quads-cli --ls-cc-users --cloud-only cloud04
+quads --ls-available --schedule-end "2019-06-02 22:00"
 ```
-```
-cloud04 : 52 (Ceph deployment)
-cloud04 : jhoffa
-cloud04 : 423424
-epresley
-```
-   - Redefine
+
+## Interacting with MongoDB
+* In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
+
+* Example:  Toggling the `wipe:` cloud value that determines whether new systems entering an environment should be reprovisioned or not.  In this example `cloud02` has the value of `wipe: 0` and we want to change this within Mongodb.
+
+   - First run `mongo` to enter cli mode
 
 ```
-quads-cli --define-cloud cloud04 --description "Ceph Deployment" --force --cloud-owner jhoffa --cc-users "epresley rnixon" --cloud-ticket 423424
+# mongo
+MongoDB shell version v4.0.3
+connecting to: mongodb://127.0.0.1:27017
+Implicit session: session { "id" : UUID("21a4cd3c-e191-4f03-b18c-dccdb55826b3") }
+MongoDB server version: 4.0.3
 ```
-   - Now you can see the updated cc notifications
+
+   - Next, enter the database
 
 ```
-quads-cli --ls-cc-users --cloud-only cloud04
+> use quads
+switched to db quads
 ```
+
+   - Query the cloud metadata for `cloud02`
+
 ```
-epresley
-rnixon
+> db.cloud.find({name: "cloud02"})
+{ "_id" : ObjectId("5c82b3660f767d000692acf7"), "notified" : true, "validated" : true, "released" : true, "name" : "cloud02", "description" : "EL7 to EL8 Satellite Upgrade", "owner" : "ikaur", "ticket" : "490957", "qinq" : true, "wipe" : false, "ccuser" : [ "psuriset" ], "provisioned" : true }
+```
+
+   - We want to change `wipe: false` to `wipe: true`
+
+```
+> db.cloud.update({name:"cloud02"}, {$set:{wipe:true}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+```
+
+   - Let's check and make sure it was successful
+
+```
+> db.cloud.find({name:"cloud02"})
+{ "_id" : ObjectId("5c82b3660f767d000692acf7"), "notified" : true, "validated" : true, "released" : true, "name" : "cloud02", "description" : "EL7 to EL8 Satellite Upgrade", "owner" : "ikaur", "ticket" : "490957", "qinq" : true, "wipe" : true, "ccuser" : [ "psuriset" ], "provisioned" : true }
+```
+
+   - Above, we can see this value was changed.
+   - Lastly let's see if `quads-cli` thinks so too.
+
+```
+quads-cli --ls-wipe | grep cloud02
+cloud02: True
+```
+
+* **Disclaimer** Generally you never need to modify things in MongoDB, there should be a `quads-cli` equivalent to do this safely and easily without mucking with the database.  If there's functionality missing here please [file a Github RFE](https://github.com/redhat-performance/quads/issues/new).
+
+* Above, the correct way to adjust this is by redefining your cloud with all the same values but just not specify a wipe value.
+
+```
+quads-cli --define-cloud cloud02 --cloud-owner ikaur --force --description "EL7 to EL8 Satellite Upgrade" --cloud-ticket 490957 --cc-users "psuriset"
+['Updated cloud cloud02']
+```
+
+* Note: if you **did not** want machines entering into a new environment to be wiped/provisioned just use define the environment with the ``--no-wipe` option.
+
+{{{
+quads-cli --define-cloud cloud16 --cloud-owner jdoe --force --description "New Environment" --cloud-ticket 012345 --no-wipe
+}}}
+
+## Backing up QUADS
+
+* We do not implement backups for QUADS for you, but it's really easy to do on your own via [mongodump](https://www.mongodb.com/download-center/community)
+* Refer to our docs on [installing mongodb tools](docs/install-mongodb.md#extract-and-setup-mongodb-binaries)
+* Implement `mongodump` to backup your database, we recommend using a git repository as it will take care of revisioning and updates for you.
+* Below is an example script we use for this purpose, this assumes you have a git repository already setup you can push to with ssh access.
+
+```
+#!/bin/bash
+# script to call mongodump and dump quads db, push to git.
+
+backup_database() {
+    mongodump --out /opt/quads/backups/
+}
+
+sync_git() {
+    cd /opt/quads/backups
+    git add quads/*
+    git add admin/*
+    git commit -m "$(date) content commit"
+    git push
+}
+
+backup_database
+sync_git
+```
+
+## Restoring QUADS DB from Backup
+* If you have a valid mongodump directory structure you can restore the QUADS database via the following command.
+* This will drop the current database and replace it with your mongodump copy
+
+   - First, cd to the parent directory of where your mongorestore is kept
+
+```
+[root@host-04 rdu2-quads-backup-mongo]# ls
+
+admin  mongodump  mongodump-quads.sh  quads  README.md
+```
+
+  - `quads` is the directory containing our database dump files
+
+* Use mongorestore to drop the current quads database and replace with your backup
+
+```
+mongorestore --drop -d quads quads
+```
+
+  - You will see some messages and all should be good.
+
+```
+2019-05-05T01:23:01.257+0100	building a list of collections to restore from quads dir
+2019-05-05T01:23:01.270+0100	reading metadata for quads.vlan from quads/vlan.metadata.json
+2019-05-05T01:23:01.282+0100	reading metadata for quads.host from quads/host.metadata.json
+2019-05-05T01:23:01.288+0100	reading metadata for quads.counters from quads/counters.metadata.json
+2019-05-05T01:23:01.294+0100	reading metadata for quads.schedule from quads/schedule.metadata.json
+2019-05-05T01:23:01.329+0100	restoring quads.vlan from quads/vlan.bson
+2019-05-05T01:23:01.361+0100	restoring quads.host from quads/host.bson
+2019-05-05T01:23:01.396+0100	restoring quads.counters from quads/counters.bson
+2019-05-05T01:23:01.426+0100	restoring quads.schedule from quads/schedule.bson
+2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.vlan from metadata
+2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.host from metadata
+2019-05-05T01:23:01.524+0100	finished restoring quads.host (494 documents)
+2019-05-05T01:23:01.549+0100	finished restoring quads.vlan (148 documents)
+2019-05-05T01:23:01.549+0100	reading metadata for quads.notification from quads/notification.metadata.json
+2019-05-05T01:23:01.567+0100	reading metadata for quads.cloud_history from quads/cloud_history.metadata.json
+2019-05-05T01:23:01.568+0100	no indexes to restore
+2019-05-05T01:23:01.568+0100	finished restoring quads.counters (334 documents)
+2019-05-05T01:23:01.602+0100	restoring quads.notification from quads/notification.bson
+2019-05-05T01:23:01.643+0100	restoring quads.cloud_history from quads/cloud_history.bson
+2019-05-05T01:23:01.659+0100	reading metadata for quads.cloud from quads/cloud.metadata.json
+2019-05-05T01:23:01.661+0100	no indexes to restore
+2019-05-05T01:23:01.661+0100	finished restoring quads.notification (41 documents)
+2019-05-05T01:23:01.699+0100	restoring quads.cloud from quads/cloud.bson
+2019-05-05T01:23:01.717+0100	restoring indexes for collection quads.cloud_history from metadata
+2019-05-05T01:23:01.718+0100	no indexes to restore
+2019-05-05T01:23:01.718+0100	finished restoring quads.schedule (433 documents)
+2019-05-05T01:23:01.742+0100	restoring indexes for collection quads.cloud from metadata
+2019-05-05T01:23:01.743+0100	finished restoring quads.cloud_history (94 documents)
+2019-05-05T01:23:01.792+0100	finished restoring quads.cloud (32 documents)
+2019-05-05T01:23:01.792+0100	done
 ```
 
 ## QUADS Talks and Media
