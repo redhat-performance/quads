@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da3d2bd4_81f8027f",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-04-02T02:45:27Z",
+      "side": 1,
+      "message": "for our RPM packaging I think we\u0027ll also need to include in the rpm/quads.spec:\n\nRequires: python3-distlib \u003e\u003d 0.2.0\n\nSame goes for the container orchestration as well.",
+      "range": {
+        "startLine": 7,
+        "startChar": 5,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "42f94fb72bc7cc2475c0042324d9beb0c9299374",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
