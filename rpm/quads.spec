@@ -10,7 +10,7 @@
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 
 %define name quads
-%define version 1.0.999
+%define version 1.1.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -26,8 +26,6 @@ Vendor: QUADS Project
 Packager: QUADS Project
 Requires: httpd >= 2.4
 Requires: python3-mongoengine >= 0.8
-Requires: mongodb >= 2.6.12
-Requires: mongodb-server >= 2.6.12
 Requires: python3-cherrypy >= 8.9
 Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
@@ -106,6 +104,11 @@ fi;
 :;
 
 %changelog
+
+* Thu Mar 23 2019 Will Foster <wfoster@redhat.com>
+- 1.1.0 release version bump
+- Remove mongodb and mongodb-server deps due to
+  removal from Fedora30
 
 * Fri Mar 09 2019 Will Foster <wfoster@redhat.com>
 - Fixes for PYTHONPATH for quads-cli
