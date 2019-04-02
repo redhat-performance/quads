@@ -205,7 +205,12 @@ hammer filter create --role clouduser_views --permissions view_operatingsystems
 hammer filter update --role clouduser_views --permissions view_architectures --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
 hammer filter update --role clouduser_views --permissions view_media --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
 hammer filter update --role clouduser_views --permissions view_ptables --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
+hammer filter update --role clouduser_views --permissions edit_params,view_params --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
 ```
+   * Your filters should look something like this when you're done, this can also be done in the Foreman UI as well.
+
+![clouduser_rbac](../image/cloud_rbac.png?raw=true)
+
    * Next create your `cloudusers` generic group and tie it all together
 ```
 hammer user-group create --name cloudusers --roles clouduser_views
