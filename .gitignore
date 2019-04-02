@@ -2,3 +2,6 @@
 *.swp
 log/
 .idea
+data_db/
+wiki_db/
+wordpress_data/
