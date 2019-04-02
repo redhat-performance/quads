@@ -334,7 +334,11 @@ def main(_args):
         _kwargs = {"host": Host.objects(name=_args.host).first()}
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
-        schedules = Schedule.current_schedule(**_kwargs)
+        if _kwargs["host"]:
+            schedules = Schedule.current_schedule(**_kwargs)
+        else:
+            logger.info('Unknown host: %s' % _args.host)
+            exit(1)
         for schedule in schedules:
             logger.info(schedule.cloud.name)
 
