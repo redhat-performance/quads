@@ -22,6 +22,30 @@
       "revId": "bfe14e013a927aa46ebf5de27797c33cb0dc22f8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "124c4444_59659941",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-04-03T18:49:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5b0e38ca_e9fd31fe",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 25
+      },
+      "revId": "bfe14e013a927aa46ebf5de27797c33cb0dc22f8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
