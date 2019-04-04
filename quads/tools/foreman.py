@@ -110,7 +110,7 @@ class Foreman(object):
         logger.debug("PUT param: {%s:%s}" % (param_name, param_value))
         endpoint = "/%s/%s" % (element_name, element_id)
         data = {
-            element_name: {param_name: param_value}
+            element_name[:-1]: {param_name: param_value}
         }
         try:
             response = requests.put(
@@ -255,7 +255,9 @@ class Foreman(object):
     def add_role(self, user_name, role):
         user_id = self.get_user_id(user_name)
         role_id = self.get_role_id(role)
-        return self.put_element("users", user_id, "role_ids", role_id)
+        user_roles = self.get_user_roles(user_id)
+        user_roles.append(role_id)
+        return self.put_element("users", user_id, "role_ids", user_roles)
 
     def remove_role(self, user_name, role):
         user_id = self.get_user_id(user_name)
