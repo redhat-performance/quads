@@ -349,12 +349,18 @@ def main(_args):
         exit(0)
 
     elif _args.cloudonly:
-        _kwargs = {"cloud": Cloud.objects(name=_args.cloudonly).first()}
+        _cloud = Cloud.objects(name=_args.cloudonly).first()
+        _kwargs = {"cloud": _cloud}
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
         schedules = Schedule.current_schedule(**_kwargs)
-        for schedule in schedules:
-            logger.info(schedule.host.name)
+        if schedules:
+            for schedule in schedules:
+                logger.info(schedule.host.name)
+        else:
+            _hosts = Host.objects(cloud=_cloud)
+            for host in _hosts:
+                logger.info(host.name)
 
         exit(0)
 
