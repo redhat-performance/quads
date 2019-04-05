@@ -331,7 +331,8 @@ def main(_args):
             exit(0)
 
     elif _args.host:
-        _kwargs = {"host": Host.objects(name=_args.host).first()}
+        _host = Host.objects(name=_args.host).first()
+        _kwargs = {"host": _host}
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
         if _kwargs["host"]:
@@ -339,8 +340,11 @@ def main(_args):
         else:
             logger.info('Unknown host: %s' % _args.host)
             exit(1)
-        for schedule in schedules:
-            logger.info(schedule.cloud.name)
+        if schedules:
+            for schedule in schedules:
+                logger.info(schedule.cloud.name)
+        else:
+            logger.info(_host.cloud.name)
 
         exit(0)
 
