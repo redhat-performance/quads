@@ -206,13 +206,17 @@ class Foreman(object):
     def get_user_id(self, user_name):
         endpoint = "/users?search=login=%s" % user_name
         result = self.get_obj_dict(endpoint, "login")
-        _id = result[user_name]["id"]
+        _id = None
+        if user_name in result:
+            _id = result[user_name]["id"]
         return _id
 
     def get_role_id(self, role):
         endpoint = "/roles?search=name=%s" % role
         result = self.get_obj_dict(endpoint)
-        _id = result[role]["id"]
+        _id = None
+        if role in result:
+            _id = result[role]["id"]
         return _id
 
     def get_host_param(self, host_name, param):
@@ -271,7 +275,7 @@ class Foreman(object):
         return self.put_element("users", user_id, "role_ids", user_roles)
 
     def get_user_roles(self, user_id):
-        endpoint = "/user/%s/roles" % user_id
+        endpoint = "/users/%s/roles" % user_id
         result = self.get_obj_dict(endpoint)
         result.pop("Default role")
         return [role["id"] for _, role in result.items()]
