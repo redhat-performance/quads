@@ -236,4 +236,4 @@ class Schedule(Document):
             _query = _query & Q(host=host)
         if cloud:
             _query = _query & Q(cloud=cloud)
-        return queryset.filter(_query)
+        return queryset.no_cache().filter(_query)
