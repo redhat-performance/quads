@@ -1,3 +1,4 @@
+#!/usr/bin/sh
 # For existing shell scripts to use the ../conf/quads.yml
 # this helper function is included.  Ultimately the use
 # of shell scripts will be depricated.

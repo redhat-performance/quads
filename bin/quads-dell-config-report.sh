@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/usr/bin/sh
+# Gather CPU performance and boot interface infos
+# from Dell machines # and generate an HTML file with them.
+# not used in 1.1.0
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then
     echo "$(basename $0): could not find load-config.sh"
@@ -13,10 +16,10 @@ env=$1
 cat <<EOF
 <style type="text/css">
     .TFtable{
-        width:100%; 
-        border-collapse:collapse; 
+        width:100%;
+        border-collapse:collapse;
     }
-    .TFtable td{ 
+    .TFtable td{
         padding:7px; border:#4e95f4 1px solid;
     }
     /* provide some minimal visual accomodation for IE8 and below */
@@ -24,7 +27,7 @@ cat <<EOF
         background: #b8d1f3;
     }
     /*  Define the background color for all the ODD background rows  */
-    .TFtable tr:nth-child(odd){ 
+    .TFtable tr:nth-child(odd){
         background: #b8d1f3;
     }
     /*  Define the background color for all the EVEN background rows  */
@@ -34,7 +37,7 @@ cat <<EOF
 </style>
 EOF
 
-#for cloud in $($quads --summary | awk -F: '{ print $1 }' | grep -v cloud01) ; do 
+#for cloud in $($quads --summary | awk -F: '{ print $1 }' | grep -v cloud01) ; do
     cloud=$env
     #echo "<h><b>System Settings for $cloud</b></h>"
     #echo "<br>"

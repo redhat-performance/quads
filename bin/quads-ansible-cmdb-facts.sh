@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # generate ansible facts HTML page per cloud
 
 if [ ! -e $(dirname $0)/load-config.sh ]; then

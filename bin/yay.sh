@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 # yay lets you parse config values in shells scripts from
 # our global ../conf/quads.yml configuration.  This lets us
 # have one authoritative place for configuration across all
