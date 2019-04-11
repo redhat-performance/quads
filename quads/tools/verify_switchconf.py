@@ -82,7 +82,6 @@ def verify(_cloud_name, change=False):
                                 interface.ip_address,
                                 interface.switch_port,
                                 str(old_vlan),
-                                str(vlan_member),
                                 str(vlan)
                             )
                         else:

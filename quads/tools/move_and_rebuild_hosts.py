@@ -58,7 +58,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                     interface.ip_address,
                     interface.switch_port,
                     str(old_vlan),
-                    str(new_vlan),
                     str(_public_vlan_obj.vlan_id)
                 )
                 if success:

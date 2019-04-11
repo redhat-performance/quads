@@ -2,7 +2,7 @@ echo '------- determine QUADS version -------------'
 docker exec quads bin/quads-cli --version
 
 echo '------- define 3 clouds ---------------------'
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01 --cloud-owner quads
 docker exec quads bin/quads-cli --define-cloud cloud02 --description cloud02 --cloud-owner quads
 docker exec quads bin/quads-cli --define-cloud cloud03 --description cloud03 --cloud-owner quads --cc-users "cc1 cc2"
 
