@@ -8,7 +8,7 @@ from quads.config import conf
 logger = logging.getLogger(__name__)
 
 
-def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_priv_vlan, new_pub_vlan):
+def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_pub_vlan):
     try:
         logger.debug("Connecting to switch: %s" % ip_address)
         child = pexpect.spawn("ssh -o StrictHostKeyChecking=no %s@%s" % (conf["junos_username"], ip_address))
@@ -26,18 +26,18 @@ def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_priv_vlan
         child.sendline("delete interfaces %s" % switch_port)
         child.expect("#")
 
-        logger.debug("set interfaces %s native-vlan-id %s" % (switch_port, new_priv_vlan))
-        child.sendline("set interfaces %s native-vlan-id %s" % (switch_port, new_priv_vlan))
+        logger.debug("set interfaces %s native-vlan-id %s" % (switch_port, new_pub_vlan))
+        child.sendline("set interfaces %s native-vlan-id %s" % (switch_port, new_pub_vlan))
         child.expect("#")
 
         logger.debug("set interfaces %s unit 0 family ethernet-switching interface-mode trunk" % switch_port)
         child.sendline("set interfaces %s unit 0 family ethernet-switching interface-mode trunk" % switch_port)
         child.expect("#")
 
-        logger.debug("set interfaces %s unit 0 family ethernet-switching vlan members [ vlan%s vlan%s ]" % (
-            switch_port, new_priv_vlan, new_pub_vlan))
-        child.sendline("set interfaces %s unit 0 family ethernet-switching vlan members [ vlan%s vlan%s ]" % (
-            switch_port, new_priv_vlan, new_pub_vlan))
+        logger.debug("set interfaces %s unit 0 family ethernet-switching vlan members vlan%s" % (
+            switch_port, new_pub_vlan))
+        child.sendline("set interfaces %s unit 0 family ethernet-switching vlan members vlan%s" % (
+            switch_port, new_pub_vlan))
         child.expect("#")
 
         logger.debug("delete vlans vlan%s interface %s" % (old_vlan, switch_port))
