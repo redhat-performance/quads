@@ -144,7 +144,10 @@ class DocumentMethodHandler(MethodHandlerBase):
             _clouds = model.Cloud.objects().all()
             clouds_summary = []
             for cloud in _clouds:
-                count = self.model.current_schedule(cloud=cloud).count()
+                if cloud.name == "cloud01":
+                    count = model.Host.objects(cloud=cloud).count()
+                else:
+                    count = self.model.current_schedule(cloud=cloud).count()
                 clouds_summary.append(
                     {
                         "name": cloud.name,

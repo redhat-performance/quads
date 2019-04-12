@@ -49,7 +49,7 @@ def print_summary():
 
     for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         cloud_name = cloud["name"]
-        desc = cloud["description"]
+        desc = "%s (%s)" % (cloud["count"], cloud["description"])
         owner = cloud["owner"]
         ticket = cloud["ticket"]
         link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"], ticket, ticket)
@@ -197,11 +197,13 @@ def add_row(host):
         total_time_left = "%0d day(s)" % total_days_left
         if total_hours_left > 1:
             total_time_left = "%s, %0d hour(s)" % (total_time_left, total_hours_left)
+        _date_start = _date_start.strftime("%Y-%m-%d")
+        _date_end = _date_end.end.strftime("%Y-%m-%d")
     _columns = [
         short_host,
         "<a href=http://mgmt-%s/ target=_blank>console</a>" % host.name,
-        _date_start.strftime("%Y-%m-%d"),
-        _date_end.strftime("%Y-%m-%d"),
+        _date_start,
+        _date_end,
         total_time,
         total_time_left,
     ]
@@ -251,7 +253,7 @@ def main():
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append("### **%s -- %s**\n\n" % (name.strip(), owner))
+        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
         lines.extend(print_header())
         _cloud_obj = Cloud.objects(name=name).first()
         _hosts = Host.objects(cloud=_cloud_obj)
