@@ -28,7 +28,7 @@ def main():
         now = time.time()
         old_jsons = [file for file in os.listdir(conf["json_web_path"]) if ":" in file]
         for file in old_jsons:
-            if os.stat(os.path.join(conf["json_web_path"],file)).st_mtime < now - conf["json_retention_days"] * 86400:
+            if os.stat(os.path.join(conf["json_web_path"], file)).st_mtime < now - conf["json_retention_days"] * 86400:
                 os.remove(os.path.join(conf["json_web_path"], file))
 
         for cloud in cloud_list:
@@ -47,14 +47,13 @@ def main():
                 if not overcloud:
                     overcloud = {"result": "true"}
                 if "result" in overcloud and strtobool(overcloud["result"]):
-                    if conf["foreman_unavailable"]:
-                        host_data = { "mac": "00:00:00:00:00:00" }
-                    else:
-                        host_data = foreman.get_idrac_host_with_details(host.name)
+                    mac = "00:00:00:00:00:00"
+                    if len(host.interfaces) > 1:
+                        mac = host.interfaces[1].mac_address
                     json_data['nodes'].append({
                         'pm_password': foreman_password,
                         'pm_type': "pxe_ipmitool",
-                        'mac': [host_data["mac"]],
+                        'mac': [mac],
                         'cpu': "2",
                         'memory': "1024",
                         'disk': "20",
@@ -68,7 +67,10 @@ def main():
                 pathlib.Path(conf["json_web_path"]).mkdir(parents=True, exist_ok=True)
 
             now = datetime.now()
-            new_json_file = os.path.join(conf["json_web_path"], "%s_instackenv.json_%s" % (cloud.name, now.strftime("%Y-%m-%d_%H:%M:%S")))
+            new_json_file = os.path.join(
+                conf["json_web_path"],
+                "%s_instackenv.json_%s" % (cloud.name, now.strftime("%Y-%m-%d_%H:%M:%S"))
+            )
             json_file = os.path.join(conf["json_web_path"], "%s_instackenv.json" % cloud.name)
             with open(new_json_file, "w+") as _json_file:
                 _json_file.seek(0)
