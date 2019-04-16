@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e12e1d9b_99e348e7",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2019-04-16T15:47:58Z",
+      "side": 1,
+      "message": "What if the host doesn\u0027t have any interfaces defined?  Should we assume a default value here like \"00:00:00:00:00:00\" in order to avoid the script from error-ing out when later it refers to \"mac\" as a variable?",
+      "range": {
+        "startLine": 51,
+        "startChar": 52,
+        "endLine": 51,
+        "endChar": 53
+      },
+      "revId": "f80311c6defb75c0c9816f9bc7620ecd47c48a46",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
