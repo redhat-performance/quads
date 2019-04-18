@@ -4,19 +4,27 @@ import logging
 import os
 
 from datetime import datetime, timedelta
+from enum import Enum
+
 from jinja2 import Template
 from pathlib import Path
 from quads.config import conf, TEMPLATES_PATH
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
-from quads.model import Cloud, Schedule
+from quads.model import Cloud, Schedule, Notification
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
+class Days(Enum):
+    ONE_DAY = 1
+    THREE_DAYS = 3
+    FIVE_DAYS = 5
+    SEVEN_DAYS = 7
+
+
 def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
-    _cloud_obj = Cloud.objects(name=cloud).first()
     template_file = "initial_message"
     irc_bot_ip = conf["ircbot_ipaddr"]
     irc_bot_port = conf["ircbot_port"]
@@ -52,7 +60,6 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         except (TypeError, BrokenPipeError) as ex:
             logger.debug(ex)
             logger.error("Beep boop netcat can't communicate with your IRC.")
-    _cloud_obj.update(notified=True)
 
 
 def create_message(
@@ -62,7 +69,6 @@ def create_message(
         cloud_info,
         cc,
         host_list_expire,
-        report_path,
 ):
     template_file = "message"
     cc_users = conf["report_cc"].split(",")
@@ -79,10 +85,9 @@ def create_message(
     )
     postman = Postman("QUADS upcoming expiration notification", real_owner, cc_users, content)
     postman.send_email()
-    Path(report_path).touch()
 
 
-def create_future_initial_message(real_owner, cloud_info, cc, report_path):
+def create_future_initial_message(real_owner, cloud_info, cc):
     template_file = "future_initial_message"
     cc_users = conf["report_cc"].split(",")
     for user in cc:
@@ -95,7 +100,6 @@ def create_future_initial_message(real_owner, cloud_info, cc, report_path):
     )
     postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
     postman.send_email()
-    Path(report_path).touch()
 
 
 def create_future_message(
@@ -105,7 +109,6 @@ def create_future_message(
         cloud_info,
         cc,
         host_list_expire,
-        report_path,
 ):
     cc_users = conf["report_cc"].split(",")
     for user in cc:
@@ -122,11 +125,9 @@ def create_future_message(
     )
     postman = Postman("QUADS upcoming assignment notification", real_owner, cc_users, content)
     postman.send_email()
-    Path(report_path).touch()
 
 
 def main():
-    days = [1, 3, 5, 7]
     future_days = 7
 
     _all_clouds = Cloud.objects()
@@ -140,13 +141,17 @@ def main():
         Path(os.path.join(conf["data_dir"], "report")).mkdir(parents=True, exist_ok=True)
 
     for cloud in _validated_clouds:
+        notification_obj = Notification.objects(
+            cloud=cloud,
+            ticket=cloud.ticket
+        ).first()
         current_hosts = Schedule.current_schedule(cloud=cloud)
         cloud_info = "%s: %s (%s)" % (
             cloud.name,
             current_hosts.count(),
             cloud.description
         )
-        if not cloud["notified"]:
+        if not notification_obj.initial:
             logger.info('=============== Initial Message')
             create_initial_message(
                 cloud.owner,
@@ -155,31 +160,35 @@ def main():
                 cloud.ticket,
                 cloud.ccuser,
             )
+            notification_obj.update(initial=True)
 
-        for day in days:
-            future = datetime.now() + timedelta(days=day)
+        for day in Days:
+            future = datetime.now() + timedelta(days=day.value)
             future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
             future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future < current_hosts[0].end:
-                report_file = "%s-%s-%s-%s" % (cloud.name, cloud.owner, day, cloud.ticket)
-                report_path = os.path.join(conf["data_dir"], "report", report_file)
-                if not os.path.exists(report_path) and conf["email_notify"]:
+                if not notification_obj.initial and conf["email_notify"]:
                     logger.info('=============== Additional Message')
                     host_list = [schedule.host.name for schedule in diff]
                     create_message(
                         cloud.owner,
-                        day,
+                        day.value,
                         cloud.name,
                         cloud_info,
                         cloud.ccuser,
                         host_list,
-                        report_path,
                     )
+                    kwargs = {day.name.lower(): True}
+                    notification_obj.update(**kwargs)
                     break
 
     for cloud in _all_clouds:
+        notification_obj = Notification.objects(
+            cloud=cloud,
+            ticket=cloud.ticket
+        ).first()
         if cloud.name != "cloud01" and cloud.owner not in ["quads", None]:
             current_hosts = Schedule.current_schedule(cloud=cloud)
             cloud_info = "%s: %s (%s)" % (
@@ -188,20 +197,16 @@ def main():
                 cloud.description
             )
 
-            report_pre_ini_file = "%s-%s-pre-initial-%s" % (cloud.name, cloud.owner, cloud.ticket)
-            report_pre_ini_path = os.path.join(conf["data_dir"], "report", report_pre_ini_file)
-            if not os.path.exists(report_pre_ini_path) and conf["email_notify"]:
+            if not notification_obj.pre_intial and conf["email_notify"]:
                 logger.info('=============== Future Initial Message')
                 create_future_initial_message(
                     cloud.owner,
                     cloud_info,
                     cloud.ccuser,
-                    report_pre_ini_path,
                 )
+                notification_obj.update(pre_intial=True)
 
-            report_pre_file = "%s-%s-pre-%s" % (cloud.name, cloud.owner, cloud.ticket)
-            report_pre_path = os.path.join(conf["data_dir"], "report", report_pre_file)
-            if not os.path.exists(report_pre_path) and cloud.validated:
+            if not notification_obj.pre and cloud.validated:
                 future = datetime.now() + timedelta(days=future_days)
                 future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
                 future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
@@ -217,8 +222,8 @@ def main():
                         cloud_info,
                         cloud.ccuser,
                         host_list,
-                        report_pre_path,
                     )
+                    notification_obj.update(pre=True)
 
 
 if __name__ == "__main__":
