@@ -111,7 +111,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "owner": cloud.owner,
                         "ticket": cloud.ticket,
                         "ccuser": cloud.ccuser,
-                        "released": cloud.released
+                        "provisioned": cloud.provisioned
                     })
 
             return json.dumps(clouds_summary)
@@ -156,9 +156,8 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "owner": cloud.owner,
                         "ticket": cloud.ticket,
                         "ccuser": cloud.ccuser,
-                        "released": cloud.released,
+                        "provisioned": cloud.provisioned,
                         "validated": cloud.validated,
-                        "notified": cloud.notified
                     })
 
             return json.dumps(clouds_summary)
@@ -213,6 +212,10 @@ class DocumentMethodHandler(MethodHandlerBase):
                             'Created %s %s' % (self.name, obj_name)
                         )
                     if self.name == "cloud":
+                        cloud_obj = self._get_obj(obj_name)
+                        notification_obj = model.Notification.objects(cloud=cloud_obj, ticket=data["ticket"]).first()
+                        if not notification_obj:
+                            model.Notification(cloud=cloud_obj, ticket=data["ticket"]).save()
 
                         if _vlan:
                             update_data = {}

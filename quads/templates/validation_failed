@@ -10,3 +10,6 @@ sure to address the environment and ensure all validation steps
 succeed to ensure a timely release to the end user.
 
 DevOps Team
+
+Results:
+{{ report }}
