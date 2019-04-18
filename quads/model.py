@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from mongoengine import (
     connect,
     Document,
@@ -13,7 +14,7 @@ from mongoengine import (
     SequenceField,
     IntField,
     LongField,
-    EmbeddedDocumentField
+    EmbeddedDocumentField,
 )
 from quads.helpers import param_check
 
@@ -25,11 +26,23 @@ connect(
 )
 
 
+class EventTypeEnum(Enum):
+    FAIL = "fail"
+    SUCCESS = "success"
+    INITIAL = "initial"
+    PRE_INITIAL = "pre-initial"
+    PRE = "PRE"
+    ONE_DAY = 1
+    THREE_DAYS = 3
+    FIVE_DAYS = 5
+    SEVEN_DAYS = 7
+
+
 class CloudHistory(Document):
     name = StringField()
     description = StringField()
     owner = StringField()
-    ticket = StringField()
+    ticket = LongField()
     qinq = BooleanField()
     wipe = BooleanField()
     ccuser = ListField()
@@ -44,13 +57,13 @@ class CloudHistory(Document):
     @staticmethod
     def prep_data(data):
         defaults = {
-            'owner': 'nobody',
+            'owner': 'quads',
             'ccuser': [],
-            'ticket': '000000',
+            'ticket': 000000,
             'qinq': False,
             'wipe': True,
         }
-        for flag in ["released", "validated", "notified"]:
+        for flag in ["provisioned", "validated"]:
             if flag in data:
                 data.pop(flag)
 
@@ -63,14 +76,13 @@ class CloudHistory(Document):
 class Cloud(Document):
     name = StringField(unique=True)
     description = StringField()
-    owner = StringField()
-    ticket = StringField()
+    owner = StringField(default='quads')
+    ticket = LongField(default=000000)
     qinq = BooleanField(default=False)
     wipe = BooleanField(default=True)
     ccuser = ListField()
-    released = BooleanField(default=False)
+    provisioned = BooleanField(default=False)
     validated = BooleanField(default=False)
-    notified = BooleanField(default=False)
     meta = {
         'indexes': [
             {
@@ -87,10 +99,19 @@ class Cloud(Document):
             data["ccuser"] = data["ccuser"].split()
         if "qinq" in data:
             data["qinq"] = bool(data["qinq"])
+
         params = ['name', 'description', 'owner']
         result, data = param_check(data, params)
 
         return result, data
+
+
+class Notification(Document):
+    event_type = StringField()
+    notified = BooleanField(default=False)
+    cloud = ReferenceField(Cloud)
+    ticket = LongField()
+    content = StringField()
 
 
 class Vlan(Document):
