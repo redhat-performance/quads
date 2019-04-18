@@ -15,7 +15,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
@@ -172,7 +172,13 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             logger.error("There was something wrong setting Foreman host parameters.")
 
         try:
-            badfish.set_next_boot_pxe()
+            badfish.boot_to_type(
+                "foreman",
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "../../conf/idrac_interfaces.yml"
+                )
+            )
             badfish.reboot_server()
         except SystemExit:
             if is_supermicro(host):
