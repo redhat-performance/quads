@@ -13,7 +13,7 @@ from mongoengine import (
     SequenceField,
     IntField,
     LongField,
-    EmbeddedDocumentField
+    EmbeddedDocumentField,
 )
 from quads.helpers import param_check
 
@@ -21,7 +21,7 @@ import os
 
 connect(
     'quads',
-    host=os.environ.get("MONGODB_IP", "127.0.0.1")
+    host=os.environ.get('MONGODB_IP', '127.0.0.1')
 )
 
 
@@ -38,19 +38,20 @@ class CloudHistory(Document):
             {
                 'fields': ['$name']
             }
-        ]
+        ],
+        'strict': False
     }
 
     @staticmethod
     def prep_data(data):
         defaults = {
-            'owner': 'nobody',
+            'owner': 'quads',
             'ccuser': [],
             'ticket': '000000',
             'qinq': False,
             'wipe': True,
         }
-        for flag in ["released", "validated", "notified"]:
+        for flag in ['provisioned', 'validated']:
             if flag in data:
                 data.pop(flag)
 
@@ -63,34 +64,49 @@ class CloudHistory(Document):
 class Cloud(Document):
     name = StringField(unique=True)
     description = StringField()
-    owner = StringField()
-    ticket = StringField()
+    owner = StringField(default='quads')
+    ticket = StringField(default='000000')
     qinq = BooleanField(default=False)
     wipe = BooleanField(default=True)
     ccuser = ListField()
-    released = BooleanField(default=False)
+    provisioned = BooleanField(default=False)
     validated = BooleanField(default=False)
-    notified = BooleanField(default=False)
     meta = {
         'indexes': [
             {
                 'fields': ['$name']
             }
-        ]
+        ],
+        'strict': False
     }
 
     @staticmethod
     def prep_data(data):
-        if "vlan" in data:
-            data.pop("vlan")
-        if "ccuser" in data:
-            data["ccuser"] = data["ccuser"].split()
-        if "qinq" in data:
-            data["qinq"] = bool(data["qinq"])
+        if 'vlan' in data:
+            data.pop('vlan')
+        if 'ccuser' in data:
+            data['ccuser'] = data['ccuser'].split()
+        if 'qinq' in data:
+            data['qinq'] = bool(data['qinq'])
+
         params = ['name', 'description', 'owner']
         result, data = param_check(data, params)
 
         return result, data
+
+
+class Notification(Document):
+    cloud = ReferenceField(Cloud)
+    ticket = StringField()
+    fail = BooleanField(default=False)
+    success = BooleanField(default=False)
+    initial = BooleanField(default=False)
+    pre_initial = BooleanField(default=False)
+    pre = BooleanField(default=False)
+    one_day = BooleanField(default=False)
+    three_days = BooleanField(default=False)
+    five_days = BooleanField(default=False)
+    seven_days = BooleanField(default=False)
 
 
 class Vlan(Document):
@@ -99,7 +115,7 @@ class Vlan(Document):
     ip_range = StringField()
     netmask = StringField()
     owner = StringField()
-    ticket = LongField()
+    ticket = StringField()
     vlan_id = LongField()
     cloud = ReferenceField(Cloud)
     meta = {
@@ -107,7 +123,8 @@ class Vlan(Document):
             {
                 'fields': ['$vlan_id']
             }
-        ]
+        ],
+        'strict': False
     }
 
     @staticmethod
@@ -120,12 +137,12 @@ class Vlan(Document):
             'owner',
             'vlan_id',
         ]
-        if "ipfree" in data:
-            data["ip_free"] = data.pop("ipfree")
-        if "iprange" in data:
-            data["ip_range"] = data.pop("iprange")
-        if "vlanid" in data:
-            data["vlan_id"] = data.pop("vlanid")
+        if 'ipfree' in data:
+            data['ip_free'] = data.pop('ipfree')
+        if 'iprange' in data:
+            data['ip_range'] = data.pop('iprange')
+        if 'vlanid' in data:
+            data['vlan_id'] = data.pop('vlanid')
         result, data = param_check(data, _fields)
 
         return result, data
@@ -164,12 +181,12 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data):
-        if "cloud" in data:
-            _cloud_obj = Cloud.objects(name=data["cloud"]).first()
+        if 'cloud' in data:
+            _cloud_obj = Cloud.objects(name=data['cloud']).first()
             if _cloud_obj:
-                data["cloud"] = _cloud_obj
+                data['cloud'] = _cloud_obj
             else:
-                return ["Cloud %s does not exist." % data["cloud"]], {}
+                return ['Cloud %s does not exist.' % data['cloud']], {}
 
         result, data = param_check(data, ['name', 'cloud', 'host_type'])
 
@@ -198,7 +215,7 @@ class Schedule(Document):
     @staticmethod
     def get_next_sequence(name):
         Counters.objects(_id=name).update_one(upsert=True, inc__seq=1)
-        return Counters.objects(_id=name).first()["seq"]
+        return Counters.objects(_id=name).first()['seq']
 
     def insert_schedule(self, cloud, host, start, end):
         if host:
@@ -221,11 +238,11 @@ class Schedule(Document):
             _query = _query & Q(index__ne=exclude)
         results = queryset.filter(_query)
         for result in results:
-            if result["start"] <= start <= result["end"]:
+            if result['start'] <= start <= result['end']:
                 return False
-            if result["start"] <= end <= result["end"]:
+            if result['start'] <= end <= result['end']:
                 return False
-            if start < result["start"] and end > result["end"]:
+            if start < result['start'] and end > result['end']:
                 return False
         return True
 
