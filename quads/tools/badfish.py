@@ -521,6 +521,20 @@ class Badfish:
             sys.exit(1)
         return True
 
+    def boot_to_type(self, host_type, _interfaces_path):
+        if host_type.lower() not in ("foreman", "director"):
+            logger.error('Expected values for -t argument are "foreman" or "director"')
+            sys.exit(1)
+
+        if _interfaces_path:
+            if not os.path.exists(_interfaces_path):
+                logger.error("No such file or directory: %s." % _interfaces_path)
+                sys.exit(1)
+
+        device = self.get_host_type_boot_device(host_type, _interfaces_path)
+
+        self.boot_to(device)
+
     def send_one_time_boot(self, device):
         _url = "%s%s" % (self.root_uri, self.bios_uri)
         _payload = {"Attributes": {"OneTimeBootMode": "OneTimeBootSeq", "OneTimeBootSeqDev": device}}
@@ -665,3 +679,17 @@ class Badfish:
                 sys.exit(1)
 
         logger.error("Could not export settings after %s attempts." % self.retries)
+
+    def get_host_type_boot_device(self, host_type, _interfaces_path):
+        if _interfaces_path:
+            with open(_interfaces_path, "r") as f:
+                try:
+                    definitions = yaml.safe_load(f)
+                except yaml.YAMLError as ex:
+                    logger.error("Couldn't read file: %s" % _interfaces_path)
+                    logger.debug(ex)
+                    sys.exit(1)
+
+            host_model = self.host.split(".")[0].split("-")[-1]
+            return definitions["%s_%s_interfaces" % (host_type, host_model)].split(",")[0]
+        return None

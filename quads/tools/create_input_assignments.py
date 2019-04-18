@@ -56,7 +56,7 @@ def print_summary():
         cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
 
         style_tag_end = "</span>"
-        if cloud["released"] or cloud_name == "cloud01":
+        if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"

@@ -179,7 +179,7 @@ class Foreman(object):
         return self.get_obj_dict(endpoint)
 
     def get_build_hosts(self, build=True):
-        endpoint = "/hosts?search=params.build=%s" % str(build).lower()
+        endpoint = "/hosts?search=build=%s" % str(build).lower()
         return self.get_obj_dict(endpoint)
 
     def get_parametrized(self, param, value):
