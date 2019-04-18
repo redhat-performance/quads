@@ -326,9 +326,9 @@ def main(_args):
 
                 if not _args.dryrun:
                     _new_cloud_obj = Cloud.objects(name=_cloud).first()
-                    _new_cloud_obj.update(released=True)
+                    _new_cloud_obj.update(provisioned=True)
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
-                    _old_cloud_obj.update(released=False, validated=False, notified=False)
+                    _old_cloud_obj.update(provisioned=False, validated=False)
                     make_instackenv_json.main()
 
             exit(0)
