@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d95d69c_ef41ed2e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-04-26T07:00:10Z",
+      "side": 1,
+      "message": "There comes a time when you just have to implement a breaking change.  I think the way QUADS works being mostly a passive resource so far as how it deals with assignments once deployed and the fact our 1.0 RDU2 implementation is still \"Beta\" this isn\u0027t a big deal.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 53
+      },
+      "revId": "862659ad01f834c9809e9717779aedf4ee8f353a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
