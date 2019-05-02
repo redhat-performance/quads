@@ -240,9 +240,9 @@ class Schedule(Document):
             _query = _query & Q(index__ne=exclude)
         results = queryset.filter(_query)
         for result in results:
-            if result['start'] <= start <= result['end']:
+            if result['start'] <= start < result['end']:
                 return False
-            if result['start'] <= end <= result['end']:
+            if result['start'] < end <= result['end']:
                 return False
             if start < result['start'] and end > result['end']:
                 return False
