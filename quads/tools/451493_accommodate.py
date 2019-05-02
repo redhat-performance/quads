@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/python3
 """
 Temporary script to accommodate to non backwards compatible changes
 """

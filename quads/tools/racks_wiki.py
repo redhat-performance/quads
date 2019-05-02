@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # Update an existing wordpress page with generated markdown
 # Assumes you have a markdown file with content you want published
 # to an existing wordpress page.
