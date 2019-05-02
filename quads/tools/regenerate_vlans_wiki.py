@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from quads.tools.racks_wiki import update_wiki
 from quads.config import conf as quads_config
 from quads.model import Vlan, Cloud
