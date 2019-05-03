@@ -198,7 +198,7 @@ def add_row(host):
         if total_hours_left > 1:
             total_time_left = "%s, %0d hour(s)" % (total_time_left, total_hours_left)
         _date_start = _date_start.strftime("%Y-%m-%d")
-        _date_end = _date_end.end.strftime("%Y-%m-%d")
+        _date_end = _date_end.strftime("%Y-%m-%d")
     _columns = [
         short_host,
         "<a href=http://mgmt-%s/ target=_blank>console</a>" % host.name,
