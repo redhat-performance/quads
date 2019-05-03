@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cac7e0f7_510dc4fd",
+        "filename": "quads/model.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2019-05-03T12:46:40Z",
+      "side": 1,
+      "message": "I\u0027m not convinced this is the correct check either.  I suspect we want something like:\n\n    if result[\u0027start\u0027] \u003c\u003d start \u003c result[\u0027end\u0027]\n\nalso, are you keeping track of the seconds as well?",
+      "range": {
+        "startLine": 243,
+        "startChar": 55,
+        "endLine": 244,
+        "endChar": 0
+      },
+      "revId": "962aa5b6a1f14173cbb20e62f3ad4102dc210ca2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
