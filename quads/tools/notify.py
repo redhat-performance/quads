@@ -197,14 +197,14 @@ def main():
                 cloud.description
             )
 
-            if not notification_obj.pre_intial and conf["email_notify"]:
+            if not notification_obj.pre_initial and conf["email_notify"]:
                 logger.info('=============== Future Initial Message')
                 create_future_initial_message(
                     cloud.owner,
                     cloud_info,
                     cloud.ccuser,
                 )
-                notification_obj.update(pre_intial=True)
+                notification_obj.update(pre_initial=True)
 
             if not notification_obj.pre and cloud.validated:
                 future = datetime.now() + timedelta(days=future_days)
