@@ -171,7 +171,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         if not foreman_success:
             logger.error("There was something wrong setting Foreman host parameters.")
 
-        try:
+        if is_supported(host):
             badfish.boot_to_type(
                 "foreman",
                 os.path.join(
@@ -180,12 +180,9 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 )
             )
             badfish.reboot_server()
-        except SystemExit:
-            if is_supermicro(host):
-                logger.warning("Badfish not yet supported on Supermicro: %s." % host)
-            else:
-                logger.exception("There was something wrong setting next PXE boot via Badfish.")
-                return False
+
+        else:
+            logger.exception("Error setting next PXE boot via Badfish on: %s." % host)
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
