@@ -337,7 +337,6 @@ def main(_args):
                                     subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
                         except Exception as ex:
                             logger.error('Move command failed: %s' % ex)
-                            exit(1)
 
                 if not _args.dryrun:
                     _new_cloud_obj = Cloud.objects(name=_cloud).first()
