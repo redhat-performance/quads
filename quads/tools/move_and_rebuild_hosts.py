@@ -171,21 +171,22 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         if not foreman_success:
             logger.error("There was something wrong setting Foreman host parameters.")
 
-        try:
-            badfish.boot_to_type(
-                "foreman",
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "../../conf/idrac_interfaces.yml"
+        if is_supported(host):
+            try:
+                badfish.boot_to_type(
+                    "foreman",
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "../../conf/idrac_interfaces.yml"
+                    )
                 )
-            )
-            badfish.reboot_server()
-        except SystemExit:
-            if is_supermicro(host):
-                logger.warning("Badfish not yet supported on Supermicro: %s." % host)
-            else:
-                logger.exception("There was something wrong setting next PXE boot via Badfish.")
+                badfish.reboot_server()
+            except:
+                logger.exception("Error setting PXE boot via Badfish on: %s." % host)
                 return False
+        else:
+            if is_supermicro(host):
+                logger.warning("SuperMicro not supported by Badfish for: %s." % host)
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())

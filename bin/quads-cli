@@ -329,7 +329,10 @@ def main(_args):
                     if not _args.dryrun:
                         try:
                             if _args.movecommand == default_move_command:
-                                move_and_rebuild(host, current, new, wipe_value)
+                                try:
+                                    move_and_rebuild(host, current, new, wipe_value)
+                                except:
+                                    logger.exception('Error moving %s from %s to %s' % (host, current, new))
                             else:
                                 if wipe_value:
                                     subprocess.check_call([args.movecommand, host, current, new])
