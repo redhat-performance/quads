@@ -1,6 +1,6 @@
 from mongoengine import ObjectIdField
 
-from quads.config import SUPPORTED, SUPERMICROS, OFFSETS
+from quads.config import SUPPORTED, SUPERMICRO, OFFSETS
 
 
 def param_check(data, params, defaults={}):
