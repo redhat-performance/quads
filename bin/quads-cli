@@ -20,6 +20,7 @@ import logging
 from collections import defaultdict
 
 import requests
+import signal
 import subprocess
 import sys
 import os
@@ -35,6 +36,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 def output_json_result(request, data):
