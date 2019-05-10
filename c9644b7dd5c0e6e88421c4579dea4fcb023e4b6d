@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9589381_9b9db66a",
+        "filename": "quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-05-10T17:40:16Z",
+      "side": 1,
+      "message": "I rather go for a mongo approach, something like (not sure about this one):\nHost.objects.order_by(\u0027name\u0027)",
+      "range": {
+        "startLine": 18,
+        "startChar": 15,
+        "endLine": 18,
+        "endChar": 59
+      },
+      "revId": "c9644b7dd5c0e6e88421c4579dea4fcb023e4b6d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
