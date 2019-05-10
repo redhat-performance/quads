@@ -149,7 +149,7 @@ def main(_args):
         elif _args.action in ['host', 'cloud']:
             entries = quads.get(_args.action)
             if entries and "result" not in entries:
-                for entry in entries:
+                for entry in sorted(entries, key=lambda k: k['name']):
                     logger.info(entry['name'])
             elif "result" in entries:
                 logger.info(entries['result'])

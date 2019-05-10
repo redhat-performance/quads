@@ -94,7 +94,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                 _cloud = model.Cloud.objects(name=data["cloud"]).first()
                 _host = model.Host.objects(cloud=_cloud)
             else:
-                _host = sorted(model.Host.objects(), key=lambda x: x.name)
+                _host = model.Host.objects()
             if not _host:
                 return json.dumps({'result': ["Nothing to do."]})
             return _host.to_json()
