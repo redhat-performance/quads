@@ -28,7 +28,7 @@ def main():
         file_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (_date.year, _date.month))
         with open(file_path, "w+") as _file:
             _file.write(content)
-        os.chmod(file_path, 644)
+        os.chmod(file_path, 0o644)
 
     _current = os.path.join(conf["visual_web_dir"], "current.html")
     _next = os.path.join(conf["visual_web_dir"], "next.html")
