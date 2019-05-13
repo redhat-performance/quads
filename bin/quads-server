@@ -81,7 +81,9 @@ def main():
     _conf = {
         '/': {
             'tools.sessions.on': True,
-            'tools.staticdir.root': os.path.abspath(os.getcwd())
+            'tools.staticdir.root': os.path.abspath(os.getcwd()),
+            'tools.caching.on': False,
+            'tools.caching.delay': 100,
         },
         '/api': {
             'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
