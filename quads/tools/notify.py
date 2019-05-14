@@ -168,7 +168,7 @@ def main():
             future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
 
             diff = set(current_hosts) - set(future_hosts)
-            if diff and future < current_hosts[0].end:
+            if diff and future > current_hosts[0].end:
                 if not notification_obj[day.name.lower()] and conf["email_notify"]:
                     logger.info('=============== Additional Message')
                     host_list = [schedule.host.name for schedule in diff]
@@ -206,24 +206,27 @@ def main():
                 )
                 notification_obj.update(pre_initial=True)
 
-            if not notification_obj.pre and cloud.validated:
-                future = datetime.now() + timedelta(days=future_days)
-                future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-                future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
+            for day in range(1, future_days + 1):
+                if not notification_obj.pre and cloud.validated:
+                    future = datetime.now() + timedelta(days=day)
+                    future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
+                    future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
 
-                diff = set(current_hosts) - set(future_hosts)
-                host_list = [schedule.host.name for schedule in diff]
-                if diff:
-                    logger.info('=============== Additional Message')
-                    create_future_message(
-                        cloud.owner,
-                        future_days,
-                        cloud.name,
-                        cloud_info,
-                        cloud.ccuser,
-                        host_list,
-                    )
-                    notification_obj.update(pre=True)
+                    if future_hosts.count() > 0:
+                        diff = set(current_hosts) - set(future_hosts)
+                        host_list = [schedule.host.name for schedule in diff]
+                        if diff:
+                            logger.info('=============== Additional Message')
+                            create_future_message(
+                                cloud.owner,
+                                day,
+                                cloud.name,
+                                cloud_info,
+                                cloud.ccuser,
+                                host_list,
+                            )
+                            notification_obj.update(pre=True)
+                            break
 
 
 if __name__ == "__main__":
