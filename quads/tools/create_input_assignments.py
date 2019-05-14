@@ -256,7 +256,7 @@ def main():
         lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
         lines.extend(print_header())
         _cloud_obj = Cloud.objects(name=name).first()
-        _hosts = Host.objects(cloud=_cloud_obj)
+        _hosts = sorted(Host.objects(cloud=_cloud_obj), key=lambda x: x.name)
         for host in _hosts:
             lines.extend(add_row(host))
         lines.append("\n")
