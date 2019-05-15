@@ -249,7 +249,9 @@ class Schedule(Document):
         return True
 
     @queryset_manager
-    def current_schedule(self, queryset, date=datetime.now(), host=None, cloud=None):
+    def current_schedule(self, queryset, date=None, host=None, cloud=None):
+        if not date:
+            date = datetime.now()
         _query = Q(start__lte=date) & Q(end__gte=date)
         if host:
             _query = _query & Q(host=host)
