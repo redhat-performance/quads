@@ -216,3 +216,8 @@ pdu_management: false
 # Setting this to false will prevent quads from generating and
 # displaying instack env json files on quads wiki
 openstack_management: false
+
+# Validation grace period in minutes
+# This gives the validation logic some time for the hosts to complete
+# provisioning. Value in minutes.
+validation_grace_period: 120

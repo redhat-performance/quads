@@ -4,7 +4,7 @@ import logging
 import os
 import socket
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from requests import RequestException
 
 from jinja2 import Template
@@ -170,5 +170,9 @@ class Validator(object):
 if __name__ == "__main__":
     clouds = Cloud.objects(provisioned=True, validated=False, name__ne="cloud01")
     for _cloud in clouds:
-        validator = Validator(_cloud)
-        validator.validate_env()
+        _hosts_total = Host.objects(cloud=_cloud).count()
+        _delta = datetime.now() - timedelta(minutes=conf["validation_grace_period"])
+        _hosts_built = Host.objects(cloud=_cloud, last_build__lte=_delta).count()
+        if _hosts_built == _hosts_total:
+            validator = Validator(_cloud)
+            validator.validate_env()
