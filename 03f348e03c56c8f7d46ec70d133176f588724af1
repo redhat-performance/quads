@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "487c73dd_d937bcaa",
+        "filename": "conf/vlans.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-05-17T13:33:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c61479e1_e261c1a7",
+      "range": {
+        "startLine": 80,
+        "startChar": 2,
+        "endLine": 80,
+        "endChar": 13
+      },
+      "revId": "03f348e03c56c8f7d46ec70d133176f588724af1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5cd1208a_d0cfeeff",
         "filename": "quads/model.py",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9fb8ddd1_486d6c2c",
+        "filename": "quads/model.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-05-17T13:33:26Z",
+      "side": 1,
+      "message": "That\u0027s what these 2 lines do. :D\nUser will receive the msg below if he puts a bad vlan_id.",
+      "parentUuid": "5cd1208a_d0cfeeff",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 125,
+        "endChar": 28
+      },
+      "revId": "03f348e03c56c8f7d46ec70d133176f588724af1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57fad6d3_9c1b3776",
         "filename": "quads/tools/regenerate_wiki.py",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2019-05-17T12:34:57Z",
       "side": 1,
       "message": "Do we really want the overhead here of running this when the only time it needs to be updated is at time of cloud defining?",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 27
+      },
+      "revId": "03f348e03c56c8f7d46ec70d133176f588724af1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2181501_6387392e",
+        "filename": "quads/tools/regenerate_wiki.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-05-17T13:33:26Z",
+      "side": 1,
+      "message": "Good question!\nTurns out we should also update the vlans wiki when a cloud assignment finished since we can assume that public vlan has no longer use.\nIn terms of the overhead, we don\u0027t really want to put this on define-cloud neither, seems costly for such operation, and given that this is a background process here, I don\u0027t see overhead as a worry.",
+      "parentUuid": "57fad6d3_9c1b3776",
       "range": {
         "startLine": 67,
         "startChar": 4,
