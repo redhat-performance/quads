@@ -2,9 +2,8 @@
 
 from quads.tools.racks_wiki import update_wiki
 from quads.config import conf as quads_config
-from quads.model import Vlan, Cloud
+from quads.model import Vlan, Cloud, Schedule
 from tempfile import NamedTemporaryFile
-from mongoengine.errors import DoesNotExist
 
 
 HEADERS = [
@@ -30,19 +29,21 @@ def render_vlans(markdown):
     lines = []
     vlans = Vlan.objects().all()
     for vlan in vlans:
+        cloud_obj = Cloud.objects(vlan=vlan).first()
         vlan_id = vlan.vlan_id
         ip_range = vlan.ip_range
         netmask = vlan.netmask
         gateway = vlan.gateway
         ip_free = vlan.ip_free
-        owner = vlan.owner
-        rt_ticket = vlan.ticket
-        cloud_name = ""
-        try:
-            if vlan.cloud:
-                cloud_name = Cloud.objects(id=vlan.cloud.id).first().name
-        except DoesNotExist:
-            pass
+        cloud_current_count = Schedule.current_schedule(cloud=cloud_obj).count()
+        if cloud_obj and cloud_current_count > 0:
+            owner = cloud_obj.owner
+            rt_ticket = cloud_obj.ticket
+            cloud_name = cloud_obj.name
+        else:
+            owner = "nobody"
+            rt_ticket = ""
+            cloud_name = ""
 
         columns = [
             vlan_id,

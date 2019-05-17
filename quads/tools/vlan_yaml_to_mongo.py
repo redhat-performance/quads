@@ -4,7 +4,7 @@ import logging
 import argparse
 import yaml
 
-from quads.model import Vlan, Cloud
+from quads.model import Vlan
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -27,16 +27,8 @@ def main(_args):
         if vlans:
             for vlan, properties in vlans.items():
                 vlan_obj = Vlan.objects(vlan_id=properties["vlanid"]).first()
-                cloud_name = "cloud0%s" % properties["cloud"] if int(properties["cloud"]) < 10 \
-                    else "cloud%s" % properties["cloud"]
-                cloud_obj = Cloud.objects(name=cloud_name).first()
                 result, data = Vlan.prep_data(properties)
-                if not result:
-                    if cloud_obj:
-                        data["cloud"] = cloud_obj
-                    else:
-                        data.pop("cloud")
-                else:
+                if result:
                     logger.error("Failed to validate all fields")
                     exit(1)
                 if vlan_obj:
