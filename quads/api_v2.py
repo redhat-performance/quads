@@ -9,7 +9,6 @@ from quads import model
 from mongoengine.errors import DoesNotExist
 from quads.config import conf, QUADSVERSION, QUADSCODENAME
 from quads.tools.foreman import Foreman
-from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 logger = logging.getLogger()
 
@@ -175,9 +174,6 @@ class DocumentMethodHandler(MethodHandlerBase):
         if 'force' in data:
             del data['force']
 
-        _vlan = None
-        if 'vlan' in data:
-            _vlan = data.pop("vlan")
         # make sure post data passed in is ready to pass to mongo engine
         result, obj_data = self.model.prep_data(data)
 
@@ -216,20 +212,6 @@ class DocumentMethodHandler(MethodHandlerBase):
                         notification_obj = model.Notification.objects(cloud=cloud_obj, ticket=data["ticket"]).first()
                         if not notification_obj:
                             model.Notification(cloud=cloud_obj, ticket=data["ticket"]).save()
-
-                        if _vlan:
-                            update_data = {}
-                            vlan_obj = model.Vlan.objects(vlan_id=_vlan).first()
-                            update_data["cloud"] = self.model.objects(name=data["name"]).first()
-                            if "owner" in data:
-                                update_data["owner"] = data["owner"]
-                            if "ticket" in data:
-                                update_data["ticket"] = data["ticket"]
-                            if vlan_obj:
-                                vlan_obj.update(**update_data)
-                                regenerate_vlans_wiki()
-                            else:
-                                result.append("WARN: No VLAN reference for that ID")
 
                         history_result, history_data = model.CloudHistory.prep_data(data)
                         if history_result:

@@ -5,7 +5,7 @@ from datetime import datetime
 from git import Repo, InvalidGitRepositoryError
 from quads.config import conf
 from quads.tools import create_input, create_input_assignments, racks_wiki
-
+from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 wp_wiki = conf["wp_wiki"]
 wp_username = conf["wp_username"]
@@ -63,3 +63,5 @@ if __name__ == "__main__":
         _page_id=wp_wiki_assignments_page_id,
         _markdown=assignments_md,
     )
+
+    regenerate_vlans_wiki()

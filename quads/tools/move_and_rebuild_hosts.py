@@ -36,7 +36,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
 
     logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
-    _public_vlan_obj = Vlan.objects(cloud=_new_cloud_obj).first()
     for i, interface in enumerate(_host_obj.interfaces):
         ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
@@ -50,15 +49,15 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         new_vlan = get_vlan(_new_cloud_obj, i)
 
-        if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
+        if _new_cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
             logger.info("Setting last interface to public vlan %s." % new_vlan)
 
-            if int(old_vlan) != int(_public_vlan_obj.vlan_id):
+            if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
                 success = juniper_convert_port_public(
                     interface.ip_address,
                     interface.switch_port,
                     str(old_vlan),
-                    str(_public_vlan_obj.vlan_id)
+                    str(_new_cloud_obj.vlan.vlan_id)
                 )
                 if success:
                     logger.info("Successfully updated switch settings.")
@@ -79,11 +78,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 else:
                     logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
                     return False
-
-        if i == len(_host_obj.interfaces) - 1:
-            _old_vlan_obj = Vlan.objects(cloud=_old_cloud_obj).first()
-            if _old_vlan_obj:
-                _old_vlan_obj.update(cloud=None)
 
         ssh_helper.disconnect()
 
