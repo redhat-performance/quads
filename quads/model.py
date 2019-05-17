@@ -1,3 +1,4 @@
+import ipaddress
 from datetime import datetime
 from mongoengine import (
     connect,
@@ -25,6 +26,40 @@ connect(
 )
 
 
+class Vlan(Document):
+    gateway = StringField()
+    ip_free = IntField()
+    ip_range = StringField()
+    netmask = StringField()
+    vlan_id = LongField()
+    meta = {
+        'indexes': [
+            {
+                'fields': ['$vlan_id']
+            }
+        ],
+        'strict': False
+    }
+
+    @staticmethod
+    def prep_data(data):
+        _fields = [
+            'gateway',
+            'ip_range',
+            'vlan_id',
+        ]
+        if 'iprange' in data:
+            data['ip_range'] = data.pop('iprange')
+        if 'vlanid' in data:
+            data['vlan_id'] = data.pop('vlanid')
+        ip_address = ipaddress.ip_network(data["ip_range"])
+        data['netmask'] = str(ip_address.netmask)
+        data['ip_free'] = ip_address.num_addresses - 2
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
 class CloudHistory(Document):
     name = StringField()
     description = StringField()
@@ -33,6 +68,7 @@ class CloudHistory(Document):
     qinq = BooleanField()
     wipe = BooleanField()
     ccuser = ListField()
+    vlan_id = LongField()
     meta = {
         'indexes': [
             {
@@ -70,9 +106,8 @@ class Cloud(Document):
     wipe = BooleanField(default=True)
     ccuser = ListField()
     provisioned = BooleanField(default=False)
-    # TODO: Remove 'released' field after 451493_accommodate.py execution
-    released = BooleanField()
     validated = BooleanField(default=False)
+    vlan = ReferenceField(Vlan)
     meta = {
         'indexes': [
             {
@@ -84,8 +119,11 @@ class Cloud(Document):
 
     @staticmethod
     def prep_data(data):
-        if 'vlan' in data:
-            data.pop('vlan')
+        if 'vlan' in data and data['vlan']:
+            vlan_id = data.pop('vlan')
+            vlan_obj = Vlan.objects(vlan_id=vlan_id).first()
+            if not vlan_obj:
+                return ["No VLAN object defined with id: %s" % vlan_id], {}
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
         if 'qinq' in data:
@@ -109,45 +147,6 @@ class Notification(Document):
     three_days = BooleanField(default=False)
     five_days = BooleanField(default=False)
     seven_days = BooleanField(default=False)
-
-
-class Vlan(Document):
-    gateway = StringField()
-    ip_free = IntField()
-    ip_range = StringField()
-    netmask = StringField()
-    owner = StringField()
-    ticket = StringField()
-    vlan_id = LongField()
-    cloud = ReferenceField(Cloud)
-    meta = {
-        'indexes': [
-            {
-                'fields': ['$vlan_id']
-            }
-        ],
-        'strict': False
-    }
-
-    @staticmethod
-    def prep_data(data):
-        _fields = [
-            'gateway',
-            'ip_free',
-            'ip_range',
-            'netmask',
-            'owner',
-            'vlan_id',
-        ]
-        if 'ipfree' in data:
-            data['ip_free'] = data.pop('ipfree')
-        if 'iprange' in data:
-            data['ip_range'] = data.pop('iprange')
-        if 'vlanid' in data:
-            data['vlan_id'] = data.pop('vlanid')
-        result, data = param_check(data, _fields)
-
-        return result, data
 
 
 class Interface(EmbeddedDocument):

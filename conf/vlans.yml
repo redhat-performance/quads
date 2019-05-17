@@ -1,181 +1,83 @@
+# Data file for populating MongoDB with public vlan definitions
+# to be used as input for vlan_yaml_to_mongo.py
+
 pubnet01:
-  cloud: 1
   gateway: 10.12.81.254
-  ipfree: 510
   iprange: 10.12.80.0/23,
-  netmask: 255.255.254.0
-  owner: me
-  ticket: 0
   vlanid: 601
 pubnet02:
-  cloud: 2
   gateway: 10.12.83.254
-  ipfree: 510
   iprange: 10.12.82.0/23,
-  netmask: 255.255.254.0
-  owner: nobody
-  ticket: 0
   vlanid: 602
 pubnet03:
-  cloud: 3
   gateway: 10.12.84.254
-  ipfree: 254
   iprange: 10.12.84.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 603
 pubnet04:
-  cloud: 4
   gateway: 10.12.85.254
-  ipfree: 254
   iprange: 10.12.85.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 604
 pubnet05:
-  cloud: 5
   gateway: 10.12.86.254
-  ipfree: 254
   iprange: 10.12.86.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 605
 pubnet06:
-  cloud: 6
   gateway: 10.12.87.254
-  ipfree: 254
   iprange: 10.12.87.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 606
 pubnet07:
-  cloud: 7
   gateway: 10.12.88.254
-  ipfree: 254
   iprange: 10.12.88.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 607
 pubnet08:
-  cloud: 08
   gateway: 10.12.89.254
-  ipfree: 254
   iprange: 10.12.89.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 608
 pubnet09:
-  cloud: 09
   gateway: 10.12.90.254
-  ipfree: 254
   iprange: 10.12.90.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 609
 pubnet10:
-  cloud: 10
   gateway: 10.12.91.254
-  ipfree: 254
   iprange: 10.12.91.0/24,
-  netmask: 255.255.255.0
-  owner: nobody
-  ticket: 0
   vlanid: 610
 pubnet11:
-  cloud: 11
   gateway: 10.12.92.126
-  ipfree: 126
   iprange: 10.12.92.0/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 611
 pubnet12:
-  cloud: 12
   gateway: 10.12.92.254
-  ipfree: 126
   iprange: 10.12.92.128/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 612
 pubnet13:
-  cloud: 13
   gateway: 10.12.93.126
-  ipfree: 126
   iprange: 10.12.93.0/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 613
 pubnet14:
-  cloud: 14
   gateway: 10.12.93.254
-  ipfree: 126
   iprange: 10.12.93.128/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 614
 pubnet15:
-  cloud: 15
   gateway: 10.12.94.126
-  ipfree: 126
   iprange: 10.12.94.0/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 615
 pubnet16:
-  cloud: 16
   gateway: 10.12.94.254
-  ipfree: 126
   iprange: 10.12.94.128/25,
-  netmask: 255.255.255.128
-  owner: nobody
-  ticket: 0
   vlanid: 616
 pubnet17:
-  cloud: 17
   gateway: 10.12.95.62
-  ipfree: 62
   iprange: 10.12.95.0/26,
-  netmask: 255.255.255.192
-  owner: nobody
-  ticket: 0
   vlanid: 617
 pubnet18:
-  cloud: 18
   gateway: 10.12.95.126
-  ipfree: 62
   iprange: 10.12.95.64/26,
-  netmask: 255.255.255.192
-  owner: nobody
-  ticket: 0
   vlanid: 618
 pubnet19:
-  cloud: 19
   gateway: 10.12.95.190
-  ipfree: 62
   iprange: 10.12.95.128/26,
-  netmask: 255.255.255.192
-  owner: nobody
-  ticket: 0
   vlanid: 619
 pubnet20:
-  cloud: 20
   gateway: 10.12.95.254
-  ipfree: 62
   iprange: 10.12.95.192/26,
-  netmask: 255.255.255.192
-  owner: nobody
-  ticket: 0
   vlanid: 620
-
