@@ -5,8 +5,6 @@ import os
 import socket
 
 from datetime import datetime, timedelta
-from requests import RequestException
-
 from jinja2 import Template
 from quads.config import conf, TEMPLATES_PATH, TOLERANCE, API_URL, INTERFACES
 from quads.quads import Api
@@ -73,14 +71,15 @@ class Validator(object):
         )
 
         quads = Api(API_URL)
-        try:
-            build_hosts = foreman.get_build_hosts()
-        except RequestException:
+
+        if not foreman.verify_credentials():
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % self.cloud.ticket)
             self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
             self.report = self.report + "Verify Foreman password is correct: %s\n" % self.cloud.ticket
             return False
+
+        build_hosts = foreman.get_build_hosts()
 
         pending = []
         schedules = quads.get_current_schedule(cloud=self.cloud.name)
@@ -160,10 +159,12 @@ class Validator(object):
 
         # TODO: quads dell config report
 
-        self.notify_success()
-        notification_obj.update(success=True, fail=False)
+        if not failed:
+            self.notify_success()
+            notification_obj.update(success=True, fail=False)
 
-        self.cloud.update(validated=True)
+            self.cloud.update(validated=True)
+
         return
 
 

@@ -26,21 +26,19 @@ class Foreman(object):
                 verify=False
 
             )
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("There was something wrong with your request.")
+        except RequestException:
+            logger.exception("There was something wrong with your request.")
             return {}
         return response.json()
 
     def get_obj_dict(self, endpoint, identifier="name"):
         response_json = self.get(endpoint)
+        objects = {}
         if "results" in response_json:
             objects = {
                 _object[identifier]: _object
                 for _object in response_json["results"]
             }
-        else:
-            objects = {}
         return objects
 
     def set_host_parameter(self, host_name, name, value):
@@ -148,6 +146,22 @@ class Foreman(object):
         if param_id:
             self.put_parameter(host, "%s_id" % put_name, param_id)
             self.put_parameter(host, "%s_name" % put_name, value)
+            return True
+        return False
+
+    def verify_credentials(self):
+        endpoint = "status"
+        logger.debug("GET: %s" % endpoint)
+        try:
+            response = requests.get(
+                self.url + endpoint,
+                auth=(self.username, self.password),
+                verify=False
+            )
+        except RequestException:
+            logger.exception("There was something wrong with your request.")
+            return False
+        if response.status_code == 200:
             return True
         return False
 
