@@ -540,13 +540,18 @@ class Badfish:
         _url = "%s%s" % (self.root_uri, self.bios_uri)
         _payload = {"Attributes": {"OneTimeBootMode": "OneTimeBootSeq", "OneTimeBootSeqDev": device}}
         _headers = {"content-type": "application/json"}
-        _response = self.patch_request(_url, _payload, _headers)
-        status_code = _response.status_code
-        if status_code == 200:
-            logger.info("Command passed to set BIOS attribute pending values.")
-        else:
-            logger.error("Command failed, error code is: %s." % status_code)
-            self.error_handler(_response)
+        for i in range(self.retries):
+            _response = self.patch_request(_url, _payload, _headers)
+            status_code = _response.status_code
+            if status_code == 200:
+                logger.info("Command passed to set BIOS attribute pending values.")
+            else:
+                logger.error("Command failed, error code is: %s." % status_code)
+                if status_code == 503 and i - 1 != self.retries:
+                    logger.info("Retrying to send one time boot.")
+                    continue
+                else:
+                    self.error_handler(_response)
 
     def check_boot(self, _interfaces_path):
         if _interfaces_path:
