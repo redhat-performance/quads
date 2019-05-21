@@ -7,7 +7,7 @@ from datetime import datetime
 
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
-from quads.model import Host, Cloud, Vlan
+from quads.model import Host, Cloud
 from quads.tools.badfish import Badfish
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -15,7 +15,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
@@ -144,9 +144,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                         "../../conf/idrac_interfaces.yml"
                     )
                 )
-            except SystemExit as ex:
-                logger.debug(ex)
-                logger.error("Could not set boot order via Badfish.")
+            except SystemExit:
+                logger.exception("Could not set boot order via Badfish.")
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
@@ -177,7 +176,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                     )
                 )
                 badfish.reboot_server()
-            except:
+            except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
                 return False
         else:
@@ -190,3 +189,4 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
+    return True
