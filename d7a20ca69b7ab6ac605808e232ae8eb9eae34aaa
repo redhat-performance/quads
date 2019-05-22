@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "836e765e_d60dabbe",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2019-05-22T12:55:53Z",
+      "side": 1,
+      "message": "I think you want an \"and\" here, not \"or\".  Otherwise you will never attempt to run move_and_rebuild() as the interpreter will stop evaluating the right of the \"or\" operation since provisioned starts off as \"True\"",
+      "revId": "d7a20ca69b7ab6ac605808e232ae8eb9eae34aaa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
