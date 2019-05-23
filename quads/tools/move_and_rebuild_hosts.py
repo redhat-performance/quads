@@ -15,7 +15,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
