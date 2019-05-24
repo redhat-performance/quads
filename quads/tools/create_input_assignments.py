@@ -147,8 +147,8 @@ def print_unmanaged(hosts, broken_hosts):
     lines.append("| %s |\n" % " | ".join(_headers))
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
-        if not broken_hosts.get(host, False):
-            real_host = host[5:]
+        real_host = host[5:]
+        if not broken_hosts.get(real_host, False):
             short_host = real_host.split(".")[0]
 
             _host_response = requests.get(os.path.join(API_URL, "host?name=%s" % real_host))
