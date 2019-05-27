@@ -80,19 +80,12 @@ class CloudHistory(Document):
 
     @staticmethod
     def prep_data(data):
-        defaults = {
-            'owner': 'quads',
-            'ccuser': [],
-            'ticket': '000000',
-            'qinq': False,
-            'wipe': True,
-        }
         for flag in ['provisioned', 'validated']:
             if flag in data:
                 data.pop(flag)
 
-        params = ['name', 'description', 'owner', 'ticket', 'wipe']
-        result, data = param_check(data, params, defaults)
+        params = ['name', 'description', 'owner', 'ticket']
+        result, data = param_check(data, params)
 
         return result, data
 

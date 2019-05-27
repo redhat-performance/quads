@@ -195,11 +195,28 @@ class DocumentMethodHandler(MethodHandlerBase):
                 try:
                     # if force and found object do an update
                     if force and obj:
-                        # TODO: DEFAULTS OVERWRITE EXISTING VALUES
-                        obj.update(**obj_data)
-                        result.append(
-                            'Updated %s %s' % (self.name, obj_name)
-                        )
+                        schedule_count = 0
+                        if self.name == "cloud":
+                            schedule_count = model.Schedule.objects(cloud=obj, start__lte=datetime.datetime.now()).count()
+                            notification_obj = model.Notification.objects(cloud=obj, ticket=data["ticket"]).first()
+                            if not notification_obj:
+                                model.Notification(cloud=obj, ticket=data["ticket"]).save()
+
+                            history_result, history_data = model.CloudHistory.prep_data(data)
+                            if history_result:
+                                result.append('Data validation failed: %s' % ', '.join(history_result))
+                                cherrypy.response.status = "400 Bad Request"
+                            else:
+                                model.CloudHistory(**history_data).save()
+
+                        if schedule_count > 0:
+                            result.append("Can't redefine cloud due to future use.")
+                            cherrypy.response.status = "400 Bad Request"
+                        else:
+                            obj.update(**obj_data)
+                            result.append(
+                                'Updated %s %s' % (self.name, obj_name)
+                            )
                     # otherwise create it
                     else:
                         self.model(**obj_data).save()
@@ -207,18 +224,6 @@ class DocumentMethodHandler(MethodHandlerBase):
                         result.append(
                             'Created %s %s' % (self.name, obj_name)
                         )
-                    if self.name == "cloud":
-                        cloud_obj = self._get_obj(obj_name)
-                        notification_obj = model.Notification.objects(cloud=cloud_obj, ticket=data["ticket"]).first()
-                        if not notification_obj:
-                            model.Notification(cloud=cloud_obj, ticket=data["ticket"]).save()
-
-                        history_result, history_data = model.CloudHistory.prep_data(data)
-                        if history_result:
-                            result.append('Data validation failed: %s' % ', '.join(history_result))
-                            cherrypy.response.status = "400 Bad Request"
-                        else:
-                            model.CloudHistory(**history_data).save()
                 except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
