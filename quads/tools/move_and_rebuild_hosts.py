@@ -113,8 +113,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     ]
     logger.debug("ipmi_set_operator: %s" % ipmi_set_operator)
     subprocess.call(ipmi_set_operator)
-    if _new_cloud_obj.name == "cloud01":
-        _old_cloud_obj.update(vlan=None)
     if rebuild and _new_cloud_obj.name != "cloud01":
         badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
 
