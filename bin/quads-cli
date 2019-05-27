@@ -324,17 +324,14 @@ def main(_args):
                     host = result['host']
                     current = result['current']
                     new = result['new']
-                    cloud = quads.get_clouds(name=new)
-                    wipe_value = 1
-                    if cloud:
-                        wipe_value = int(cloud["wipe"])
-                    logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, wipe_value))
+                    cloud = Cloud.objects(name=new)
+                    logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, cloud.wipe))
                     if not _args.dryrun:
                         try:
                             if _args.movecommand == default_move_command:
-                                provisioned = provisioned and move_and_rebuild(host, current, new, wipe_value)
+                                provisioned = provisioned and move_and_rebuild(host, current, new, cloud.wipe)
                             else:
-                                if wipe_value:
+                                if cloud.wipe:
                                     subprocess.check_call([args.movecommand, host, current, new])
                                 else:
                                     subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
@@ -353,19 +350,19 @@ def main(_args):
 
     elif _args.host:
         _host = Host.objects(name=_args.host).first()
-        _kwargs = {"host": _host}
-        if _args.datearg:
-            _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
-        if _kwargs["host"]:
+        if _host:
+            _kwargs = {"host": _host}
+            if _args.datearg:
+                _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
             schedules = Schedule.current_schedule(**_kwargs)
+            if schedules:
+                for schedule in schedules:
+                    logger.info(schedule.cloud.name)
+            else:
+                logger.info(_host.cloud.name)
         else:
             logger.info('Unknown host: %s' % _args.host)
             exit(1)
-        if schedules:
-            for schedule in schedules:
-                logger.info(schedule.cloud.name)
-        else:
-            logger.info(_host.cloud.name)
 
         exit(0)
 
@@ -446,7 +443,8 @@ if __name__ == '__main__':
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
     parser.add_argument('--qinq', dest='qinq', type=str, default=None, help='Define environment qinq state')
-    parser.add_argument('--wipe', dest='wipe', type=str, default=None, help='Define environment wipe state')
+    parser.add_argument('--no-wipe', dest='wipe', action='store_false',
+                        help='Define no wipe for safeguarding data after assignment')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')
     parser.add_argument('--description', dest='description', type=str, default=None,
                         help='Defined description of cloud')
