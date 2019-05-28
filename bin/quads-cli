@@ -335,7 +335,7 @@ def main(_args):
                     host = result['host']
                     current = result['current']
                     new = result['new']
-                    cloud = Cloud.objects(name=new)
+                    cloud = Cloud.objects(name=new).first()
                     logger.info('Moving %s from %s to %s, wipe = %s' % (host, current, new, cloud.wipe))
                     if not _args.dryrun:
                         try:
