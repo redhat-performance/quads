@@ -162,7 +162,7 @@ class Badfish:
 
         data = _response.json()
         data = str(data)
-        job_queue = re.findall("JID_.+?'", data)
+        job_queue = re.findall("[JR]ID_.+?'", data)
         jobs = [job.strip("}").strip("\"").strip("'") for job in job_queue]
         return jobs
 
@@ -428,7 +428,7 @@ class Badfish:
             self.error_handler(_response)
 
         convert_to_string = str(_response.__dict__)
-        job_id_search = re.search("JID_.+?,", convert_to_string).group()
+        job_id_search = re.search("[RJ]ID_.+?,", convert_to_string).group()
         _job_id = re.sub("[,']", "", job_id_search).strip("}").strip("\"").strip("'")
         logger.info("%s job ID successfully created." % _job_id)
         return _job_id
@@ -547,7 +547,7 @@ class Badfish:
                 logger.info("Command passed to set BIOS attribute pending values.")
             else:
                 logger.error("Command failed, error code is: %s." % status_code)
-                if status_code == 503 and i - 1 != self.retries:
+                if status_code in [503, 400] and i - 1 != self.retries:
                     logger.info("Retrying to send one time boot.")
                     continue
                 else:

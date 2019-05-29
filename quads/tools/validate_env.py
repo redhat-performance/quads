@@ -169,11 +169,11 @@ class Validator(object):
 
 
 if __name__ == "__main__":
-    clouds = Cloud.objects(provisioned=True, validated=False, name__ne="cloud01")
+    clouds = Cloud.objects(validated=False, name__ne="cloud01")
     for _cloud in clouds:
         _hosts_total = Host.objects(cloud=_cloud).count()
         _delta = datetime.now() - timedelta(minutes=conf["validation_grace_period"])
-        _hosts_built = Host.objects(cloud=_cloud, last_build__lte=_delta).count()
-        if _hosts_built == _hosts_total:
+        _schedule_count = Schedule.objects(cloud=_cloud, start__lte=_delta, end__gte=datetime.now()).count()
+        if _schedule_count:
             validator = Validator(_cloud)
             validator.validate_env()
