@@ -25,8 +25,6 @@ def verify(_cloud_name, change=False):
         _host_obj = Host.objects(name=_host["name"]).first()
         if _host_obj.interfaces:
 
-            _public_vlan_obj = Vlan.objects(cloud=_cloud_obj).first()
-
             for i, interface in enumerate(_host_obj.interfaces):
                 ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
                 vlan = get_vlan(_cloud_obj, i)
@@ -62,8 +60,8 @@ def verify(_cloud_name, change=False):
                 if int(old_vlan) != int(vlan):
                     logger.warning("interface %s not using QinQ_vl%s", interface.switch_port, vlan)
 
-                if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
-                    vlan = _public_vlan_obj.vlan_id
+                if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
+                    vlan = _cloud_obj.vlan.vlan_id
 
                 if int(vlan_member) != int(vlan):
                     logger.warning(
@@ -76,8 +74,8 @@ def verify(_cloud_name, change=False):
                     if change:
                         logger.info('=== INFO: change requested')
 
-                        if _public_vlan_obj and i == len(_host_obj.interfaces) - 1:
-                            logger.info("Setting last interface to public vlan %s." % _public_vlan_obj.vlan_id)
+                        if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
+                            logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
 
                             success = juniper_convert_port_public(
                                 interface.ip_address,
