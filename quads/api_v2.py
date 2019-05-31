@@ -197,7 +197,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                     if force and obj:
                         schedule_count = 0
                         if self.name == "cloud":
-                            schedule_count = model.Schedule.objects(cloud=obj, start__lte=datetime.datetime.now()).count()
+                            schedule_count = model.Schedule.objects(cloud=obj, start__gte=datetime.datetime.now()).count()
                             notification_obj = model.Notification.objects(cloud=obj, ticket=data["ticket"]).first()
                             if not notification_obj:
                                 model.Notification(cloud=obj, ticket=data["ticket"]).save()
