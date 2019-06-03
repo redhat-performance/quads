@@ -388,9 +388,20 @@ def main(_args):
             for schedule in schedules:
                 logger.info(schedule.host.name)
         else:
-            _hosts = Host.objects(cloud=_cloud)
-            for host in _hosts:
-                logger.info(host.name)
+            if _kwargs["date"] and _args.cloudonly == "cloud01":
+                data = {
+                    "start": _kwargs["date"],
+                    "end": _kwargs["date"],
+                }
+
+                available_hosts = quads.get_available(**data)
+
+                for host in available_hosts:
+                    logger.info(host)
+            else:
+                _hosts = Host.objects(cloud=_cloud)
+                for host in _hosts:
+                    logger.info(host.name)
 
         exit(0)
 
