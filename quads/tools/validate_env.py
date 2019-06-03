@@ -6,7 +6,7 @@ import socket
 
 from datetime import datetime, timedelta
 from jinja2 import Template
-from quads.config import conf, TEMPLATES_PATH, TOLERANCE, API_URL, INTERFACES
+from quads.config import conf, TEMPLATES_PATH, API_URL, INTERFACES
 from quads.quads import Api
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.foreman import Foreman
@@ -59,7 +59,7 @@ class Validator(object):
         now = datetime.now()
         schedule = Schedule.objects(cloud=self.cloud, start__lt=now).first()
         time_delta = now - schedule.start
-        if time_delta.seconds > TOLERANCE:
+        if time_delta.minutes > conf["validation_grace_period"]:
             return True
         return False
 
@@ -142,28 +142,26 @@ class Validator(object):
         ).first()
         failed = False
 
-        if not self.post_system_test():
-            if self.env_allocation_time_exceeded():
+        if self.env_allocation_time_exceeded():
+            if not self.post_system_test():
                 failed = True
 
-        if not self.post_network_test():
-            if self.env_allocation_time_exceeded():
+            if not self.post_network_test():
                 failed = True
+
+            # TODO: gather ansible-cmdb facts
+
+            # TODO: quads dell config report
+
+            if not failed and not notification_obj.sucess:
+                self.notify_success()
+                notification_obj.update(success=True, fail=False)
+
+                self.cloud.update(validated=True)
 
         if failed and not notification_obj.fail:
             self.notify_failure()
             notification_obj.update(fail=True)
-            return
-
-        # TODO: gather ansible-cmdb facts
-
-        # TODO: quads dell config report
-
-        if not failed:
-            self.notify_success()
-            notification_obj.update(success=True, fail=False)
-
-            self.cloud.update(validated=True)
 
         return
 
@@ -172,8 +170,7 @@ if __name__ == "__main__":
     clouds = Cloud.objects(validated=False, name__ne="cloud01")
     for _cloud in clouds:
         _hosts_total = Host.objects(cloud=_cloud).count()
-        _delta = datetime.now() - timedelta(minutes=conf["validation_grace_period"])
-        _schedule_count = Schedule.objects(cloud=_cloud, start__lte=_delta, end__gte=datetime.now()).count()
+        _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
         if _schedule_count:
             validator = Validator(_cloud)
             validator.validate_env()
