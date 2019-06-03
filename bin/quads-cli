@@ -134,15 +134,31 @@ def main(_args):
                         _cloud_name = cloud["name"]
                         logger.info("%s:" % _cloud_name)
                         _kwargs["cloud"] = _cloud_name
-                        _schedules = quads.get_current_schedule(**_kwargs)
-                        if _schedules and "result" not in _schedules:
-                            if type(_schedules) == list:
-                                for entry in _schedules:
-                                    host = quads.get_hosts(id=entry["host"]["$oid"])
-                                    logger.info("- %s" % str(host['name']))
+                        if _cloud_name == "cloud01":
+                            if _kwargs["date"]:
+                                data = {
+                                    "start": _kwargs["date"],
+                                    "end": _kwargs["date"],
+                                }
+
+                                available_hosts = quads.get_available(**data)
+
+                                for host in available_hosts:
+                                    logger.info(host)
                             else:
-                                host = quads.get_hosts(id=_schedules["host"]["$oid"])
-                                logger.info("- %s" % str(host['name']))
+                                _hosts = Host.objects(cloud__name=_cloud_name)
+                                for host in _hosts:
+                                    logger.info(host.name)
+                        else:
+                            _schedules = quads.get_current_schedule(**_kwargs)
+                            if _schedules and "result" not in _schedules:
+                                if type(_schedules) == list:
+                                    for entry in _schedules:
+                                        host = quads.get_hosts(id=entry["host"]["$oid"])
+                                        logger.info("- %s" % str(host['name']))
+                                else:
+                                    host = quads.get_hosts(id=_schedules["host"]["$oid"])
+                                    logger.info("- %s" % str(host['name']))
 
             exit(0)
 
@@ -388,9 +404,20 @@ def main(_args):
             for schedule in schedules:
                 logger.info(schedule.host.name)
         else:
-            _hosts = Host.objects(cloud=_cloud)
-            for host in _hosts:
-                logger.info(host.name)
+            if _kwargs["date"] and _args.cloudonly == "cloud01":
+                data = {
+                    "start": _kwargs["date"],
+                    "end": _kwargs["date"],
+                }
+
+                available_hosts = quads.get_available(**data)
+
+                for host in available_hosts:
+                    logger.info(host)
+            else:
+                _hosts = Host.objects(cloud=_cloud)
+                for host in _hosts:
+                    logger.info(host.name)
 
         exit(0)
 

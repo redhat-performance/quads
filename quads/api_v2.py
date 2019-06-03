@@ -254,7 +254,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
     def GET(self, **data):
         _args = {}
         if "date" in data:
-            date = datetime.datetime.strptime(data["date"], "%Y-%m-%d %H:%M")
+            date = datetime.datetime.strptime(data["date"], "%Y-%m-%dt%H:%M:%S")
             _args["date"] = date
         if "host" in data:
             host = model.Host.objects(name=data["host"]).first()
