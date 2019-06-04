@@ -31,6 +31,18 @@ def execute_ipmi(host, arguments):
     subprocess.call(ipmi_cmd + arguments)
 
 
+def ipmi_reset(host):
+    ipmi_off = [
+        "chassis", "power", "off",
+    ]
+    execute_ipmi(host, ipmi_off)
+    sleep(20)
+    ipmi_on = [
+        "chassis", "power", "on",
+    ]
+    execute_ipmi(host, ipmi_on)
+
+
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     logger.debug("Moving and rebuilding host: %s" % host)
 
@@ -173,18 +185,12 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 badfish.reboot_server(graceful=False)
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
+                logger.info("Rebooting via IPMI for next run." % host)
+                ipmi_reset(host)
                 return False
         else:
             if is_supermicro(host):
-                ipmi_off = [
-                    "chassis", "power", "off",
-                ]
-                execute_ipmi(host, ipmi_off)
-                sleep(20)
-                ipmi_on = [
-                    "chassis", "power", "on",
-                ]
-                execute_ipmi(host, ipmi_on)
+                ipmi_reset(host)
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
