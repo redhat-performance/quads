@@ -224,6 +224,11 @@ class Badfish:
 
     def find_systems_resource(self):
         response = self.get_request(self.root_uri)
+
+        if response.status_code == 401:
+            logger.error("Failed to authenticate. Verify your credentials.")
+            sys.exit(1)
+
         if response:
             data = response.json()
             if 'Systems' not in data:
@@ -231,12 +236,9 @@ class Badfish:
                 sys.exit(1)
             else:
                 systems = data["Systems"]["@odata.id"]
-                response = self.get_request(self.host_uri + systems)
-                if response:
-                    if response.status_code == 401:
-                        logger.error("Failed to authenticate. Verify your credentials.")
-                        sys.exit(1)
-                    data = response.json()
+                _response = self.get_request(self.host_uri + systems)
+                if _response:
+                    data = _response.json()
                     if data.get(u'Members'):
                         for member in data[u'Members']:
                             systems_service = member[u'@odata.id']

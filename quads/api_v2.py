@@ -31,17 +31,9 @@ class MethodHandlerBase(object):
 
 @cherrypy.expose
 class MovesMethodHandler(MethodHandlerBase):
-    def GET(self, **data):
+    def GET(self):
         if self.name == "moves":
             try:
-                result = []
-                if 'date' not in data:
-                    data['date'] = time.strftime("%Y-%m-%d %H:%M")
-                else:
-                    if len(data['date']) == 0:
-                        result.append("Could not parse date parameter")
-                        return json.dumps({'result': result})
-
                 _hosts = model.Host.objects()
 
                 result = []

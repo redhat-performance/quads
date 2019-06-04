@@ -185,7 +185,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 badfish.reboot_server(graceful=False)
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
-                logger.info("Rebooting via IPMI for next run." % host)
+                logger.info("Rebooting via IPMI for next run")
                 ipmi_reset(host)
                 return False
         else:
