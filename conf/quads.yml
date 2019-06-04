@@ -143,6 +143,7 @@ ipmi_password: password
 ipmi_cloud_username: quads
 ipmi_cloud_password: password
 ipmi_cloud_username_id: 4
+ipmi_reset_sleep: 10
 
 # This stores the username for connecting to junos switches
 junos_username: scaleadmin
