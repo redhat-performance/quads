@@ -302,7 +302,6 @@ class Badfish:
         _type = self.get_host_type(interfaces_path)
         if _type and _type.lower() != host_type.lower():
             self.clear_job_queue()
-            self.reset_idrac()
             logger.warning("Waiting for host to be up.")
             host_up = self.polling_host_state("On")
             if host_up:
@@ -315,7 +314,6 @@ class Badfish:
                 if job_id:
                     self.get_job_status(job_id)
 
-                self.reboot_server()
             else:
                 logger.error("Couldn't communicate with host after %s attempts." % self.retries)
                 sys.exit(1)
@@ -458,18 +456,21 @@ class Badfish:
 
             self.error_handler(_response)
 
-    def reboot_server(self):
+    def reboot_server(self, graceful=True):
         logger.debug("Rebooting server: %s." % self.host)
         power_state = self.get_power_state()
         if power_state.lower() == "on":
-            self.send_reset("GracefulRestart")
+            if graceful:
+                self.send_reset("GracefulRestart")
 
-            host_down = self.polling_host_state("Off")
+                host_down = self.polling_host_state("Off")
 
-            if not host_down:
-                logger.warning(
-                    "Unable to graceful shutdown the server, will perform forced shutdown now."
-                )
+                if not host_down:
+                    logger.warning(
+                        "Unable to graceful shutdown the server, will perform forced shutdown now."
+                    )
+                    self.send_reset("ForceOff")
+            else:
                 self.send_reset("ForceOff")
 
             host_not_down = self.polling_host_state("Down", False)
@@ -506,18 +507,10 @@ class Badfish:
     def boot_to(self, device):
         if self.check_device(device):
             self.clear_job_queue()
-            self.reset_idrac()
-            host_up = self.polling_host_state("On")
-            time.sleep(5)
-            if host_up:
-                self.send_one_time_boot(device)
-                job_id = self.create_bios_config_job(self.bios_uri)
-                if job_id:
-                    self.get_job_status(job_id)
-                self.reboot_server()
-            else:
-                logger.error("Couldn't communicate with host after %s attempts." % self.retries)
-                sys.exit(1)
+            self.send_one_time_boot(device)
+            job_id = self.create_bios_config_job(self.bios_uri)
+            if job_id:
+                self.get_job_status(job_id)
         else:
             sys.exit(1)
         return True

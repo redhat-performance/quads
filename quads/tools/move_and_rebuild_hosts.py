@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 from datetime import datetime
+from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
@@ -16,6 +17,18 @@ from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+
+
+def execute_ipmi(host, arguments):
+    ipmi_cmd = [
+        "/usr/bin/ipmitool",
+        "-I", "lanplus",
+        "-H", "mgmt-%s" % host,
+        "-U", conf["ipmi_username"],
+        "-P", conf["ipmi_password"],
+    ]
+    logger.debug("Executing IPMI with argmuents: %s" % arguments)
+    subprocess.call(ipmi_cmd + arguments)
 
 
 def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
@@ -93,26 +106,16 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
 
     ipmi_set_pass = [
-        "/usr/bin/ipmitool",
-        "-I", "lanplus",
-        "-H", "mgmt-%s" % host,
-        "-U", conf["ipmi_username"],
-        "-P", conf["ipmi_password"],
-        "user", "set", "password", str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
+        "user", "set", "password",
+        str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
-    logger.debug("ipmi_set_pass: %s" % ipmi_set_pass)
-    subprocess.call(ipmi_set_pass)
+    execute_ipmi(host, arguments=ipmi_set_pass)
 
     ipmi_set_operator = [
-        "/usr/bin/ipmitool",
-        "-I", "lanplus",
-        "-H", "mgmt-%s" % host,
-        "-U", conf["ipmi_username"],
-        "-P", conf["ipmi_password"],
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
-    logger.debug("ipmi_set_operator: %s" % ipmi_set_operator)
-    subprocess.call(ipmi_set_operator)
+    execute_ipmi(host, arguments=ipmi_set_operator)
+
     if rebuild and _new_cloud_obj.name != "cloud01":
         badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
 
@@ -122,16 +125,10 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         if is_supermicro(host):
             ipmi_pxe_persistent = [
-                "/usr/bin/ipmitool",
-                "-I", "lanplus",
-                "-H", "mgmt-%s" % host,
-                "-U", conf["ipmi_username"],
-                "-P", conf["ipmi_password"],
                 "chassis", "bootdev", "pxe",
                 "options", "=", "persistent"
             ]
-            logger.debug("ipmi_pxe_persistent: %s" % ipmi_pxe_persistent)
-            subprocess.call(ipmi_pxe_persistent)
+            execute_ipmi(host, arguments=ipmi_pxe_persistent)
 
         if is_supported(host):
             try:
@@ -173,13 +170,21 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                         "../../conf/idrac_interfaces.yml"
                     )
                 )
-                badfish.reboot_server()
+                badfish.reboot_server(graceful=False)
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
                 return False
         else:
             if is_supermicro(host):
-                logger.warning("SuperMicro not supported by Badfish for: %s." % host)
+                ipmi_off = [
+                    "chassis", "power", "off",
+                ]
+                execute_ipmi(host, ipmi_off)
+                sleep(20)
+                ipmi_on = [
+                    "chassis", "power", "on",
+                ]
+                execute_ipmi(host, ipmi_on)
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
