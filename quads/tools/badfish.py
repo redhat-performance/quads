@@ -545,6 +545,7 @@ class Badfish:
             status_code = _response.status_code
             if status_code == 200:
                 logger.info("Command passed to set BIOS attribute pending values.")
+                break
             else:
                 logger.error("Command failed, error code is: %s." % status_code)
                 if status_code in [503, 400] and i - 1 != self.retries:
