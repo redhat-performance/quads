@@ -153,6 +153,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 )
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
+                logger.info("Rebooting via IPMI for next run")
+                ipmi_reset(host)
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
