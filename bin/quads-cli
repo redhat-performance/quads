@@ -404,10 +404,19 @@ def main(_args):
             for schedule in schedules:
                 logger.info(schedule.host.name)
         else:
-            if _kwargs["date"] and _args.cloudonly == "cloud01":
+            if not _args.datearg and _args.cloudonly == "cloud01":
+                currentdate = datetime.datetime.now()
+                _args.datearg = currentdate.strftime('%Y-%m-%d %H:%M')
+                _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
                 data = {
                     "start": _kwargs["date"],
                     "end": _kwargs["date"],
+                }
+
+            elif _kwargs["date"] and _args.cloudonly == "cloud01":
+                data = {
+                   "start": _kwargs["date"],
+                   "end": _kwargs["date"],
                 }
 
                 available_hosts = quads.get_available(**data)
