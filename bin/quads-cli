@@ -199,7 +199,7 @@ def main(_args):
         elif _args.action == "free_cloud":
             _clouds = Cloud.objects(name__ne="cloud01")
             for cloud in _clouds:
-                cloud_count = Schedule.objects(start__gte=datetime.datetime.now(), cloud=cloud).count()
+                cloud_count = Schedule.objects(end__gte=datetime.datetime.now(), cloud=cloud).count()
                 if cloud_count > 0:
                     continue
                 else:
