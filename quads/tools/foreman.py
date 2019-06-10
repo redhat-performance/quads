@@ -150,7 +150,7 @@ class Foreman(object):
         return False
 
     def verify_credentials(self):
-        endpoint = "status"
+        endpoint = "/status"
         logger.debug("GET: %s" % endpoint)
         try:
             response = requests.get(
