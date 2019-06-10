@@ -57,9 +57,9 @@ class Validator(object):
 
     def env_allocation_time_exceeded(self):
         now = datetime.now()
-        schedule = Schedule.objects(cloud=self.cloud, start__lt=now).first()
+        schedule = Schedule.objects(cloud=self.cloud, start__lt=now, end__gt=now).first()
         time_delta = now - schedule.start
-        if time_delta.minutes > conf["validation_grace_period"]:
+        if time_delta.seconds//60 > conf["validation_grace_period"]:
             return True
         return False
 

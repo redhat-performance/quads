@@ -156,6 +156,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
                 logger.info("Rebooting via IPMI for next run")
+                badfish.reset_idrac()
                 ipmi_reset(host)
                 return False
 
@@ -190,7 +191,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
                 logger.info("Rebooting via IPMI for next run")
-                ipmi_reset(host)
+                badfish.reset_idrac()
                 return False
         else:
             if is_supermicro(host):
