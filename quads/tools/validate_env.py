@@ -153,7 +153,7 @@ class Validator(object):
 
             # TODO: quads dell config report
 
-            if not failed and not notification_obj.sucess:
+            if not failed and not notification_obj.success:
                 self.notify_success()
                 notification_obj.update(success=True, fail=False)
 
