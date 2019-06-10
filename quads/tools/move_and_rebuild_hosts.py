@@ -64,7 +64,9 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     for i, interface in enumerate(_host_obj.interfaces):
         ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
-        old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
+        old_vlan = None
+        if old_vlan_out:
+            old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
             logger.warning(
                 "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
