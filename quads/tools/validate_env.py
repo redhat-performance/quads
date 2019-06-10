@@ -4,7 +4,7 @@ import logging
 import os
 import socket
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from jinja2 import Template
 from quads.config import conf, TEMPLATES_PATH, API_URL, INTERFACES
 from quads.quads import Api
@@ -57,9 +57,9 @@ class Validator(object):
 
     def env_allocation_time_exceeded(self):
         now = datetime.now()
-        schedule = Schedule.objects(cloud=self.cloud, start__lt=now).first()
+        schedule = Schedule.objects(cloud=self.cloud, start__lt=now, end__gt=now).first()
         time_delta = now - schedule.start
-        if time_delta.minutes > conf["validation_grace_period"]:
+        if time_delta.seconds//60 > conf["validation_grace_period"]:
             return True
         return False
 
