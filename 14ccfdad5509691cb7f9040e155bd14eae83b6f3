@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e977313_ed8c47de",
+        "filename": "quads/tools/validate_env.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2019-06-10T18:08:16Z",
+      "side": 1,
+      "message": "Is this a typo?  should \"//\" be \"/\" ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 31,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "14ccfdad5509691cb7f9040e155bd14eae83b6f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
