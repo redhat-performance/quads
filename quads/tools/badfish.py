@@ -61,9 +61,8 @@ class Badfish:
     def get_request(self, uri, _continue=False):
         try:
             _response = requests.get(uri, auth=(self.username, self.password), verify=False, timeout=60)
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("Failed to communicate with server.")
+        except RequestException:
+            logger.exception("Failed to communicate with server.")
             if _continue:
                 return
             else:
@@ -79,9 +78,8 @@ class Badfish:
                 verify=False,
                 auth=(self.username, self.password)
             )
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("Failed to communicate with server.")
+        except RequestException:
+            logger.exception("Failed to communicate with server.")
             sys.exit(1)
         return _response
 
@@ -94,9 +92,8 @@ class Badfish:
                 verify=False,
                 auth=(self.username, self.password)
             )
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("Failed to communicate with server.")
+        except RequestException:
+            logger.exception("Failed to communicate with server.")
             if _continue:
                 return
             else:
@@ -111,9 +108,8 @@ class Badfish:
                 verify=False,
                 auth=(self.username, self.password)
             )
-        except RequestException as ex:
-            logger.debug(ex)
-            logger.error("Failed to communicate with server.")
+        except RequestException:
+            logger.exception("Failed to communicate with server.")
             sys.exit(1)
         return
 
@@ -393,16 +389,20 @@ class Badfish:
 
             self.error_handler(_response)
 
-    def clear_job_queue(self):
+    def clear_job_queue(self, force=False):
         _job_queue = self.get_job_queue()
         if _job_queue:
             _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
             _headers = {"content-type": "application/json"}
             logger.warning("Clearing job queue for job IDs: %s." % _job_queue)
-            for _job in _job_queue:
-                job = _job.strip("'")
-                url = "%s/%s" % (_url, job)
+            if force:
+                url = "%s/JID_CLEARALL_FORCE" % _url
                 self.delete_request(url, _headers)
+            else:
+                for _job in _job_queue:
+                    job = _job.strip("'")
+                    url = "%s/%s" % (_url, job)
+                    self.delete_request(url, _headers)
 
             job_queue = self.get_job_queue()
             if not job_queue:
@@ -543,11 +543,13 @@ class Badfish:
                 break
             else:
                 logger.error("Command failed, error code is: %s." % status_code)
-                if status_code in [503, 400] and i - 1 != self.retries:
+                if status_code == 503 and i - 1 != self.retries:
                     logger.info("Retrying to send one time boot.")
                     continue
-                else:
-                    self.error_handler(_response)
+                elif status_code == 400:
+                    self.clear_job_queue(force=True)
+                    continue
+                self.error_handler(_response)
 
     def check_boot(self, _interfaces_path):
         if _interfaces_path:
