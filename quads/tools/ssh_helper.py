@@ -6,6 +6,7 @@ import os
 from paramiko import SSHClient, AutoAddPolicy, SSHConfig
 
 logger = logging.getLogger(__name__)
+logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 
 class SSHHelper(object):
