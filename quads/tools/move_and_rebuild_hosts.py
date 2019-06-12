@@ -131,8 +131,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     execute_ipmi(host, arguments=ipmi_set_operator)
 
     if rebuild and _new_cloud_obj.name != "cloud01":
-        badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
-
         if "pdu_management" in conf and conf["pdu_management"]:
             # TODO: pdu management
             pass
@@ -145,6 +143,8 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             execute_ipmi(host, arguments=ipmi_pxe_persistent)
 
         if is_supported(host):
+            badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
+
             try:
                 badfish.change_boot(
                     "director",
@@ -155,9 +155,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 )
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
-                logger.info("Rebooting via IPMI for next run")
-                badfish.reset_idrac()
-                ipmi_reset(host)
+                badfish.clear_job_queue(force=True)
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
@@ -190,8 +188,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 badfish.reboot_server(graceful=False)
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
-                logger.info("Rebooting via IPMI for next run")
-                badfish.reset_idrac()
+                badfish.clear_job_queue(force=True)
                 return False
         else:
             if is_supermicro(host):
