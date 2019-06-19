@@ -41,6 +41,7 @@ Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 2.0
+Requires: logrotate >= 3.0
 
 Url: https://quads.dev
 
@@ -73,6 +74,7 @@ mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
+cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
@@ -90,6 +92,7 @@ rm -rf %{buildroot}
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
+%config(noreplace) /etc/logrotate.d/logrotate_quads.conf
 
 %post
 /usr/bin/systemctl enable quads-server
