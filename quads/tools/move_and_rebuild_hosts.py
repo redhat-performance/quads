@@ -188,7 +188,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 badfish.reboot_server(graceful=False)
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
-                badfish.clear_job_queue(force=True)
                 return False
         else:
             if is_supermicro(host):

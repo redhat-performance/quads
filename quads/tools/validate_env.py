@@ -6,6 +6,8 @@ import socket
 
 from datetime import datetime
 from jinja2 import Template
+from paramiko import SSHException
+
 from quads.config import conf, TEMPLATES_PATH, API_URL, INTERFACES
 from quads.quads import Api
 from quads.model import Cloud, Schedule, Host, Notification
@@ -105,7 +107,7 @@ class Validator(object):
         test_host = _hosts[0]
         try:
             ssh_helper = SSHHelper(test_host.name)
-        except Exception:
+        except SSHException:
             logger.exception("Could not establish connection with host: %s." % test_host.name)
             self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             return False
@@ -169,8 +171,10 @@ class Validator(object):
 if __name__ == "__main__":
     clouds = Cloud.objects(validated=False, name__ne="cloud01")
     for _cloud in clouds:
-        _hosts_total = Host.objects(cloud=_cloud).count()
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
         if _schedule_count:
             validator = Validator(_cloud)
-            validator.validate_env()
+            try:
+                validator.validate_env()
+            except Exception:
+                logger.exception("Failed validation for %s" % _cloud.name)
