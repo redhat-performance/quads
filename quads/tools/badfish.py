@@ -508,7 +508,7 @@ class Badfish:
 
     def boot_to(self, device):
         if self.check_device(device):
-            self.clear_job_queue()
+            self.clear_job_queue(force=True)
             self.send_one_time_boot(device)
             job_id = self.create_bios_config_job(self.bios_uri)
             if job_id:
@@ -535,6 +535,7 @@ class Badfish:
         _url = "%s%s" % (self.root_uri, self.bios_uri)
         _payload = {"Attributes": {"OneTimeBootMode": "OneTimeBootSeq", "OneTimeBootSeqDev": device}}
         _headers = {"content-type": "application/json"}
+        _first_reset = False
         for i in range(self.retries):
             _response = self.patch_request(_url, _payload, _headers)
             status_code = _response.status_code
@@ -548,6 +549,10 @@ class Badfish:
                     continue
                 elif status_code == 400:
                     self.clear_job_queue(force=True)
+                    if not _first_reset:
+                        self.reset_idrac()
+                        _first_reset = True
+                        self.polling_host_state("On")
                     continue
                 self.error_handler(_response)
 
