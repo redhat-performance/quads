@@ -28,10 +28,9 @@ Automate scheduling and end-to-end provisioning of servers and networks.
             * [QUADS VLAN Options](#quads-vlan-options)
             * [Defining a New Cloud](#defining-a-new-cloud)
             * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
-         * [Extending the <strong>Schedule</strong> of an Existing
-           Cloud](#extending-the-schedule-of-an-existing-cloud)
+         * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
-         * [Extending Machine Allocation to an existing Cloud](#extending-machine-allocation-to-an-existing-cloud)
+         * [Adding Hosts to an existing Cloud](#adding-hosts-to-an-existing-cloud)
          * [Removing a Schedule](#removing-a-schedule)
          * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
          * [Removing a Host from QUADS](#removing-a-host-from-quads)
@@ -45,6 +44,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
          * [Example: Querying Notification Values in MongoDB](#example-querying-notification-values-in-mongodb)
          * [Example: Manually moving a Host Cloud in MongoDB](#example-manually-moving-a-host-cloud-in-mongodb)
+         * [Example: Toggling Individual Cloud Metadata Settings](#toggling-individual-cloud-metadata-settings)
       * [Backing up QUADS](#backing-up-quads)
       * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
       * [QUADS Talks and Media](#quads-talks-and-media)
@@ -537,7 +537,7 @@ for h in $(quads-cli --cloud-only cloud05); do echo quads-cli --mod-schedule $(q
 
   * If all looks good you can remove **remove the echo lines** and apply.
 
-### Extending Machine Allocation to an existing Cloud
+### Adding Hosts to an existing Cloud
 
 QUADS also supports adding new machines into an existing workload (cloud).
 
@@ -740,9 +740,9 @@ quads-cli --define-cloud cloud02 --cloud-owner ikaur --force --description "EL7 
 
 * Note: if you **did not** want machines entering into a new environment to be wiped/provisioned just use define the environment with the `--no-wipe` option.
 
-{{{
+```
 quads-cli --define-cloud cloud16 --cloud-owner jdoe --force --description "New Environment" --cloud-ticket 012345 --no-wipe
-}}}
+```
 
 ### Example: Querying Notification Values in MongoDB
 
@@ -799,6 +799,14 @@ db.host.update({name:"f20-h14-000-r620.rdu2.example.com"}, {$set:{cloud:ObjectId
 ```
 quads-cli --move-hosts --dry-run
 Nothing to do.
+```
+
+### Example: Toggling Individual Cloud Metadata Settings
+
+If you really need to manually toggle individual cloud metadata settings this is possible as well, in this example we'll toggle the `validated` flag.
+
+```
+db.cloud.update({name:"cloud21"}, {$set:{validated:true}})
 ```
 
 ## Backing up QUADS
