@@ -33,34 +33,31 @@ def main():
                 os.remove(os.path.join(conf["json_web_path"], file))
 
         for cloud in cloud_list:
-            host_list = Host.objects(cloud=cloud).order_by("name")
-
             foreman_password = conf["ipmi_password"]
             if cloud.ticket:
                 foreman_password = cloud.ticket
 
             json_data = defaultdict(list)
-            for host in host_list[1:]:
-                if conf["foreman_unavailable"]:
-                    overcloud = {"result": "true"}
-                else:
-                    overcloud = foreman.get_host_param(host.name, "overcloud")
-                if not overcloud:
-                    overcloud = {"result": "true"}
-                if "result" in overcloud and strtobool(overcloud["result"]):
-                    mac = "00:00:00:00:00:00"
-                    if len(host.interfaces) > 1:
-                        mac = host.interfaces[1].mac_address
-                    json_data['nodes'].append({
-                        'pm_password': foreman_password,
-                        'pm_type': "pxe_ipmitool",
-                        'mac': [mac],
-                        'cpu': "2",
-                        'memory': "1024",
-                        'disk': "20",
-                        'arch': "x86_64",
-                        'pm_user': conf["ipmi_cloud_username"],
-                        'pm_addr': "mgmt-%s" % host.name})
+            if conf["foreman_unavailable"]:
+                overcloud = {"result": "true"}
+            else:
+                overcloud = foreman.get_host_param(host.name, "overcloud")
+            if not overcloud:
+                overcloud = {"result": "true"}
+            if "result" in overcloud and strtobool(overcloud["result"]):
+                mac = "00:00:00:00:00:00"
+                if len(host.interfaces) > 1:
+                    mac = host.interfaces[1].mac_address
+                json_data['nodes'].append({
+                    'pm_password': foreman_password,
+                    'pm_type': "pxe_ipmitool",
+                    'mac': [mac],
+                    'cpu': "2",
+                    'memory': "1024",
+                    'disk': "20",
+                    'arch': "x86_64",
+                    'pm_user': conf["ipmi_cloud_username"],
+                    'pm_addr': "mgmt-%s" % host.name})
 
             content = json.dumps(json_data, indent=4, sort_keys=True)
 
