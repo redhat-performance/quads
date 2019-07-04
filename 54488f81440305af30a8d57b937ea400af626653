@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2b5705b_b9e7011a",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-07-04T15:08:23Z",
+      "side": 0,
+      "message": "revert all changes and remove this list comprehension",
+      "range": {
+        "startLine": 43,
+        "startChar": 33,
+        "endLine": 43,
+        "endChar": 37
+      },
+      "revId": "54488f81440305af30a8d57b937ea400af626653",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

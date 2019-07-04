@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88c9dde5_f09e765e",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-07-04T15:08:23Z",
+      "side": 1,
+      "message": "removing the `for` statement will cause the `host` variable to be undefined.",
+      "revId": "e8308401b7a10061fb21e49e28b7059402f4ea82",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
