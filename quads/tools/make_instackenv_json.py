@@ -40,7 +40,7 @@ def main():
                 foreman_password = cloud.ticket
 
             json_data = defaultdict(list)
-            for host in host_list[1:]:
+            for host in host_list:
                 if conf["foreman_unavailable"]:
                     overcloud = {"result": "true"}
                 else:
