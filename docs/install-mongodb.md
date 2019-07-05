@@ -13,7 +13,7 @@ Installing Mongodb on Fedora30 and above
    - Download the appropriate binaries from [MongoDB sources](https://www.mongodb.com/download-center/community)
    - For Fedora30+ we will choose from the 4.x series: 'server' and 'Linux 64-bit Legacy x64'
 
-![download_mongodb](../image/download-mongodb?raw=true)
+![download_mongodb](../image/download-mongodb.png?raw=true)
 
 ## Extract and Setup MongoDB Binaries
    - The below commands will assume the current version is 4.0.9
