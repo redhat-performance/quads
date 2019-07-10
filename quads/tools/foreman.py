@@ -43,15 +43,15 @@ class Foreman(object):
 
     def set_host_parameter(self, host_name, name, value):
         host_parameter = self.get_host_parameter_id(host_name, name)
-        if host_parameter:
-            return self.put_host_parameter(host_name, host_parameter, value)
-        else:
-            return self.post_host_parameter(host_name, name, value)
-
-    def put_host_parameter(self, host_name, parameter_id, value):
-        logger.debug("PUT param: {%s:%s}" % (parameter_id, value))
         _host_id = self.get_host_id(host_name)
-        endpoint = "/hosts/%s/parameters/%s" % (_host_id, parameter_id)
+        if host_parameter:
+            return self.put_host_parameter(_host_id, host_parameter, value)
+        else:
+            return self.post_host_parameter(_host_id, name, value)
+
+    def put_host_parameter(self, host_id, parameter_id, value):
+        logger.debug("PUT param: {%s:%s}" % (parameter_id, value))
+        endpoint = "/hosts/%s/parameters/%s" % (host_id, parameter_id)
         data = {'parameter': {"value": value}}
         try:
             response = requests.put(
@@ -67,10 +67,9 @@ class Foreman(object):
             return True
         return False
 
-    def post_host_parameter(self, host_name, name, value):
+    def post_host_parameter(self, host_id, name, value):
         logger.debug("PUT param: {%s:%s}" % (name, value))
-        _host_id = self.get_host_id(host_name)
-        endpoint = "/hosts/%s/parameters" % _host_id
+        endpoint = "/hosts/%s/parameters" % host_id
         data = {"parameter": {"name": name, "value": value}}
         try:
             response = requests.post(
