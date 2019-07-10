@@ -102,24 +102,25 @@ class Validator(object):
         return True
 
     def post_network_test(self):
-        _hosts = Host.objects(cloud=self.cloud)
+        _cloud_hosts = Host.objects(cloud=self.cloud)
 
-        test_host = _hosts[0]
+        test_host = _cloud_hosts[0]
         try:
             ssh_helper = SSHHelper(test_host.name)
         except SSHException:
             logger.exception("Could not establish connection with host: %s." % test_host.name)
             self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             return False
-        host_list = " ".join([host.name for host in _hosts])
+        host_list = " ".join([host.name for host in _cloud_hosts])
 
         if type(ssh_helper.run_cmd("fping -u %s" % host_list)) != list:
+
             return False
 
         for interface in test_host.interfaces:
             new_ips = []
             host_ips = [
-                socket.gethostbyname(host.name) for host in _hosts
+                socket.gethostbyname(host.name) for host in _cloud_hosts
                 if interface.name in [_interface.name for _interface in host.interfaces]
             ]
             for ip in host_ips:
