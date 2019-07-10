@@ -43,6 +43,7 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [Interacting with MongoDB](#interacting-with-mongodb)
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
          * [Example: Querying Notification Values in MongoDB](#example-querying-notification-values-in-mongodb)
+         * [Example: Query Multiple Values in MongoDB inside Collections](#query-multiple-values-in-mongodb-inside-collections)
          * [Example: Manually moving a Host Cloud in MongoDB](#example-manually-moving-a-host-cloud-in-mongodb)
          * [Example: Toggling Individual Cloud Metadata Settings](#toggling-individual-cloud-metadata-settings)
       * [Backing up QUADS](#backing-up-quads)
@@ -754,6 +755,18 @@ quads-cli --define-cloud cloud16 --cloud-owner jdoe --force --description "New E
 ```
 > db.notification.find({ticket:"999999"})
 { "_id" : ObjectId("5ced1d769137063b1cadbc79"), "cloud" : ObjectId("5c82b36e0f767d000692ad0b"), "ticket" : "999999", "fail" : true, "success" : false, "initial" : false, "pre_initial" : true, "pre" : false, "one_day" : false, "three_days" : false, "five_days" : false, "seven_days" : false }
+```
+
+### Example: Query Multiple Values in MongoDB inside Collections
+
+* Sometimes you want to drill down into multiple values in MongoDB, you can do this by passing multiple selection criteria.  In the following example we'll query for both a specific Cloud object ID and ticket number in the notification collection.
+
+```
+db.notification.find({cloud:ObjectId("5c82b3690f767d000692acff"), ticket: "491731"})
+```
+
+```
+{ "_id" : ObjectId("5d03b161913706625477d581"), "cloud" : ObjectId("5c82b3690f767d000692acff"), "ticket" : "491731", "fail" : false, "success" : true, "initial" : true, "pre_initial" : true, "pre" : false, "one_day" : false, "three_days" : false, "five_days" : false, "seven_days" : false }
 ```
 
 ### Example: Manually moving a Host Cloud in MongoDB
