@@ -401,7 +401,7 @@ def main(_args):
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
         schedules = Schedule.current_schedule(**_kwargs)
         if schedules:
-            for schedule in schedules:
+            for schedule in sorted(schedules, key=lambda k: k['host']['name']):
                 logger.info(schedule.host.name)
         else:
             if _kwargs.get("date") and _args.cloudonly == "cloud01":
@@ -412,11 +412,11 @@ def main(_args):
 
                 available_hosts = quads.get_available(**data)
 
-                for host in available_hosts:
+                for host in sorted(available_hosts):
                     logger.info(host)
             else:
                 _hosts = Host.objects(cloud=_cloud)
-                for host in _hosts:
+                for host in sorted(_hosts, key=lambda k: k['name']):
                     logger.info(host.name)
 
         exit(0)
