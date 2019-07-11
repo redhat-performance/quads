@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "138df6b2_f108774b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-07-11T09:28:18Z",
+      "side": 1,
+      "message": "I know these are just some general fixes but lets be more descriptive to what is happening, just a few sentences will do.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 11
+      },
+      "revId": "d928253a9b6ab79ff927ff3ab637221b1bed74ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1884df1a_670f34f3",
+        "filename": "quads/tools/foreman.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-07-11T09:28:18Z",
+      "side": 1,
+      "message": "Is there a way to capture more info here?  This will sometimes land in our failure notifications, if it\u0027s foreman-related or other places used generically let\u0027s say so.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 72
+      },
+      "revId": "d928253a9b6ab79ff927ff3ab637221b1bed74ec",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
