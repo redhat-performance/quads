@@ -155,7 +155,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 )
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
-                badfish.clear_job_queue(force=True)
+                badfish.clear_job_queue()
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
