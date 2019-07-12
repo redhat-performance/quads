@@ -194,7 +194,8 @@ class DocumentMethodHandler(MethodHandlerBase):
                             if not notification_obj:
                                 model.Notification(cloud=obj, ticket=data["ticket"]).save()
 
-                            history_result, history_data = model.CloudHistory.prep_data(data)
+                            copy_data = data.copy()
+                            history_result, history_data = model.CloudHistory.prep_data(copy_data)
                             if history_result:
                                 result.append('Data validation failed: %s' % ', '.join(history_result))
                                 cherrypy.response.status = "400 Bad Request"
