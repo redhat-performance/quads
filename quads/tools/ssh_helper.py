@@ -46,11 +46,11 @@ class SSHHelper(object):
 
     def run_cmd(self, cmd):
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
-
-        if stderr.readlines():
+        errors = stderr.readlines()
+        if errors:
             logger.error("There was something wrong with your request")
-            for line in stderr.readlines():
-                logger.error(line)
+            for line in errors:
+                logger.debug(line)
             return False
         else:
             logger.debug("Command executed successfully: %s" % cmd)

@@ -135,7 +135,7 @@ def main(_args):
                         logger.info("%s:" % _cloud_name)
                         _kwargs["cloud"] = _cloud_name
                         if _cloud_name == "cloud01":
-                            if _kwargs["date"]:
+                            if _kwargs.get("date"):
                                 data = {
                                     "start": _kwargs["date"],
                                     "end": _kwargs["date"],
@@ -507,7 +507,7 @@ if __name__ == '__main__':
     parser.add_argument('--move-command', dest='movecommand', type=str, default=default_move_command,
                         help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None,
-                        help='Dont update state when used with --move-hosts')
+                        help="Don't update state when used with --move-hosts")
     parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Open-ended identifier for host: util, baremetal, aws, openstack, libvirt, etc.')
