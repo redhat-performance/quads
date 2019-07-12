@@ -80,7 +80,7 @@ class CloudHistory(Document):
 
     @staticmethod
     def prep_data(data):
-        for flag in ['provisioned', 'validated']:
+        for flag in ['provisioned', 'validated', 'vlan']:
             if flag in data:
                 data.pop(flag)
 
@@ -120,6 +120,7 @@ class Cloud(Document):
             cloud_obj = Cloud.objects(vlan=vlan_obj).first()
             if cloud_obj:
                 return ["VLAN %s already in use." % vlan_id], {}
+            data["vlan"] = vlan_obj
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
         if 'qinq' in data:
