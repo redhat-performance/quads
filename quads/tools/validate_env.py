@@ -8,8 +8,7 @@ from datetime import datetime
 from jinja2 import Template
 from paramiko import SSHException
 
-from quads.config import conf, TEMPLATES_PATH, API_URL, INTERFACES
-from quads.quads import Api
+from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.foreman import Foreman
 from quads.tools.postman import Postman
@@ -72,8 +71,6 @@ class Validator(object):
             self.cloud.ticket
         )
 
-        quads = Api(API_URL)
-
         if not foreman.verify_credentials():
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % self.cloud.ticket)
@@ -84,12 +81,11 @@ class Validator(object):
         build_hosts = foreman.get_build_hosts()
 
         pending = []
-        schedules = quads.get_current_schedule(cloud=self.cloud.name)
-        if "result" not in schedules:
+        schedules = Schedule.current_schedule(cloud=self.cloud)
+        if schedules:
             for schedule in schedules:
-                host = quads.get_hosts(id=schedule["host"]["$oid"])
-                if host and host['name'] in build_hosts:
-                    pending.append(host["name"])
+                if schedule.host and schedule.host.name in build_hosts:
+                    pending.append(schedule.host.name)
 
             if pending:
                 logger.info("The following hosts are marked for build:")
