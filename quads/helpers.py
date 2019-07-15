@@ -38,8 +38,11 @@ def is_supermicro(_host_name):
     return False
 
 
-def get_vlan(cloud_obj, index):
-    cloud_offset = int(cloud_obj.name[5:]) * 10
-    base_vlan = 1090 + cloud_offset
-    vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
-    return vlan
+def get_vlan(cloud_obj, index, last_nic=False):
+    if cloud_obj.vlan and last_nic:
+        return int(cloud_obj.vlan.vlan_id)
+    else:
+        cloud_offset = int(cloud_obj.name[5:]) * 10
+        base_vlan = 1090 + cloud_offset
+        vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
+        return vlan

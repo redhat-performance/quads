@@ -27,11 +27,14 @@ def verify(_cloud_name, change=False):
 
             for i, interface in enumerate(_host_obj.interfaces):
                 ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
-                vlan = get_vlan(_cloud_obj, i)
+                last_nic = i == len(_host_obj.interfaces) - 1
+                vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 try:
                     old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
-                    old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
+                    old_vlan = old_vlan_out[0].split(";")[0].split()[1]
+                    if old_vlan.startswith("QinQ"):
+                        old_vlan = old_vlan[7:]
                 except IndexError:
                     old_vlan = None
 
@@ -48,7 +51,7 @@ def verify(_cloud_name, change=False):
                         "Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
                         % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
                     )
-                    old_vlan = get_vlan(_cloud_obj, i)
+                    old_vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 if not vlan_member:
                     logger.warning(
@@ -74,7 +77,7 @@ def verify(_cloud_name, change=False):
                     if change:
                         logger.info('=== INFO: change requested')
 
-                        if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
+                        if _cloud_obj.vlan and last_nic:
                             logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
 
                             success = juniper_convert_port_public(
