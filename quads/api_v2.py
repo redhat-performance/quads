@@ -39,7 +39,7 @@ class MovesMethodHandler(MethodHandlerBase):
                 result = []
                 for _host in _hosts:
 
-                    _scheduled_cloud = "cloud01"
+                    _scheduled_cloud = _host.default_cloud.name
                     _host_defined_cloud = _host.cloud.name
                     _current_schedule = self.model.current_schedule(host=_host).first()
                     try:

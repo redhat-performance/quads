@@ -167,6 +167,7 @@ class Interface(EmbeddedDocument):
 
 class Host(Document):
     name = StringField(unique=True)
+    default_cloud = ReferenceField(Cloud)
     cloud = ReferenceField(Cloud)
     host_type = StringField()
     interfaces = ListField(EmbeddedDocumentField(Interface))
@@ -184,6 +185,12 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data):
+        if 'default_cloud' in data:
+            _default_cloud_obj = Cloud.objects(name=data['default_cloud']).first()
+            if _default_cloud_obj:
+                data['default_cloud'] = _default_cloud_obj
+            else:
+                return ['Cloud %s does not exist.' % data['default_cloud']], {}
         if 'cloud' in data:
             _cloud_obj = Cloud.objects(name=data['cloud']).first()
             if _cloud_obj:
@@ -191,7 +198,7 @@ class Host(Document):
             else:
                 return ['Cloud %s does not exist.' % data['cloud']], {}
 
-        result, data = param_check(data, ['name', 'cloud', 'host_type'])
+        result, data = param_check(data, ['name', 'host_type'])
 
         return result, data
 

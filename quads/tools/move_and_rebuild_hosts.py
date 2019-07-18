@@ -130,7 +130,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
     ]
     execute_ipmi(host, arguments=ipmi_set_operator)
 
-    if rebuild and _new_cloud_obj.name != "cloud01":
+    if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
             # TODO: pdu management
             pass
