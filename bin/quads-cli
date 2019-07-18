@@ -47,7 +47,11 @@ def output_json_result(request, data):
             js = request.json()
             logger.debug('%s %s: %s' % (request.status_code, request.reason, data))
             for result in js['result']:
-                logger.info(result)
+                if type(result) == list:
+                    for line in result:
+                        logger.info(line)
+                else:
+                    logger.info(result)
     except JSONDecodeError:
         logger.error('Could not parse json reply.')
         logger.debug(request.text)
@@ -85,41 +89,28 @@ def main(_args):
                 exit(0)
 
         if _args.action == 'schedule':
+            _clouds = Cloud.objects()
             if _args.host:
-                _clouds = quads.get_clouds()
-                _host = quads.get_hosts(name=_args.host)
-                _default_cloud = "Cloud01"
-                _current_cloud = _default_cloud
-                if _host:
-                    if "cloud" in _host:
-                        _default_cloud = _host["cloud"]
-                    if "$oid" in _default_cloud:
-                        _default_cloud = Cloud.objects(id=_default_cloud["$oid"]).first()["name"]
-                logger.info("Default cloud: %s" % _default_cloud)
-                _current_schedule = quads.get_current_schedule(**_kwargs)
-                if _current_schedule and "result" not in _current_schedule:
-                    _cloud_id = _current_schedule[0]["cloud"]
-                    cloud_name = next(cloud["name"] for cloud in _clouds if cloud["_id"] == _cloud_id)
-                    if cloud_name:
-                        _current_cloud = cloud_name
-                    if "cloud" in _current_schedule[0] and _current_cloud != _default_cloud:
+                _host = Host.objects(name=_args.host).first()
+                logger.info("Default cloud: %s" % _host.default_cloud)
+                _current_schedule = Schedule.current_schedule(**_kwargs)
+                if _current_schedule:
+                    _current_cloud = _current_schedule[0].cloud.name
+                    if _current_cloud != _host.default_cloud:
                         logger.info("Current cloud: %s" % _current_cloud)
-                        logger.info("Current schedule: %s" % _current_schedule[0]["index"])
+                        logger.info("Current schedule: %s" % _current_schedule[0].index)
                     else:
-                        logger.info("Current cloud: %s" % _default_cloud)
+                        logger.info("Current cloud: %s" % _host.default_cloud)
                 else:
-                    logger.info("Current cloud: %s" % _default_cloud)
+                    logger.info("Current cloud: %s" % _host.default_cloud)
                 if "date" in _kwargs:
                     _kwargs.pop("date")
-                _host_schedules = quads.get_schedules(**_kwargs)
-                if _host_schedules and "result" not in _host_schedules:
+                _host_schedules = Schedule.objects(**_kwargs)
+                if _host_schedules:
                     for schedule in _host_schedules:
-                        _cloud_name = ""
-                        for cloud in _clouds:
-                            if "name" in cloud and cloud["_id"] == schedule["cloud"]:
-                                _cloud_name = cloud["name"]
-                        start = datetime.datetime.utcfromtimestamp(int(schedule["start"]["$date"]) / 1000)
-                        end = datetime.datetime.utcfromtimestamp(int(schedule["end"]["$date"]) / 1000)
+                        _cloud_name = schedule.cloud.name
+                        start = datetime.datetime.utcfromtimestamp(int(schedule.start) / 1000)
+                        end = datetime.datetime.utcfromtimestamp(int(schedule.end) / 1000)
                         logger.info(
                             "%s| start=%s, end=%s, cloud=%s" % (
                                 schedule["index"],
@@ -128,37 +119,34 @@ def main(_args):
                                 _cloud_name)
                         )
             else:
-                _clouds = quads.get_clouds()
-                if _clouds and "result" not in _clouds:
-                    for cloud in _clouds:
-                        _cloud_name = cloud["name"]
-                        logger.info("%s:" % _cloud_name)
-                        _kwargs["cloud"] = _cloud_name
-                        if _cloud_name == "cloud01":
-                            if _kwargs.get("date"):
-                                data = {
-                                    "start": _kwargs["date"],
-                                    "end": _kwargs["date"],
-                                }
+                for cloud in _clouds:
+                    logger.info("%s:" % cloud.name)
+                    _kwargs["cloud"] = cloud.name
+                    if cloud.name == "cloud01":
+                        if _kwargs.get("date"):
+                            data = {
+                                "start": _kwargs["date"],
+                                "end": _kwargs["date"],
+                            }
 
-                                available_hosts = quads.get_available(**data)
+                            available_hosts = quads.get_available(**data)
 
-                                for host in available_hosts:
-                                    logger.info(host)
-                            else:
-                                _hosts = Host.objects(cloud__name=_cloud_name)
-                                for host in _hosts:
-                                    logger.info(host.name)
+                            for host in available_hosts:
+                                logger.info(host)
                         else:
-                            _schedules = quads.get_current_schedule(**_kwargs)
-                            if _schedules and "result" not in _schedules:
-                                if type(_schedules) == list:
-                                    for entry in _schedules:
-                                        host = quads.get_hosts(id=entry["host"]["$oid"])
-                                        logger.info("- %s" % str(host['name']))
-                                else:
-                                    host = quads.get_hosts(id=_schedules["host"]["$oid"])
+                            _hosts = Host.objects(cloud=cloud)
+                            for host in _hosts:
+                                logger.info(host.name)
+                    else:
+                        _schedules = quads.get_current_schedule(**_kwargs)
+                        if _schedules and "result" not in _schedules:
+                            if type(_schedules) == list:
+                                for entry in _schedules:
+                                    host = quads.get_hosts(id=entry["host"]["$oid"])
                                     logger.info("- %s" % str(host['name']))
+                            else:
+                                host = quads.get_hosts(id=_schedules["host"]["$oid"])
+                                logger.info("- %s" % str(host['name']))
 
             exit(0)
 
@@ -230,12 +218,15 @@ def main(_args):
 
     # Host Add / Modify
     elif _args.hostresource:
+        if not _args.hostcloud:
+            logger.error('Missing option --default-cloud')
+            exit(1)
         if _args.cloudresource:
             logger.error('--define-cloud and --define-host are mutually exclusive.')
             exit(1)
         url = os.path.join(API_URL, 'host')
         data = {'name': _args.hostresource,
-                'cloud': _args.hostcloud,
+                'default_cloud': _args.hostcloud,
                 'host_type': _args.hosttype,
                 'force': _args.force}
         _response = requests.post(url, data)
