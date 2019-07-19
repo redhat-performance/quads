@@ -244,6 +244,12 @@ def main(_args):
 
     # Host Remove
     elif _args.rmhost is not None:
+        _host = Host.objects(name=_args.rmhost)
+        future_schedules = Schedule.future_schedules(host=_host)
+        if future_schedules:
+            if not _args.force:
+                logger.error("Can't remove host with future schedule.")
+                exit(1)
         url = os.path.join(API_URL, 'host', _args.rmhost)
         _response = requests.delete(url)
         output_json_result(_response, {'host': _args.rmhost})
