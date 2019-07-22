@@ -113,15 +113,20 @@ class Validator(object):
 
             return False
 
-        for interface in test_host.interfaces:
+        for i, interface in enumerate(INTERFACES.keys()):
             new_ips = []
             host_ips = [
-                socket.gethostbyname(host.name) for host in _cloud_hosts
-                if interface.name in [_interface.name for _interface in host.interfaces]
+                {"ip": socket.gethostbyname(host.name), "host": host} for host in _cloud_hosts
+                if interface in [_interface.name for _interface in host.interfaces]
             ]
-            for ip in host_ips:
-                for value in INTERFACES[interface.name]:
-                    ip_apart = ip.split(".")
+            for host in host_ips:
+                _host_obj = host["host"]
+                _interfaces = INTERFACES[interface]
+                last_nic = i == len(_host_obj.interfaces) - 1
+                if last_nic and self.cloud.vlan:
+                    _interfaces = _interfaces[:1]
+                for value in _interfaces:
+                    ip_apart = host["ip"].split(".")
                     octets = value.split(".")
                     ip_apart[0] = octets[0]
                     ip_apart[1] = octets[1]
