@@ -91,11 +91,12 @@ def main(_args):
         if _args.action == 'schedule':
             if _args.host:
                 _host = Host.objects(name=_args.host).first()
-                logger.info("Default cloud: %s" % _host.default_cloud)
+                _kwargs["host"] = _host
+                logger.info("Default cloud: %s" % _host.default_cloud.name)
                 _current_schedule = Schedule.current_schedule(**_kwargs)
                 if _current_schedule:
                     _current_cloud = _current_schedule[0].cloud.name
-                    if _current_cloud != _host.default_cloud:
+                    if _current_cloud != _host.default_cloud.name:
                         logger.info("Current cloud: %s" % _current_cloud)
                         logger.info("Current schedule: %s" % _current_schedule[0].index)
                     else:
@@ -108,8 +109,8 @@ def main(_args):
                 if _host_schedules:
                     for schedule in _host_schedules:
                         _cloud_name = schedule.cloud.name
-                        start = datetime.datetime.utcfromtimestamp(int(schedule.start) / 1000)
-                        end = datetime.datetime.utcfromtimestamp(int(schedule.end) / 1000)
+                        start = str(schedule.start)[:-3]
+                        end = str(schedule.end)[:-3]
                         logger.info(
                             "%s| start=%s, end=%s, cloud=%s" % (
                                 schedule["index"],
