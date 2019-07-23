@@ -143,8 +143,11 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
             execute_ipmi(host, arguments=ipmi_pxe_persistent)
 
         if is_supported(host):
-            badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
-
+            try:
+                badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
+            except SystemExit:
+                logger.exception("Could not initialize Badfish. Verify ipmi credentials.")
+                return False
             try:
                 badfish.change_boot(
                     "director",
@@ -155,7 +158,7 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 )
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
-                badfish.clear_job_queue()
+                badfish.reboot_server()
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
