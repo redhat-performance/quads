@@ -1,7 +1,7 @@
 QUADS (quick and dirty scheduler)
-====================================
+=================================
 
-Automate scheduling and end-to-end provisioning of servers and networks.
+QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.
 
 * Visit the [QUADS blog](https://quads.dev)
 * Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
@@ -51,23 +51,23 @@ Automate scheduling and end-to-end provisioning of servers and networks.
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
-   - Create and manage a date/time schedule for machine allocations
-   - Drive system provisioning and network switch changes based on workload assignment via external commands
-   - Control PDU sockets for connected bare-metal systems for power actions
-   - Automated network and provisioning validation prior to delivering sets of machines/networks to users.
-   - Generates instackenv.json for each OpenStack environment.
-   - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
-     * Current system details
-     * Current workloads and assignments
-     * Current ownership and resource utilization links (grafana/collectd)
+   - Create and manage unlimited future scheduling for automated slicing & dicing of systems and network infrastructure
+   - Drive automated systems provisioning and network switch changes to deliver isolated, multi-tenant bare-metal environments
+   - Automated network and provisioning validation prior to delivering sets of machines/networks to tenants
+   - Automated allocation of optional, publicly routable VLANs
+   - Generates/maintains user-configurable [instackenv.json](https://docs.openstack.org/tripleo-docs/latest/install/environments/baremetal.html#instackenv-json) to accomodate OpenStack deployment.
+   - Automatically generate/maintain documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
+     * Current system details, infrastructure fleet inventory
+     * Current system group ownership (cloud), workloads and assignments
      * Total duration and time remaining in system assignments
      * Dynamic provisioning & system/network validation status per assignment
-     * Granular Ansible facts inventory per server via [ansible-cmdb](https://github.com/fboender/ansible-cmdb)
+     * Currently allocated/free optional publicly routable VLAN status
+     * ~~Granular Ansible facts inventory per server via [ansible-cmdb](https://github.com/fboender/ansible-cmdb)~~ (to be re-introduced in 1.1+)
    - Query scheduling data to determine future availability
-   - Generates a monthly, auto-updated calendar of machine assignments
    - Generates a per-month visualization map for per-machine allocations to assignments.
    - RT (or similiar ticketing system) integration.
    - IRC bot and email notifications for new provisioning tasks and ones ending completion
+   - ~~Control PDU sockets for connected bare-metal systems for power action~~ (to be re-introduced in 1.2)
 
 ## Design
    - Main components: `Python3, Cherrypy, Mongoengine, MongoDB, Jinja2`
@@ -92,11 +92,11 @@ Automate scheduling and end-to-end provisioning of servers and networks.
 You can read about QUADS architecture, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
 
 ## QUADS Switch and Host Setup
-   - To ensure you have setup your switch properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
+   - To ensure you have setup your network switches setup properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
-   - It's recommended to use the Docker method as it requires less setup.
+   - It's recommended to use the Docker method as it requires less setup
 
 ### Installing QUADS with Docker Compose
    - Clone the QUADS Github repository
@@ -191,8 +191,9 @@ systemctl start quads-server.service
 
 ### Installing QUADS from RPM
    - We build RPM packages for Fedora and CentOS/RHEL 8
-   - On Fedora30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
-   - On RHEL/CentOS8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
+   - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
+   - On RHEL/CentOS 8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
+   - On RHEL/CentOS 8 you'll also need to satisfy `python3-paramiko` RPM package from somewhere as it's been removed from EL8 in lieu of `libssh`
 
 * Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 
