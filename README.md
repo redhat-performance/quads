@@ -55,13 +55,14 @@ Automate scheduling and end-to-end provisioning of servers and networks.
    - Drive system provisioning and network switch changes based on workload assignment via external commands
    - Control PDU sockets for connected bare-metal systems for power actions
    - Automated network and provisioning validation prior to delivering sets of machines/networks to users.
+   - Automated allocation of optional, publicly routable VLANs
    - Generates instackenv.json for each OpenStack environment.
    - Automatically generate documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
-     * Current system details
-     * Current workloads and assignments
-     * Current ownership and resource utilization links (grafana/collectd)
+     * Current system details, infrastructure fleet inventory
+     * Current system group ownership (cloud), workloads and assignments
      * Total duration and time remaining in system assignments
      * Dynamic provisioning & system/network validation status per assignment
+     * Currently allocated/free optional publicly routable VLAN status
      * Granular Ansible facts inventory per server via [ansible-cmdb](https://github.com/fboender/ansible-cmdb)
    - Query scheduling data to determine future availability
    - Generates a monthly, auto-updated calendar of machine assignments
@@ -96,7 +97,7 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
 
 ## Installing QUADS
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
-   - It's recommended to use the Docker method as it requires less setup.
+   - It's recommended to use the Docker method as it requires less setup
 
 ### Installing QUADS with Docker Compose
    - Clone the QUADS Github repository
@@ -191,8 +192,9 @@ systemctl start quads-server.service
 
 ### Installing QUADS from RPM
    - We build RPM packages for Fedora and CentOS/RHEL 8
-   - On Fedora30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
-   - On RHEL/CentOS8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
+   - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
+   - On RHEL/CentOS 8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
+   - On RHEL/CentOS 8 you'll also need to satisfy `python3-paramiko` RPM package from somewhere as it's been removed from EL8 in lieu of `libssh`
 
 * Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 
