@@ -22,6 +22,30 @@
       "revId": "2d532cb63c918e1cb2c9fcb4f057cd523b63e50a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84f02b76_1679adde",
+        "filename": "docs/switch-host-setup.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-07-24T12:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6902bd7_795b7389",
+      "range": {
+        "startLine": 239,
+        "startChar": 42,
+        "endLine": 239,
+        "endChar": 48
+      },
+      "revId": "2d532cb63c918e1cb2c9fcb4f057cd523b63e50a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
