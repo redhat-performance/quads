@@ -16,6 +16,8 @@ General guidelines of how to setup your network switches, servers and DNS for QU
         * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
         * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
         * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
+          * [Add Optional SSH Keys](add-optional-ssh-keys)
+          * [Create QUADS IPMI Credentials](create-quads-ipmi-credentials)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -122,28 +124,13 @@ set interfaces xe-0/0/1:3 apply-groups QinQ_vl1140
 ```
 
 ## QUADS Host Network Setup
-   * For every bare-metal host you'll need an ```/opt/quads/data/ports/FQDN``` file that describes and maintains mappings
-      * Physical interface on each server and the corresponding mac address
-      * IP address of the switch the server is connected to
-      * switch-type label for vendor (currently unused, stub for supporting vendors outside Juniper)
-      * Physical switchport each host interface is connected to.
-   * You'll have a separate line per physical interface, connected to physical switchport per machine
-```
-cat /opt/quads/data/ports/c08-h13-r930.engineering.example.com
-```
-```
-em1,24:6e:96:0d:3d:90,10.12.67.247,switch-type,xe-0/0/3:0
-em2,24:6e:96:0d:3d:92,10.12.67.247,switch-type,xe-0/0/3:1
-em3,a0:36:9f:98:44:54,10.12.67.247,switch-type,xe-0/0/3:2
-em4,a0:36:9f:98:44:56,10.12.67.247,switch-type,xe-0/0/3:3
-```
+*  QUADS host interface information is now kept in the QUADS database, you can define this afterward at the time of defining your QUADS-managed host.  Refer to the host interface section of the [QUADS Usage Documentation](https://github.com/redhat-performance/quads/tree/master#quads-usage-documentation) after following the rest of this document.
 
 ## Adding New QUADS Host
-   * Rack the new systems to be added to QUADS
-      * The provisioning interface is typically wired into a 1GbE NIC and connected to a switch **not** managed by QUADS.
-
-   * Create DNS records using the following name format (in Foreman a new host entry will work)
-   * If you already have your own naming convention then CNAMES will work.
+* Rack the new systems to be added to QUADS
+  * The provisioning interface is typically wired into a 1GbE NIC and connected to a switch **not** managed by QUADS.
+  * Create DNS records using the following name format (in Foreman a new host entry will work)
+  * If you already have your own naming convention then CNAMES will work.
 ```
 (rack name)-h(u-location)-(system type)-(domain)
 ```
@@ -151,8 +138,10 @@ em4,a0:36:9f:98:44:56,10.12.67.247,switch-type,xe-0/0/3:3
 b08-h13-r620.rdu.openstack.engineering.example.com
 ```
 
-   * Optional PDU power management configuration
-      * Once the host is added, and if you have pdu_management enabled, you will also want to ensure you have your host PDU connections mapped out.  For more information on how to setup the PDU-connections.txt file please refer to [docs/pdu-setup.md](https://github.com/redhat-performance/quads/docs/pdu-setup.md)
+* Optional PDU power management configuration
+  * ~~Once the host is added, and if you have pdu_management enabled, you will also want to ensure you have your host PDU connections mapped out.  For more information on how to setup the PDU-connections.txt file please refer to [docs/pdu-setup.md](https://github.com/redhat-performance/quads/docs/pdu-setup.md)~~
+
+  * **NOTE** As of `1.1.0` PDU management is currently unavailable but will be added back in soon.
 
 ### Sending Notification Emails from a Container
    * If you want to send email from QUADS containers (and not the localhost MTA) you will need changes to the localhost MTA of the host running your docker container to facilitate relaying mail through it, as cgroup and container isolation do not permit this without additional settings.
@@ -223,13 +212,35 @@ for clouduser in $(seq 10 32); do hammer user-group add-user --name cloudusers -
 
 ### Adding New QUADS Host IPMI
 
+#### Add Optional SSH Keys
+
    * Ensure QUADS host has access to the out-of-band interfaces
       * For Dell systems we copy the QUADS ssh key in via racadm
 ```
 /opt/dell/srvadmin/bin/idracadm -r <drac IP> -u root -p calvin sshpkauth -f /root/.ssh/id_rsa_r620.pub -i 2 -k 1
 ```
+   * Refer to your vendor out-of-band documentation for other system types if you want to add ssh keys.
+
+#### Create QUADS IPMI Credentials
+   * IPMI credentials are defined in [the QUADS configuration file](https://github.com/redhat-performance/quads/blob/master/conf/quads.yml#L138) so adjust accordingly to your environment and preference.
+   * Note: SuperMicro systems (and perhaps other vendors) do not have the `root` user by default, if not you'll need to create it.
+   * Check if the `root` user exists first, Dell systems come with a `root` user by default so this step can be omitted.
+
+```
+ipmitool -I lanplus -H mgmt-<hostname> -U ADMIN -P ADMIN  user list | grep root
+```
+
+   * Note: SuperMicro systems (and perhaps other vendors) do not have the `root` user by default, if not you'll need to create it.
+
+```
+ipmitool -I lanplus -H mgmt-<hostname> -U ADMIN -P ADMIN  user set name 3 root
+ipmitool -I lanplus -H mgmt-<hostname> -U ADMIN -P ADMIN  user set password 3 YourRootPass
+ipmitool -I lanplus -H mgmt-<hostname> -U ADMIN -P ADMIN user priv 3 0x4
+ipmitool -I lanplus -H mgmt-<hostname> -U ADMIIN -P ADMIN channel setaccess 1 3 ipmi=on
+```
 
    * Create a ```quads``` IPMI user on all out-of-band interfaces with the proper privileges
+
 ```
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user set name 4 quads
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user set password 4 quads
