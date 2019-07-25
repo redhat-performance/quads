@@ -24,7 +24,7 @@ class MethodHandlerBase(object):
 
         :rtype: object
         """
-        q = {'name': obj}
+        q = {"name": obj}
         obj = self.model.objects(**q).first()
         return obj
 
@@ -50,17 +50,18 @@ class MovesMethodHandler(MethodHandlerBase):
                                 {
                                     "host": _host.name,
                                     "new": _scheduled_cloud,
-                                    "current": _host_defined_cloud
-                                })
+                                    "current": _host_defined_cloud,
+                                }
+                            )
                     except DoesNotExist:
                         continue
 
-                return json.dumps({'result': result})
+                return json.dumps({"result": result})
             except Exception as ex:
                 logger.debug(ex)
                 logger.info("400 Bad Request")
                 cherrypy.response.status = "400 Bad Request"
-                return json.dumps({'result': ['400 Bad Request']})
+                return json.dumps({"result": ["400 Bad Request"]})
 
 
 @cherrypy.expose
@@ -69,25 +70,25 @@ class DocumentMethodHandler(MethodHandlerBase):
         args = {}
         _cloud = None
         _host = None
-        if 'cloudonly' in data:
-            _cloud = model.Cloud.objects(cloud=data['cloudonly'])
+        if "cloudonly" in data:
+            _cloud = model.Cloud.objects(cloud=data["cloudonly"])
             if not _cloud:
                 cherrypy.response.status = "404 Not Found"
-                return json.dumps({'result': 'Cloud %s Not Found' % data['cloudonly']})
+                return json.dumps({"result": "Cloud %s Not Found" % data["cloudonly"]})
             else:
                 return _cloud.to_json()
         if self.name == "host":
-            if 'id' in data:
+            if "id" in data:
                 _host = model.Host.objects(id=data["id"]).first()
-            elif 'name' in data:
+            elif "name" in data:
                 _host = model.Host.objects(name=data["name"]).first()
-            elif 'cloud' in data:
+            elif "cloud" in data:
                 _cloud = model.Cloud.objects(name=data["cloud"]).first()
                 _host = model.Host.objects(cloud=_cloud)
             else:
                 _host = model.Host.objects()
             if not _host:
-                return json.dumps({'result': ["Nothing to do."]})
+                return json.dumps({"result": ["Nothing to do."]})
             return _host.to_json()
         if self.name == "ccuser":
             _clouds = model.Cloud.objects().all()
@@ -102,16 +103,17 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "owner": cloud.owner,
                         "ticket": cloud.ticket,
                         "ccuser": cloud.ccuser,
-                        "provisioned": cloud.provisioned
-                    })
+                        "provisioned": cloud.provisioned,
+                    }
+                )
 
             return json.dumps(clouds_summary)
         if self.name == "cloud":
-            if 'id' in data:
+            if "id" in data:
                 _cloud = model.Cloud.objects(id=data["id"]).first()
-            elif 'name' in data:
+            elif "name" in data:
                 _cloud = model.Cloud.objects(name=data["name"]).first()
-            elif 'owner' in data:
+            elif "owner" in data:
                 _cloud = model.Cloud.to_json(owner=data["owner"]).first()
             if _cloud:
                 return _cloud.to_json()
@@ -119,15 +121,24 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             _start = _end = datetime.datetime.now()
             if "start" in data:
-                _start = datetime.datetime.strptime(data["start"], '%Y-%m-%dT%H:%M:%S')
+                _start = datetime.datetime.strptime(data["start"], "%Y-%m-%dT%H:%M:%S")
 
             if "end" in data:
-                _end = datetime.datetime.strptime(data["end"], '%Y-%m-%dT%H:%M:%S')
+                _end = datetime.datetime.strptime(data["end"], "%Y-%m-%dT%H:%M:%S")
 
             available = []
             all_hosts = model.Host.objects().all()
+            foreman = Foreman(
+                conf["foreman_api_url"],
+                conf["foreman_username"],
+                conf["foreman_password"],
+            )
+            broken_hosts = foreman.get_broken_hosts()
+
             for host in all_hosts:
-                if model.Schedule.is_host_available(host=host["name"], start=_start, end=_end):
+                if model.Schedule.is_host_available(
+                    host=host["name"], start=_start, end=_end
+                ) and not broken_hosts.get(host["name"], False):
                     available.append(host["name"])
             return json.dumps(available)
 
@@ -149,37 +160,38 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "ccuser": cloud.ccuser,
                         "provisioned": cloud.provisioned,
                         "validated": cloud.validated,
-                    })
+                    }
+                )
 
             return json.dumps(clouds_summary)
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
         else:
-            return json.dumps({'result': ["No results."]})
+            return json.dumps({"result": ["No results."]})
 
     # post data comes in **data
     def POST(self, **data):
         # handle force
 
-        force = data.get('force', False) == 'True'
-        if 'force' in data:
-            del data['force']
+        force = data.get("force", False) == "True"
+        if "force" in data:
+            del data["force"]
 
         # make sure post data passed in is ready to pass to mongo engine
         result, obj_data = self.model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
-            result = ['Data validation failed: %s' % ', '.join(result)]
+            result = ["Data validation failed: %s" % ", ".join(result)]
             cherrypy.response.status = "400 Bad Request"
         else:
             # check if object already exists
-            obj_name = data['name']
+            obj_name = data["name"]
             obj = self._get_obj(obj_name)
             if obj and not force:
                 result.append(
-                    '%s %s already exists.' % (self.name.capitalize(), obj_name)
+                    "%s %s already exists." % (self.name.capitalize(), obj_name)
                 )
                 cherrypy.response.status = "409 Conflict"
             else:
@@ -189,15 +201,26 @@ class DocumentMethodHandler(MethodHandlerBase):
                     if force and obj:
                         schedule_count = 0
                         if self.name == "cloud":
-                            schedule_count = model.Schedule.objects(cloud=obj, start__gte=datetime.datetime.now()).count()
-                            notification_obj = model.Notification.objects(cloud=obj, ticket=data["ticket"]).first()
+                            schedule_count = model.Schedule.objects(
+                                cloud=obj, start__gte=datetime.datetime.now()
+                            ).count()
+                            notification_obj = model.Notification.objects(
+                                cloud=obj, ticket=data["ticket"]
+                            ).first()
                             if not notification_obj:
-                                model.Notification(cloud=obj, ticket=data["ticket"]).save()
+                                model.Notification(
+                                    cloud=obj, ticket=data["ticket"]
+                                ).save()
 
                             copy_data = data.copy()
-                            history_result, history_data = model.CloudHistory.prep_data(copy_data)
+                            history_result, history_data = model.CloudHistory.prep_data(
+                                copy_data
+                            )
                             if history_result:
-                                result.append('Data validation failed: %s' % ', '.join(history_result))
+                                result.append(
+                                    "Data validation failed: %s"
+                                    % ", ".join(history_result)
+                                )
                                 cherrypy.response.status = "400 Bad Request"
                             else:
                                 model.CloudHistory(**history_data).save()
@@ -207,23 +230,19 @@ class DocumentMethodHandler(MethodHandlerBase):
                             cherrypy.response.status = "400 Bad Request"
                         else:
                             obj.update(**obj_data)
-                            result.append(
-                                'Updated %s %s' % (self.name, obj_name)
-                            )
+                            result.append("Updated %s %s" % (self.name, obj_name))
                     # otherwise create it
                     else:
                         self.model(**obj_data).save()
                         cherrypy.response.status = "201 Resource Created"
-                        result.append(
-                            'Created %s %s' % (self.name, obj_name)
-                        )
+                        result.append("Created %s %s" % (self.name, obj_name))
                 except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
                     #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
-                    result.append('Error: %s' % e)
-        return json.dumps({'result': result})
+                    result.append("Error: %s" % e)
+        return json.dumps({"result": result})
 
     def PUT(self, **data):
         # update operations are done through POST
@@ -235,11 +254,11 @@ class DocumentMethodHandler(MethodHandlerBase):
         if obj:
             obj.delete()
             cherrypy.response.status = "204 No Content"
-            result = ['deleted %s %s' % (self.name, obj_name)]
+            result = ["deleted %s %s" % (self.name, obj_name)]
         else:
             cherrypy.response.status = "404 Not Found"
-            result = ['%s %s Not Found' % (self.name, obj_name)]
-        return json.dumps({'result': result})
+            result = ["%s %s Not Found" % (self.name, obj_name)]
+        return json.dumps({"result": result})
 
 
 @cherrypy.expose
@@ -254,7 +273,9 @@ class ScheduleMethodHandler(MethodHandlerBase):
             if host:
                 _args["host"] = host
             else:
-                return json.dumps({'result': ["Couldn't find host %s on Quads DB." % data["host"]]})
+                return json.dumps(
+                    {"result": ["Couldn't find host %s on Quads DB." % data["host"]]}
+                )
         if "cloud" in data:
             cloud = model.Cloud.objects(name=data["cloud"]).first()
             if cloud:
@@ -264,7 +285,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
             if _schedule:
                 return _schedule.to_json()
             else:
-                return json.dumps({'result': ["No results."]})
+                return json.dumps({"result": ["No results."]})
         return self.model.objects(**_args).to_json()
 
     # post data comes in **data
@@ -276,10 +297,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
         _end = None
 
         if "start" in data:
-            _start = datetime.datetime.strptime(data["start"], '%Y-%m-%d %H:%M')
+            _start = datetime.datetime.strptime(data["start"], "%Y-%m-%d %H:%M")
 
         if "end" in data:
-            _end = datetime.datetime.strptime(data["end"], '%Y-%m-%d %H:%M')
+            _end = datetime.datetime.strptime(data["end"], "%Y-%m-%d %H:%M")
 
         # check for broken hosts from foreman
         # to enable checking foreman host health before scheduling
@@ -288,17 +309,17 @@ class ScheduleMethodHandler(MethodHandlerBase):
             foreman = Foreman(
                 conf["foreman_api_url"],
                 conf["foreman_username"],
-                conf["foreman_password"]
+                conf["foreman_password"],
             )
             broken_hosts = foreman.get_broken_hosts()
-            if broken_hosts.get(data['host'], False):
-                result.append("Host %s is in broken state" % data['host'])
+            if broken_hosts.get(data["host"], False):
+                result.append("Host %s is in broken state" % data["host"])
 
         # Check if there were data validation errors
         if result:
-            result = ['Data validation failed: %s' % ', '.join(result)]
+            result = ["Data validation failed: %s" % ", ".join(result)]
             cherrypy.response.status = "400 Bad Request"
-            return json.dumps({'result': result})
+            return json.dumps({"result": result})
 
         cloud_obj = None
         if "cloud" in data:
@@ -306,14 +327,16 @@ class ScheduleMethodHandler(MethodHandlerBase):
             if not cloud_obj:
                 result.append("Provided cloud does not exist")
                 cherrypy.response.status = "400 Bad Request"
-                return json.dumps({'result': result})
+                return json.dumps({"result": result})
 
         _host = data["host"]
         _host_obj = model.Host.objects(name=_host).first()
 
         if "index" in data:
             data["host"] = _host_obj
-            schedule = self.model.objects(index=data["index"], host=data["host"]).first()
+            schedule = self.model.objects(
+                index=data["index"], host=data["host"]
+            ).first()
             if schedule:
                 if not _start:
                     _start = schedule.start
@@ -321,15 +344,22 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     _end = schedule.end
                 if not cloud_obj:
                     cloud_obj = schedule.cloud
-                if model.Schedule.is_host_available(host=_host, start=_start, end=_end, exclude=schedule.index):
+                if model.Schedule.is_host_available(
+                    host=_host, start=_start, end=_end, exclude=schedule.index
+                ):
                     data["cloud"] = cloud_obj
-                    notification_obj = model.Notification.objects(cloud=cloud_obj, ticket=cloud_obj.ticket).first()
+                    notification_obj = model.Notification.objects(
+                        cloud=cloud_obj, ticket=cloud_obj.ticket
+                    ).first()
                     if notification_obj:
-                        notification_obj.update(one_day=False, three_days=False, five_days=False, seven_days=False)
+                        notification_obj.update(
+                            one_day=False,
+                            three_days=False,
+                            five_days=False,
+                            seven_days=False,
+                        )
                     schedule.update(**data)
-                    result.append(
-                        'Updated %s %s' % (self.name, schedule.index)
-                    )
+                    result.append("Updated %s %s" % (self.name, schedule.index))
                 else:
                     result.append("Host is not available during that time frame")
         else:
@@ -339,7 +369,9 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     data["cloud"] = cloud_obj
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
-                    result.append('Added schedule for %s on %s' % (data["host"], cloud_obj.name))
+                    result.append(
+                        "Added schedule for %s on %s" % (data["host"], cloud_obj.name)
+                    )
                 else:
                     result.append("Host is not available during that time frame")
 
@@ -348,8 +380,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 #       points back to here and gives the end user
                 #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
-                result.append('Error: %s' % e)
-        return json.dumps({'result': result})
+                result.append("Error: %s" % e)
+        return json.dumps({"result": result})
 
     def PUT(self, **data):
         # update operations are done through POST
@@ -363,11 +395,11 @@ class ScheduleMethodHandler(MethodHandlerBase):
             if schedule:
                 schedule.delete()
                 cherrypy.response.status = "204 No Content"
-                result = ['deleted %s ' % self.name]
+                result = ["deleted %s " % self.name]
             else:
                 cherrypy.response.status = "404 Not Found"
-                result = ['%s Not Found' % self.name]
-        return json.dumps({'result': result})
+                result = ["%s Not Found" % self.name]
+        return json.dumps({"result": result})
 
 
 @cherrypy.expose
@@ -379,15 +411,15 @@ class InterfaceMethodHandler(MethodHandlerBase):
                 result = []
                 for i in host.interfaces:
                     result.append(i.to_json())
-                return json.dumps({'result': result})
-        return json.dumps({'result': "No host provided"})
+                return json.dumps({"result": result})
+        return json.dumps({"result": "No host provided"})
 
     # post data comes in **data
     def POST(self, **data):
         # handle force
-        force = data.get('force', False) == 'True'
-        if 'force' in data:
-            del data['force']
+        force = data.get("force", False) == "True"
+        if "force" in data:
+            del data["force"]
 
         _host_name = data.pop("host")
 
@@ -396,13 +428,15 @@ class InterfaceMethodHandler(MethodHandlerBase):
 
         # Check if there were data validation errors
         if result:
-            result = ['Data validation failed: %s' % ', '.join(result)]
+            result = ["Data validation failed: %s" % ", ".join(result)]
             cherrypy.response.status = "400 Bad Request"
         else:
-            _host = model.Host.objects(name=_host_name, interfaces__name=data["name"]).first()
+            _host = model.Host.objects(
+                name=_host_name, interfaces__name=data["name"]
+            ).first()
             if _host and not force:
                 result.append(
-                    '%s %s already exists.' % (self.name.capitalize(), data["name"])
+                    "%s %s already exists." % (self.name.capitalize(), data["name"])
                 )
                 cherrypy.response.status = "409 Conflict"
             else:
@@ -410,30 +444,31 @@ class InterfaceMethodHandler(MethodHandlerBase):
                     interface = self.model(**data)
                     if force and _host:
                         updated = model.Host.objects(
-                            name=_host_name,
-                            interfaces__name=data["name"]
+                            name=_host_name, interfaces__name=data["name"]
                         ).update_one(set__interfaces__S=interface)
                         if updated:
                             cherrypy.response.status = "201 Resource Created"
-                            result.append('Updated %s %s' % (self.name, data["name"]))
+                            result.append("Updated %s %s" % (self.name, data["name"]))
                         else:
                             cherrypy.response.status = "400 Bad Request"
-                            result.append('Host %s not found.' % _host_name)
+                            result.append("Host %s not found." % _host_name)
                     else:
-                        updated = model.Host.objects(name=_host_name).update_one(push__interfaces=interface)
+                        updated = model.Host.objects(name=_host_name).update_one(
+                            push__interfaces=interface
+                        )
                         if updated:
                             cherrypy.response.status = "201 Resource Created"
-                            result.append('Created %s %s' % (self.name, data["name"]))
+                            result.append("Created %s %s" % (self.name, data["name"]))
                         else:
                             cherrypy.response.status = "400 Bad Request"
-                            result.append('Host %s not found.' % _host_name)
+                            result.append("Host %s not found." % _host_name)
                 except Exception as e:
                     # TODO: make sure when this is thrown the output
                     #       points back to here and gives the end user
                     #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
-                    result.append('Error: %s' % e)
-        return json.dumps({'result': result})
+                    result.append("Error: %s" % e)
+        return json.dumps({"result": result})
 
     def PUT(self, **data):
         # update operations are done through POST
@@ -441,43 +476,48 @@ class InterfaceMethodHandler(MethodHandlerBase):
         return self.POST(**data)
 
     def DELETE(self, **data):
-        _host = model.Host.objects(name=data["host"], interfaces__name=data["name"]).first()
+        _host = model.Host.objects(
+            name=data["host"], interfaces__name=data["name"]
+        ).first()
         result = []
         if _host:
             try:
                 model.Host.objects(
-                    name=data["host"],
-                    interfaces__name=data["name"]
+                    name=data["host"], interfaces__name=data["name"]
                 ).update_one(pull__interfaces__name=data["name"])
                 cherrypy.response.status = "204 No Content"
-                result.append('Removed %s.' % data["name"])
+                result.append("Removed %s." % data["name"])
             except Exception as e:
                 cherrypy.response.status = "500 Internal Server Error"
-                result.append('Error: %s' % e)
+                result.append("Error: %s" % e)
 
-        return json.dumps({'result': result})
+        return json.dumps({"result": result})
 
 
 @cherrypy.expose
 class VersionMethodHandler(object):
     def GET(self):
-        return json.dumps({'result': 'QUADS version %s %s' % (QUADSVERSION, QUADSCODENAME)})
+        return json.dumps(
+            {"result": "QUADS version %s %s" % (QUADSVERSION, QUADSCODENAME)}
+        )
 
 
 @cherrypy.expose
 class QuadsServerApiV2(object):
     def __init__(self):
         self.version = VersionMethodHandler()
-        self.cloud = DocumentMethodHandler(model.Cloud, 'cloud')
-        self.owner = DocumentMethodHandler(model.Cloud, 'owner')
-        self.ccuser = DocumentMethodHandler(model.Cloud, 'ccuser')
-        self.ticket = DocumentMethodHandler(model.Cloud, 'ticket')
-        self.qinq = DocumentMethodHandler(model.Cloud, 'qinq')
-        self.wipe = DocumentMethodHandler(model.Cloud, 'wipe')
-        self.host = DocumentMethodHandler(model.Host, 'host')
-        self.schedule = ScheduleMethodHandler(model.Schedule, 'schedule')
-        self.current_schedule = ScheduleMethodHandler(model.Schedule, 'current_schedule')
-        self.available = DocumentMethodHandler(model.Schedule, 'available')
-        self.summary = DocumentMethodHandler(model.Schedule, 'summary')
-        self.interfaces = InterfaceMethodHandler(model.Interface, 'interface')
-        self.moves = MovesMethodHandler(model.Schedule, 'moves')
+        self.cloud = DocumentMethodHandler(model.Cloud, "cloud")
+        self.owner = DocumentMethodHandler(model.Cloud, "owner")
+        self.ccuser = DocumentMethodHandler(model.Cloud, "ccuser")
+        self.ticket = DocumentMethodHandler(model.Cloud, "ticket")
+        self.qinq = DocumentMethodHandler(model.Cloud, "qinq")
+        self.wipe = DocumentMethodHandler(model.Cloud, "wipe")
+        self.host = DocumentMethodHandler(model.Host, "host")
+        self.schedule = ScheduleMethodHandler(model.Schedule, "schedule")
+        self.current_schedule = ScheduleMethodHandler(
+            model.Schedule, "current_schedule"
+        )
+        self.available = DocumentMethodHandler(model.Schedule, "available")
+        self.summary = DocumentMethodHandler(model.Schedule, "summary")
+        self.interfaces = InterfaceMethodHandler(model.Interface, "interface")
+        self.moves = MovesMethodHandler(model.Schedule, "moves")
