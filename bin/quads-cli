@@ -100,9 +100,9 @@ def main(_args):
                         logger.info("Current cloud: %s" % _current_cloud)
                         logger.info("Current schedule: %s" % _current_schedule[0].index)
                     else:
-                        logger.info("Current cloud: %s" % _host.default_cloud)
+                        logger.info("Current cloud: %s" % _host.default_cloud.name)
                 else:
-                    logger.info("Current cloud: %s" % _host.default_cloud)
+                    logger.info("Current cloud: %s" % _host.default_cloud.name)
                 if "date" in _kwargs:
                     _kwargs.pop("date")
                 _host_schedules = Schedule.objects(**_kwargs)
