@@ -260,9 +260,8 @@ class Schedule(Document):
 
     @queryset_manager
     def future_schedules(self, queryset, host):
-        _host = Host.objects(name=host).first()
         now = datetime.now()
-        _query = Q(host=_host) & Q(end__gte=now)
+        _query = Q(host=host) & Q(end__gte=now)
         return queryset.filter(_query)
 
     @queryset_manager
