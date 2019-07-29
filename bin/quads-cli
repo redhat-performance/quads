@@ -82,6 +82,12 @@ def main(_args):
             if _args.host is None:
                 logger.error('Missing option. --host option is required for --ls-interface:')
                 exit(1)
+
+            _host = Host.objects(name=_args.host).first()
+            if not _host:
+                logger.error('Host %s does not exist' % _args.host)
+                exit(1)
+
             data = quads.get_interfaces(**_kwargs)
             if data:
                 for interface in data["result"]:
@@ -91,6 +97,10 @@ def main(_args):
         if _args.action == 'schedule':
             if _args.host:
                 _host = Host.objects(name=_args.host).first()
+                if not _host:
+                    logger.error('Host %s does not exist' % _host)
+                    exit(1)
+
                 _kwargs["host"] = _host
                 logger.info("Default cloud: %s" % _host.default_cloud.name)
                 _current_schedule = Schedule.current_schedule(**_kwargs)
