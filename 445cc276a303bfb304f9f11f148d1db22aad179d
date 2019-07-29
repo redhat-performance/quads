@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e8a866c_b92b73a3",
+        "filename": "bin/quads-cli",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-07-29T13:41:36Z",
+      "side": 1,
+      "message": "_args.host",
+      "range": {
+        "startLine": 101,
+        "startChar": 60,
+        "endLine": 101,
+        "endChar": 65
+      },
+      "revId": "445cc276a303bfb304f9f11f148d1db22aad179d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
