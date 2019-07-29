@@ -31,7 +31,7 @@ def print_header():
 
 def print_summary():
     _summary = []
-    _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**"]
+    _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**", "**STATUS**"]
     if conf["openstack_management"]:
         _headers.append("**INSTACKENV**")
     if conf["gather_ansible_facts"]:
@@ -60,10 +60,18 @@ def print_summary():
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
+            status = """![progress]
+            (http://www.yarntomato.com/percentbarmaker/button.php?barPosition=100&leftFill=#76D275)"""
         else:
+            cloud_obj = Cloud.objects(name=cloud_name).first()
+            scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
+            moved_hosts = Host.objects(cloud=cloud_obj).count()
+            percent = moved_hosts / scheduled_hosts * 100
             style_tag_start = '<span style="color:red">'
-            instack_link = os.path.join(conf["quads_url"], "underconstruction")
+            instack_link = "#"
             instack_text = "validating"
+            status = """![progress]
+            (http://www.yarntomato.com/percentbarmaker/button.php?barPosition=%.0f&leftFill=#FFFF00)""" % percent
 
         _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
 
@@ -81,12 +89,14 @@ def print_summary():
                 ansible_facts_link = os.path.join(conf["quads_url"], "underconstruction")
             if cloud_name == "cloud01":
                 _data.append("")
+                _data.append(status)
                 _data.append("")
             else:
                 _data.append(
                     "<a href=%s target=_blank>%s%s%s</a>"
                     % (instack_link, style_tag_start, instack_text, style_tag_end)
                 )
+                _data.append(status)
                 _data.append(
                     "<a href=%s target=_blank>%sinventory%s</a>"
                     % (ansible_facts_link, factstyle_tag_start, factstyle_tag_end)
@@ -94,11 +104,13 @@ def print_summary():
         else:
             if cloud_name == "cloud01":
                 _data.append("")
+                _data.append(status)
             else:
                 _data.append(
                     "<a href=%s target=_blank>%s%s%s</a>"
                     % (instack_link, style_tag_start, instack_text, style_tag_end)
                 )
+                _data.append(status)
 
         if conf["gather_dell_configs"]:
             dellstyle_tag_end = "</span>"
