@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7148fa3_0fbba1e6",
+        "filename": "bin/quads-cli",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-07-29T13:20:49Z",
+      "side": 1,
+      "message": "Remove this 2 lines as they are redundant.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 61
+      },
+      "revId": "86989c43b67d2d3afcee88261830486a1ce322b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
