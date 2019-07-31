@@ -60,13 +60,9 @@ def print_summary():
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
-            status = '''
-            <div class="progress" style="margin-bottom:0px">
-                <div role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"
-                class="progress-bar">
-                100%
-                </div>
-            </div>'''
+            status = '<span class="progress" style="margin-bottom:0px">\
+            <span role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" \
+            class="progress-bar">100%</span></span>'
         else:
             cloud_obj = Cloud.objects(name=cloud_name).first()
             scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
@@ -76,13 +72,9 @@ def print_summary():
             instack_link = "#"
             instack_text = "validating"
             classes = ["progress-bar", "progress-bar-striped", "active"]
-            status = '''
-            <div class="progress" style="margin-bottom:0px">
-                <div role="progressbar" aria-valuenow="%s" aria-valuemin="0" aria-valuemax="100" style="width:%s%%"
-                class="%s">
-                %s%%
-                </div>
-            </div>''' % (percent, percent, " ".join(classes), percent)
+            status = '<span class="progress" style="margin-bottom:0px">\
+            <span role="progressbar" aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" \
+            class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
 
         _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
 
@@ -255,13 +247,12 @@ def main():
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):
-            mgmt_host = foreman.get_idrac_host_with_details(host)
-            if mgmt_host:
+            if properties.get("sp_name", False):
                 properties["host_ip"] = all_hosts.get(host, {"ip": None})["ip"]
                 properties["host_mac"] = all_hosts.get(host, {"mac": None})["mac"]
-                properties["ip"] = mgmt_host["ip"]
-                properties["mac"] = mgmt_host["mac"]
-                mgmt_hosts[mgmt_host["name"]] = properties
+                properties["ip"] = properties.get("sp_ip")
+                properties["mac"] = properties.get("sp_mac")
+                mgmt_hosts[properties.get("sp_name")] = properties
 
     lines.append("### **SUMMARY**\n")
     _summary = print_summary()

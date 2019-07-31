@@ -63,7 +63,7 @@ def render_row(_host, _properties):
                 cloud_data = _cloud_response.json()
                 if "owner" in cloud_data:
                     owner = cloud_data["owner"]
-            cloud = "[%s](/assignments/#%s)" % (cloud_data["name"], cloud_data["name"])
+                cloud = "[%s](/assignments/#%s)" % (cloud_data["name"], cloud_data["name"])
 
     row = [
         u_loc,
@@ -100,14 +100,13 @@ def main():
     hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):
-            mgmt_host = foreman.get_idrac_host_with_details(host)
-            if mgmt_host:
+            if properties.get("sp_name", False):
                 properties["host_ip"] = properties["ip"]
                 properties["host_mac"] = properties["mac"]
-                properties["ip"] = mgmt_host["ip"]
-                properties["mac"] = mgmt_host["mac"]
+                properties["ip"] = properties.get("sp_ip")
+                properties["mac"] = properties.get("sp_mac")
                 consolidate_ipmi_data(host, "macaddr", properties["host_mac"])
-                consolidate_ipmi_data(host, "oobmacaddr", mgmt_host["mac"])
+                consolidate_ipmi_data(host, "oobmacaddr", properties.get("sp_mac"))
                 svctag_file = os.path.join(conf["data_dir"], "ipmi", host, "svctag")
                 svctag = ""
                 if os.path.exists(svctag_file):
