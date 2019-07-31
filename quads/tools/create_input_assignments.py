@@ -71,7 +71,7 @@ def print_summary():
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
             instack_text = "validating"
-            classes = ["progress-bar", "progress-bar-striped", "active"]
+            classes = ["progress-bar", "progress-bar-striped", "progress-bar-warning", "active"]
             status = '<span class="progress" style="margin-bottom:0px">\
             <span role="progressbar" aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" \
             class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
