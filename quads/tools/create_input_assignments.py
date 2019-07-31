@@ -60,7 +60,13 @@ def print_summary():
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
-            status = '<img src="http://www.yarntomato.com/percentbarmaker/button.php?barPosition=100&leftFill=%2476D275" alt="" />'
+            status = '''
+            <div class="progress" style="margin-bottom:0px">
+                <div role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%"
+                class="progress-bar">
+                100%
+                </div>
+            </div>'''
         else:
             cloud_obj = Cloud.objects(name=cloud_name).first()
             scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
@@ -69,7 +75,14 @@ def print_summary():
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
             instack_text = "validating"
-            status = '<img src="http://www.yarntomato.com/percentbarmaker/button.php?barPosition=%.0f&leftFill=%%24FFFF00" alt="" />' % percent
+            classes = ["progress-bar", "progress-bar-striped", "active"]
+            status = '''
+            <div class="progress" style="margin-bottom:0px">
+                <div role="progressbar" aria-valuenow="%s" aria-valuemin="0" aria-valuemax="100" style="width:%s%%"
+                class="%s">
+                %s%%
+                </div>
+            </div>''' % (percent, percent, " ".join(classes), percent)
 
         _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
 
