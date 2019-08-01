@@ -8,6 +8,7 @@ import time
 from quads import model
 from mongoengine.errors import DoesNotExist
 from quads.config import conf, QUADSVERSION, QUADSCODENAME
+from quads.model import Notification
 from quads.tools.foreman import Foreman
 
 logger = logging.getLogger()
@@ -328,6 +329,13 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 result.append("Provided cloud does not exist")
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({"result": result})
+            cloud_obj.update(validated=False)
+            notification_obj = Notification.objects(
+                cloud=cloud_obj,
+                ticket=cloud_obj.ticket
+            ).first()
+            if notification_obj:
+                notification_obj.update(success=False, fail=False)
 
         _host = data["host"]
         _host_obj = model.Host.objects(name=_host).first()
