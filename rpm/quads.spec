@@ -31,6 +31,7 @@ Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
+Requires: python3-aiohttp >= 3.4.4
 Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
