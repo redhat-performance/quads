@@ -3,7 +3,6 @@ import cherrypy
 import datetime
 import json
 import logging
-import time
 
 from quads import model
 from mongoengine.errors import DoesNotExist
