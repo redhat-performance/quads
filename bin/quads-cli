@@ -15,7 +15,9 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import asyncio
 import datetime
+import functools
 import logging
 from collections import defaultdict
 
@@ -29,7 +31,7 @@ from json import JSONDecodeError
 from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
 from quads.tools import make_instackenv_json
-from quads.tools.move_and_rebuild_hosts import move_and_rebuild
+from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host
 
 logger = logging.getLogger(__name__)
@@ -56,6 +58,10 @@ def output_json_result(request, data):
         logger.error('Could not parse json reply.')
         logger.debug(request.text)
         exit(1)
+
+
+def exception_handler(loop, context):
+    logger.error(f"Caught exception: {context['message']}")
 
 
 def main(_args):
@@ -354,6 +360,8 @@ def main(_args):
 
             for _cloud, results in _clouds.items():
                 provisioned = True
+                tasks = []
+                switch_tasks = []
                 for result in results:
                     host = result['host']
                     current = result['current']
@@ -363,8 +371,9 @@ def main(_args):
                     if not _args.dryrun:
                         try:
                             if _args.movecommand == default_move_command:
-                                next_provision = move_and_rebuild(host, current, new, cloud.wipe)
-                                provisioned = provisioned and next_provision
+                                fn = functools.partial(move_and_rebuild, host, current, new, cloud.wipe)
+                                tasks.append(fn)
+                                switch_tasks.append(functools.partial(switch_config, host, current, new))
                             else:
                                 if cloud.wipe:
                                     subprocess.check_call([args.movecommand, host, current, new])
@@ -373,6 +382,27 @@ def main(_args):
                         except Exception:
                             logger.exception('Move command failed for host: %s' % host)
                             provisioned = False
+
+                if not _args.dryrun:
+                    loop = asyncio.get_event_loop()
+                    loop.set_exception_handler(exception_handler)
+                    try:
+                        done = loop.run_until_complete(
+                            asyncio.gather(*[task() for task in tasks], return_exceptions=True),
+                        )
+                    except Exception:
+                        logger.exception('Move command failed for host: %s' % host)
+                        provisioned = False
+                    finally:
+                        loop.stop()
+                    if provisioned:
+                        for future in done:
+                            if isinstance(future, Exception):
+                                provisioned = False
+                            else:
+                                provisioned = provisioned and future
+                    for task in switch_tasks:
+                        task()
                         # TODO: Add logic here for setting host to validated=false
                         #  if result["new"]==default_cloud
 
@@ -381,6 +411,7 @@ def main(_args):
                         _new_cloud_obj = Cloud.objects(name=_cloud).first()
                         _new_cloud_obj.update(provisioned=True)
                         make_instackenv_json.main()
+
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     _old_cloud_obj.update(provisioned=False, validated=False, vlan=None, wipe=True)
 
