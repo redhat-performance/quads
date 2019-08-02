@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-
+import asyncio
 import logging
 import os
-import subprocess
 from datetime import datetime
 from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
 from quads.model import Host, Cloud
-from quads.tools.badfish import Badfish
+from quads.tools.badfish import badfish_factory
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
@@ -19,47 +18,13 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 
-def execute_ipmi(host, arguments):
-    ipmi_cmd = [
-        "/usr/bin/ipmitool",
-        "-I", "lanplus",
-        "-H", "mgmt-%s" % host,
-        "-U", conf["ipmi_username"],
-        "-P", conf["ipmi_password"],
-    ]
-    logger.debug("Executing IPMI with argmuents: %s" % arguments)
-    subprocess.call(ipmi_cmd + arguments)
-
-
-def ipmi_reset(host):
-    ipmi_off = [
-        "chassis", "power", "off",
-    ]
-    execute_ipmi(host, ipmi_off)
-    sleep(conf["ipmi_reset_sleep"])
-    ipmi_on = [
-        "chassis", "power", "on",
-    ]
-    execute_ipmi(host, ipmi_on)
-
-
-def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
-    logger.debug("Moving and rebuilding host: %s" % host)
-
-    untouchable_hosts = conf["untouchable_hosts"]
-    logger.debug("Untouchable hosts: %s" % untouchable_hosts)
+def switch_config(host,  old_cloud, new_cloud):
     _host_obj = Host.objects(name=host).first()
+    _old_cloud_obj = Cloud.objects(name=old_cloud).first()
+    _new_cloud_obj = Cloud.objects(name=new_cloud).first()
     if not _host_obj.interfaces:
         logger.error("Host has no interfaces defined.")
         return False
-
-    if host in untouchable_hosts:
-        logger.error("No way...")
-        return False
-
-    _old_cloud_obj = Cloud.objects(name=old_cloud).first()
-    _new_cloud_obj = Cloud.objects(name=new_cloud).first()
-
     logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
     for i, interface in enumerate(_host_obj.interfaces):
         ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
@@ -108,6 +73,48 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
 
         ssh_helper.disconnect()
 
+
+async def execute_ipmi(host, arguments):
+    ipmi_cmd = [
+        "/usr/bin/ipmitool",
+        "-I", "lanplus",
+        "-H", "mgmt-%s" % host,
+        "-U", conf["ipmi_username"],
+        "-P", conf["ipmi_password"],
+    ]
+    logger.debug("Executing IPMI with argmuents: %s" % arguments)
+    cmd = ipmi_cmd + arguments
+    process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    logger.debug(f"{stdout.decode().strip()}")
+
+
+async def ipmi_reset(host):
+    ipmi_off = [
+        "chassis", "power", "off",
+    ]
+    await execute_ipmi(host, ipmi_off)
+    sleep(conf["ipmi_reset_sleep"])
+    ipmi_on = [
+        "chassis", "power", "on",
+    ]
+    asyncio.create_task(execute_ipmi(host, ipmi_on))
+
+
+async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
+    logger.debug("Moving and rebuilding host: %s" % host)
+
+    untouchable_hosts = conf["untouchable_hosts"]
+    logger.debug("Untouchable hosts: %s" % untouchable_hosts)
+    _host_obj = Host.objects(name=host).first()
+
+    if host in untouchable_hosts:
+        logger.error("No way...")
+        return False
+
+    _old_cloud_obj = Cloud.objects(name=old_cloud).first()
+    _new_cloud_obj = Cloud.objects(name=new_cloud).first()
+
     ipmi_new_pass = _new_cloud_obj.ticket if _new_cloud_obj.ticket else conf["$ipmi_password"]
 
     foreman = Foreman(
@@ -115,20 +122,21 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         conf["foreman_username"],
         conf["foreman_password"],
     )
-    foreman.remove_role(_old_cloud_obj.name, _host_obj.name)
-    foreman.add_role(_new_cloud_obj.name, _host_obj.name)
-    foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
+    asyncio.create_task(foreman.remove_role(_old_cloud_obj.name, _host_obj.name))
+    asyncio.create_task(foreman.add_role(_new_cloud_obj.name, _host_obj.name))
+    asyncio.create_task(foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass))
 
     ipmi_set_pass = [
         "user", "set", "password",
         str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
-    execute_ipmi(host, arguments=ipmi_set_pass)
+
+    asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_pass))
 
     ipmi_set_operator = [
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
-    execute_ipmi(host, arguments=ipmi_set_operator)
+    asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_operator))
 
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
@@ -140,54 +148,56 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 "chassis", "bootdev", "pxe",
                 "options", "=", "persistent"
             ]
-            execute_ipmi(host, arguments=ipmi_pxe_persistent)
+            asyncio.create_task(execute_ipmi(host, arguments=ipmi_pxe_persistent))
 
         if is_supported(host):
             try:
-                badfish = Badfish("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
+                badfish = await badfish_factory("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
             except SystemExit:
                 logger.exception("Could not initialize Badfish. Verify ipmi credentials.")
                 return False
             try:
-                badfish.change_boot(
-                    "director",
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        "../../conf/idrac_interfaces.yml"
+                asyncio.create_task(
+                    badfish.change_boot(
+                        "director",
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            "../../conf/idrac_interfaces.yml"
+                        )
                     )
                 )
             except SystemExit:
                 logger.exception("Could not set boot order via Badfish.")
-                badfish.reboot_server()
+                asyncio.create_task(badfish.reboot_server())
                 return False
 
-        foreman_success = foreman.set_host_parameter(host, "overcloud", "true")
-        foreman_success = foreman.put_parameter(host, "build", 1) and foreman_success
+        foreman_success = await foreman.set_host_parameter(host, "overcloud", "true")
+        foreman_success = await foreman.put_parameter(host, "build", 1) and foreman_success
         params = [
             {"name": "operatingsystems", "value": conf["foreman_default_os"], "identifier": "title"},
             {"name": "ptables", "value": conf["foreman_default_ptable"]},
             {"name": "media", "value": conf["foreman_default_medium"]},
         ]
-        foreman_success = foreman.put_parameters_by_name(host, params) and foreman_success
+        foreman_success = await foreman.put_parameters_by_name(host, params) and foreman_success
         if not foreman_success:
             logger.error("There was something wrong setting Foreman host parameters.")
 
         if is_supported(host):
             try:
-                badfish.boot_to_type(
+                await badfish.boot_to_type(
                     "foreman",
                     os.path.join(
                         os.path.dirname(__file__),
                         "../../conf/idrac_interfaces.yml"
                     )
                 )
-                badfish.reboot_server(graceful=False)
+                asyncio.create_task(badfish.reboot_server(graceful=False))
             except SystemExit:
                 logger.exception("Error setting PXE boot via Badfish on: %s." % host)
                 return False
         else:
             if is_supermicro(host):
-                ipmi_reset(host)
+                asyncio.create_task(ipmi_reset(host))
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
