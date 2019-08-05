@@ -31,7 +31,13 @@ def print_header():
 
 def print_summary():
     _summary = []
-    _headers = ["**NAME**", "**SUMMARY**", "**OWNER**", "**REQUEST**", "**STATUS**"]
+    _headers = [
+        '**NAME**',
+        '**SUMMARY**',
+        '**OWNER**',
+        '**REQUEST**',
+        ' &nbsp; &nbsp; **STATUS** &nbsp; &nbsp;'
+    ]
     if conf["openstack_management"]:
         _headers.append("**INSTACKENV**")
     if conf["gather_ansible_facts"]:
@@ -60,9 +66,8 @@ def print_summary():
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
-            status = '<span class="progress" style="margin-bottom:0px">\
-            <span role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" \
-            class="progress-bar">100%</span></span>'
+            status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" ' \
+                     'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
         else:
             cloud_obj = Cloud.objects(name=cloud_name).first()
             scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
@@ -71,10 +76,16 @@ def print_summary():
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
             instack_text = "validating"
-            classes = ["progress-bar", "progress-bar-striped", "progress-bar-warning", "active"]
-            status = '<span class="progress" style="margin-bottom:0px">\
-            <span role="progressbar" aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" \
-            class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
+            if percent < 15:
+                classes = ["progress-bar", "progress-bar-striped", "progress-bar-danger", "active"]
+                status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" ' \
+                         'aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%%" ' \
+                         'class="%s">%.0f%%</span></span>' % (" ".join(classes), percent)
+            else:
+                classes = ["progress-bar", "progress-bar-striped", "progress-bar-warning", "active"]
+                status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" ' \
+                         'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" ' \
+                         'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
 
         _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
 

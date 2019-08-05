@@ -373,13 +373,16 @@ def main(_args):
                         except Exception:
                             logger.exception('Move command failed for host: %s' % host)
                             provisioned = False
+                        # TODO: Add logic here for setting host to validated=false
+                        #  if result["new"]==default_cloud
 
-                if not _args.dryrun and provisioned:
-                    _new_cloud_obj = Cloud.objects(name=_cloud).first()
-                    _new_cloud_obj.update(provisioned=True)
+                if not _args.dryrun:
+                    if provisioned:
+                        _new_cloud_obj = Cloud.objects(name=_cloud).first()
+                        _new_cloud_obj.update(provisioned=True)
+                        make_instackenv_json.main()
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     _old_cloud_obj.update(provisioned=False, validated=False, vlan=None, wipe=True)
-                    make_instackenv_json.main()
 
             exit(0)
 
