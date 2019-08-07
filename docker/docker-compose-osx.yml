@@ -16,7 +16,7 @@ services:
       - 443:443
 
   wordpress:
-    image: wordpress:5.0.0-php5.6-fpm-alpine
+    image: wordpress:5.2.2-php7.2-fpm-alpine
     container_name: wiki
     restart: always
     links:
