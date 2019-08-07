@@ -131,7 +131,7 @@ docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
 | quads | quads server | Official Python3 Image | python:3 |
 | quads_db  | quads database | Official Mongodb Image | mongo:4.0.4-xenial |
 | nginx | wiki proxy| Official Nginx Image | nginx:1.15.7-alpine |
-| wiki | quads wiki | Official WP Image | wordpress:5.0.0-php5.6-fpm-alpine |
+| wiki | quads wiki | Official WP Image | wordpress:5.2.2-php7.2-fpm-alpine |
 | wiki_db | wiki database | Official MariaDB Image | mariadb ||
 
 We find it useful to create an alias on your quads container for executing quads-cli commands inside the container.
