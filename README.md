@@ -20,6 +20,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Installing QUADS with Docker Compose](#installing-quads-with-docker-compose)
          * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
+         * [Installing other QUADS Components](#installing-other-quads-components)
+            * [QUADS Wiki](#quads-wiki)
+            * [QUADS Move Command](#quads-move-command)
+         * [Making QUADS Run](#making-quads-run)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
@@ -240,25 +244,26 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
    - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
-   - On CentOS/RHEL7 you'll need the [python2-wordpress-xmlrpc](https://github.com/redhat-performance/ops-tools/raw/master/packages/python2-wordpress-xmlrpc-2.3-11.fc28.noarch.rpm) package unless you satisfy it with pip.
    - You'll also need `bind-utils` package installed that provides the `host` command
-
-#### Foreman Hammer CLI
-   - For full Foreman functionality you'll want to have a working [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) setup on your QUADS host as well.
-
-#### Ansible CMDB
-   - We use the [Ansible CMDB](https://github.com/fboender/ansible-cmdb) project as an additional validation step and to generate a one-time Ansible facts-generated web page for all the hosts in each QUADS assignment.
-   - Install the package for this or consume it via Github.
-
-```
-yum install ansible https://github.com/fboender/ansible-cmdb/releases/download/1.27/ansible-cmdb-1.27-2.noarch.rpm
-```
-   - You can turn off this functionality in `/opt/quads/conf/quads.yml` via `gather_ansible_facts: false`
 
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
+
+### Making QUADS Run
+   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/master/cron/quads) to your liking, adjust as needed.
+
+   - Below are the major components run out of cron that makes everything work.
+
+| Service Command | Category | Purpose |
+|-----------------|----------|---------|
+| quads-cli --move-hosts | provisioning | checks for hosts to move/reclaim as scheduled |
+| validate-env.py | validation | checks clouds pending to be released for all enabled validation checks |
+| regenerate_wiki.py | documentation | keeps your infra wiki updated based on current state of environment |
+| simple_table_web.py | visualization | keeps your systems availability and usage visualization up to date |
+| make_instackenv_json.py | openstack | keeps optional openstack triple-o installation files up-to-date |
+
 
 ## QUADS Usage Documentation
 
