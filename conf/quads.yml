@@ -1,12 +1,12 @@
-##
+###############################################
 # This is the main configuration file for QUADS
 # Configure for your environment
-
+###############################################
+#
 # spare pool name. e.g. where your unused systems rest
 spare_pool_name: cloud01
 
 install_dir: /opt/quads
-#data_dir: /opt/quads/data
 data_dir: .
 # display name for QUADS email notifications
 mail_display_name: "QUADS Scheduler"
@@ -15,11 +15,6 @@ mail_user_agent: "Rufus Postman 1.0.99"
 domain: example.com
 log: /opt/quads/log/quads.log
 quads_base_url: http://127.0.0.1:8080/
-
-# Enable Elasticsearch indexing
-elastic_stats_enabled: false
-elastic_host: localhost
-elastic_port: 9200
 
 # used for reporting
 # add your email here to receive copies of notification emails
@@ -125,13 +120,9 @@ gather_dell_configs: false
 # html
 ansible_facts_web_path: /var/www/html/ansible_facts
 
-
 # untouchable_hosts are hosts that should be avoided by QUADS in any way.
 # use this to define hosts QUADS should never move.
 untouchable_hosts: foreman.example.com c08-h30-r630.example.com
-
-# phpical
-phpical_dir: /srv/cal
 
 # ipmi QUADS admin user/pass
 # this is the IPMI account QUADS uses
@@ -200,15 +191,7 @@ visual_colors:
 # either used as an undercloud or something else and the
 # traditional default 1st host in an assignment is put back
 # in the pile and included in instackenv.json
-foreman_director_parameter: nullos
-
-# ansible boot order playbook settings
-# this determines maximum number of running ansible-playbook
-# processes.  We use ansible for toggling PXE and boot order
-# on Dell servers via racadm specifically for accomodating
-# OpenStack # Director-deployed machines but
-# this isn't used for other purposes.
-ansible_max_proc: 60
+foreman_director_parameter: overcloud
 
 # Do you have managed PDUs?
 pdu_management: false
