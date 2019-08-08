@@ -23,8 +23,7 @@ class Foreman(object):
             response = requests.get(
                 self.url + endpoint,
                 auth=(self.username, self.password),
-                verify=False
-
+                verify=False,
             )
         except RequestException:
             logger.exception("There was something wrong with your request.")
@@ -58,7 +57,8 @@ class Foreman(object):
                 self.url + endpoint,
                 json=data,
                 auth=(self.username, self.password),
-                verify=False)
+                verify=False,
+            )
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -115,7 +115,8 @@ class Foreman(object):
                 self.url + endpoint,
                 json=data,
                 auth=(self.username, self.password),
-                verify=False)
+                verify=False,
+            )
         except RequestException:
             logger.exception("There was something wrong with your request.")
             return False
@@ -257,9 +258,13 @@ class Foreman(object):
         success = True
         extraneous_interfaces = self.get_host_extraneous_interfaces(_host_id)
         for interface in extraneous_interfaces:
-            endpoint = "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
+            endpoint = self.url + "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
             try:
-                response = requests.delete(endpoint)
+                response = requests.delete(
+                    endpoint,
+                    auth=(self.username, self.password),
+                    verify=False,
+                )
             except RequestException as ex:
                 logger.debug(ex)
                 logger.error("There was something wrong with your request.")
