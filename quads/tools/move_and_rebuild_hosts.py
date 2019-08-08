@@ -162,9 +162,6 @@ def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
                 return False
 
         foreman_success = foreman.remove_extraneous_interfaces(host)
-
-        foreman_success = foreman.set_host_parameter(host, "rhel73", "false") and foreman_success
-        foreman_success = foreman.set_host_parameter(host, "rhel75", "false") and foreman_success
         foreman_success = foreman.set_host_parameter(host, "overcloud", "true") and foreman_success
         foreman_success = foreman.put_parameter(host, "build", 1) and foreman_success
         foreman_success = foreman.put_parameter_by_name(
