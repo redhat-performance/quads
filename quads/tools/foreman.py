@@ -23,8 +23,7 @@ class Foreman(object):
             response = requests.get(
                 self.url + endpoint,
                 auth=(self.username, self.password),
-                verify=False
-
+                verify=False,
             )
         except RequestException:
             logger.exception("There was something wrong with your request.")
@@ -58,7 +57,8 @@ class Foreman(object):
                 self.url + endpoint,
                 json=data,
                 auth=(self.username, self.password),
-                verify=False)
+                verify=False,
+            )
         except RequestException as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
@@ -105,17 +105,24 @@ class Foreman(object):
         return False
 
     def put_element(self, element_name, element_id, param_name, param_value):
-        logger.debug("PUT param: {%s:%s}" % (param_name, param_value))
+        params = {
+            param_name: param_value
+        }
+        return self.put_elements(element_name, element_id, params)
+
+    def put_elements(self, element_name, element_id, params):
+        logger.debug("PUT param: %s" % params)
         endpoint = "/%s/%s" % (element_name, element_id)
         data = {
-            element_name[:-1]: {param_name: param_value}
+            element_name[:-1]: params
         }
         try:
             response = requests.put(
                 self.url + endpoint,
                 json=data,
                 auth=(self.username, self.password),
-                verify=False)
+                verify=False,
+            )
         except RequestException:
             logger.exception("There was something wrong with your request.")
             return False
@@ -127,6 +134,36 @@ class Foreman(object):
         logger.debug("PUT param: {%s:%s}" % (name, value))
         _host_id = self.get_host_id(host_name)
         return self.put_element("hosts", _host_id, name, value)
+
+    def put_parameters(self, host_name, params):
+        logger.debug("PUT param: %s" % params)
+        _host_id = self.get_host_id(host_name)
+        return self.put_elements("hosts", _host_id, params)
+
+    def put_parameters_by_name(self, host, params):
+        logger.debug("PUT param: %s" % params)
+        data = {}
+        for param in params:
+            param_name = param.get("name")
+            param_value = param.get("value")
+            param_identifier = param.get("identifier", "name")
+
+            param_id = None
+            if param_name == "media":
+                put_name = "medium"
+            else:
+                put_name = param_name[:-1]
+            endpoint = "/%s" % param_name
+            result = self.get(endpoint)
+            for item in result["results"]:
+                if item.get(param_identifier, None) == param_value:
+                    param_id = item["id"]
+                    break
+            if param_id:
+                data["%s_id" % put_name] = param_id
+                data["%s_name" % put_name] = param_value
+        success = self.put_parameters(host, data)
+        return success
 
     def put_parameter_by_name(self, host, name, value, identifier="name"):
         logger.debug("PUT param: {%s:%s}" % (name, value))
@@ -142,9 +179,9 @@ class Foreman(object):
                 param_id = item["id"]
                 break
         if param_id:
-            self.put_parameter(host, "%s_id" % put_name, param_id)
-            self.put_parameter(host, "%s_name" % put_name, value)
-            return True
+            success = self.put_parameter(host, "%s_id" % put_name, param_id)
+            success = self.put_parameter(host, "%s_name" % put_name, value) and success
+            return success
         return False
 
     def verify_credentials(self):
@@ -257,9 +294,13 @@ class Foreman(object):
         success = True
         extraneous_interfaces = self.get_host_extraneous_interfaces(_host_id)
         for interface in extraneous_interfaces:
-            endpoint = "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
+            endpoint = self.url + "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
             try:
-                response = requests.delete(endpoint)
+                response = requests.delete(
+                    endpoint,
+                    auth=(self.username, self.password),
+                    verify=False,
+                )
             except RequestException as ex:
                 logger.debug(ex)
                 logger.error("There was something wrong with your request.")
