@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2694783_a777368b",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "This is still \"in use\". Referenced on create_input_assignments.py. Removing this will cause an exception there if the reference is not removed as well.",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 20
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0af6b6e7_cd7fb9f3",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "same as above",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 19
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8757eee_b039812f",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "same as above",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 22
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b38ba6_d205f931",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "same as above but on simple_table_generator.py",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 13
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "299c8513_d0c1cdbf",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "Same as above but on boot_order.py",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 26
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14d301f1_2bb30045",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "same as above but on move_and_rebuild_hosts.py",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 14
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7afb076c_0ddfa6f8",
+        "filename": "quads/tools/move_and_rebuild_hosts.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-09T09:53:29Z",
+      "side": 0,
+      "message": "Can you please revert this change? Already have it in place under: 464575.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 97
+      },
+      "revId": "b027f0b1762f31e2244c89bdf9ed1426ef5aaf00",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
