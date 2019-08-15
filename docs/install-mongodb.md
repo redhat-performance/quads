@@ -16,14 +16,14 @@ Installing Mongodb on Fedora30 and above
 ![download_mongodb](../image/download-mongodb.png?raw=true)
 
 ## Extract and Setup MongoDB Binaries
-   - The below commands will assume the current version is 4.0.9
+   - The below commands will assume the current version is 4.0.12
 
 ```
-curl https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.9.tgz -o /tmp/mongodb-linux-x86_64-4.0.9.tgz
+curl https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.12.tgz -o /tmp/mongodb-linux-x86_64-4.0.12.tgz
 ```
 
 ```
-tar -xvf /tmp/mongodb-linux-x86_64-4.0.9.tgz -C /tmp/
+tar -xvf /tmp/mongodb-linux-x86_64-4.0.12.tgz -C /tmp/
 
 ```
 
@@ -32,13 +32,13 @@ tar -xvf /tmp/mongodb-linux-x86_64-4.0.9.tgz -C /tmp/
    - **If you just want the mongodump and mongorestore tools**
 
 ```
-cp /tmp/mongodb-linux-x86_64-4.0.9/bin/{mongodump,mongorestore,mongoreplay,bsondump} /usr/bin/
+cp /tmp/mongodb-linux-x86_64-4.0.12/bin/{mongodump,mongorestore,mongoreplay,bsondump} /usr/bin/
 ```
 
    - **If you are installing mongodb-server and everything else**
 
 ```
-cp /tmp/mongodb-linux-x86_64-4.0.9/bin/* /usr/bin/
+cp /tmp/mongodb-linux-x86_64-4.0.12/bin/* /usr/bin/
 ```
 
 ## Create Mongodb Service User
