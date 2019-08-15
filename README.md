@@ -196,6 +196,9 @@ systemctl start quads-server.service
 ### Installing QUADS from RPM
    - We build RPM packages for Fedora and CentOS/RHEL 8
    - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
+   - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore
+
+`dnf install http://download-ib01.fedoraproject.org/pub/fedora/linux/releases/29/Everything/x86_64/os/Packages/p/python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm`
    - On RHEL/CentOS 8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
    - On RHEL/CentOS 8 you'll also need to satisfy `python3-paramiko` RPM package from somewhere as it's been removed from EL8 in lieu of `libssh`
 
