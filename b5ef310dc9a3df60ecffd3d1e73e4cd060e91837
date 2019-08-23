@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f204baed_fb550011",
+        "filename": "quads/tools/foreman.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-08-23T10:30:11Z",
+      "side": 1,
+      "message": "Will this work for us?  Different than above setting of verify\u003dFalse obviously, but if some elements of Foreman apiv2 are using https would this fail?",
+      "range": {
+        "startLine": 74,
+        "startChar": 24,
+        "endLine": 74,
+        "endChar": 34
+      },
+      "revId": "b5ef310dc9a3df60ecffd3d1e73e4cd060e91837",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
