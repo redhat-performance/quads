@@ -31,7 +31,7 @@ Requires: python3-jinja2 >= 2.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
-Requires: python3-aiohttp >= 3.4.4
+Requires: python3-aiohttp >= 3.1
 Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
@@ -110,6 +110,10 @@ fi;
 :;
 
 %changelog
+
+* Fri Aug 23 2019 Will Foster <wfoster@redhat.com>
+- 1.1.0 final release
+- asyncio implemented for provisioning
 
 * Thu Mar 23 2019 Will Foster <wfoster@redhat.com>
 - 1.1.0 release version bump
