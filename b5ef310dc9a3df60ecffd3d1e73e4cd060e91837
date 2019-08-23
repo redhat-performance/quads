@@ -22,6 +22,30 @@
       "revId": "b5ef310dc9a3df60ecffd3d1e73e4cd060e91837",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a029030_48af752c",
+        "filename": "quads/tools/foreman.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-08-23T10:37:53Z",
+      "side": 1,
+      "message": "foreman_api_url on quads.yml is using https, this is just telling requests not to verify the SSL certificate.",
+      "parentUuid": "f204baed_fb550011",
+      "range": {
+        "startLine": 74,
+        "startChar": 24,
+        "endLine": 74,
+        "endChar": 34
+      },
+      "revId": "b5ef310dc9a3df60ecffd3d1e73e4cd060e91837",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
