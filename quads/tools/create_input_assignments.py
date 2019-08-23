@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import asyncio
 import os
 import pathlib
 import re
@@ -238,17 +238,19 @@ def add_row(host):
 
 
 def main():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     foreman = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
-        conf["foreman_password"]
+        conf["foreman_password"],
     )
 
     lines = []
-    all_hosts = foreman.get_all_hosts()
+    all_hosts = asyncio.run(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
-    broken_hosts = foreman.get_broken_hosts()
+    broken_hosts = asyncio.run(foreman.get_broken_hosts())
     domain_broken_hosts = {
         host: properties
         for host, properties in broken_hosts.items()

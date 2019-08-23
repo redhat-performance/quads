@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import asyncio
+
 import cherrypy
 import datetime
 import json
@@ -127,12 +129,14 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             available = []
             all_hosts = model.Host.objects().all()
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             foreman = Foreman(
                 conf["foreman_api_url"],
                 conf["foreman_username"],
                 conf["foreman_password"],
             )
-            broken_hosts = foreman.get_broken_hosts()
+            broken_hosts = asyncio.run(foreman.get_broken_hosts())
 
             for host in all_hosts:
                 if model.Schedule.is_host_available(
@@ -305,12 +309,15 @@ class ScheduleMethodHandler(MethodHandlerBase):
         # to enable checking foreman host health before scheduling
         # set foreman_check_host_health: true in conf/quads.yml
         if conf["foreman_check_host_health"]:
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             foreman = Foreman(
                 conf["foreman_api_url"],
                 conf["foreman_username"],
                 conf["foreman_password"],
             )
-            broken_hosts = foreman.get_broken_hosts()
+            broken_hosts = asyncio.run(foreman.get_broken_hosts())
             if broken_hosts.get(data["host"], False):
                 result.append("Host %s is in broken state" % data["host"])
 

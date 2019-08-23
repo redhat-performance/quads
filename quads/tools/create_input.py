@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import asyncio
 import os
 import pathlib
 import re
@@ -88,13 +88,14 @@ def rack_has_hosts(rack, hosts):
 
 
 def main():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     foreman = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
     )
-
-    all_hosts = foreman.get_all_hosts()
+    all_hosts = asyncio.run(foreman.get_all_hosts())
 
     blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
     hosts = {}

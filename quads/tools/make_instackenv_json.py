@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import asyncio
 import json
 import os
 import time
@@ -15,6 +15,8 @@ from quads.config import conf
 
 def main():
     if conf["openstack_management"]:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         foreman = Foreman(
             conf["foreman_api_url"],
             conf["foreman_username"],
@@ -44,7 +46,7 @@ def main():
                 if conf["foreman_unavailable"]:
                     overcloud = {"result": "true"}
                 else:
-                    overcloud = foreman.get_host_param(host.name, "overcloud")
+                    overcloud = asyncio.run(foreman.get_host_param(host.name, "overcloud"))
                 if not overcloud:
                     overcloud = {"result": "true"}
                 if "result" in overcloud and strtobool(overcloud["result"]):

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+import asyncio
 import logging
 import os
 import socket
@@ -65,20 +65,22 @@ class Validator(object):
         return False
 
     def post_system_test(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         foreman = Foreman(
             conf["foreman_api_url"],
             self.cloud.name,
             self.cloud.ticket
         )
 
-        if not foreman.verify_credentials():
+        if not asyncio.run(foreman.verify_credentials()):
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % self.cloud.ticket)
             self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
             self.report = self.report + "Verify Foreman password is correct: %s\n" % self.cloud.ticket
             return False
 
-        build_hosts = foreman.get_build_hosts()
+        build_hosts = asyncio.run(foreman.get_build_hosts())
 
         pending = []
         schedules = Schedule.current_schedule(cloud=self.cloud)
