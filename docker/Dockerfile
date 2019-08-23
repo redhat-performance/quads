@@ -17,6 +17,7 @@ RUN pip install \
     flake8 \
     paramiko \
     jinja2 \
+    aiohttp \
     pexpect
 
 RUN mkdir -p /var/www/html/visual
