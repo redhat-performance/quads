@@ -25,6 +25,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
       * [QUADS Usage Documentation](#quads-usage-documentation)
+         * [Adding new Hosts to QUADS](#adding-new-hosts-quads)
+            * [Define Initial Cloud Environments](#define-initial-cloud-environments)
+            * [Define Host in QUADS and Foreman](#define-host-in-quads-and-foreman)
+            * [Define Host Interfaces in QUADS(#define-host-interfaces-in-quads)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
       * [Common Administration Tasks](#common-administration-tasks)
@@ -271,6 +275,9 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 
 ## QUADS Usage Documentation
 
+### Adding New Hosts to QUADS
+
+#### Define Initial Cloud Environments
    - Define the various cloud environments
    - These are the isolated environments QUADS will use and provision into for you.
 
@@ -279,6 +286,8 @@ quads-cli --define-cloud cloud01 --description "Primary Cloud Environment"
 quads-cli --define-cloud cloud02 --description "02 Cloud Environment"
 quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 ```
+
+#### Define Host in QUADS and Foreman
 
    - Define the hosts in the environment (Foreman Example)
      - Note the ```--host-type``` parameter, this is a mandatory, free-form label that can be anything.  It will be used later for ```post-config``` automation and categorization.
@@ -289,11 +298,13 @@ quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
 for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads-cli --define-host $h --default-cloud cloud01 --host-type general; done
 ```
 
-   - The command without Foreman would be simply:
+   - The command **without Foreman** would be simply:
 
 ```
 quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 ```
+
+#### Define Host Interfaces in QUADS
 
    - Define the host interfaces, these are the internal interfaces you want QUADS to manage for VLAN automation
    - Note that `--interface-ip` corresponds to the IP of the switch that hosts interface is connected to.
