@@ -7,6 +7,7 @@ Below are common workflows, visualizations and features of QUADS.
     * [QUADS Data Structure](#quads-data-structure)
     * [QUADS Workflow](#quads-workflow)
     * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
+    * [QUADS Move and Rebuild Provisioning UML](#quads-move-and-rebuild-provisioning-uml)
     * [Example: Automated Scheduling](#example-automated-scheduling)
     * [Example: Systems Wiki](#example-systems-wiki)
     * [Example: Workload Assignments](#example-workload-assignments)
@@ -33,6 +34,11 @@ This is the workflow behind `quads/tools/move_and_rebuild_hosts.py`
 
 ![quadsforemanarch](../image/quads-foreman-workflow.png?raw=true)
 
+## QUADS Move and Rebuild Provisioning UML
+This is a UML chart illustrating all the API, host, switch and foreman workflows that happen when systems and networks are built and moved.
+
+![quadsmoverebuild](../image/quads_provisioning_uml.png?raw=true)
+
 ## Example: Automated Scheduling
 
 ![quads-schedule](../image/quads-example-scheduling.png?raw=true)
@@ -46,6 +52,7 @@ This is the workflow behind `quads/tools/move_and_rebuild_hosts.py`
 ![wiki](../image/quads-assignments.png?raw=true)
 
 ## Example: Workload Assignments Readiness
+We color-code progress bars and status based on total amount of completion for an entire assignment.
 
 ![wiki](../image/quads-assignment-readiness.png?raw=true)
 
