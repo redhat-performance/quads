@@ -100,7 +100,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 You can read about QUADS architecture, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
 
 ## QUADS Switch and Host Setup
-   - To ensure you have setup your network switches setup properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
+   - To ensure you have setup your network switches and bare-metal hosts properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
@@ -424,7 +424,10 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  *wipe* (whether to reprovision machines going into this cloud, default is 1 or wipe.
 
 #### QUADS VLAN Options ####
-   -  VLAN design (optional, will default to 0 below)
+
+This pertains to the internal interfaces that QUADS will manage for you to move sets of hosts between environments based on a schedule.  For setting up optional publicly routable VLANS please see the [QUADS public vlan setup steps](/docs/switch-host-setup.md#define-optional-public-vlans)
+
+   -  VLAN design (optional, will default to `qinq: 0` below)
 
    - ```qinq: 0``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
 
