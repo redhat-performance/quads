@@ -18,6 +18,11 @@ General guidelines of how to setup your network switches, servers and DNS for QU
         * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
           * [Add Optional SSH Keys](add-optional-ssh-keys)
           * [Create QUADS IPMI Credentials](create-quads-ipmi-credentials)
+      * [Define Optional Public VLANS](#define-optional-public-vlans)
+        * [Define Publicly Routable VLANS on TOR Switches](#define-publicly-routable-vlans-on-tor-switches)
+        * [Define Publicly Routable VLANS on Distribution Switches](#define-publicly-routable-vlans-on-distribution-switches)
+        * [Generate a Skeleton VLANS YAML config](#generate-a-skeleton-vlans-yaml-config)
+        * [Run Tool to Import VLANS into MongoDB](#run-tool-to-import-vlans-into-mongodb)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -249,4 +254,107 @@ ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user enable 4
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> channel setaccess 1 4 ipmi=on
 ```
 
-At this point you can proceed with initializing QUADS [from the main documentation](https://github.com/redhat-performance/quads#quads-usage-documentation)
+At this point you can **proceed with initializing QUADS** [from the main documentation](https://github.com/redhat-performance/quads#quads-usage-documentation).
+
+## Define Optional Public VLANS
+
+Public VLANS are an optional feature that allow you to tag the 4th (or last) internal interface across a set of machines when you define an new cloud environment.  You must already have these sets of VLANS defined on each top-of-rack switch in your environment respectively.
+
+The below examples are how we do this on Juniper QFX5X00 switches, adjust as necessary.
+
+This should be done after you have a working QUADS installation.
+
+### Define Publicly Routable VLANS on TOR Switches
+
+   - On all the TOR switch(es), for each VLAN you want to share across racks, for example VLAN 601:
+
+```
+set interfaces ae1 unit 601 vlan-id 601
+set protocols igmp-snooping vlan vlan601
+set protocols vstp vlan 601
+set vlans vlan601 apply-groups VMOVE
+set vlans vlan601 description pubnet01
+set vlans vlan601 vlan-id 601
+set vlans vlan601 interface ae1.601
+```
+
+### Define Publicly Routable VLANS on Distribution Switches
+
+   - You'll also want corresponding configurations on your DIST switches.
+   - The aeXX interfaces are port channsls from TOR to DIST
+
+```
+set interfaces ae31 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae32 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae33 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae34 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae35 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae36 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae37 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae38 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae39 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae40 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae41 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae42 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae43 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae44 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae45 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae46 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae47 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae48 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae49 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae50 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae51 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae52 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae53 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae54 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae55 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae56 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae57 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae58 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae59 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae60 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae61 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae62 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae63 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae64 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae65 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae66 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae67 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae68 unit 0 family ethernet-switching vlan members 601-620
+set interfaces ae69 unit 0 family ethernet-switching vlan members 601-620
+set interfaces irb unit 601 description pubnet01
+set interfaces irb unit 601 family inet address 10.1.49.254/23 primary
+set interfaces irb unit 601 family inet address 10.1.49.254/23 preferred
+set interfaces irb unit 601 family inet6 address 2620:52:0:130::1fe/64
+set forwarding-options dhcp-relay group DHCPServerScaleLAB interface irb.601
+set protocols router-advertisement interface irb.601 prefix 2620:52:0:130::/64
+set protocols pim interface irb.601 mode sparse
+set protocols pim interface irb.601 version 2
+set protocols igmp-snooping vlan vlan601
+set vlans vlan601 apply-groups VMOVE
+set vlans vlan601 description pubnet01
+set vlans vlan601 vlan-id 601
+set vlans vlan601 l3-interface irb.601
+```
+
+### Generate a Skeleton VLANS YAML config
+
+We ship an example VLANS yaml configuration template you can use generate your public VLAN definitions and import them into the QUADS database.
+
+   - First, edit the template to your liking to match your network setup.
+
+```
+vi /opt/quads/conf/vlans.yml
+```
+
+   - These settings should match the physical routable VLAN interfaces that you have defined on your switches, along with their VLAN ID.
+
+### Run Tool to Import VLANS into MongoDB
+
+Lastly, run the import tool to parse the VLAN YAML config and define these VLANs into your QUADS MongoDB.
+
+```
+cd /opt/quads/
+python quads/tools/vlan_yaml_to_mongo.py --yaml /opt/quads/conf/vlans.yml
+```
