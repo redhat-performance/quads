@@ -425,8 +425,10 @@ Creating a new schedule and assigning machines is currently done through the QUA
 
 #### QUADS VLAN Options ####
    -  VLAN design (optional, will default to 0 below)
-     - ```qinq: 0``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
-     - ```qinq: 1``` all QUADS-managed interfaces in the same qinq VLAN
+
+   - ```qinq: 0``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
+
+   - ```qinq: 1``` all QUADS-managed interfaces in the same qinq VLAN
 
 #### Defining a New Cloud ####
 
