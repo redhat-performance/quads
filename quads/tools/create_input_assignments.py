@@ -244,6 +244,7 @@ def main():
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
+        loop=loop,
     )
 
     lines = []

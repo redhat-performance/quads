@@ -388,7 +388,7 @@ def main(_args):
                     loop.set_exception_handler(exception_handler)
                     try:
                         done = loop.run_until_complete(
-                            asyncio.gather(*[task() for task in tasks], return_exceptions=True),
+                            asyncio.gather(*[task(loop) for task in tasks], return_exceptions=True),
                         )
                     except asyncio.CancelledError:
                         raise

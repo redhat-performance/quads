@@ -111,7 +111,7 @@ async def ipmi_reset(host):
     asyncio.create_task(execute_ipmi(host, ipmi_on))
 
 
-async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
+async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None):
     logger.debug("Moving and rebuilding host: %s" % host)
 
     untouchable_hosts = conf["untouchable_hosts"]
@@ -131,6 +131,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False):
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
+        loop=loop,
     )
     await asyncio.gather(
         foreman.remove_role(_old_cloud_obj.name, _host_obj.name),

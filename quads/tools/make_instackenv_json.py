@@ -20,7 +20,8 @@ def main():
         foreman = Foreman(
             conf["foreman_api_url"],
             conf["foreman_username"],
-            conf["foreman_password"]
+            conf["foreman_password"],
+            loop=loop,
         )
 
         cloud_list = Cloud.objects()

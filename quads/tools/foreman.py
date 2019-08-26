@@ -17,10 +17,16 @@ class Foreman(object):
         self.username = username
         self.password = password
         if not loop:
-            self.loop = asyncio.get_event_loop()
+            self.loop = asyncio.new_event_loop()
+            self.new_loop = True
         else:
             self.loop = loop
+            self.new_loop = False
         self.semaphore = asyncio.Semaphore(20)
+
+    def __exit__(self):
+        if self.new_loop:
+            self.loop.close()
 
     async def get(self, endpoint):
         logger.debug("GET: %s" % endpoint)

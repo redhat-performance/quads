@@ -135,6 +135,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                 conf["foreman_api_url"],
                 conf["foreman_username"],
                 conf["foreman_password"],
+                loop=loop,
             )
             broken_hosts = asyncio.run(foreman.get_broken_hosts())
 
@@ -316,6 +317,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 conf["foreman_api_url"],
                 conf["foreman_username"],
                 conf["foreman_password"],
+                loop=loop,
             )
             broken_hosts = asyncio.run(foreman.get_broken_hosts())
             if broken_hosts.get(data["host"], False):

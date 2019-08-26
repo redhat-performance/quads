@@ -70,7 +70,8 @@ class Validator(object):
         foreman = Foreman(
             conf["foreman_api_url"],
             self.cloud.name,
-            self.cloud.ticket
+            self.cloud.ticket,
+            loop=loop,
         )
 
         if not asyncio.run(foreman.verify_credentials()):

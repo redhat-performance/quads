@@ -6,6 +6,9 @@ from quads.tools.foreman import Foreman
 
 
 class TestForeman(object):
+    def __init__(self):
+        self.foreman = None
+
     def setup(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -13,6 +16,7 @@ class TestForeman(object):
             conf["foreman_api_url"],
             conf["ipmi_username"],
             conf["ipmi_password"],
+            loop=loop,
         )
 
     def test_get_all_hosts(self):
