@@ -74,7 +74,7 @@ class Validator(object):
             loop=loop,
         )
 
-        if not asyncio.run(foreman.verify_credentials()):
+        if not loop.run_until_complete(foreman.verify_credentials()):
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % self.cloud.ticket)
             self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud.name

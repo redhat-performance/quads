@@ -248,7 +248,7 @@ def main():
     )
 
     lines = []
-    all_hosts = asyncio.run(foreman.get_all_hosts())
+    all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
     broken_hosts = asyncio.run(foreman.get_broken_hosts())

@@ -19,10 +19,13 @@ class TestForeman(object):
             loop=loop,
         )
 
+    def teardown(self):
+        self.foreman.loop.close()
+
     def test_get_all_hosts(self):
-        hosts = asyncio.run(self.foreman.get_all_hosts())
+        hosts = self.foreman.loop.run_until_complete(self.foreman.get_all_hosts())
         assert isinstance(hosts, dict)
 
     def test_get_broken_hosts(self):
-        hosts = asyncio.run(self.foreman.get_broken_hosts())
+        hosts = self.foreman.loop.run_until_complete(self.foreman.get_broken_hosts())
         assert isinstance(hosts, dict)

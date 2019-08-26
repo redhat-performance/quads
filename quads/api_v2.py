@@ -137,7 +137,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                 conf["foreman_password"],
                 loop=loop,
             )
-            broken_hosts = asyncio.run(foreman.get_broken_hosts())
+            broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
 
             for host in all_hosts:
                 if model.Schedule.is_host_available(
@@ -319,7 +319,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 conf["foreman_password"],
                 loop=loop,
             )
-            broken_hosts = asyncio.run(foreman.get_broken_hosts())
+            broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
             if broken_hosts.get(data["host"], False):
                 result.append("Host %s is in broken state" % data["host"])
 

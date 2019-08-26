@@ -47,7 +47,7 @@ def main():
                 if conf["foreman_unavailable"]:
                     overcloud = {"result": "true"}
                 else:
-                    overcloud = asyncio.run(foreman.get_host_param(host.name, "overcloud"))
+                    overcloud = loop.run_until_complete(foreman.get_host_param(host.name, "overcloud"))
                 if not overcloud:
                     overcloud = {"result": "true"}
                 if "result" in overcloud and strtobool(overcloud["result"]):
