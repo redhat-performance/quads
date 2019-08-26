@@ -18,6 +18,9 @@ General guidelines of how to setup your network switches, servers and DNS for QU
         * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
           * [Add Optional SSH Keys](add-optional-ssh-keys)
           * [Create QUADS IPMI Credentials](create-quads-ipmi-credentials)
+      * [Define Optional Public VLANS](#define-optional-public-vlans)
+        * [Generate a Skeleton VLANS YAML config](#generate-a-skeleton-vlans-yaml-config)
+        * [Run Tool to Import VLANS into MongoDB](#run-tool-to-import-vlans-into-mongodb)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -249,4 +252,31 @@ ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user enable 4
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> channel setaccess 1 4 ipmi=on
 ```
 
-At this point you can proceed with initializing QUADS [from the main documentation](https://github.com/redhat-performance/quads#quads-usage-documentation)
+At this point you can **proceed with initializing QUADS** [from the main documentation](https://github.com/redhat-performance/quads#quads-usage-documentation).
+
+## Define Optional Public VLANS
+
+Public VLANS are an optional feature that allow you to tag the 4th (or last) internal interface across a set of machines when you define an new cloud environment.  You must already have these sets of VLANS defined on each top-of-rack switch in your environment respectively.
+
+This should be done after you have a working QUADS installation.
+
+### Generate a Skeleton VLANS YAML config
+
+We ship an example VLANS yaml configuration template you can use generate your public VLAN definitions and import them into the QUADS database.
+
+   - First, edit the template to your liking to match your network setup.
+
+```
+vi /opt/quads/conf/vlans.yml
+```
+
+   - These settings should match the physical routable VLAN interfaces that you have defined on your switches, along with their VLAN ID.
+
+### Run Tool to Import VLANS into MongoDB
+
+Lastly, run the import tool to parse the VLAN YAML config and define these VLANs into your QUADS MongoDB.
+
+```
+cd /opt/quads/
+python quads/tools/vlan_yaml_to_mongo.py --yaml /opt/quads/conf/vlans.yml
+```
