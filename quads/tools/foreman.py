@@ -22,7 +22,7 @@ class Foreman(object):
         else:
             self.loop = loop
             self.new_loop = False
-        self.semaphore = asyncio.Semaphore(20)
+        self.semaphore = asyncio.Semaphore(50)
 
     def __exit__(self):
         if self.new_loop:

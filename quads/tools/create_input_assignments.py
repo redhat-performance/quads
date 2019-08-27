@@ -251,7 +251,7 @@ def main():
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
-    broken_hosts = asyncio.run(foreman.get_broken_hosts())
+    broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
     domain_broken_hosts = {
         host: properties
         for host, properties in broken_hosts.items()
