@@ -388,30 +388,31 @@ def main(_args):
                     loop.set_exception_handler(exception_handler)
                     try:
                         done = loop.run_until_complete(
-                            asyncio.gather(*[task(loop) for task in tasks], return_exceptions=True),
+                            asyncio.gather(*[task(loop) for task in tasks])
                         )
                     except asyncio.CancelledError:
-                        raise
-                    except Exception:
-                        logger.exception('Move command failed for host: %s' % host)
+                        logger.exception('Move command failed')
                         provisioned = False
-                    finally:
-                        loop.stop()
+                    except Exception:
+                        logger.exception('Move command failed')
+                        provisioned = False
                     for task in switch_tasks:
                         try:
+                            logger.info("Running switch config.")
                             task()
                         except Exception:
                             logger.exception("There was something wrong configuring the switch.")
                             provisioned = False
+
                     # TODO: Add logic here for setting host to validated=false
                     #  if result["new"]==default_cloud
-                    if provisioned:
-                        for future in done:
-                            if isinstance(future, Exception):
-                                provisioned = False
-                            else:
-                                provisioned = provisioned and future
+                    for future in done:
+                        if isinstance(future, Exception):
+                            provisioned = False
+                        else:
+                            provisioned = provisioned and future
 
+                    if provisioned:
                         _new_cloud_obj = Cloud.objects(name=_cloud).first()
                         _new_cloud_obj.update(provisioned=True)
                         make_instackenv_json.main()

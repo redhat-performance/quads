@@ -35,7 +35,7 @@ class Badfish:
         self.host_uri = "https://%s" % _host
         self.redfish_uri = "/redfish/v1"
         self.root_uri = "%s%s" % (self.host_uri, self.redfish_uri)
-        self.semaphore = asyncio.Semaphore(100)
+        self.semaphore = asyncio.Semaphore(50)
         if not loop:
             self.loop = asyncio.get_event_loop()
         else:

@@ -144,12 +144,12 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
         str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
 
-    asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_pass))
+    await asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_pass))
 
     ipmi_set_operator = [
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
-    asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_operator))
+    await asyncio.create_task(execute_ipmi(host, arguments=ipmi_set_operator))
 
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
@@ -161,7 +161,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                 "chassis", "bootdev", "pxe",
                 "options", "=", "persistent"
             ]
-            asyncio.create_task(execute_ipmi(host, arguments=ipmi_pxe_persistent))
+            await asyncio.create_task(execute_ipmi(host, arguments=ipmi_pxe_persistent))
 
         if is_supported(host):
             try:
@@ -170,7 +170,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                 logger.exception("Could not initialize Badfish. Verify ipmi credentials.")
                 return False
             try:
-                asyncio.create_task(
+                await asyncio.create_task(
                     badfish.change_boot(
                         "director",
                         os.path.join(
@@ -183,7 +183,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                 raise
             except Exception:
                 logger.exception("Could not set boot order via Badfish.")
-                asyncio.create_task(badfish.reboot_server())
+                await asyncio.create_task(badfish.reboot_server())
                 return False
 
         params = [
@@ -214,7 +214,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                         "../../conf/idrac_interfaces.yml"
                     )
                 )
-                asyncio.create_task(badfish.reboot_server(graceful=False))
+                await asyncio.create_task(badfish.reboot_server(graceful=False))
             except asyncio.CancelledError:
                 raise
             except Exception:
@@ -222,7 +222,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                 return False
         else:
             if is_supermicro(host):
-                asyncio.create_task(ipmi_reset(host))
+                await asyncio.create_task(ipmi_reset(host))
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
