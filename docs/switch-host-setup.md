@@ -14,8 +14,9 @@ General guidelines of how to setup your network switches, servers and DNS for QU
       * [QUADS Host Network Setup](#quads-host-network-setup)
       * [Adding New QUADS Host](#adding-new-quads-host)
         * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
-        * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
-        * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
+          * [Foreman Tuning](#foreman-tuning)
+          * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
+          * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
           * [Add Optional SSH Keys](add-optional-ssh-keys)
           * [Create QUADS IPMI Credentials](create-quads-ipmi-credentials)
       * [Define Optional Public VLANS](#define-optional-public-vlans)
@@ -172,10 +173,18 @@ relayhost = [ip.address.of.your.relay.smtp.server]
 ```
 
 ### Integration into Foreman or a Provisioning System
-   * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/1.15/index.html).
+   * We will not be covering setting up [Foreman](https://theforeman.org) however that is documented [extensively here](https://theforeman.org/manuals/nightly/#3.InstallingForeman).
    * We do provide some [example templates](https://github.com/redhat-performance/quads/tree/master/templates) for post-provisioning creation of system interface config files like ```/etc/sysconfig/network-scripts/ifcfg-*``` for use with QUADs.
 
-### Create Foreman Roles and Filters
+#### Foreman Tuning
+   * Because we use `asyncio` and make direct calls to the Foreman API you may want to adjust your `MaxKeepAliveRequests` in your Apache configuration for `mod_passenger` to accomodate more simultaneous connections.
+   * In `/etc/httpd/conf.d/05-foreman.conf` and `/etc/httpd/conf.d/05-foreman-ssl.conf`
+
+```
+MaxKeepAliveRequests 200
+```
+
+#### Create Foreman Roles and Filters
    * This is Foreman-specific so if you want another provisioning backend you can ignore it.
    * We use RBAC roles and filters to allow per-cloud Foreman views into subsets of machines, QUADS will manage this for you once created.
       * Each server has a role named after it
