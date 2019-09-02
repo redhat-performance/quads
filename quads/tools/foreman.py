@@ -22,7 +22,7 @@ class Foreman(object):
         else:
             self.loop = loop
             self.new_loop = False
-        self.semaphore = asyncio.Semaphore(50)
+        self.semaphore = asyncio.Semaphore(20)
 
     def __exit__(self):
         if self.new_loop:
@@ -383,5 +383,6 @@ class Foreman(object):
     async def get_user_roles(self, user_id):
         endpoint = "/users/%s/roles" % user_id
         result = await self.get_obj_dict(endpoint)
-        result.pop("Default role")
+        if result.get("Default role", False):
+            result.pop("Default role")
         return [role["id"] for _, role in result.items()]
