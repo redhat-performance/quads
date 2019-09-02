@@ -383,5 +383,6 @@ class Foreman(object):
     async def get_user_roles(self, user_id):
         endpoint = "/users/%s/roles" % user_id
         result = await self.get_obj_dict(endpoint)
-        result.pop("Default role")
+        if result.get("Default role", False):
+            result.pop("Default role")
         return [role["id"] for _, role in result.items()]
