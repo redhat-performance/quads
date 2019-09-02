@@ -394,12 +394,15 @@ def main(_args):
                     except asyncio.CancelledError:
                         logger.exception('Move command failed')
                         provisioned = False
+                    except SystemExit:
+                        logger.exception('Move command failed')
+                        provisioned = False
                     except Exception:
                         logger.exception('Move command failed')
                         provisioned = False
                     for task in switch_tasks:
                         try:
-                            logger.info("Running switch config.")
+                            logger.info(f"Running switch config for {task.args[0]}")
                             task()
                         except Exception:
                             logger.exception("There was something wrong configuring the switch.")

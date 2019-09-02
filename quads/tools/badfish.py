@@ -263,7 +263,7 @@ class Badfish:
         response = await self.get_request(self.root_uri)
 
         if response.status == 401:
-            logger.error("Failed to authenticate. Verify your credentials.")
+            logger.error(f"Failed to authenticate. Verify your credentials for {self.host}")
             sys.exit(1)
 
         if response:

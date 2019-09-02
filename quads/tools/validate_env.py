@@ -81,7 +81,7 @@ class Validator(object):
             self.report = self.report + "Verify Foreman password is correct: %s\n" % self.cloud.ticket
             return False
 
-        build_hosts = asyncio.run(foreman.get_build_hosts())
+        build_hosts = loop.run_until_complete(foreman.get_build_hosts())
 
         pending = []
         schedules = Schedule.current_schedule(cloud=self.cloud)
