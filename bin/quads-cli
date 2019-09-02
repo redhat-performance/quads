@@ -384,6 +384,7 @@ def main(_args):
                             provisioned = False
 
                 if not _args.dryrun:
+                    done = None
                     loop = asyncio.get_event_loop()
                     loop.set_exception_handler(exception_handler)
                     try:
@@ -406,11 +407,12 @@ def main(_args):
 
                     # TODO: Add logic here for setting host to validated=false
                     #  if result["new"]==default_cloud
-                    for future in done:
-                        if isinstance(future, Exception):
-                            provisioned = False
-                        else:
-                            provisioned = provisioned and future
+                    if done:
+                        for future in done:
+                            if isinstance(future, Exception):
+                                provisioned = False
+                            else:
+                                provisioned = provisioned and future
 
                     if provisioned:
                         _new_cloud_obj = Cloud.objects(name=_cloud).first()
