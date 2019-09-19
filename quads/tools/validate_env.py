@@ -135,8 +135,9 @@ class Validator(object):
                     ip_apart[1] = octets[1]
                     new_ips.append(".".join(ip_apart))
 
-            if type(ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))) != list:
-                return False
+            if new_ips:
+                if type(ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))) != list:
+                    return False
 
         ssh_helper.disconnect()
 
