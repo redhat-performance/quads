@@ -84,14 +84,15 @@ class Badfish:
                     loop=self.loop
                 ) as session:
                     async with session.get(
-                        uri, auth=BasicAuth(self.username, self.password), ssl=False, timeout=60
+                        uri, auth=BasicAuth(self.username, self.password), verify_ssl=False, timeout=60
                     ) as _response:
                         await _response.json(content_type="application/json")
-        except Exception:
-            logger.exception("Failed to communicate with server.")
+        except (Exception, TimeoutError) as ex:
             if _continue:
                 return
             else:
+                logger.debug(ex)
+                logger.error("Failed to communicate with server.")
                 sys.exit(1)
         return _response
 
@@ -106,10 +107,10 @@ class Badfish:
                         data=json.dumps(payload),
                         headers=headers,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as _response:
                         await _response.json(content_type="application/json")
-        except Exception:
+        except (Exception, TimeoutError):
             logger.exception("Failed to communicate with server.")
             sys.exit(1)
         return _response
@@ -125,14 +126,15 @@ class Badfish:
                         data=json.dumps(payload),
                         headers=headers,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as _response:
                         await _response.json(content_type="application/json")
-        except Exception:
-            logger.exception("Failed to communicate with server.")
+        except Exception as ex:
             if _continue:
                 return
             else:
+                logger.debug(ex)
+                logger.error("Failed to communicate with server.")
                 sys.exit(1)
         return _response
 
@@ -149,7 +151,7 @@ class Badfish:
                         ssl=False,
                     ) as _response:
                         await _response.json(content_type="application/json")
-        except Exception:
+        except (Exception, TimeoutError):
             logger.exception("Failed to communicate with server.")
             sys.exit(1)
         return
@@ -214,12 +216,12 @@ class Badfish:
 
             status_code = _response.status
             if status_code == 200:
-                logger.info("Command passed to check job status, code 200 returned.")
+                logger.info(f"Command passed to check job status {_job_id}")
                 time.sleep(10)
             else:
-                logger.error("Command failed to check job status, return code is %s." % status_code)
+                logger.error(f"Command failed to check job status {_job_id}, return code is %s." % status_code)
 
-                asyncio.create_task(self.error_handler(_response))
+                await self.error_handler(_response)
 
             data = await _response.json(content_type="application/json")
             if data[u"Message"] == "Task successfully scheduled.":
@@ -415,7 +417,7 @@ class Badfish:
             logger.error("There was something wrong with your request.")
 
             if response:
-                asyncio.create_task(self.error_handler(response))
+                await self.error_handler(response)
 
     async def set_next_boot_pxe(self):
         _url = "%s%s" % (self.host_uri, self.system_resource)
@@ -430,7 +432,7 @@ class Badfish:
         else:
             logger.error("Command failed, error code is %s." % _response.status)
 
-            asyncio.create_task(self.error_handler(_response))
+            await self.error_handler(_response)
 
     async def check_supported_idrac_version(self):
         _url = "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/" % self.root_uri
@@ -491,7 +493,7 @@ class Badfish:
         else:
             logger.error("POST command failed to create BIOS config job, status code is %s." % status_code)
 
-            asyncio.create_task(self.error_handler(_response))
+            await self.error_handler(_response)
 
         convert_to_string = str(_response.__dict__)
         job_id_search = re.search("[RJ]ID_.+?,", convert_to_string).group()
@@ -527,7 +529,7 @@ class Badfish:
                 "Command failed to %s server, status code is: %s." % (reset_type, status_code)
             )
 
-            asyncio.create_task(self.error_handler(_response))
+            await self.error_handler(_response)
 
     async def reboot_server(self, graceful=True):
         logger.debug("Rebooting server: %s." % self.host)
@@ -626,7 +628,7 @@ class Badfish:
                         _first_reset = True
                         await self.polling_host_state("On")
                     continue
-                asyncio.create_task(self.error_handler(_response))
+                await self.error_handler(_response)
 
     async def check_boot(self, _interfaces_path):
         if _interfaces_path:

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Foreman(object):
-    def __init__(self, url, username, password, loop=None):
+    def __init__(self, url, username, password, semaphore=None, loop=None):
         logger.debug(":Initializing Foreman object:")
         self.url = url
         self.username = username
@@ -22,7 +22,10 @@ class Foreman(object):
         else:
             self.loop = loop
             self.new_loop = False
-        self.semaphore = asyncio.Semaphore(20)
+        if not semaphore:
+            self.semaphore = asyncio.Semaphore(20)
+        else:
+            self.semaphore = semaphore
 
     def __exit__(self):
         if self.new_loop:
@@ -38,7 +41,7 @@ class Foreman(object):
                     async with session.get(
                         self.url + endpoint,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         result = await response.json(content_type="application/json")
         except Exception:
@@ -77,7 +80,7 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception:
@@ -101,7 +104,7 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception:
@@ -126,7 +129,7 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception:
@@ -159,7 +162,7 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception:
@@ -197,10 +200,13 @@ class Foreman(object):
                 put_name = param_name[:-1]
             endpoint = "/%s" % param_name
             result = await self.get(endpoint)
-            for item in result["results"]:
-                if item.get(param_identifier, None) == param_value:
-                    param_id = item["id"]
-                    break
+            if result.get("results", False):
+                for item in result["results"]:
+                    if item.get(param_identifier, None) == param_value:
+                        param_id = item["id"]
+                        break
+            else:
+                return False
             if param_id:
                 data["%s_id" % put_name] = param_id
                 data["%s_name" % put_name] = param_value
@@ -237,7 +243,7 @@ class Foreman(object):
                     async with session.get(
                         self.url + endpoint,
                         auth=BasicAuth(self.username, self.password),
-                        ssl=False,
+                        verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception:
@@ -350,7 +356,7 @@ class Foreman(object):
                         async with session.delete(
                             endpoint,
                             auth=BasicAuth(self.username, self.password),
-                            ssl=False,
+                            verify_ssl=False,
                         ) as response:
                             await response.json(content_type="application/json")
             except Exception:

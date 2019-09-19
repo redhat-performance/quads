@@ -42,6 +42,10 @@ def verify(_cloud_name, change=False):
                     vlan_member_out = ssh_helper.run_cmd("show vlans interface %s.0" % interface.switch_port)
                     vlan_member = vlan_member_out[1].split()[2][4:].strip(",")
                 except IndexError:
+                    logger.warning(
+                        "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
+                        % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
+                    )
                     vlan_member = None
 
                 ssh_helper.disconnect()
@@ -53,20 +57,13 @@ def verify(_cloud_name, change=False):
                     )
                     old_vlan = get_vlan(_cloud_obj, i, last_nic)
 
-                if not vlan_member:
-                    logger.warning(
-                        "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
-                        % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
-                    )
-                    vlan_member = old_vlan
-
                 if int(old_vlan) != int(vlan):
                     logger.warning("interface %s not using QinQ_vl%s", interface.switch_port, vlan)
 
                 if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
                     vlan = _cloud_obj.vlan.vlan_id
 
-                if int(vlan_member) != int(vlan):
+                if not vlan_member or int(vlan_member) != int(vlan):
                     logger.warning(
                         "interface %s appears to be a member of VLAN %s, should be %s",
                         interface.switch_port,
@@ -83,15 +80,15 @@ def verify(_cloud_name, change=False):
                             success = juniper_convert_port_public(
                                 interface.ip_address,
                                 interface.switch_port,
-                                str(old_vlan),
-                                str(vlan)
+                                old_vlan,
+                                vlan
                             )
                         else:
                             success = juniper_set_port(
                                 interface.ip_address,
                                 interface.switch_port,
-                                str(vlan_member),
-                                str(vlan)
+                                vlan_member,
+                                vlan
                             )
 
                         if success:

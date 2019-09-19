@@ -57,8 +57,8 @@ def switch_config(host, old_cloud, new_cloud):
                 success = juniper_convert_port_public(
                     interface.ip_address,
                     interface.switch_port,
-                    str(old_vlan),
-                    str(_new_cloud_obj.vlan.vlan_id)
+                    old_vlan,
+                    _new_cloud_obj.vlan.vlan_id
                 )
                 if success:
                     logger.info("Successfully updated switch settings.")
@@ -71,8 +71,8 @@ def switch_config(host, old_cloud, new_cloud):
                 success = juniper_set_port(
                     interface.ip_address,
                     interface.switch_port,
-                    str(old_vlan),
-                    str(new_vlan)
+                    old_vlan,
+                    new_vlan
                 )
                 if success:
                     logger.info("Successfully updated switch settings.")
@@ -84,7 +84,7 @@ def switch_config(host, old_cloud, new_cloud):
         ssh_helper.disconnect()
 
 
-async def execute_ipmi(host, arguments):
+async def execute_ipmi(host, arguments, semaphore):
     ipmi_cmd = [
         "/usr/bin/ipmitool",
         "-I", "lanplus",
@@ -94,24 +94,26 @@ async def execute_ipmi(host, arguments):
     ]
     logger.debug("Executing IPMI with argmuents: %s" % arguments)
     cmd = ipmi_cmd + arguments
-    process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
-    stdout, stderr = await process.communicate()
-    logger.debug(f"{stdout.decode().strip()}")
+    async with semaphore:
+        process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
+        stdout, stderr = await process.communicate()
+        logger.debug(f"{stdout.decode().strip()}")
+        await process.terminate()
 
 
-async def ipmi_reset(host):
+async def ipmi_reset(host, semaphore):
     ipmi_off = [
         "chassis", "power", "off",
     ]
-    await execute_ipmi(host, ipmi_off)
+    await execute_ipmi(host, ipmi_off, semaphore)
     sleep(conf["ipmi_reset_sleep"])
     ipmi_on = [
         "chassis", "power", "on",
     ]
-    await execute_ipmi(host, ipmi_on)
+    await execute_ipmi(host, ipmi_on, semaphore)
 
 
-async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None):
+async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False, loop=None):
     logger.debug("Moving and rebuilding host: %s" % host)
 
     untouchable_hosts = conf["untouchable_hosts"]
@@ -131,25 +133,37 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
+        semaphore=semaphore,
         loop=loop,
     )
-    await asyncio.gather(
-        foreman.remove_role(_old_cloud_obj.name, _host_obj.name),
-        foreman.add_role(_new_cloud_obj.name, _host_obj.name),
-        foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
-    )
+
+    foreman_results = []
+
+    remove_result = await foreman.remove_role(_old_cloud_obj.name, _host_obj.name)
+    foreman_results.append(remove_result)
+
+    add_result = await foreman.add_role(_new_cloud_obj.name, _host_obj.name)
+    foreman_results.append(add_result)
+
+    update_result = await foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
+    foreman_results.append(update_result)
+
+    for result in foreman_results:
+        if isinstance(result, Exception) or not result:
+            logger.error("There was something wrong setting Foreman host parameters.")
+            return False
 
     ipmi_set_pass = [
         "user", "set", "password",
         str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
 
-    await execute_ipmi(host, arguments=ipmi_set_pass)
+    await execute_ipmi(host, arguments=ipmi_set_pass, semaphore=semaphore)
 
     ipmi_set_operator = [
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
-    await execute_ipmi(host, arguments=ipmi_set_operator)
+    await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=semaphore)
 
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
@@ -161,45 +175,47 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                 "chassis", "bootdev", "pxe",
                 "options", "=", "persistent"
             ]
-            await execute_ipmi(host, arguments=ipmi_pxe_persistent)
+            await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=semaphore)
 
         if is_supported(host):
             try:
                 badfish = await badfish_factory("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
             except SystemExit:
-                logger.exception("Could not initialize Badfish. Verify ipmi credentials.")
+                logger.error(f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}.")
                 return False
             try:
-                await badfish.change_boot(
+                asyncio.run_coroutine_threadsafe(badfish.change_boot(
                     "director",
                     os.path.join(
                         os.path.dirname(__file__),
                         "../../conf/idrac_interfaces.yml"
                     )
-                )
-            except Exception:
-                logger.exception("Could not set boot order via Badfish.")
-                await badfish.reboot_server()
+                ), loop)
+            except (SystemExit, Exception):
+                logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
+                asyncio.run_coroutine_threadsafe(badfish.reboot_server(), loop)
                 return False
 
+        foreman_results = []
         params = [
             {"name": "operatingsystems", "value": conf["foreman_default_os"], "identifier": "title"},
             {"name": "ptables", "value": conf["foreman_default_ptable"]},
             {"name": "media", "value": conf["foreman_default_medium"]},
         ]
-        done = await asyncio.gather(
-            foreman.set_host_parameter(host, "overcloud", "true"),
-            foreman.put_parameter(host, "build", 1),
-            foreman.put_parameters_by_name(host, params)
-        )
-        foreman_success = True
-        for future in done:
-            if isinstance(future, Exception):
-                foreman_success = False
-            else:
-                foreman_success = foreman_success and future
-        if not foreman_success:
-            logger.error("There was something wrong setting Foreman host parameters.")
+
+        set_result = await foreman.set_host_parameter(host, "overcloud", "true")
+        foreman_results.append(set_result)
+
+        put_result = await foreman.put_parameter(host, "build", 1)
+        foreman_results.append(put_result)
+
+        put_param_result = await foreman.put_parameters_by_name(host, params)
+        foreman_results.append(put_param_result)
+
+        for result in foreman_results:
+            if isinstance(result, Exception) or not result:
+                logger.error("There was something wrong setting Foreman host parameters.")
+                return False
 
         if is_supported(host):
             try:
@@ -211,12 +227,16 @@ async def move_and_rebuild(host, old_cloud, new_cloud, rebuild=False, loop=None)
                     )
                 )
                 await badfish.reboot_server(graceful=False)
-            except Exception:
-                logger.exception("Error setting PXE boot via Badfish on: %s." % host)
+            except (SystemExit, Exception):
+                logger.error(f"Error setting PXE boot via Badfish on {host}.")
                 return False
         else:
             if is_supermicro(host):
-                await ipmi_reset(host)
+                try:
+                    await ipmi_reset(host, semaphore)
+                except Exception as ex:
+                    logger.debug(ex)
+                    logger.error(f"There was something wrong resetting IPMI on {host}.")
 
         logger.debug("Updating host: %s")
         _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
