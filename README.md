@@ -255,7 +255,7 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
    - You'll also need `bind-utils` package installed that provides the `host` command
 
 #### QUADS Move Command
-   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
 
@@ -399,16 +399,19 @@ INFO: Moving c08-h21-r630.example.com from cloud01 to cloud02 c08-h21-r630.examp
 
 ### How Provisioning Works
 #### QUADS move host command
+In QUADS, a `move-command` is the actionable call that provisions and moves a set of systems from one cloud environment to the other.  Via cron, QUADS routinely queries the existing schedules and when it comes time for a set of systems to move to a new environment or be reclaimed and moved back to the spare pool it will run the appropriate varation of your `move-command`.
+
 In the above example the default move command called ```/bin/echo``` for illustration purposes.  In order for this to do something more meaningful you should invoke a script with the ```--move-command``` option, which should be the path to a valid command or provisioning script/workflow.
 
 * Define your move command by pointing QUADS to an external command, trigger or script.
 * This expects three arguments `hostname current-cloud new-cloud`.
+* Runs against all hosts according to the QUADS schedule.
 
 ```
-quads-cli --move-hosts --path-to-command /opt/quads/bin/move-and-rebuild-host.sh
+quads-cli --move-hosts --path-to-command quads/tools/move_and_rebuild_hosts.py
 ```
 
-* You can look at the [move-and-rebuild-host](https://github.com/redhat-performance/quads/blob/master/bin/move-and-rebuild-host.sh) script as an example.  It's useful to note that with `bin/move-and-rebuild-host.sh` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
+* You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script as an example.  It's useful to note that with `quads/tools/             move_and_rebuild_hosts.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
 ## Common Administration Tasks
 
