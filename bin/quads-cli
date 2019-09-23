@@ -358,6 +358,7 @@ def main(_args):
             for result in js['result']:
                 _clouds[result['new']].append(result)
 
+            semaphore = asyncio.Semaphore(6)
             for _cloud, results in _clouds.items():
                 provisioned = True
                 tasks = []
@@ -371,7 +372,7 @@ def main(_args):
                     if not _args.dryrun:
                         try:
                             if _args.movecommand == default_move_command:
-                                fn = functools.partial(move_and_rebuild, host, current, new, cloud.wipe)
+                                fn = functools.partial(move_and_rebuild, host, current, new, semaphore, cloud.wipe)
                                 tasks.append(fn)
                                 switch_tasks.append(functools.partial(switch_config, host, current, new))
                             else:
@@ -379,7 +380,7 @@ def main(_args):
                                     subprocess.check_call([args.movecommand, host, current, new])
                                 else:
                                     subprocess.check_call([args.movecommand, host, current, new, "nowipe"])
-                        except Exception:
+                        except:
                             logger.exception('Move command failed for host: %s' % host)
                             provisioned = False
 
@@ -391,13 +392,7 @@ def main(_args):
                         done = loop.run_until_complete(
                             asyncio.gather(*[task(loop) for task in tasks])
                         )
-                    except asyncio.CancelledError:
-                        logger.exception('Move command failed')
-                        provisioned = False
-                    except SystemExit:
-                        logger.exception('Move command failed')
-                        provisioned = False
-                    except Exception:
+                    except (asyncio.CancelledError, SystemExit, Exception, TimeoutError):
                         logger.exception('Move command failed')
                         provisioned = False
                     for task in switch_tasks:

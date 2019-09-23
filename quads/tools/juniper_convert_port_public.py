@@ -26,8 +26,8 @@ def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_pub_vlan)
         child.sendline("delete interfaces %s" % switch_port)
         child.expect("#")
 
-        logger.debug("set interfaces %s native-vlan-id %s" % (switch_port, new_pub_vlan))
-        child.sendline("set interfaces %s native-vlan-id %s" % (switch_port, new_pub_vlan))
+        logger.debug("set interfaces %s native-vlan-id %s" % (switch_port, str(new_pub_vlan)))
+        child.sendline("set interfaces %s native-vlan-id %s" % (switch_port, str(new_pub_vlan)))
         child.expect("#")
 
         logger.debug("set interfaces %s unit 0 family ethernet-switching interface-mode trunk" % switch_port)
@@ -35,14 +35,15 @@ def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_pub_vlan)
         child.expect("#")
 
         logger.debug("set interfaces %s unit 0 family ethernet-switching vlan members vlan%s" % (
-            switch_port, new_pub_vlan))
+            switch_port, str(new_pub_vlan)))
         child.sendline("set interfaces %s unit 0 family ethernet-switching vlan members vlan%s" % (
-            switch_port, new_pub_vlan))
+            switch_port, str(new_pub_vlan)))
         child.expect("#")
 
-        logger.debug("delete vlans vlan%s interface %s" % (old_vlan, switch_port))
-        child.sendline("delete vlans vlan%s interface %s" % (old_vlan, switch_port))
-        child.expect("#")
+        if old_vlan:
+            logger.debug("delete vlans vlan%s interface %s" % (str(old_vlan), switch_port))
+            child.sendline("delete vlans vlan%s interface %s" % (str(old_vlan), switch_port))
+            child.expect("#")
 
         logger.debug("commit")
         child.sendline("commit")
