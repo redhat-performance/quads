@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f06e30fc_40b2e5a2",
+        "filename": "quads/api_v2.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2019-09-24T12:59:38Z",
+      "side": 1,
+      "message": "Probably we still want this overall patchset merged, however given https://github.com/redhat-performance/quads/issues/282 should we do something like the following?\n\n        if notification_obj and model.Cloud.objects(some_identifier_to_show_hosts \u003d 0):\n            notification_obj.update(success\u003dFalse, fail\u003dFalse)\n\nAs we\u0027re running the latest upstream as of 2019-09-23 we don\u0027t have this running in the live code, but I think we\u0027d still want the fixes this patchset garners.\n\nWhat do you think @grafuls?",
+      "range": {
+        "startLine": 337,
+        "startChar": 12,
+        "endLine": 337,
+        "endChar": 32
+      },
+      "revId": "719838e74f4712f7b83d46264cd7906344c1b13a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
