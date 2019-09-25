@@ -98,7 +98,6 @@ async def execute_ipmi(host, arguments, semaphore):
         process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         logger.debug(f"{stdout.decode().strip()}")
-        await process.terminate()
 
 
 async def ipmi_reset(host, semaphore):
@@ -237,10 +236,6 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                     logger.debug(ex)
                     logger.error(f"There was something wrong resetting IPMI on {host}.")
 
-        logger.debug("Updating host: %s")
-        _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
-    else:
-
-        logger.debug("Updating host: %s")
-        _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
+    logger.debug("Updating host: %s")
+    _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
     return True
