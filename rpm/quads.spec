@@ -8,8 +8,11 @@
 ####
 #### Our upstream repository is located here:
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
+####
+#### Note: quads-dev = latest master branch
+####       quads     = latest stable release
 
-%define name quads
+%define name quads-dev
 %define version 1.1.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 

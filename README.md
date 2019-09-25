@@ -213,6 +213,13 @@ dnf install http://download-ib01.fedoraproject.org/pub/fedora/linux/releases/29/
 dnf copr enable quadsdev/python3-quads  -y
 dnf install quads -y
 ```
+
+* Note: If you want the latest development RPM based on the `master` branch instead:
+
+```
+dnf install quads-dev -y
+```
+
    - Read through the [QUADS YAML configuration file](/conf/quads.yml)
 ```
 vi /opt/quads/conf/quads.yml
