@@ -13,6 +13,7 @@
 ####       quads     = latest stable release
 
 %define name quads-dev
+%define reponame quads
 %define version 1.1.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
@@ -67,7 +68,7 @@ RT (or similiar ticketing system) integration.
 IRC bot and email notifications for new provisioning tasks and ones ending completion
 
 %prep
-%autosetup -n %{name}-master
+%autosetup -n %{reponame}-master
 
 %install
 rm -rf %{buildroot}
