@@ -358,7 +358,10 @@ def main(_args):
             for result in js['result']:
                 _clouds[result['new']].append(result)
 
-            semaphore = asyncio.Semaphore(6)
+            # TODO:
+            #  raise the number of semaphores after this is resolved
+            #  https://projects.theforeman.org/issues/27953#change-127120
+            semaphore = asyncio.Semaphore(1)
             for _cloud, results in _clouds.items():
                 provisioned = True
                 tasks = []
