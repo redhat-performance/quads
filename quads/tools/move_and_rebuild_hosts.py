@@ -15,7 +15,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def switch_config(host, old_cloud, new_cloud):
@@ -157,12 +157,13 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
         str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
     ]
 
-    await execute_ipmi(host, arguments=ipmi_set_pass, semaphore=semaphore)
+    new_semaphore = asyncio.Semaphore(20)
+    await execute_ipmi(host, arguments=ipmi_set_pass, semaphore=new_semaphore)
 
     ipmi_set_operator = [
         "user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"
     ]
-    await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=semaphore)
+    await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=new_semaphore)
 
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
@@ -174,7 +175,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                 "chassis", "bootdev", "pxe",
                 "options", "=", "persistent"
             ]
-            await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=semaphore)
+            await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore)
 
         if is_supported(host):
             try:
@@ -231,7 +232,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
         else:
             if is_supermicro(host):
                 try:
-                    await ipmi_reset(host, semaphore)
+                    await ipmi_reset(host, new_semaphore)
                 except Exception as ex:
                     logger.debug(ex)
                     logger.error(f"There was something wrong resetting IPMI on {host}.")
