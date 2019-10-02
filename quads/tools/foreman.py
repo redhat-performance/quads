@@ -34,18 +34,18 @@ class Foreman(object):
     async def get(self, endpoint):
         logger.debug("GET: %s" % endpoint)
         try:
-            async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
-                    async with session.get(
-                        self.url + endpoint,
-                        auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
-                    ) as response:
-                        result = await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+            async with aiohttp.ClientSession(
+                loop=self.loop
+            ) as session:
+                async with session.get(
+                    self.url + endpoint,
+                    auth=BasicAuth(self.username, self.password),
+                    verify_ssl=False,
+                ) as response:
+                    result = await response.json(content_type="application/json")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return {}
         return result
 
@@ -83,8 +83,9 @@ class Foreman(object):
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return False
         if response.status in [200, 204]:
             logger.info("Host parameter updated successfully.")
@@ -107,8 +108,9 @@ class Foreman(object):
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return False
         if response.status in [200, 201, 204]:
             logger.info("Host parameter updated successfully.")
@@ -132,8 +134,9 @@ class Foreman(object):
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return False
         if response.status in [200, 204]:
             logger.info("User password updated successfully.")
@@ -165,8 +168,9 @@ class Foreman(object):
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return False
         if response.status in [200, 204]:
             logger.info("Foreman element updated successfully.")
@@ -236,18 +240,18 @@ class Foreman(object):
         endpoint = "/status"
         logger.debug("GET: %s" % endpoint)
         try:
-            async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
-                    async with session.get(
-                        self.url + endpoint,
-                        auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
-                    ) as response:
-                        await response.json(content_type="application/json")
-        except Exception:
-            logger.exception("There was something wrong with your request.")
+            async with aiohttp.ClientSession(
+                loop=self.loop
+            ) as session:
+                async with session.get(
+                    self.url + endpoint,
+                    auth=BasicAuth(self.username, self.password),
+                    verify_ssl=False,
+                ) as response:
+                    await response.json(content_type="application/json")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
             return False
         if response.status == 200:
             return True
@@ -359,8 +363,9 @@ class Foreman(object):
                             verify_ssl=False,
                         ) as response:
                             await response.json(content_type="application/json")
-            except Exception:
-                logger.exception("There was something wrong with your request.")
+            except Exception as ex:
+                logger.debug(ex)
+                logger.error("There was something wrong with your request.")
                 success = False
                 continue
             if response.status != 200:
