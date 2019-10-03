@@ -30,7 +30,6 @@ import os
 from json import JSONDecodeError
 from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
-from quads.tools import make_instackenv_json
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host
 
