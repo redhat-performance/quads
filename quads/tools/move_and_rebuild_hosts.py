@@ -8,7 +8,7 @@ from time import sleep
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
 from quads.model import Host, Cloud
-from quads.tools.badfish import badfish_factory
+from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
@@ -180,7 +180,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
         if is_supported(host):
             try:
                 badfish = await badfish_factory("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
-            except SystemExit:
+            except BadfishException:
                 logger.error(f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}.")
                 return False
             try:
@@ -191,7 +191,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                         "../../conf/idrac_interfaces.yml"
                     )
                 ), loop)
-            except (SystemExit, Exception):
+            except BadfishException:
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
 
@@ -226,7 +226,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                     )
                 )
                 await badfish.reboot_server(graceful=False)
-            except (SystemExit, Exception):
+            except BadfishException:
                 logger.error(f"Error setting PXE boot via Badfish on {host}.")
                 return False
         else:
