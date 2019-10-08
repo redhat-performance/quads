@@ -80,7 +80,10 @@ def main(_args):
             data = quads.get(_args.action)
             if data:
                 for k in data:
-                    logger.info(str(k['name']) + ": " + str(k[_args.action]))
+                    if isinstance(k[_args.action], list):
+                        logger.info(str(k['name']) + ": " + str(", ".join(k[_args.action])))
+                    else:
+                        logger.info(str(k['name']) + ": " + str(k[_args.action]))
                 exit(0)
 
         if _args.action == 'interface':
@@ -434,7 +437,7 @@ def main(_args):
                 for schedule in schedules:
                     logger.info(schedule.cloud.name)
             else:
-                logger.info(_host.cloud.name)
+                logger.info(_host.default_cloud.name)
         else:
             logger.info('Unknown host: %s' % _args.host)
             exit(1)

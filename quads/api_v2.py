@@ -92,10 +92,10 @@ class DocumentMethodHandler(MethodHandlerBase):
                 return json.dumps({"result": ["Nothing to do."]})
             return _host.to_json()
         if self.name == "ccuser":
-            _clouds = model.Cloud.objects().all()
+            _clouds = self.model.objects().all()
             clouds_summary = []
             for cloud in _clouds:
-                count = self.model.current_schedule(cloud=cloud).count()
+                count = model.Schedule.current_schedule(cloud=cloud).count()
                 clouds_summary.append(
                     {
                         "name": cloud.name,
