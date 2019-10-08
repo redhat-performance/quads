@@ -434,7 +434,7 @@ def main(_args):
                 for schedule in schedules:
                     logger.info(schedule.cloud.name)
             else:
-                logger.info(_host.cloud.name)
+                logger.info(_host.default_cloud.name)
         else:
             logger.info('Unknown host: %s' % _args.host)
             exit(1)
