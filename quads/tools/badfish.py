@@ -50,6 +50,7 @@ class Badfish:
         self.bios_uri = None
 
     async def init(self):
+        await self.validate_credentials()
         self.system_resource = await self.find_systems_resource()
         self.manager_resource = await self.find_managers_resource()
         self.bios_uri = "%s/Bios/Settings" % self.system_resource[len(self.redfish_uri):]
@@ -265,12 +266,15 @@ class Badfish:
 
         return None
 
-    async def find_systems_resource(self):
+    async def validate_credentials(self):
         response = await self.get_request(self.root_uri)
 
         if response.status == 401:
             logger.error(f"Failed to authenticate. Verify your credentials for {self.host}")
             raise BadfishException
+
+    async def find_systems_resource(self):
+        response = await self.get_request(self.root_uri)
 
         if response:
             data = await response.json(content_type="application/json")

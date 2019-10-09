@@ -10,6 +10,7 @@ from paramiko import SSHException
 
 from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.model import Cloud, Schedule, Host, Notification
+from quads.tools.badfish import Badfish, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
@@ -98,7 +99,17 @@ class Validator(object):
                     self.report = self.report + "%s\n" % host
                 return False
 
-        return True
+        _cloud_hosts = Host.objects(cloud=self.cloud)
+        failed = False
+        for host in _cloud_hosts:
+            try:
+                badfish = Badfish(host.name, self.cloud.name, self.cloud.ticket, loop)
+                loop.run_until_complete(badfish.validate_credentials())
+            except BadfishException:
+                logger.info(f"Could not verify badfish credentials for: {host.name}")
+                failed = True
+
+        return not failed
 
     def post_network_test(self):
         _cloud_hosts = Host.objects(cloud=self.cloud)
