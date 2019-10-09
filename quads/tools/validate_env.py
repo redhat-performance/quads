@@ -10,6 +10,7 @@ from paramiko import SSHException
 
 from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.model import Cloud, Schedule, Host, Notification
+from quads.tools.badfish import Badfish, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
@@ -22,6 +23,7 @@ class Validator(object):
     def __init__(self, cloud):
         self.cloud = cloud
         self.report = ""
+        self.hosts = Host.objects(cloud=self.cloud)
 
     def notify_failure(self):
         template_file = "validation_failed"
@@ -98,19 +100,26 @@ class Validator(object):
                     self.report = self.report + "%s\n" % host
                 return False
 
-        return True
+        failed = False
+        for host in self.hosts:
+            try:
+                badfish = Badfish(host.name, self.cloud.name, self.cloud.ticket, loop)
+                loop.run_until_complete(badfish.validate_credentials())
+            except BadfishException:
+                logger.info(f"Could not verify badfish credentials for: {host.name}")
+                failed = True
+
+        return not failed
 
     def post_network_test(self):
-        _cloud_hosts = Host.objects(cloud=self.cloud)
-
-        test_host = _cloud_hosts[0]
+        test_host = self.hosts[0]
         try:
             ssh_helper = SSHHelper(test_host.name)
         except SSHException:
             logger.exception("Could not establish connection with host: %s." % test_host.name)
             self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             return False
-        host_list = " ".join([host.name for host in _cloud_hosts])
+        host_list = " ".join([host.name for host in self.hosts])
 
         if type(ssh_helper.run_cmd("fping -u %s" % host_list)) != list:
 
