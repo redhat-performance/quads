@@ -229,6 +229,12 @@ class DocumentMethodHandler(MethodHandlerBase):
                             else:
                                 model.CloudHistory(**history_data).save()
 
+                            current_schedule = model.Schedule.current_schedule(cloud=obj).count()
+                            if current_schedule:
+                                if data.get("wipe", False):
+                                    if data["wipe"]:
+                                        data.pop("wipe")
+
                         if schedule_count > 0:
                             result.append("Can't redefine cloud due to future use.")
                             cherrypy.response.status = "400 Bad Request"

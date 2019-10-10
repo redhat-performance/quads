@@ -422,7 +422,9 @@ def main(_args):
                         _new_cloud_obj.update(provisioned=True)
 
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
-                    _old_cloud_obj.update(provisioned=False, validated=False, vlan=None, wipe=True)
+                    old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
+                    if not old_cloud_schedule:
+                        _old_cloud_obj.update(provisioned=False, validated=False, vlan=None, wipe=True, ccuser=[])
 
             exit(0)
 
