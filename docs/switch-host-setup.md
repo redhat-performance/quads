@@ -41,7 +41,7 @@ XhjiXtwR4VkANjAqJUFXTkgSXj9nz0rkrHGVYYWvPBvg5KiZm5/ba+ndvyQWc5vDhv8dIKo17uZ5DC6D
 k5vwnxBvDBE2oOuZFguQFyNAOkvy+61Tnp6waE05Ss/ZU3J861+fiCJJ1o3waas80qOAIwVTaIwGQ/FTJngZutRcLkdTC21+qaRbW9ZbTIG+bUp1NKAhj84HSsNc8CTcwNEcv8nwi0Cy4ZXY88+DcO5n6CmFFOm7sXTr0umrhBsKTh
 Le+f24Xm77cBE5qNleFns7hkPZxRqEznC0xdd1xKswexbAB9mb2vP3uy1qzk3yQsifatzX3qANWrNgjQlALFXEf95woncUY+VA95Y028YM0/ojpi57jq7wHImh9iqzli20G9RE= quads@example.com"
 ```
-   * You may also want a ```~/.ssh/config``` entry for each of your switches to make things easier.
+   * You may also want a `~/.ssh/config` entry for each of your switches to make things easier.
 
 ```
 Host 10.12.67.247
@@ -52,9 +52,14 @@ Host 10.12.67.247
      PubkeyAcceptedKeyTypes=+ssh-dss
 ```
 
+   * Note: `python3-paramiko` wants your private key to contain the algo type in it, e.g. `BEGIN RSA PRIVATE KEY and END RSA PRIVATE KEY`
+      * The following command will fix this for you:  `ssh-keygen -p -m PEM -f ~/.ssh/id_rsa` (don't set passphrase).
+      * More details at [Stack Exchange](https://stackoverflow.com/questions/45829838/paramiko-connect-with-private-key-not-a-valid-openssh-private-public-key-fil#45844549)
+      * We will be moving to `libssh` in an upcoming release.
+
 ## Distribution Switch Configuration
    * Configure your switch ports for QUADS-managed hosts as follows, we are using ```et-0/0/12``` on both distribution switches for an example rack.
-      * Note: ```interface-range``` identiftier is unique, so for example uplinks for B07 would be PC44 and ae44
+      * Note: ```interface-range``` identifier is unique, so for example uplinks for B07 would be PC44 and ae44
 
 ```
 set interfaces interface-range PC43 member et-0/0/12
