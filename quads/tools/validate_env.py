@@ -187,7 +187,7 @@ if __name__ == "__main__":
     clouds = Cloud.objects(validated=False, name__ne="cloud01")
     for _cloud in clouds:
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
-        if _schedule_count:
+        if _schedule_count and _cloud.wipe:
             validator = Validator(_cloud)
             try:
                 validator.validate_env()
