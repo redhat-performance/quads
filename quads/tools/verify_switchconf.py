@@ -19,7 +19,11 @@ def verify(_cloud_name, change=False):
     _cloud_obj = Cloud.objects(name=_cloud_name).first()
     quads = Api(API_URL)
 
-    hosts = quads.get_cloud_hosts(_cloud_name)
+    try:
+        hosts = quads.get_cloud_hosts(_cloud_name)
+    except ConnectionError:
+        logger.error("Could not connect to the quads-server, verify service is up and running.")
+        exit(1)
 
     for _host in hosts:
         _host_obj = Host.objects(name=_host["name"]).first()
