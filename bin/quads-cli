@@ -20,6 +20,7 @@ import datetime
 import functools
 import logging
 from collections import defaultdict
+from requests.exceptions import ConnectionError
 
 import requests
 import signal
@@ -77,7 +78,11 @@ def main(_args):
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
 
         if _args.action in ['owner', 'ticket', 'qinq', 'wipe', 'ccuser']:
-            data = quads.get(_args.action)
+            try:
+                data = quads.get(_args.action)
+            except ConnectionError:
+                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                exit(1)
             if data:
                 for k in data:
                     if isinstance(k[_args.action], list):
@@ -96,7 +101,11 @@ def main(_args):
                 logger.error('Host %s does not exist' % _args.host)
                 exit(1)
 
-            data = quads.get_interfaces(**_kwargs)
+            try:
+                data = quads.get_interfaces(**_kwargs)
+            except ConnectionError:
+                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                exit(1)
             if data:
                 for interface in data["result"]:
                     logger.info(interface)
@@ -147,8 +156,11 @@ def main(_args):
                                 "start": _kwargs["date"],
                                 "end": _kwargs["date"],
                             }
-
-                            available_hosts = quads.get_available(**data)
+                            try:
+                                available_hosts = quads.get_available(**data)
+                            except ConnectionError:
+                                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                                exit(1)
 
                             for host in available_hosts:
                                 logger.info(host)
@@ -157,20 +169,36 @@ def main(_args):
                             for host in _hosts:
                                 logger.info(host.name)
                     else:
-                        _schedules = quads.get_current_schedule(**_kwargs)
+                        try:
+                            _schedules = quads.get_current_schedule(**_kwargs)
+                        except ConnectionError:
+                            logger.error("Could not connect to the quads-server, verify service is up and running.")
+                            exit(1)
                         if _schedules and "result" not in _schedules:
                             if type(_schedules) == list:
                                 for entry in _schedules:
-                                    host = quads.get_hosts(id=entry["host"]["$oid"])
+                                    try:
+                                        host = quads.get_hosts(id=entry["host"]["$oid"])
+                                    except ConnectionError:
+                                        logger.error("Could not connect to the quads-server, verify service is up and running.")
+                                        exit(1)
                                     logger.info("- %s" % str(host['name']))
                             else:
-                                host = quads.get_hosts(id=_schedules["host"]["$oid"])
+                                try:
+                                    host = quads.get_hosts(id=_schedules["host"]["$oid"])
+                                except ConnectionError:
+                                    logger.error("Could not connect to the quads-server, verify service is up and running.")
+                                    exit(1)
                                 logger.info("- %s" % str(host['name']))
 
             exit(0)
 
         elif _args.action in ['host', 'cloud']:
-            entries = quads.get(_args.action)
+            try:
+                entries = quads.get(_args.action)
+            except ConnectionError:
+                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                exit(1)
             if entries and "result" not in entries:
                 for entry in sorted(entries, key=lambda k: k['name']):
                     logger.info(entry['name'])
@@ -196,7 +224,11 @@ def main(_args):
                 "end": _end,
             }
 
-            available_hosts = quads.get_available(**data)
+            try:
+                available_hosts = quads.get_available(**data)
+            except ConnectionError:
+                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                exit(1)
 
             for host in available_hosts:
                 logger.info(host)
@@ -225,7 +257,11 @@ def main(_args):
                 'ticket': _args.cloudticket,
                 'vlan': _args.vlan,
                 'force': _args.force}
-        logger.info(quads.insert_cloud(data)["result"])
+        try:
+            logger.info(quads.insert_cloud(data)["result"])
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         exit(0)
 
     # Cloud Remove
@@ -292,7 +328,11 @@ def main(_args):
             logger.error('Missing option. --host option is required for --rm-interface:')
             exit(1)
         data = {'host': _args.host, 'name': _args.rminterface}
-        logger.info(quads.remove_interface(**data))
+        try:
+            logger.info(quads.remove_interface(**data))
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         exit(0)
 
     # Add Schedule
@@ -309,13 +349,21 @@ def main(_args):
                 'host': _args.host,
                 'start': _args.schedstart,
                 'end': _args.schedend}
-        logger.info(quads.insert_schedule(data)['result'])
+        try:
+            logger.info(quads.insert_schedule(data)['result'])
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         exit(0)
 
     elif _args.rmschedule is not None:
         if _args.host:
             data = {"host": _args.host, "index": str(_args.rmschedule)}
-            logger.info(quads.remove_schedule(**data))
+            try:
+                logger.info(quads.remove_schedule(**data))
+            except ConnectionError:
+                logger.error("Could not connect to the quads-server, verify service is up and running.")
+                exit(1)
             exit(0)
         else:
             logger.error('Missing option. Need --host when using --rm-schedule')
@@ -338,7 +386,11 @@ def main(_args):
                 'end': _args.schedend,
                 'cloud': _args.schedcloud,
                 'host': _args.host}
-        logger.info(quads.insert_schedule(data)["result"])
+        try:
+            logger.info(quads.insert_schedule(data)["result"])
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         exit(0)
 
     elif _args.movehosts:
@@ -462,7 +514,11 @@ def main(_args):
                     "end": _kwargs["date"],
                 }
 
-                available_hosts = quads.get_available(**data)
+                try:
+                    available_hosts = quads.get_available(**data)
+                except ConnectionError:
+                    logger.error("Could not connect to the quads-server, verify service is up and running.")
+                    exit(1)
 
                 for host in sorted(available_hosts):
                     logger.info(host)
@@ -477,14 +533,22 @@ def main(_args):
         _kwargs = {}
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
-        summary = quads.get_summary()
+        try:
+            summary = quads.get_summary()
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         for cloud in summary:
             if _args.fullsummary or cloud["count"] > 0:
                 logger.info("%s: %s (%s)" % (cloud["name"], cloud["count"], cloud["description"]))
         exit(0)
 
     elif _args.version:
-        version = quads.get_version()
+        try:
+            version = quads.get_version()
+        except ConnectionError:
+            logger.error("Could not connect to the quads-server, verify service is up and running.")
+            exit(1)
         if "result" in version:
             logger.info(version["result"])
         exit(0)
