@@ -128,7 +128,7 @@ class Validator(object):
         for i, interface in enumerate(INTERFACES.keys()):
             new_ips = []
             host_ips = [
-                {"ip": socket.gethostbyname(host.name), "host": host} for host in _cloud_hosts
+                {"ip": socket.gethostbyname(host.name), "host": host} for host in self.hosts
                 if interface in [_interface.name for _interface in host.interfaces]
             ]
             for host in host_ips:
