@@ -13,13 +13,14 @@ def generator(_host_file, _days, _month, _year, _gentime):
     if _host_file:
         with open(_host_file, 'r') as f:
             reader = csv.reader(f)
-            data = list(reader)
+            hosts = list(reader)
     else:
-        data = sorted(Host.objects(), key=lambda x: x.name)
+        hosts = sorted(Host.objects(), key=lambda x: x.name)
 
     lines = []
     __days = []
-    for i, host in enumerate(data):
+    non_allocated_count = 0
+    for i, host in enumerate(hosts):
         line = {"hostname": host.name}
         __days = []
         for j in range(1, _days + 1):
@@ -29,6 +30,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             if schedule:
                 chosen_color = schedule.cloud.name[5:]
             else:
+                non_allocated_count += 1
                 chosen_color = "01"
             _day = {
                 "day": j,
@@ -47,12 +49,14 @@ def generator(_host_file, _days, _month, _year, _gentime):
         line["days"] = __days
         lines.append(line)
 
+    utilization = 100 - (non_allocated_count * 100 // (_days * len(hosts)))
     with open(os.path.join(TEMPLATES_PATH, "simple_table")) as _file:
         template = Template(_file.read())
     content = template.render(
         gentime=_gentime,
         _days=_days,
         lines=lines,
+        utilization=utilization,
     )
 
     return content
