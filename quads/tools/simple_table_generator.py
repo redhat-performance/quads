@@ -19,6 +19,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
 
     lines = []
     __days = []
+    non_allocated_count = 0
     for i, host in enumerate(data):
         line = {"hostname": host.name}
         __days = []
@@ -29,6 +30,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             if schedule:
                 chosen_color = schedule.cloud.name[5:]
             else:
+                non_allocated_count += 1
                 chosen_color = "01"
             _day = {
                 "day": j,
@@ -47,12 +49,14 @@ def generator(_host_file, _days, _month, _year, _gentime):
         line["days"] = __days
         lines.append(line)
 
+    utilization = non_allocated_count * 100 / (_days * len(data))
     with open(os.path.join(TEMPLATES_PATH, "simple_table")) as _file:
         template = Template(_file.read())
     content = template.render(
         gentime=_gentime,
         _days=_days,
         lines=lines,
+        utilization=utilization,
     )
 
     return content

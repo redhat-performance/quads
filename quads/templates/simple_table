@@ -23,6 +23,9 @@
 {% if gentime %}
     <b>{{ gentime }}</b><br>
 {% endif %}
+{% if utilization %}
+    <b>Percentage of utilization: {{ utilization }}%</b><br>
+{% endif %}
     <br>
 <table>
 <tr>
