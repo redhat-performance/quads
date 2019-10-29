@@ -114,7 +114,10 @@ class Badfish:
                         auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as _response:
-                        await _response.json(content_type="application/json")
+                        if _response.status != 204:
+                            await _response.json(content_type="application/json")
+                        else:
+                            return _response
         except (Exception, TimeoutError):
             logger.exception("Failed to communicate with server.")
             raise BadfishException
