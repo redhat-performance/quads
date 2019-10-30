@@ -118,6 +118,9 @@ class Validator(object):
 
     def post_network_test(self):
         test_host = self.hosts[0]
+        for host in self.hosts:
+            if len(host.interfaces) > len(test_host.interfaces):
+                test_host = host
         try:
             ssh_helper = SSHHelper(test_host.name)
         except SSHException:
