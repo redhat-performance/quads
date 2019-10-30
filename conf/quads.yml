@@ -205,3 +205,7 @@ openstack_management: false
 # This gives the validation logic some time for the hosts to complete
 # provisioning. Value in minutes.
 validation_grace_period: 120
+
+# switch specific config
+# sw_vlan_first - The first VLAN ID used for the first interface of cloud01
+sw_vlan_first: 1100
