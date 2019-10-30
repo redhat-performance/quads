@@ -244,6 +244,15 @@ class DocumentMethodHandler(MethodHandlerBase):
                     # otherwise create it
                     else:
                         self.model(**obj_data).save()
+                        obj = self._get_obj(obj_name)
+                        if self.name == "cloud":
+                            notification_obj = model.Notification.objects(
+                                cloud=obj, ticket=data["ticket"]
+                            ).first()
+                            if not notification_obj:
+                                model.Notification(
+                                    cloud=obj, ticket=data["ticket"]
+                                ).save()
                         cherrypy.response.status = "201 Resource Created"
                         result.append("Created %s %s" % (self.name, obj_name))
                 except Exception as e:
