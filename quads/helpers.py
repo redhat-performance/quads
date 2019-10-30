@@ -1,6 +1,6 @@
 from mongoengine import ObjectIdField
 
-from quads.config import SUPPORTED, SUPERMICRO, OFFSETS
+from quads.config import SUPPORTED, SUPERMICRO, OFFSETS, conf
 
 
 def param_check(data, params, defaults={}):
@@ -42,7 +42,8 @@ def get_vlan(cloud_obj, index, last_nic=False):
     if cloud_obj.vlan and last_nic:
         return int(cloud_obj.vlan.vlan_id)
     else:
+        vlan_first = int(conf.get("sw_vlan_first", 1100)) - 10
         cloud_offset = int(cloud_obj.name[5:]) * 10
-        base_vlan = 1090 + cloud_offset
+        base_vlan = vlan_first + cloud_offset
         vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
         return vlan
