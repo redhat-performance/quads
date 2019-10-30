@@ -103,7 +103,12 @@ class Validator(object):
         failed = False
         for host in self.hosts:
             try:
-                badfish = Badfish(host.name, self.cloud.name, self.cloud.ticket, loop)
+                badfish = Badfish(
+                    "mgmt-" + host.name,
+                    str(conf["ipmi_cloud_username"]),
+                    self.cloud.ticket,
+                    loop
+                )
                 loop.run_until_complete(badfish.validate_credentials())
             except BadfishException:
                 logger.info(f"Could not verify badfish credentials for: {host.name}")
