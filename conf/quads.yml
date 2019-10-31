@@ -181,18 +181,6 @@ visual_colors:
   cloud31: "#9A6324"
   cloud32: "#fffac8"
 
-# parameter to designate "undercloud" (ignored) hosts
-# for overcloud instackenv.json generation as well as
-# pxe boot selection
-# if nullos is set to true: PXE flag removed for Foreman
-# and the host can be part of an overcloud/instackenv.json
-# if nullos is set to false: machine still foreman provisionable
-# and is excluded from instackenv.json.  It can then be
-# either used as an undercloud or something else and the
-# traditional default 1st host in an assignment is put back
-# in the pile and included in instackenv.json
-foreman_director_parameter: overcloud
-
 # Do you have managed PDUs?
 pdu_management: false
 

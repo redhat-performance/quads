@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.0
+%define version 1.1.1
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -114,6 +114,9 @@ fi;
 :;
 
 %changelog
+
+* Thu Oct 31 2019 Will Foster <wfoster@redhat.com>
+- 1.1.1 release
 
 * Fri Aug 23 2019 Will Foster <wfoster@redhat.com>
 - 1.1.0 final release
