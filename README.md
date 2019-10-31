@@ -14,6 +14,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [What does it do?](#what-does-it-do)
       * [Design](#design)
       * [Requirements](#requirements)
+      * [Setup Overview](#setup-overview)
       * [QUADS Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
@@ -91,9 +92,24 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - In QUADS 1.1+ we are using Python3, Cherrypy and Jinja2 with MongoDB as the database backend.
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
-   - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but commandsets can easily be extended to support other network switch models.
-   - We use [badfish](https://github.com/redhat-performance/badfish) for optional Dell playbooks to toggle boot order and PXE flags to accomodate OpenStack deployments via Ironic/Triple-O.
-   - The package [ansible-cmdb](https://github.com/fboender/ansible-cmdb) needs to be available if you want to see per assignment Ansible facts of the inventory. It can be obtained from [here](https://github.com/fboender/ansible-cmdb/releases)
+   - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but command sets can easily be extended to support other network switch models.
+   - We use [badfish](https://github.com/redhat-performance/badfish) for Dell systems to manage boot order to accomodate OpenStack deployments via Ironic/Triple-O as well as to control power actions via the Redfish API.
+
+## Setup Overview
+   - Documentation for setting up and using QUADS is available in detail within this repository.
+   - Below is a high-level overview of a greenfield setup, some of this may exist already for you.
+
+| Step | Documentation | Details |
+|------|---------------|---------|
+| Install and Setup Foreman/Satellite | [docs](https://theforeman.org/manuals/nightly/#3.InstallingForeman) | Not covered here |
+| Prepare Host and Network Environment | [docs](/docs/quads-workflow.md) | Covers Juniper Environments |
+| Install QUADS | [docs](#installing-quads) | RPM, Docker or Github Source |
+| Install MongoDB | [docs](docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
+| Install Wiki | [docs](#installing-other-quads-components) | For RPM or Github Source only |
+| Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
+| Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
+| Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
+
 
 ## QUADS Workflow
 
@@ -258,11 +274,10 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 #### QUADS Wiki
    - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
-   - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/)
-   - You'll also need `bind-utils` package installed that provides the `host` command
+   - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
 
 #### QUADS Move Command
-   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
 
@@ -274,7 +289,7 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 | Service Command | Category | Purpose |
 |-----------------|----------|---------|
 | quads-cli --move-hosts | provisioning | checks for hosts to move/reclaim as scheduled |
-| validate-env.py | validation | checks clouds pending to be released for all enabled validation checks |
+| validate_env.py | validation | checks clouds pending to be released for all enabled validation checks |
 | regenerate_wiki.py | documentation | keeps your infra wiki updated based on current state of environment |
 | simple_table_web.py | visualization | keeps your systems availability and usage visualization up to date |
 | make_instackenv_json.py | openstack | keeps optional openstack triple-o installation files up-to-date |
