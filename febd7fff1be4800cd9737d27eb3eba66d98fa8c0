@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90a42916_1e8e7c83",
+        "filename": "quads/helpers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-10-31T09:14:41Z",
+      "side": 1,
+      "message": "fine with this, though would do it this way rather:\nvlan_first \u003d int(conf.get(\"sw_vlan_first\", 1100)) - 10",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "febd7fff1be4800cd9737d27eb3eba66d98fa8c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
