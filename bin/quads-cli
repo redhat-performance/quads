@@ -500,6 +500,9 @@ def main(_args):
 
     elif _args.cloudonly:
         _cloud = Cloud.objects(name=_args.cloudonly).first()
+        if not _cloud:
+            logger.error("Cloud is not defined.")
+            exit(1)
         _kwargs = {"cloud": _cloud}
         if _args.datearg:
             _kwargs["date"] = datetime.datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M').isoformat()
