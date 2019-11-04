@@ -173,7 +173,7 @@ class Foreman(object):
             logger.error("There was something wrong with your request.")
             return False
         if response.status in [200, 204]:
-            logger.info("Foreman element updated successfully.")
+            logger.debug("Foreman element updated successfully.")
             return True
         return False
 
@@ -376,14 +376,14 @@ class Foreman(object):
     async def add_role(self, user_name, role):
         user_id = await self.get_user_id(user_name)
         role_id = await self.get_role_id(role)
-        user_roles = await self.get_user_roles(user_id)
+        user_roles = await self.get_user_roles_ids(user_id)
         user_roles.append(role_id)
         return await self.put_element("users", user_id, "role_ids", user_roles)
 
     async def remove_role(self, user_name, role):
         user_id = await self.get_user_id(user_name)
         role_id = await self.get_role_id(role)
-        user_roles = await self.get_user_roles(user_id)
+        user_roles = await self.get_user_roles_ids(user_id)
         if role_id in user_roles:
             user_roles.pop(user_roles.index(role_id))
         else:
@@ -396,4 +396,8 @@ class Foreman(object):
         result = await self.get_obj_dict(endpoint)
         if result.get("Default role", False):
             result.pop("Default role")
+        return result
+
+    async def get_user_roles_ids(self, user_id):
+        result = await self.get_user_roles(user_id)
         return [role["id"] for _, role in result.items()]
