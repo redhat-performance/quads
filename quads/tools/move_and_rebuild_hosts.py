@@ -129,31 +129,6 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
 
     ipmi_new_pass = _new_cloud_obj.ticket if _new_cloud_obj.ticket else conf["$ipmi_password"]
 
-    foreman = Foreman(
-        conf["foreman_api_url"],
-        conf["foreman_username"],
-        conf["foreman_password"],
-        semaphore=semaphore,
-        loop=loop,
-    )
-
-    foreman_results = []
-
-    remove_result = await foreman.remove_role(_old_cloud_obj.name, _host_obj.name)
-    foreman_results.append(remove_result)
-
-    if _new_cloud_obj.name != "cloud01":
-        add_result = await foreman.add_role(_new_cloud_obj.name, _host_obj.name)
-        foreman_results.append(add_result)
-
-        update_result = await foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
-        foreman_results.append(update_result)
-
-    for result in foreman_results:
-        if isinstance(result, Exception) or not result:
-            logger.error("There was something wrong setting Foreman host parameters.")
-            return False
-
     ipmi_set_pass = [
         "user", "set", "password",
         str(conf["ipmi_cloud_username_id"]), ipmi_new_pass
@@ -203,6 +178,14 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
             {"name": "ptables", "value": conf["foreman_default_ptable"]},
             {"name": "media", "value": conf["foreman_default_medium"]},
         ]
+
+        foreman = Foreman(
+            conf["foreman_api_url"],
+            conf["foreman_username"],
+            conf["foreman_password"],
+            semaphore=semaphore,
+            loop=loop,
+        )
 
         set_result = await foreman.set_host_parameter(host, "overcloud", "true")
         foreman_results.append(set_result)
