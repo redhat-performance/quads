@@ -50,7 +50,11 @@ def main():
                     overcloud = loop.run_until_complete(foreman.get_host_param(host.name, "overcloud"))
                 if not overcloud:
                     overcloud = {"result": "true"}
-                if "result" in overcloud and strtobool(overcloud["result"]):
+
+                if type(overcloud["result"]) != bool:
+                    _overcloud_result = strtobool(overcloud["result"])
+                    
+                if "result" in overcloud and _overcloud_result:
                     mac = "00:00:00:00:00:00"
                     if len(host.interfaces) > 1:
                         mac = host.interfaces[1].mac_address

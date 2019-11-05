@@ -116,12 +116,11 @@ def print_summary():
                     % (ansible_facts_link, factstyle_tag_start, factstyle_tag_end)
                 )
         else:
+            _data.append(status)
             if cloud_name == "cloud01":
-                _data.append(status)
                 if conf["openstack_management"]:
                     _data.append("")
             else:
-                _data.append(status)
                 if conf["openstack_management"]:
                     _data.append(
                         "<a href=%s target=_blank>%s%s%s</a>"
