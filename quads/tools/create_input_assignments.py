@@ -118,13 +118,15 @@ def print_summary():
         else:
             if cloud_name == "cloud01":
                 _data.append(status)
-                _data.append("")
+                if conf["openstack_management"]:
+                    _data.append("")
             else:
                 _data.append(status)
-                _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (instack_link, style_tag_start, instack_text, style_tag_end)
-                )
+                if conf["openstack_management"]:
+                    _data.append(
+                        "<a href=%s target=_blank>%s%s%s</a>"
+                        % (instack_link, style_tag_start, instack_text, style_tag_end)
+                    )
 
         if conf["gather_dell_configs"]:
             dellstyle_tag_end = "</span>"
