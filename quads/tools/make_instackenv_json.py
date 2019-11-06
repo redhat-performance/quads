@@ -53,6 +53,8 @@ def main():
 
                 if type(overcloud["result"]) != bool:
                     _overcloud_result = strtobool(overcloud["result"])
+                else:
+                    _overcloud_result = overcloud["result"]
 
                 if "result" in overcloud and _overcloud_result:
                     mac = "00:00:00:00:00:00"
