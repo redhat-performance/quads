@@ -215,6 +215,7 @@ class Schedule(Document):
     host = ReferenceField(Host, required=True)
     start = DateTimeField()
     end = DateTimeField()
+    build_delta = DateTimeField()
     index = IntField()
     meta = {'strict': False}
 
