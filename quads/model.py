@@ -1,5 +1,5 @@
 import ipaddress
-from datetime import datetime
+import datetime
 from mongoengine import (
     connect,
     Document,
@@ -16,6 +16,7 @@ from mongoengine import (
     LongField,
     EmbeddedDocumentField,
 )
+
 from quads.helpers import param_check
 
 import os
@@ -215,6 +216,8 @@ class Schedule(Document):
     host = ReferenceField(Host, required=True)
     start = DateTimeField()
     end = DateTimeField()
+    build_start = DateTimeField()
+    build_end = DateTimeField()
     index = IntField()
     meta = {'strict': False}
 
@@ -260,14 +263,14 @@ class Schedule(Document):
 
     @queryset_manager
     def future_schedules(self, queryset, host):
-        now = datetime.now()
+        now = datetime.datetime.now()
         _query = Q(host=host) & Q(end__gte=now)
         return queryset.filter(_query)
 
     @queryset_manager
     def current_schedule(self, queryset, date=None, host=None, cloud=None):
         if not date:
-            date = datetime.now()
+            date = datetime.datetime.now()
         _query = Q(start__lte=date) & Q(end__gte=date)
         if host:
             _query = _query & Q(host=host)
