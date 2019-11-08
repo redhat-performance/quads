@@ -7,7 +7,7 @@ from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
-from quads.model import Host, Cloud
+from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -113,6 +113,7 @@ async def ipmi_reset(host, semaphore):
 
 
 async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False, loop=None):
+    build_start = datetime.now()
     logger.debug("Moving and rebuilding host: %s" % host)
 
     untouchable_hosts = conf["untouchable_hosts"]
@@ -141,11 +142,12 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
     remove_result = await foreman.remove_role(_old_cloud_obj.name, _host_obj.name)
     foreman_results.append(remove_result)
 
-    add_result = await foreman.add_role(_new_cloud_obj.name, _host_obj.name)
-    foreman_results.append(add_result)
+    if _new_cloud_obj.name != "cloud01":
+        add_result = await foreman.add_role(_new_cloud_obj.name, _host_obj.name)
+        foreman_results.append(add_result)
 
-    update_result = await foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
-    foreman_results.append(update_result)
+        update_result = await foreman.update_user_password(_new_cloud_obj.name, ipmi_new_pass)
+        foreman_results.append(update_result)
 
     for result in foreman_results:
         if isinstance(result, Exception) or not result:
@@ -236,6 +238,11 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                 except Exception as ex:
                     logger.debug(ex)
                     logger.error(f"There was something wrong resetting IPMI on {host}.")
+
+    schedule = Schedule.current_schedule(cloud=_new_cloud_obj, host=_host_obj).first()
+    if schedule:
+        schedule.update(build_start=build_start, build_end=datetime.now())
+        schedule.save()
 
     logger.debug("Updating host: %s")
     _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())

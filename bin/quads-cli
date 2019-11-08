@@ -31,6 +31,7 @@ import os
 from json import JSONDecodeError
 from quads.config import conf, API_URL
 from quads.quads import Api as QuadsApi
+from quads.tools import report
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host
 
@@ -243,6 +244,11 @@ def main(_args):
                     continue
                 else:
                     logger.info(cloud.name)
+
+            exit(0)
+
+        elif _args.action == "report":
+            report.report(logger)
 
             exit(0)
 
@@ -595,6 +601,8 @@ if __name__ == '__main__':
                        help='List the host interfaces')
     group.add_argument('--find-free-cloud', dest='action', action='store_const', const='free_cloud',
                        help='List available hosts on a specific time frame')
+    group.add_argument('--report', dest='action', action='store_const', const='report',
+                       help='Quads reporting')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
                         help='Limit full report to hosts only in this cloud')
