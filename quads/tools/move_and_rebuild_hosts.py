@@ -7,7 +7,7 @@ from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, is_supermicro, get_vlan
-from quads.model import Host, Cloud
+from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -113,6 +113,7 @@ async def ipmi_reset(host, semaphore):
 
 
 async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False, loop=None):
+    build_start = datetime.now()
     logger.debug("Moving and rebuilding host: %s" % host)
 
     untouchable_hosts = conf["untouchable_hosts"]
@@ -236,6 +237,12 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                 except Exception as ex:
                     logger.debug(ex)
                     logger.error(f"There was something wrong resetting IPMI on {host}.")
+
+    build_delta = datetime.now() - build_start
+    schedule = Schedule.current_schedule(cloud=_new_cloud_obj, host=_host_obj).first()
+    if schedule:
+        schedule.update(build_delta=build_delta)
+        schedule.save()
 
     logger.debug("Updating host: %s")
     _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
