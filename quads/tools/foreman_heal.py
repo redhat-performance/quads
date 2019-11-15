@@ -24,9 +24,10 @@ def main():
         loop=loop,
     )
 
+    ignore = conf["foreman_rbac_exclude"].split("|")
     clouds = Cloud.objects()
     for cloud in clouds:
-        if cloud.name != "cloud01":
+        if cloud.name != "cloud01" and cloud.name not in ignore:
             logger.info(f"Processing {cloud.name}")
             user_id = loop.run_until_complete(foreman.get_user_id(cloud.name))
             roles = loop.run_until_complete(foreman.get_user_roles(user_id))
