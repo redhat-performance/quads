@@ -89,6 +89,10 @@ foreman_default_medium: "RHEL Local"
 # set the following variable to true if you want this functionality
 foreman_check_host_health:
 
+# Foreman RBAC fix
+# variable to pass cloud names to be excluded from foreman_heal
+foreman_rbac_exclude:
+
 # omit these hosts (used for wiki generation)
 # These are typically hosts known to your foreman that you don't
 # want to pull into the wiki. (this is a regexp, e.g. 'host1|host2'
