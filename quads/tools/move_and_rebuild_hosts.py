@@ -230,6 +230,7 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
                 await badfish.reboot_server(graceful=False)
             except BadfishException:
                 logger.error(f"Error setting PXE boot via Badfish on {host}.")
+                await badfish.reboot_server(graceful=False)
                 return False
         else:
             if is_supermicro(host):
