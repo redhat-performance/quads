@@ -2,8 +2,9 @@ import calendar
 import logging
 import sys
 
+from quads.helpers import date_span
 from quads.model import Schedule, Host
-from datetime import datetime, date, timedelta
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -11,21 +12,21 @@ logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def report(_logger):
-    now = datetime.now()
-    now = now.replace(hour=22, minute=0, second=0)
-    month = now.month
-    days = calendar.mdays[month]
+def report_available(_logger, _start, _end):
+    start = _start.replace(hour=22, minute=0, second=0)
+    end = _end.replace(hour=22, minute=0, second=0)
+    next_sunday = start + timedelta(days=(6 - start.weekday()))
+
     hosts = Host.objects()
-    next_sunday = now + timedelta(days=(6 - now.weekday()))
 
-    _logger.info(f"Quads report for {now.year}-{month}:")
+    _logger.info(f"Quads report for {start} to {end}:")
 
+    days = 0
     total_allocated_month = 0
     total_hosts = len(hosts)
-    for day in range(1, days + 1):
-        schedules = Schedule.current_schedule(date=date(now.year, month, day)).count()
-        total_allocated_month += schedules
+    for _date in date_span(start, end):
+        total_allocated_month += Schedule.current_schedule(date=_date).count()
+        days += 1
     utilized = total_allocated_month * 100 // (total_hosts * days)
     _logger.info(f"Percentage Utilized: {utilized}%")
 
@@ -91,4 +92,4 @@ def report(_logger):
 
 
 if __name__ == "__main__":
-    report(logger)
+    report_available(logger)
