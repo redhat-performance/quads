@@ -50,6 +50,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Find Free Cloud Environment](#find-free-cloud-environment)
          * [Find Available Hosts](#find-available-hosts)
       * [Interacting with MongoDB](#interacting-with-mongodb)
+         * [Example: Get hosts by switch port and switch ip](#example-get-hosts-by-switch-port-and-switch-ip)
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
          * [Example: Querying Notification Values in MongoDB](#example-querying-notification-values-in-mongodb)
          * [Example: Query Multiple Values in MongoDB inside Collections](#query-multiple-values-in-mongodb-inside-collections)
@@ -748,6 +749,15 @@ MongoDB server version: 4.0.3
 ```
 > use quads
 switched to db quads
+```
+
+### Example: Get hosts by switch port and switch ip
+
+   - Query for all hosts which have interfaces to a specific switch port and switch ip
+
+```
+> db.host.find({"interfaces":{$elemMatch:{"switch_port":"xe-0/0/10:2", "ip_address":"10.1.1.10"}}})
+{ "_id" : ObjectId("5c82b3660f767d000692acf7"), "name" : "host01.example.com", "cloud" : ObjectId("...
 ```
 
 ### Example: Change the wipe value in MongoDB
