@@ -1,9 +1,9 @@
-import calendar
 import logging
 import sys
 
-from quads.model import Schedule, Host
-from datetime import datetime, date, timedelta
+from quads.helpers import date_span, first_day_month, last_day_month
+from quads.model import Schedule, Host, CloudHistory
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -11,21 +11,21 @@ logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def report(_logger):
-    now = datetime.now()
-    now = now.replace(hour=22, minute=0, second=0)
-    month = now.month
-    days = calendar.mdays[month]
+def report_available(_logger, _start, _end):
+    start = _start.replace(hour=22, minute=0, second=0)
+    end = _end.replace(hour=22, minute=0, second=0)
+    next_sunday = start + timedelta(days=(6 - start.weekday()))
+
     hosts = Host.objects()
-    next_sunday = now + timedelta(days=(6 - now.weekday()))
 
-    _logger.info(f"Quads report for {now.year}-{month}:")
+    _logger.info(f"Quads report for {start} to {end}:")
 
+    days = 0
     total_allocated_month = 0
     total_hosts = len(hosts)
-    for day in range(1, days + 1):
-        schedules = Schedule.current_schedule(date=date(now.year, month, day)).count()
-        total_allocated_month += schedules
+    for _date in date_span(start, end):
+        total_allocated_month += Schedule.current_schedule(date=_date).count()
+        days += 1
     utilized = total_allocated_month * 100 // (total_hosts * days)
     _logger.info(f"Percentage Utilized: {utilized}%")
 
@@ -35,7 +35,7 @@ def report(_logger):
         total += schedule.build_end - schedule.build_start
     if schedules:
         average_build = total / len(schedules)
-        logger.info(f"Average build delta: {average_build}")
+        _logger.info(f"Average build delta: {average_build}")
 
     hosts_summary = {}
     for host in hosts:
@@ -45,7 +45,7 @@ def report(_logger):
         hosts_summary[host_type].append(host)
 
     headers = ["Server Type", "Total", "Free", "Scheduled", "2 weeks", "4 weeks"]
-    logger.info(
+    _logger.info(
         f"{headers[0]:<12}| "
         f"{headers[1]:>5}| "
         f"{headers[2]:>5}| "
@@ -80,7 +80,7 @@ def report(_logger):
 
         free = len(_hosts) - scheduled_count
         schedule_percent = scheduled_count * 100 // len(_hosts)
-        logger.info(
+        _logger.info(
             f"{host_type:<12}| "
             f"{len(_hosts):>5}| "
             f"{free:>5}| "
@@ -90,5 +90,51 @@ def report(_logger):
         )
 
 
+def report_scheduled(_logger, _start, _end):
+    now = datetime.now()
+    start = _start.replace(hour=22, minute=0, second=0)
+    end = _end.replace(hour=22, minute=0, second=0)
+    scheduled = CloudHistory.objects(
+        __raw__={
+            "_id": {
+                "$lt": end,
+                "$gt": start,
+            },
+        }
+    ).order_by("-_id").count()
+
+    hosts = Host.objects(
+        __raw__={
+            "_id": {
+                "$lt": start,
+            },
+        }
+    ).count()
+
+    days = 0
+    scheduled_count = 0
+    for date in date_span(start, end):
+        days += 1
+        scheduled_count += Schedule.current_schedule(date=date).count()
+    utilization = scheduled_count * 100 // (days * len(hosts))
+
+    headers = ["Month", "Scheduled", "Systems", "% Utilized"]
+    _logger.info(
+        f"{headers[0]:<8}| "
+        f"{headers[1]:>5}| "
+        f"{headers[2]:>5}| "
+        f"{headers[3]:>5}| "
+    )
+
+    _logger.info(
+        f"{now.year}-{now.month:>8}| "
+        f"{scheduled:>5}| "
+        f"{hosts:>5}| "
+        f"{utilization:>5}%| "
+    )
+
+
 if __name__ == "__main__":
-    report(logger)
+    _start = first_day_month(datetime.now())
+    _end = last_day_month(datetime.now())
+    report_available(logger, _start, _end)
