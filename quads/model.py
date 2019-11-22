@@ -1,5 +1,7 @@
-import ipaddress
 import datetime
+import ipaddress
+import os
+
 from mongoengine import (
     connect,
     Document,
@@ -16,10 +18,8 @@ from mongoengine import (
     LongField,
     EmbeddedDocumentField,
 )
-
 from quads.helpers import param_check
 
-import os
 
 connect(
     'quads',
