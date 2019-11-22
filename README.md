@@ -32,6 +32,9 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Define Host Interfaces in QUADS](#define-host-interfaces-in-quads)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
+      * [QUADS Reporting](#quads-reporting)
+        * [Server Availability Overview Report](#server-availability-overview-report)
+        * [Scheduled Assignments Report](#scheduled-assignments-report)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
             * [QUADS VLAN Options](#quads-vlan-options)
@@ -439,6 +442,47 @@ quads-cli --move-hosts --path-to-command quads/tools/move_and_rebuild_hosts.py
 ```
 
 * You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script as an example.  It's useful to note that with `quads/tools/             move_and_rebuild_hosts.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
+
+## QUADS Reporting
+
+### Server Availability Overview Report
+
+Generate a report with a list of server types with total count of systems and their current and future availability plus an average build time delta overall
+
+```
+quads-cli --report-available
+```
+Example output
+```
+Quads report for 2019-12-01 to 2019-12-31:
+Percentage Utilized: 60%
+Average build delta: 0:00:26.703556
+Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks
+r620        |     5|     0|      100%|       0|       0
+1029p       |     3|     3|        0%|       3|       3
+```
+
+Additionally, you can pass `--schedule-start` and `--schedule-end` dates for reports in the past. 2 weeks and 4 weeks free calculate starting days from the first Sunday following when the command was run, or return current day at 22:01 if run on Sunday.
+
+### Scheduled Assignments Report
+
+Generate statistics on the number of assigned clouds in quads over a period of months in the past starting today or on a specific year.
+
+```
+quads-cli --report-scheduled --months 6
+```
+Example output
+```
+Month   | Scheduled|  Systems|  % Utilized|
+2019-12 |         0|        8|         58%|
+2019-11 |         2|        8|         62%|
+2019-10 |        15|        8|         20%|
+2019-09 |         0|        0|          0%|
+2019-08 |         0|        0|          0%|
+
+```
+
+Additionally, you can pass `--year` instead for a report for every month in that year.
 
 ## Common Administration Tasks
 
