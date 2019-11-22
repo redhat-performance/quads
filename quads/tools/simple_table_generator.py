@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from jinja2 import Template
 from quads.config import conf, TEMPLATES_PATH
-from quads.model import Schedule, Host, Cloud, CloudHistory
+from quads.model import Schedule, Host, CloudHistory
 
 
 def generator(_host_file, _days, _month, _year, _gentime):

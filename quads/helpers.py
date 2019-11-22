@@ -1,5 +1,9 @@
-from mongoengine import ObjectIdField
+import calendar
+import struct
 
+from bson.objectid import ObjectId
+from datetime import timedelta
+from mongoengine import ObjectIdField
 from quads.config import SUPPORTED, SUPERMICRO, OFFSETS, conf
 
 
@@ -47,3 +51,47 @@ def get_vlan(cloud_obj, index, last_nic=False):
         base_vlan = vlan_first + cloud_offset
         vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
         return vlan
+
+
+def date_span(start, end, delta=timedelta(days=1)):
+    current = start
+    while current < end:
+        yield current
+        current += delta
+
+
+def month_delta_past(date, months):
+    years = months // 12
+    year = date.year - years
+    month_delta = months % 12
+    if not month_delta:
+        return date.replace(year=year)
+    if month_delta > date.month:
+        year -= 1
+        month = 12 - month_delta
+        day = min(date.day, calendar.monthrange(year, month)[1])
+        return date.replace(year=year, month=month, day=day)
+    else:
+        month = date.month - month_delta
+        if month:
+            day = min(date.day, calendar.monthrange(year, month)[1])
+            return date.replace(year=year, month=month, day=day)
+        return date.replace(year=year)
+
+
+def last_day_month(date):
+    next_month = date.replace(day=28) + timedelta(days=4)
+    return next_month - timedelta(days=next_month.day)
+
+
+def first_day_month(date):
+    return date - timedelta(days=date.day-1)
+
+
+def date_to_object_id(date):
+    timestamp = calendar.timegm(date.timetuple())
+    oid = struct.pack(
+        ">I",
+        int(timestamp)
+    ) + b"\x00\x00\x00\x00\x00\x00\x00\x00"
+    return ObjectId(oid)
