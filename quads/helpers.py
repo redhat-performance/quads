@@ -1,5 +1,5 @@
+from datetime import timedelta
 from mongoengine import ObjectIdField
-
 from quads.config import SUPPORTED, SUPERMICRO, OFFSETS, conf
 
 
@@ -47,3 +47,19 @@ def get_vlan(cloud_obj, index, last_nic=False):
         base_vlan = vlan_first + cloud_offset
         vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
         return vlan
+
+
+def date_span(start, end, delta=timedelta(days=1)):
+    current = start
+    while current < end:
+        yield current
+        current += delta
+
+
+def last_day_month(date):
+    next_month = date.replace(day=28) + timedelta(days=4)
+    return next_month - timedelta(days=next_month.day)
+
+
+def first_day_month(date):
+    return date - timedelta(days=date.day-1)
