@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from jinja2 import Template
 from quads.config import conf, TEMPLATES_PATH
-from quads.model import Schedule, Host
+from quads.model import Schedule, Host, Cloud, CloudHistory
 
 
 def generator(_host_file, _days, _month, _year, _gentime):
@@ -41,9 +41,17 @@ def generator(_host_file, _days, _month, _year, _gentime):
             }
 
             if schedule:
-                _day["display_description"] = schedule.cloud.description
-                _day["display_owner"] = schedule.cloud.owner
-                _day["display_ticket"] = schedule.cloud.ticket
+                cloud = CloudHistory.objects(
+                    __raw__={
+                        "_id": {
+                            "$lt": schedule.id
+                        },
+                        "name": schedule.cloud.name
+                    }
+                ).order_by("-_id").first()
+                _day["display_description"] = cloud.description
+                _day["display_owner"] = cloud.owner
+                _day["display_ticket"] = cloud.ticket
             __days.append(_day)
 
         line["days"] = __days
