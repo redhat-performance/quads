@@ -22,7 +22,7 @@ def main():
         os.makedirs(conf["visual_web_dir"])
 
     for _date in dates:
-        gen_time = "Allocation Map for %s-%.2d<br>(Hover cursor over squares for details on allocation)" % (
+        gen_time = "Allocation Map for %s-%.2d" % (
             _date.year, _date.month)
         content = generator(None, calendar.mdays[_date.month], _date.month, _date.year, gen_time)
         file_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (_date.year, _date.month))

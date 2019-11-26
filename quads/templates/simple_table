@@ -21,7 +21,7 @@
 </head>
 <body>
 {% if gentime %}
-    <b>{{ gentime }}</b><br>
+    <b>{{ gentime }}<br>(Hover cursor over squares for details on allocation)</b><br>
 {% endif %}
     <b>Percentage Utilized: {{ utilization }}%</b><br>
     <br>
