@@ -32,7 +32,11 @@ class MethodHandlerBase(object):
 
 @cherrypy.expose
 class MovesMethodHandler(MethodHandlerBase):
-    def GET(self):
+    def GET(self, **data):
+        date = datetime.datetime.now()
+        if "date" in data:
+            date = datetime.datetime.strptime(data["date"], "%Y-%m-%dt%H:%M:%S")
+
         if self.name == "moves":
             try:
                 _hosts = model.Host.objects()
@@ -42,7 +46,7 @@ class MovesMethodHandler(MethodHandlerBase):
 
                     _scheduled_cloud = _host.default_cloud.name
                     _host_defined_cloud = _host.cloud.name
-                    _current_schedule = self.model.current_schedule(host=_host).first()
+                    _current_schedule = self.model.current_schedule(host=_host, date=date).first()
                     try:
                         if _current_schedule:
                             _scheduled_cloud = _current_schedule.cloud.name
