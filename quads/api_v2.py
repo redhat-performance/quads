@@ -419,6 +419,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
         _host = model.Host.objects(name=data["host"]).first()
         if _host:
             schedule = self.model.objects(host=_host, index=data["index"])
+            if self.model.current_schedule(host=_host, cloud=schedule.cloud):
+                _host.update(cloud=_host.default_cloud)
             if schedule:
                 schedule.delete()
                 cherrypy.response.status = "204 No Content"

@@ -24,6 +24,7 @@ class Validator(object):
         self.cloud = cloud
         self.report = ""
         self.hosts = Host.objects(cloud=self.cloud)
+        self.hosts = [host for host in self.hosts if Schedule.current_schedule(host=host)]
 
     def notify_failure(self):
         template_file = "validation_failed"
