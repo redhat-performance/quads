@@ -1,9 +1,9 @@
 
 Greetings Citizen,
 
-You've been allocated a new environment!  The environment is not
-yet ready for use but you are being notified ahead of time that
-it is being prepared.
+You've been allocated a new future environment!  The environment
+is not yet ready for use but you are being notified ahead of time
+that it is being prepared.
 
 {{ cloud_info }}
 
@@ -12,6 +12,13 @@ passed automated validation it will be released to you.
 
 You'll receive another email with environment-specific
 information and additional system details when it's ready.
+
+Before this happens a future schedule will be entered and
+communicated to you via your service ticket/request.
+
+Afterwards, when the time comes a series of automated tests and
+validation phases will occur to make sure your systems/network
+are in their final, desired state before being ready to use.
 
 For additional information regarding the Scale Lab usage
 please see the following documentation:

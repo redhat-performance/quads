@@ -98,7 +98,7 @@ def create_future_initial_message(real_owner, cloud_info, cc):
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
     )
-    postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+    postman = Postman("New QUADS Assignment Defined for the Future", real_owner, cc_users, content)
     postman.send_email()
 
 
