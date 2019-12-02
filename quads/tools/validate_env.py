@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import argparse
 import asyncio
 import logging
 import os
@@ -7,6 +8,7 @@ import socket
 from datetime import datetime
 from jinja2 import Template
 from paramiko import SSHException
+from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.model import Cloud, Schedule, Host, Notification
@@ -16,7 +18,6 @@ from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 class Validator(object):
@@ -124,8 +125,9 @@ class Validator(object):
                 test_host = host
         try:
             ssh_helper = SSHHelper(test_host.name)
-        except SSHException:
-            logger.exception("Could not establish connection with host: %s." % test_host.name)
+        except (SSHException, NoValidConnectionsError, socket.timeout) as ex:
+            logger.debug(ex)
+            logger.error("Could not establish connection with host: %s." % test_host.name)
             self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             return False
         host_list = " ".join([host.name for host in self.hosts])
@@ -162,6 +164,7 @@ class Validator(object):
         return True
 
     def validate_env(self):
+        logger.info(f"Validating {self.cloud.name}")
         notification_obj = Notification.objects(
             cloud=self.cloud,
             ticket=self.cloud.ticket
@@ -193,6 +196,16 @@ class Validator(object):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Validate Quads assignments')
+    parser.add_argument('--debug', action='store_true', default=False, help='Show debugging information.')
+    args = parser.parse_args()
+
+    level = logging.INFO
+    if args.debug:
+        level = logging.DEBUG
+
+    logging.basicConfig(level=level, format="%(message)s")
+
     clouds = Cloud.objects(validated=False, name__ne="cloud01")
     for _cloud in clouds:
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
@@ -200,5 +213,6 @@ if __name__ == "__main__":
             validator = Validator(_cloud)
             try:
                 validator.validate_env()
-            except Exception:
-                logger.exception("Failed validation for %s" % _cloud.name)
+            except Exception as ex:
+                logger.debug(ex)
+                logger.info("Failed validation for %s" % _cloud.name)
