@@ -58,6 +58,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Example: Toggling Individual Cloud Metadata Settings](#toggling-individual-cloud-metadata-settings)
       * [Backing up QUADS](#backing-up-quads)
       * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
+      * [Troubleshooting Validation Failures](#troubleshooting-validation-failures)
+         * [Understanding Validation Structure](#understanding-validation-structure)
+         * [Troubleshooting Steps](#troubleshooting-steps)
+         * [Validation using Debug Mode](#validation-using-debug-mode)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -856,7 +860,7 @@ Above, we will move those two hosts manually inside MongoDB.
 
 ```
 db.host.find({name: "f20-h01-000-r620.rdu2.example.com"})
-{ "_id" : ObjectId("5ce1e7e7913706568065a109"), "name" : "f20-h01-000-r620.rdu2.scalelab.redhat.com", "cloud" : ObjectId("5c82b3660f767d000692acf5"), "host_type" : "vendor", "interfaces" : [ { "name" : "em1", "mac_address" : "0c:c4:7a:eb:8b:a2", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:0" }, { "name" : "em2", "mac_address" : "0c:c4:7a:eb:8b:a3", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:1" }, { "name" : "em3", "mac_address" : "b8:ca:3a:61:41:68", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:0" }, { "name" : "em4", "mac_address" : "b8:ca:3a:61:41:6a", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:1" } ], "nullos" : true, "build" : false
+{ "_id" : ObjectId("5ce1e7e7913706568065a109"), "name" : "f20-h01-000-r620.rdu2.scalelab.example.com", "cloud" : ObjectId("5c82b3660f767d000692acf5"), "host_type" : "vendor", "interfaces" : [ { "name" : "em1", "mac_address" : "0c:c4:7a:eb:8b:a2", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:0" }, { "name" : "em2", "mac_address" : "0c:c4:7a:eb:8b:a3", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:1" }, { "name" : "em3", "mac_address" : "b8:ca:3a:61:41:68", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:0" }, { "name" : "em4", "mac_address" : "b8:ca:3a:61:41:6a", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:1" } ], "nullos" : true, "build" : false
 ```
 
    - We see that the current Cloud ObjectID is `5c82b3660f767d000692acf5` for cloud01, we need it to be `5c82b3660f767d000692acf7`
@@ -963,6 +967,108 @@ mongorestore --drop -d quads quads
 2019-05-05T01:23:01.743+0100	finished restoring quads.cloud_history (94 documents)
 2019-05-05T01:23:01.792+0100	finished restoring quads.cloud (32 documents)
 2019-05-05T01:23:01.792+0100	done
+```
+
+## Troublshooting Validation Failures
+A useful part of QUADS is the functionality for automated systems/network validation.  Below you'll find some steps to help understand why systems/networks might not pass validation so you can address any issues.
+
+### Understanding Validation Structure
+There are two main validation tests that occur before a cloud environment is automatically released:
+
+* **Foreman Systems Validation** ensures that no target systems in your environment are marked for build.
+* **VLAN Network Validation** ensures that all the backend interfaces in your isolated VLANs are reachable via fping
+
+All of these validations are run from `/opt/quads/quads/tools/validate_env.py` and we also ship a few useful tools to help you figure out validation failures.
+
+`/opt/quads/quads/tools/validate_env.py` is run from cron, see our [example cron entry](cron/quads)
+
+### Troubleshooting Steps
+You should run through each of these steps manually to determine what systems/networks might need attention of automated validation does not pass in a reasonable timeframe.  Typically, `admin_cc:` will receieve email notifications of trouble hosts as well.
+
+
+* **General Availability** can be checked via a simple `fping` command, this should be run first.
+
+```
+quads-cli --cloud-only cloud23 > /tmp/cloud23
+fping -u -f /tmp/cloud23
+```
+
+* **Foreman Systems Validation** can be run via the hammer cli command provided by `gem install hammer_cli_foreman_admin hammer_cli`
+
+```
+for host in $(quads-cli --cloud-only cloud15) ; do echo $host $(hammer host info --name $host | grep -i build); done
+```
+
+No systems should be left marked for build.
+
+* **VLAN Network Validation** You can use `/opt/quads/quads/tools/quads-post-network-test.sh` to perform an appropriate backend VLAN test across all your systems manually.
+* Note that we gather a list of hosts first, then run the script.  `-1234` corresponds to which backend VLAN interfaces to check, you can decide to only pick the first two for example via `-12` - modify as needed for your environments.
+
+```
+quads-cli --cloud-only cloud23 > /tmp/cloud23
+quads-post-network-test.sh -f /tmp/cloud23 -1234
+```
+
+* If all of these tests pass your environment should release.
+
+### Validation using Debug Mode
+`/opt/quads/quads/tools/validate_env.py` now has a `--debug` option which tells you what's happening during validation.
+
+* **Successful Validation** looks like this:
+
+```
+Validating cloud23
+Using selector: EpollSelector
+:Initializing Foreman object:
+GET: /status
+GET: /hosts?search=build=true
+Command executed successfully: fping -u f12-h01-000-1029u.rdu2.scalelab.example.com f12-h02-000-1029u.rdu2.scalelab.example.com f12-h03-000-1029u.rdu2.scalelab.example.com
+Command executed successfully: fping -u 172.16.38.126 172.20.38.126 172.16.36.206
+Command executed successfully: fping -u 172.17.38.126 172.21.38.126 172.17.36.206
+Command executed successfully: fping -u 172.18.38.126 172.22.38.126 172.18.36.206
+Command executed successfully: fping -u 172.19.38.126 172.23.38.126 172.19.36.206
+Subject: Validation check succeeded for cloud23
+From: RDU2 Scale Lab <quads@example.com>
+To: dev-null@example.com
+Cc: wfoster@example.com, kambiz@example.com, jtaleric@example.com,
+ abond@example.com, grafuls@example.com, natashba@example.com
+Reply-To: dev-null@example.com
+User-Agent: Rufus Postman 1.0.99
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+A post allocation check previously failed for:
+
+   cloud: cloud23
+   owner: ipinto
+   ticket: 498569
+
+has successfully passed the verification test(s)!  The owner
+should receive a notification that the environment is ready
+for use.
+
+DevOps Team
+
+ cloud23 / ipinto / 498569
+```
+
+* **Unsuccessful Validation** looks like this:
+
+```
+Validating cloud23
+Using selector: EpollSelector
+:Initializing Foreman object:
+GET: /status
+GET: /hosts?search=build=true
+There was something wrong with your request
+ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
+
+ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
+
+ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
+
+ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
 ```
 
 ## QUADS Talks and Media
