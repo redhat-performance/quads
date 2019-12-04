@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eefa9b93_d737e780",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-12-04T12:47:13Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 972,
+        "startChar": 3,
+        "endLine": 972,
+        "endChar": 17
+      },
+      "revId": "ebc3b50ab221043ee412ef337a98e879f204f91d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70d32f0d_13410d7a",
+        "filename": "quads/tools/quads-post-network-test.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2019-12-04T12:47:13Z",
+      "side": 1,
+      "message": "not happy with adding this back since this whole functionality was replaced here [1] and essentially this should also return whatever is wrong with the configuration.\n[1] https://github.com/redhat-performance/quads/blob/master/quads/tools/validate_env.py#L121",
+      "revId": "ebc3b50ab221043ee412ef337a98e879f204f91d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
