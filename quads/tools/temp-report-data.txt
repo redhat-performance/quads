@@ -1,0 +1,6 @@
+Quads report for 2019-12-01 to 2019-12-31:
+Percentage Utilized: 60%
+Average build delta: 0:00:26.703556
+Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks
+r620        |     5|     0|      100%|       0|       0
+1029p       |     3|     3|        0%|       3|       3
