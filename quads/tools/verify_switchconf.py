@@ -43,8 +43,8 @@ def verify(_cloud_name, change=False):
                     old_vlan = None
 
                 try:
-                    vlan_member_out = ssh_helper.run_cmd("show vlans interface %s.0" % interface.switch_port)
-                    vlan_member = vlan_member_out[1].split()[2][4:].strip(",")
+                    vlan_member_out = ssh_helper.run_cmd("show configuration vlans | display set | match %s.0" % interface.switch_port)
+                    vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
                     logger.warning(
                         "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
