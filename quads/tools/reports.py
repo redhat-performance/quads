@@ -149,6 +149,35 @@ def process_scheduled(_logger, month, now):
     )
 
 
+def report_detailed(_logger, _start, _end):
+    start = _start.replace(hour=21, minute=59, second=0)
+    start_defer = start - timedelta(weeks=1)
+    start_defer_id = date_to_object_id(start_defer)
+    end = _end.replace(hour=22, minute=1, second=0)
+    end_id = date_to_object_id(end)
+    cloud_history = CloudHistory.objects(
+        __raw__={
+            "_id": {
+                "$lt": end_id,
+                "$gt": start_defer_id,
+            },
+        }
+    ).order_by("-_id").count()
+    for cloud in cloud_history:
+
+        schedule = Schedule.objects(
+            __raw__={
+                "end": {
+                    "$lt": end,
+                },
+                "start": {
+                    "$gt": start,
+                }
+            }
+        ).order_by("-_id").count()
+    pass
+
+
 if __name__ == "__main__":
     _start = first_day_month(datetime.now())
     _end = last_day_month(datetime.now())
