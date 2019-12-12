@@ -249,16 +249,17 @@ def main(_args):
             exit(0)
 
         elif _args.action == "report_available":
+            now = datetime.now()
             if _args.schedstart and _args.schedend is None:
                 _args.schedend = _args.schedstart
 
             if _args.schedstart is None and _args.schedend:
-                _args.schedstart = str(datetime.now())[:-10]
+                _args.schedstart = str(now)[:-10]
 
             if _args.schedstart is None and _args.schedend is None:
-                start = first_day_month(datetime.now())
+                start = first_day_month(now)
                 _args.schedstart = str(start)[:-10]
-                end = last_day_month(datetime.now())
+                end = last_day_month(now)
                 _args.schedend = str(end)[:-10]
 
             _start = datetime.strptime(_args.schedstart, '%Y-%m-%d %H:%M')
@@ -286,6 +287,27 @@ def main(_args):
                 year = now.year
 
             reports.report_scheduled(logger, int(months), int(year))
+
+            exit(0)
+
+        elif _args.action == "report_detailed":
+            now = datetime.now()
+            if _args.schedstart and _args.schedend is None:
+                _args.schedend = _args.schedstart
+
+            if _args.schedstart is None and _args.schedend:
+                _args.schedstart = str(now)[:-10]
+
+            if _args.schedstart is None and _args.schedend is None:
+                start = first_day_month(now)
+                _args.schedstart = str(start)[:-10]
+                end = last_day_month(now)
+                _args.schedend = str(end)[:-10]
+
+            _start = datetime.strptime(_args.schedstart, '%Y-%m-%d %H:%M')
+            _end = datetime.strptime(_args.schedend, '%Y-%m-%d %H:%M')
+
+            reports.report_detailed(logger, _start, _end)
 
             exit(0)
 
@@ -643,6 +665,8 @@ if __name__ == '__main__':
     group.add_argument('--report-available', dest='action', action='store_const', const='report_available',
                        help='Quads reporting server availability')
     group.add_argument('--report-scheduled', dest='action', action='store_const', const='report_scheduled',
+                       help='Quads reporting detailed scheduled assignments')
+    group.add_argument('--report-detailed', dest='action', action='store_const', const='report_detailed',
                        help='Quads reporting scheduled assignments')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
