@@ -125,9 +125,10 @@ class Cloud(Document):
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
         if 'qinq' in data:
-            data['qinq'] = bool(data['qinq'])
-        else:
-            data['qinq'] = False
+            if str(data['qinq']).lower() == "false":
+                data["qinq"] = False
+            else:
+                data["qinq"] = True
         if 'wipe' in data:
             if str(data['wipe']).lower() == "false":
                 data["wipe"] = False
