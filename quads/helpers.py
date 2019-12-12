@@ -89,6 +89,18 @@ def first_day_month(date):
 
 
 def date_to_object_id(date):
+    """
+    Create a dummy ObjectId instance with a specific datetime.
+
+    This method is useful for doing range queries by oid creation date.
+
+    .. _warning:
+           It is not safe to insert a document containing an ObjectId
+           generated using this method. This method deliberately
+           eliminates the uniqueness guarantee that ObjectIds
+           generally provide. ObjectIds generated with this method
+           should be used exclusively in queries.
+    """
     timestamp = calendar.timegm(date.timetuple())
     oid = struct.pack(
         ">I",
