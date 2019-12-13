@@ -24,7 +24,7 @@ class Validator(object):
     def __init__(self, cloud):
         self.cloud = cloud
         self.report = ""
-        self.hosts = Host.objects(cloud=self.cloud)
+        self.hosts = Host.objects(cloud=self.cloud, validated=False)
         self.hosts = [host for host in self.hosts if Schedule.current_schedule(host=host)]
 
     def notify_failure(self):
@@ -186,6 +186,8 @@ class Validator(object):
                 self.notify_success()
                 notification_obj.update(success=True, fail=False)
 
+                for host in self.hosts:
+                    host.update(validated=True)
                 self.cloud.update(validated=True)
 
         if failed and not notification_obj.fail:

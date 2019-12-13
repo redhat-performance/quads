@@ -112,7 +112,7 @@ async def ipmi_reset(host, semaphore):
     await execute_ipmi(host, ipmi_on, semaphore)
 
 
-async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False, loop=None):
+async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None):
     build_start = datetime.now()
     logger.debug("Moving and rebuilding host: %s" % host)
 
@@ -228,5 +228,5 @@ async def move_and_rebuild(host, old_cloud, new_cloud, semaphore, rebuild=False,
         schedule.save()
 
     logger.debug("Updating host: %s")
-    _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now())
+    _host_obj.update(cloud=_new_cloud_obj, build=False, last_build=datetime.now(), validated=False)
     return True
