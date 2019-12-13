@@ -177,6 +177,7 @@ class Host(Document):
     interfaces = ListField(EmbeddedDocumentField(Interface))
     nullos = BooleanField(default=True)
     build = BooleanField(default=False)
+    validated = BooleanField(default=False)
     last_build = DateTimeField()
     meta = {
         'indexes': [

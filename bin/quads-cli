@@ -474,7 +474,7 @@ def main(_args):
                     if not _args.dryrun:
                         try:
                             if _args.movecommand == default_move_command:
-                                fn = functools.partial(move_and_rebuild, host, current, new, semaphore, cloud.wipe)
+                                fn = functools.partial(move_and_rebuild, host, new, semaphore, cloud.wipe)
                                 tasks.append(fn)
                                 switch_tasks.append(functools.partial(switch_config, host, current, new))
                             else:

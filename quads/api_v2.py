@@ -399,6 +399,14 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     result.append(
                         "Added schedule for %s on %s" % (data["host"], cloud_obj.name)
                     )
+                    if self.model.current_schedule(cloud=cloud_obj) and cloud_obj.validated:
+                        cloud_obj.update(validated=False)
+                        notification_obj = model.Notification.objects(
+                            cloud=cloud_obj,
+                            ticket=cloud_obj.ticket
+                        ).first()
+                        if notification_obj:
+                            notification_obj.update(success=False)
                 else:
                     result.append("Host is not available during that time frame")
 
