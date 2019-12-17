@@ -663,11 +663,11 @@ if __name__ == '__main__':
     group.add_argument('--find-free-cloud', dest='action', action='store_const', const='free_cloud',
                        help='List available hosts on a specific time frame')
     group.add_argument('--report-available', dest='action', action='store_const', const='report_available',
-                       help='Quads reporting server availability')
+                       help='QUADS reporting server availability')
     group.add_argument('--report-scheduled', dest='action', action='store_const', const='report_scheduled',
-                       help='Quads reporting detailed scheduled assignments')
+                       help='QUADS reporting detailed scheduled assignments')
     group.add_argument('--report-detailed', dest='action', action='store_const', const='report_detailed',
-                       help='Quads reporting scheduled assignments')
+                       help='QUADS reporting scheduled assignments')
     parser.add_argument('--host', dest='host', type=str, default=None, help='Specify the host to query')
     parser.add_argument('--cloud-only', dest='cloudonly', type=str, default=None,
                         help='Limit full report to hosts only in this cloud')
@@ -703,7 +703,8 @@ if __name__ == '__main__':
                         help='External command to move a host')
     parser.add_argument('--dry-run', dest='dryrun', action='store_true', default=None,
                         help="Don't update state when used with --move-hosts")
-    parser.add_argument('--log-path', dest='logpath', type=str, default=None, help='Path to quads log file')
+    parser.add_argument('--log-path', dest='logpath', type=str, default=None,
+                        help='Path to QUADS log file')
     parser.add_argument('--host-type', dest='hosttype', type=str, default=None,
                         help='Open-ended identifier for host: util, baremetal, aws, openstack, libvirt, etc.')
     parser.add_argument('--vlan', dest='vlan', type=int, default=None,
