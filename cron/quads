@@ -31,6 +31,7 @@ PYTHONPATH=/opt/quads
 # 0 0 * * * flock -n /tmp/notify.lock -c "docker exec quads quads/tools/notify.py" 1>/dev/null 2>&1
 # 0 0 * * * flock -n /tmp/simpletableweb.lock -c "docker exec quads quads/tools/simple_table_web.py" 1>/dev/null 2>&1
 # * * * * * flock -n /tmp/makeinstackenv.lock -c "docker exec quads quads/tools/make_instackenv_json.py" 1>/dev/null 2>&1
+# 0 5 * * 1 python /opt/quads/quads/tools/foreman_heal.py 1>/dev/null 2>&1
 #########################################
 ##### NON-CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH RPM OR SOURCE INSTALL
@@ -41,4 +42,5 @@ PYTHONPATH=/opt/quads
 # 0 0 * * * flock -n /tmp/notify.lock -c "/opt/quads/quads/tools/notify.py" 1>/dev/null 2>&1
 # 0 0 * * * flock -n /tmp/simpletableweb.lock -c "/opt/quads/quads/tools/simple_table_web.py" 1>/dev/null 2>&1
 # * * * * * flock -n /tmp/makeinstackenv.lock -c "/opt/quads/quads/tools/make_instackenv_json.py" 1>/dev/null 2>&1
+# 0 5 * * 1 python /opt/quads/quads/tools/foreman_heal.py 1>/dev/null 2>&1
 ########################################
