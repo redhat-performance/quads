@@ -11,7 +11,7 @@ data_dir: .
 # display name for QUADS email notifications
 mail_display_name: "QUADS Scheduler"
 # set header for User-Agent:
-mail_user_agent: "Rufus Postman 1.1.1"
+mail_user_agent: "Rufus Postman 1.1.2"
 domain: example.com
 log: /opt/quads/log/quads.log
 quads_base_url: http://127.0.0.1:8080/
@@ -201,4 +201,5 @@ validation_grace_period: 120
 
 # switch specific config
 # sw_vlan_first - The first VLAN ID used for the first interface of cloud01
+# this defaults to 1100 unless set otherwise.
 sw_vlan_first: 1100
