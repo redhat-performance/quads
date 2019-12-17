@@ -19,7 +19,7 @@ def report_available(_logger, _start, _end):
 
     hosts = Host.objects()
 
-    _logger.info(f"Quads report for {start.date()} to {end.date()}:")
+    _logger.info(f"QUADS report for {start.date()} to {end.date()}:")
 
     days = 0
     total_allocated_month = 0
