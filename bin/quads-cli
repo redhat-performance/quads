@@ -484,6 +484,10 @@ def main(_args):
             #  https://projects.theforeman.org/issues/27953#change-127120
             semaphore = asyncio.Semaphore(1)
             for _cloud, results in _clouds.items():
+                cloud = Cloud.objects(name=_cloud).first()
+                has_active_schedule = Schedule.current_schedule(cloud=cloud)
+                if has_active_schedule:
+                    cloud.update(validated=False)
                 provisioned = True
                 tasks = []
                 switch_tasks = []

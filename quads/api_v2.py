@@ -400,7 +400,6 @@ class ScheduleMethodHandler(MethodHandlerBase):
                         "Added schedule for %s on %s" % (data["host"], cloud_obj.name)
                     )
                     if self.model.current_schedule(cloud=cloud_obj) and cloud_obj.validated:
-                        cloud_obj.update(validated=False)
                         notification_obj = model.Notification.objects(
                             cloud=cloud_obj,
                             ticket=cloud_obj.ticket
