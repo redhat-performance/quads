@@ -679,7 +679,7 @@ if __name__ == '__main__':
                         help='date and time to query; e.g. "2016-06-01 08:00"')
     parser.add_argument('--cloud-owner', dest='cloudowner', type=str, default=None, help='Define environment owner')
     parser.add_argument('--cc-users', dest='ccusers', type=str, default=None, help='Define environment CC list')
-    parser.add_argument('--qinq', dest='qinq', action='store_true', help='Define environment qinq state')
+    parser.add_argument('--qinq', dest='qinq', action='store_false', help='Define environment qinq state')
     parser.add_argument('--no-wipe', dest='wipe', action='store_false',
                         help='Define no wipe for safeguarding data after assignment')
     parser.add_argument('--cloud-ticket', dest='cloudticket', type=str, default=None, help='Define environment ticket')

@@ -172,6 +172,24 @@ class DocumentMethodHandler(MethodHandlerBase):
                 )
 
             return json.dumps(clouds_summary)
+
+        if self.name == "qinq":
+            _clouds = model.Cloud.objects().all()
+            clouds_qinq = []
+            for cloud in _clouds:
+                if cloud.qinq:
+                    qinq_value = "0 (Isolated)"
+                else:
+                    qinq_value = "1 (Combined)"
+                clouds_qinq.append(
+                    {
+                        "name": cloud.name,
+                        "qinq": qinq_value,
+                    }
+                )
+
+            return json.dumps(clouds_qinq)
+
         objs = self.model.objects(**args)
         if objs:
             return objs.to_json()
