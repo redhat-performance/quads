@@ -426,7 +426,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
     def DELETE(self, **data):
         _host = model.Host.objects(name=data["host"]).first()
         if _host:
-            schedule = self.model.objects(host=_host, index=data["index"])
+            schedule = self.model.objects(host=_host, index=data["index"]).first()
             if self.model.current_schedule(host=_host, cloud=schedule.cloud):
                 _host.update(cloud=_host.default_cloud)
             if schedule:
