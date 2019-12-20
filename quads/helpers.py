@@ -49,7 +49,7 @@ def get_vlan(cloud_obj, index, last_nic=False):
         vlan_first = int(conf.get("sw_vlan_first", 1100)) - 10
         cloud_offset = int(cloud_obj.name[5:]) * 10
         base_vlan = vlan_first + cloud_offset
-        vlan = base_vlan + list(OFFSETS.values())[index * int(cloud_obj.qinq)]
+        vlan = base_vlan + list(OFFSETS.values())[index * int(not cloud_obj.qinq)]
         return vlan
 
 
