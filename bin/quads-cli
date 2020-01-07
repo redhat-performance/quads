@@ -627,7 +627,27 @@ def main(_args):
             logger.info(version["result"])
         exit(0)
 
-    logger.info('No result received')
+    clouds = Cloud.objects()
+    hosts = Host.objects()
+    _date = datetime.now()
+    if _args.datearg:
+        _date = datetime.strptime(_args.datearg, '%Y-%m-%d %H:%M')
+    for cloud in clouds:
+        if cloud.name == "cloud01":
+            available = []
+            for host in hosts:
+                if Schedule.is_host_available(host=host.name, start=_date, end=_date):
+                    available.append(host)
+            if available:
+                logger.info(f"{cloud.name}:")
+                for host in available:
+                    logger.info(f"  - {host.name}")
+        else:
+            schedules = Schedule.current_schedule(cloud=cloud, date=_date)
+            if schedules:
+                logger.info(f"{cloud.name}:")
+                for schedule in schedules:
+                    logger.info(f"  - {schedule.host.name}")
 
     exit(0)
 
