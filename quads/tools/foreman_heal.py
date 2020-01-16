@@ -24,7 +24,10 @@ def main():
         loop=loop,
     )
 
-    ignore = conf["foreman_rbac_exclude"].split("|")
+    ignore = []
+    foreman_rbac_exclude = conf.get("foreman_rbac_exclude")
+    if foreman_rbac_exclude:
+        ignore = foreman_rbac_exclude.split("|")
     clouds = Cloud.objects()
     for cloud in clouds:
         if cloud.name != "cloud01" and cloud.name not in ignore:
