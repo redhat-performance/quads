@@ -17,8 +17,8 @@ General guidelines of how to setup your network switches, servers and DNS for QU
           * [Foreman Tuning](#foreman-tuning)
           * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
           * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
-          * [Add Optional SSH Keys](add-optional-ssh-keys)
-          * [Create QUADS IPMI Credentials](create-quads-ipmi-credentials)
+          * [Add Optional SSH Keys](#add-optional-ssh-keys)
+          * [Create QUADS IPMI Credentials](#create-quads-ipmi-credentials)
       * [Define Optional Public VLANS](#define-optional-public-vlans)
         * [Define Publicly Routable VLANS on TOR Switches](#define-publicly-routable-vlans-on-tor-switches)
         * [Define Publicly Routable VLANS on Distribution Switches](#define-publicly-routable-vlans-on-distribution-switches)
@@ -51,11 +51,11 @@ Host 10.12.67.247
      StrictHostKeyChecking      false
      PubkeyAcceptedKeyTypes=+ssh-dss
 ```
-
-   * Note: `python3-paramiko` wants your private key to contain the algo type in it, e.g. `BEGIN RSA PRIVATE KEY and END RSA PRIVATE KEY`
-      * The following command will fix this for you:  `ssh-keygen -p -m PEM -f ~/.ssh/id_rsa` (don't set passphrase).
-      * More details at [Stack Exchange](https://stackoverflow.com/questions/45829838/paramiko-connect-with-private-key-not-a-valid-openssh-private-public-key-fil#45844549)
-      * We will be moving to `libssh` in an upcoming release.
+   * NOTE: ssh_helper relies on the QUADS host to have an active ssh-agent, if this is not the case ssh_helper falls back into the quads.yml variable for `ssh_helper_public_key` path to the required ssh public id file.
+       * If you don't already have a public SSH key for root user please run the following command and follow the defaults.
+```
+ssh-keygen -t rsa
+```
 
 ## Distribution Switch Configuration
    * Configure your switch ports for QUADS-managed hosts as follows, we are using ```et-0/0/12``` on both distribution switches for an example rack.

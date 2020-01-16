@@ -6,8 +6,6 @@ from quads.tools.foreman import Foreman
 
 
 class TestForeman(object):
-    def __init__(self):
-        self.foreman = None
 
     def setup(self):
         loop = asyncio.new_event_loop()
