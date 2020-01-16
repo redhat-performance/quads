@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 import asyncio
+import pytest
 
 from quads.config import conf
 from quads.tools.foreman import Foreman
 
 
 class TestForeman(object):
-    def __init__(self):
-        self.foreman = None
 
+    @pytest.fixture(autouse=True)
     def setup(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+
         self.foreman = Foreman(
             conf["foreman_api_url"],
             conf["ipmi_username"],

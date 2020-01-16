@@ -17,6 +17,8 @@ from quads.tools.ssh_helper import SSHHelper
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+PUBLIC_KEY = conf.get("ssh_helper_public_key", "/root/.ssh/id_rsa.pub")
+
 
 def switch_config(host, old_cloud, new_cloud):
     _host_obj = Host.objects(name=host).first()
@@ -33,12 +35,12 @@ def switch_config(host, old_cloud, new_cloud):
         last_nic = i == len(_host_obj.interfaces) - 1
         if not switch_ip:
             switch_ip = interface.ip_address
-            ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+            ssh_helper = SSHHelper(_host=switch_ip, _user=conf["junos_username"], _public_key=PUBLIC_KEY)
         else:
             if switch_ip != interface.ip_address:
                 ssh_helper.disconnect()
                 switch_ip = interface.ip_address
-                ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+                ssh_helper = SSHHelper(_host=switch_ip, _user=conf["junos_username"], _public_key=PUBLIC_KEY)
         old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
         old_vlan = None
         if old_vlan_out:

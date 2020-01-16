@@ -5,7 +5,7 @@ import logging
 
 from quads.config import API_URL, conf
 from quads.helpers import get_vlan
-from quads.model import Cloud, Host, Vlan
+from quads.model import Cloud, Host
 from quads.quads import Api
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
@@ -13,6 +13,8 @@ from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+PUBLIC_KEY = conf.get("ssh_helper_public_key", "/root/.ssh/id_rsa.pub")
 
 
 def verify(_cloud_name, change=False):
