@@ -91,7 +91,7 @@ foreman_check_host_health:
 
 # Foreman RBAC fix ignore
 # variable to pass cloud names to be excluded from foreman_heal
-# with values separated by pipes ('cloud32|cloud04')
+# with values separated by pipes 'cloud32|cloud04' or singularly 'cloud02'
 foreman_rbac_exclude:
 
 # omit these hosts (used for wiki generation)
