@@ -19,6 +19,8 @@ from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 
+PUBLIC_KEY = conf.get("ssh_helper_public_key", "/root/.ssh/id_rsa.pub")
+
 
 class Validator(object):
     def __init__(self, cloud):
@@ -124,7 +126,7 @@ class Validator(object):
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
         try:
-            ssh_helper = SSHHelper(test_host.name)
+            ssh_helper = SSHHelper(_host=test_host.name, _public_key=PUBLIC_KEY)
         except (SSHException, NoValidConnectionsError, socket.timeout) as ex:
             logger.debug(ex)
             logger.error("Could not establish connection with host: %s." % test_host.name)
