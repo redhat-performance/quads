@@ -5,7 +5,7 @@ import logging
 
 from quads.config import API_URL, conf
 from quads.helpers import get_vlan
-from quads.model import Cloud, Host, Vlan
+from quads.model import Cloud, Host
 from quads.quads import Api
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
@@ -13,6 +13,8 @@ from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+PUBLIC_KEY = conf.get("ssh_helper_public_key", "/root/.ssh/id_rsa.pub")
 
 
 def verify(_cloud_name, change=False):
@@ -30,13 +32,13 @@ def verify(_cloud_name, change=False):
         if _host_obj.interfaces:
             interfaces = sorted(_host_obj.interfaces, key=lambda k: k['name'])
             for i, interface in enumerate(interfaces):
-                ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
+                ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"], _public_key=PUBLIC_KEY)
                 last_nic = i == len(_host_obj.interfaces) - 1
                 vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 try:
                     old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
-                    old_vlan = old_vlan_out[0].split(";")[0].split()[1]
+                    old_vlan = old_vlan_out[old_vlan_out.index("QinQ_vl"):].split(';')[0]
                     if old_vlan.startswith("QinQ"):
                         old_vlan = old_vlan[7:]
                 except IndexError:
