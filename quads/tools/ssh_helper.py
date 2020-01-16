@@ -2,59 +2,70 @@
 
 import logging
 import os
+import socket
 
-from paramiko import SSHClient, AutoAddPolicy, SSHConfig
+from ssh2.session import Session
 
 logger = logging.getLogger(__name__)
-logging.getLogger("paramiko").setLevel(logging.WARNING)
+logging.getLogger("libssh2").setLevel(logging.WARNING)
 
 
 class SSHHelper(object):
-    def __init__(self, _host, _user=None, _password=None):
+    def __init__(self, _host, _user="root", _password=None, _public_key=None):
         self.host = _host
         self.user = _user
         self.password = _password
-        self.ssh = self.connect()
+        self.public_key = _public_key
+        self.sock = None
+        self.session = None
+        self.channel = self.connect()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
 
     def connect(self):
-        ssh = SSHClient()
-        config = SSHConfig()
-        with open(os.path.expanduser("~/.ssh/config")) as _file:
-            config.parse(_file)
-        host_config = config.lookup(self.host)
-        ssh.set_missing_host_key_policy(AutoAddPolicy())
-        ssh.load_system_host_keys()
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((self.host, 22))
 
-        ssh.connect(
-            self.host,
-            username=self.user,
-            password=self.password,
-            key_filename=host_config["identityfile"][0],
-            allow_agent=False,
-            timeout=30,
-        )
-        transport = ssh.get_transport()
-        channel = transport.open_session()
-        channel.setblocking(1)
-        return ssh
+        self.session = Session()
+        self.session.handshake(self.sock)
+        if self.password:
+            self.session.userauth_password(self.user, self.password)
+        elif self.public_key:
+            self.session.userauth_publickey_fromfile(
+                self.user,
+                os.path.splitext(self.public_key)[0],
+                "",
+                self.public_key
+            )
+        else:
+            self.session.agent_auth(self.user)
+
+        self.session.set_blocking(True)
+
+        channel = self.session.open_session()
+        return channel
 
     def disconnect(self):
-        self.ssh.close()
+        self.channel.close()
+        self.session.disconnect()
+        self.sock.close()
 
     def run_cmd(self, cmd):
-        stdin, stdout, stderr = self.ssh.exec_command(cmd)
-        errors = stderr.readlines()
-        if errors:
-            logger.error("There was something wrong with your request")
-            for line in errors:
-                logger.debug(line)
+        lines = []
+        self.channel.execute(cmd)
+        size, data = self.channel.read()
+        while size:
+            logger.debug(data)
+            lines.append(data)
+            size, data = self.channel.read()
+        status = self.channel.get_exit_status()
+        if not status:
+            logger.error(f"There was something wrong with your request: {status}")
             return False
         else:
             logger.debug("Command executed successfully: %s" % cmd)
-            return stdout.readlines()
+            return lines
 
     def copy_ssh_key(self, _ssh_key):
 
@@ -62,11 +73,4 @@ class SSHHelper(object):
             key = _file.readline().strip()
 
         command = 'echo "%s" >> ~/.ssh/authorized_keys' % key
-        stdin, stdout, stderr = self.ssh.exec_command(command)
-
-        if stderr.readlines():
-            logger.error("There was something wrong with your request")
-            for line in stderr.readlines():
-                logger.error(line)
-        else:
-            logger.info("Your key was copied successfully")
+        self.run_cmd(command)

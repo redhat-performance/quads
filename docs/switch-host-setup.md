@@ -52,11 +52,6 @@ Host 10.12.67.247
      PubkeyAcceptedKeyTypes=+ssh-dss
 ```
 
-   * Note: `python3-paramiko` wants your private key to contain the algo type in it, e.g. `BEGIN RSA PRIVATE KEY and END RSA PRIVATE KEY`
-      * The following command will fix this for you:  `ssh-keygen -p -m PEM -f ~/.ssh/id_rsa` (don't set passphrase).
-      * More details at [Stack Exchange](https://stackoverflow.com/questions/45829838/paramiko-connect-with-private-key-not-a-valid-openssh-private-public-key-fil#45844549)
-      * We will be moving to `libssh` in an upcoming release.
-
 ## Distribution Switch Configuration
    * Configure your switch ports for QUADS-managed hosts as follows, we are using ```et-0/0/12``` on both distribution switches for an example rack.
       * Note: ```interface-range``` identifier is unique, so for example uplinks for B07 would be PC44 and ae44
