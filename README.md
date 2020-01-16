@@ -189,7 +189,7 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 ```
    - Install pre-requisite Python packages
 ```
-dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
+dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-libssh2 ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
 ```
    - Install a webserver (Apache, nginx, etc)
 ```
@@ -229,7 +229,6 @@ systemctl start quads-server.service
 dnf install http://download-ib01.fedoraproject.org/pub/fedora/linux/releases/29/Everything/x86_64/os/Packages/p/python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
 ```
    - On RHEL/CentOS 8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
-   - On RHEL/CentOS 8 you'll also need to satisfy `python3-paramiko` RPM package from somewhere as it's been removed from EL8 in lieu of `libssh`
 
 * Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 

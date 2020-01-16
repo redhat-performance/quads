@@ -15,7 +15,7 @@ RUN pip install \
     python-wordpress-xmlrpc \
     gitpython \
     flake8 \
-    paramiko \
+    ssh2-python \
     jinja2 \
     aiohttp \
     pexpect

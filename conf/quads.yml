@@ -203,3 +203,6 @@ validation_grace_period: 120
 # sw_vlan_first - The first VLAN ID used for the first interface of cloud01
 # this defaults to 1100 unless set otherwise.
 sw_vlan_first: 1100
+
+# Path to ssh public key for authentication of ssh_helper
+ssh_helper_public_key: /home/quads/.ssh/id_rsa.pub
