@@ -24,13 +24,13 @@ def main():
         loop=loop,
     )
 
-    ignore = []
+    ignore = ["cloud01"]
     foreman_rbac_exclude = conf.get("foreman_rbac_exclude")
     if foreman_rbac_exclude:
-        ignore = foreman_rbac_exclude.split("|")
+        ignore.extend(foreman_rbac_exclude.split("|"))
     clouds = Cloud.objects()
     for cloud in clouds:
-        if cloud.name != "cloud01" and cloud.name not in ignore:
+        if cloud.name not in ignore:
             logger.info(f"Processing {cloud.name}")
             user_id = loop.run_until_complete(foreman.get_user_id(cloud.name))
             roles = loop.run_until_complete(foreman.get_user_roles(user_id))
@@ -62,7 +62,13 @@ def main():
                         )
                         logger.info(f"* Added role {schedule.host.name}")
             else:
-                logger.info("  No active schedule.")
+                if roles:
+                    logger.info("  No active schedule, removing pre-existing roles.")
+                    for role, data in roles.items():
+                        loop.run_until_complete(foreman.remove_role(cloud.name, role))
+                        logger.info(f"* Removed role {role}")
+                else:
+                    logger.info("  No active schedule nor roles assigned.")
 
 
 if __name__ == "__main__":
