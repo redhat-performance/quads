@@ -15,7 +15,7 @@ def main():
 
     for i in range(months_out):
         previous = dates[i]
-        next_date = previous + timedelta(calendar.mdays[previous.month])
+        next_date = previous + timedelta(calendar.mdays[(previous.month % 12) + 1])
         dates.append(next_date)
 
     if not os.path.exists(conf["visual_web_dir"]):
