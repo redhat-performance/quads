@@ -172,23 +172,25 @@ class Validator(object):
         failed = False
 
         if self.env_allocation_time_exceeded():
-            if not self.post_system_test():
-                failed = True
+            if self.hosts:
+                if not self.post_system_test():
+                    failed = True
 
-            if not self.post_network_test():
-                failed = True
+                if not self.post_network_test():
+                    failed = True
 
             # TODO: gather ansible-cmdb facts
 
             # TODO: quads dell config report
 
-            if not failed and not notification_obj.success:
-                self.notify_success()
-                notification_obj.update(success=True, fail=False)
-
+            if not failed:
                 for host in self.hosts:
                     host.update(validated=True)
                 self.cloud.update(validated=True)
+
+                if not notification_obj.success:
+                    self.notify_success()
+                    notification_obj.update(success=True, fail=False)
 
         if failed and not notification_obj.fail:
             self.notify_failure()
