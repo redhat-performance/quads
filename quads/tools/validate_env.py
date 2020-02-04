@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=level, format="%(message)s")
 
-    clouds = Cloud.objects(validated=False, name__ne="cloud01")
+    clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
     for _cloud in clouds:
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
         if _schedule_count and _cloud.wipe:
