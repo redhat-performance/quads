@@ -1046,6 +1046,9 @@ for host in $(quads-cli --cloud-only cloud15) ; do echo $host $(hammer host info
 No systems should be left marked for build.
 
 ### Validation using Debug Mode
+* **NOTE** Automated validation **will not** start until 2 hours after the assignment is scheduled to go out, until this point `/opt/quads/quads/tools/validate_env.py` will not attempt to validate any systems if run and they have started less than 2 hours ago.
+  - This can be set via the `validation_grace_period:` setting in `/opt/quads/conf/quads.yml`
+
 * `/opt/quads/quads/tools/validate_env.py` now has a `--debug` option which tells you what's happening during validation.
 * This will test the backend network connectivity part and the entire set of checks.
 
