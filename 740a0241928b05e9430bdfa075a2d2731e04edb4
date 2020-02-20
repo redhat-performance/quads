@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75f7cd83_135880fe",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T15:07:54Z",
+      "side": 1,
+      "message": "data could (unlikely) return None from quads.get_interfaces, this would throw a TypeError. If data is anything other than None then it returns a valid response. Rather revert this to `if data:`.",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 30
+      },
+      "revId": "740a0241928b05e9430bdfa075a2d2731e04edb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2322b35_ad3675e2",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T15:07:54Z",
+      "side": 1,
+      "message": "result \u003d [json.loads(entry) for entry in data[\u0027result\u0027]]",
+      "range": {
+        "startLine": 113,
+        "startChar": 1,
+        "endLine": 115,
+        "endChar": 49
+      },
+      "revId": "740a0241928b05e9430bdfa075a2d2731e04edb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f81c9e42_1dfafb63",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T15:07:54Z",
+      "side": 1,
+      "message": "result",
+      "range": {
+        "startLine": 116,
+        "startChar": 40,
+        "endLine": 116,
+        "endChar": 43
+      },
+      "revId": "740a0241928b05e9430bdfa075a2d2731e04edb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b363a071_0354dd32",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T15:07:54Z",
+      "side": 1,
+      "message": "it is not recommended to use \u003d for string concatenation, rather use f-strings:\nhttps://www.python.org/dev/peps/pep-0498/",
+      "range": {
+        "startLine": 117,
+        "startChar": 20,
+        "endLine": 117,
+        "endChar": 197
+      },
+      "revId": "740a0241928b05e9430bdfa075a2d2731e04edb4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
