@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # This file is part of QUADs.
 #
 # QUADS is free software: you can redistribute it and/or modify
@@ -15,6 +15,7 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
 import asyncio
 from datetime import datetime
 import functools
@@ -108,10 +109,13 @@ def main(_args):
             except ConnectionError:
                 logger.error("Could not connect to the quads-server, verify service is up and running.")
                 exit(1)
-            if data:
-                for interface in data["result"]:
-                    logger.info(interface)
-                exit(0)
+            if data['result']:
+                res = []
+                for entry in data['result']:
+                    res.append(json.loads(entry))
+                for interface in sorted(res, key=lambda k: k['name']):
+                    logger.info('interface: ' + interface['name'] + ', mac address: ' + interface['mac_address'] + ', switch IP: ' + interface['ip_address'] + ', port: ' + interface['switch_port'])
+            exit(0)
 
         if _args.action == 'schedule':
             if _args.host:
