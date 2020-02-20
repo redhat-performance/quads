@@ -28,7 +28,8 @@ def switch_config(host, old_cloud, new_cloud):
     logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
     switch_ip = None
     ssh_helper = None
-    for i, interface in enumerate(_host_obj.interfaces):
+    interfaces = sorted(_host_obj.interfaces, key=lambda k: k['name'])
+    for i, interface in enumerate(interfaces):
         if not switch_ip:
             switch_ip = interface.ip_address
             ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
