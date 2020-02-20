@@ -28,8 +28,8 @@ def verify(_cloud_name, change=False):
     for _host in hosts:
         _host_obj = Host.objects(name=_host["name"]).first()
         if _host_obj.interfaces:
-
-            for i, interface in enumerate(_host_obj.interfaces):
+            interfaces = sorted(_host_obj.interfaces, key=lambda k: k['name'])
+            for i, interface in enumerate(interfaces):
                 ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
                 last_nic = i == len(_host_obj.interfaces) - 1
                 vlan = get_vlan(_cloud_obj, i, last_nic)
