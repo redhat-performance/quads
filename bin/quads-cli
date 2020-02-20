@@ -15,6 +15,7 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
 import asyncio
 from datetime import datetime
 import functools
@@ -109,9 +110,15 @@ def main(_args):
                 logger.error("Could not connect to the quads-server, verify service is up and running.")
                 exit(1)
             if data:
-                for interface in data["result"]:
-                    logger.info(interface)
-                exit(0)
+                result = [json.loads(entry) for entry in data['result']]
+                for interface in sorted(result, key=lambda k: k['name']):
+                    message = \
+                        f"interface: {interface['name']}, " \
+                        f"mac address: {interface['ip_address']}, " \
+                        f"switch IP: {interface['ip_address']}, " \
+                        f"port: {interface['switch_port']}"
+                    logger.info(message)
+            exit(0)
 
         if _args.action == 'schedule':
             if _args.host:
