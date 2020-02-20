@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d071e63c_9d2f2189",
+        "filename": "bin/quads-cli",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T16:11:37Z",
+      "side": 1,
+      "message": "f\"interface: {interface[\u0027name\u0027]}, mac address: {interface[\u0027mac_address\u0027]}, switch IP: {interface[\u0027ip_address\u0027]}, port: {interface[\u0027switch_port\u0027]}\"",
+      "range": {
+        "startLine": 115,
+        "startChar": 32,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "992d8ade54ca358ab1bb1508f446073b89621d65",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95fe588_a580fec8",
+        "filename": "bin/quads-cli",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-02-20T16:11:37Z",
+      "side": 1,
+      "message": "this one appears to have move backwards in tabulation, push it back 4 spaces inside the `if data:`",
+      "range": {
+        "startLine": 120,
+        "startChar": 12,
+        "endLine": 120,
+        "endChar": 16
+      },
+      "revId": "992d8ade54ca358ab1bb1508f446073b89621d65",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
