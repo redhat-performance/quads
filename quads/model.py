@@ -122,6 +122,8 @@ class Cloud(Document):
             if cloud_obj:
                 return ["VLAN %s already in use." % vlan_id], {}
             data["vlan"] = vlan_obj
+        else:
+            data["vlan"] = None
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
         if 'qinq' in data:

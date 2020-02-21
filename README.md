@@ -38,6 +38,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
             * [QUADS VLAN Options](#quads-vlan-options)
+            * [Optional QUADS Public VLAN](#optional-quads-public-vlan)
             * [Defining a New Cloud](#defining-a-new-cloud)
             * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
          * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
@@ -506,6 +507,18 @@ This pertains to the internal interfaces that QUADS will manage for you to move 
    - ```qinq: false``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
 
    - ```qinq: true``` all QUADS-managed interfaces in the same qinq VLAN. For this to take effect you need to pass the optional argument of `--qinq` to the `--define-cloud` command.
+
+#### Optional QUADS Public VLAN ####
+
+If you need to associate a public vlan (routable) with your cloud, quads currently supports associating your last NIC per host with one of your defined public VLANs (see the [QUADS public vlan setup steps](/docs/switch-host-setup.md#define-optional-public-vlans)).
+
+To define your cloud with a public VLAN, use the following syntax:
+
+```
+quads-cli --define-cloud cloud03 [ other define-cloud options ] --vlan 601
+```
+
+if you need to clear the vlan association with your cloud, rerun your command and omit the `--vlan` option.  Note that you still want to include all options that you wish to preserve, otherwise you may unnecessarily clear other attributes you wish to have on your cloud definition.
 
 #### Defining a New Cloud ####
 
