@@ -29,6 +29,7 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     irc_bot_ip = conf["ircbot_ipaddr"]
     irc_bot_port = conf["ircbot_port"]
     irc_bot_channel = conf["ircbot_channel"]
+    infra_location = conf["infra_location"]
     cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
@@ -41,7 +42,7 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             cloud=cloud,
             quads_url=conf["quads_url"],
             real_owner=real_owner,
-            ticket=ticket,
+            password=f"{infra_location}@{ticket}",
             foreman_url=conf["foreman_url"],
         )
 

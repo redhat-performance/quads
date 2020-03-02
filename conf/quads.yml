@@ -129,6 +129,9 @@ ansible_facts_web_path: /var/www/html/ansible_facts
 # use this to define hosts QUADS should never move.
 untouchable_hosts: foreman.example.com c08-h30-r630.example.com
 
+# Lab location for use with pass complexity as `{infra_location}@{ticket}`
+infra_location: rdu2
+
 # ipmi QUADS admin user/pass
 # this is the IPMI account QUADS uses
 ipmi_username: root
