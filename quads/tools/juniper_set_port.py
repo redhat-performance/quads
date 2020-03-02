@@ -41,6 +41,7 @@ def juniper_set_port(ip_address, switch_port, old_vlan, new_vlan):
 
         logger.debug("commit")
         child.sendline("commit")
+        child.waitnoecho(timeout=120)
         child.expect("#")
 
         logger.debug("exit")

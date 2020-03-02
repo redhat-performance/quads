@@ -47,6 +47,7 @@ def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_pub_vlan)
 
         logger.debug("commit")
         child.sendline("commit")
+        child.waitnoecho(timeout=120)
         child.expect("#")
 
         logger.debug("exit")

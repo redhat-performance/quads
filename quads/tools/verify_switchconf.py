@@ -100,7 +100,7 @@ def verify(_cloud_name, change=False):
                         else:
                             logger.error(
                                 "There was something wrong updating switch for %s:%s" % (
-                                    _host.name,
+                                    _host_obj.name,
                                     interface.name
                                 )
                             )
