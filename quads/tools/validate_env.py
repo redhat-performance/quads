@@ -45,7 +45,7 @@ class Validator(object):
         postman.send_email()
 
     def notify_success(self):
-        template_file = "validation_succeded"
+        template_file = "validation_succeeded"
         with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
@@ -185,13 +185,13 @@ class Validator(object):
             # TODO: quads dell config report
 
             if not failed:
-                for host in self.hosts:
-                    host.update(validated=True)
-                self.cloud.update(validated=True)
-
                 if not notification_obj.success:
                     self.notify_success()
                     notification_obj.update(success=True, fail=False)
+
+                for host in self.hosts:
+                    host.update(validated=True)
+                self.cloud.update(validated=True)
 
         if failed and not notification_obj.fail:
             self.notify_failure()
