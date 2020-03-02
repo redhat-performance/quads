@@ -127,7 +127,8 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
 
-    ipmi_new_pass = _new_cloud_obj.ticket if _new_cloud_obj.ticket else conf["$ipmi_password"]
+    ipmi_new_pass = f"{conf['infra_location']}@{_new_cloud_obj.ticket}" if _new_cloud_obj.ticket \
+        else conf["ipmi_password"]
 
     ipmi_set_pass = [
         "user", "set", "password",

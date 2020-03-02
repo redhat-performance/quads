@@ -36,7 +36,8 @@ def main():
             roles = loop.run_until_complete(foreman.get_user_roles(user_id))
             current_schedule = Schedule.current_schedule(cloud=cloud)
             if current_schedule:
-                loop.run_until_complete(foreman.update_user_password(cloud.name, cloud.ticket))
+                infra_pass = f"{conf['infra_location']}@{cloud.ticket}"
+                loop.run_until_complete(foreman.update_user_password(cloud.name, infra_pass))
                 logger.info(f"  Current Roles:")
                 for role in roles:
                     logger.info(f"    {role}")

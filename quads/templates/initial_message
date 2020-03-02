@@ -16,7 +16,7 @@ You can also view/manage your hosts via Foreman:
 {{ foreman_url }}
 
 Username: {{ cloud }}
-Password: {{ ticket }}
+Password: {{ password }}
 
 For additional information regarding system usage
 please see the following documentation:

@@ -71,18 +71,19 @@ class Validator(object):
     def post_system_test(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        password = f"{conf['infra_location']}@{self.cloud.ticket}"
         foreman = Foreman(
             conf["foreman_api_url"],
             self.cloud.name,
-            self.cloud.ticket,
+            password,
             loop=loop,
         )
 
         if not loop.run_until_complete(foreman.verify_credentials()):
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
-            logger.error("Verify Foreman password is correct: %s" % self.cloud.ticket)
+            logger.error("Verify Foreman password is correct: %s" % password)
             self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
-            self.report = self.report + "Verify Foreman password is correct: %s\n" % self.cloud.ticket
+            self.report = self.report + "Verify Foreman password is correct: %s\n" % password
             return False
 
         build_hosts = loop.run_until_complete(foreman.get_build_hosts())
@@ -108,7 +109,7 @@ class Validator(object):
                 badfish = Badfish(
                     "mgmt-" + host.name,
                     str(conf["ipmi_cloud_username"]),
-                    self.cloud.ticket,
+                    password,
                     loop
                 )
                 loop.run_until_complete(badfish.validate_credentials())
