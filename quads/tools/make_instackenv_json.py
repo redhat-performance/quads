@@ -40,7 +40,7 @@ def main():
 
             foreman_password = conf["ipmi_password"]
             if cloud.ticket:
-                foreman_password = cloud.ticket
+                foreman_password = f"{conf['infra_location']}@{cloud.ticket}"
 
             json_data = defaultdict(list)
             for host in host_list:
