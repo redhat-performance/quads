@@ -66,6 +66,7 @@ class Validator(object):
         time_delta = now - schedule.start
         if time_delta.seconds//60 > conf["validation_grace_period"]:
             return True
+        logger.warning("Allocation time not exceeded. Skipping validation for %s." % self.cloud.name)
         return False
 
     def post_system_test(self):
@@ -177,7 +178,7 @@ class Validator(object):
                 if not self.post_system_test():
                     failed = True
 
-                if not self.post_network_test():
+                if not failed and not self.post_network_test():
                     failed = True
 
             # TODO: gather ansible-cmdb facts

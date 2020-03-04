@@ -114,7 +114,7 @@ def main(_args):
                 for interface in sorted(result, key=lambda k: k['name']):
                     message = \
                         f"interface: {interface['name']}, " \
-                        f"mac address: {interface['ip_address']}, " \
+                        f"mac address: {interface['mac_address']}, " \
                         f"switch IP: {interface['ip_address']}, " \
                         f"port: {interface['switch_port']}"
                     logger.info(message)
