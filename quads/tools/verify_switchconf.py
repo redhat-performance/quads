@@ -46,19 +46,21 @@ def verify(_cloud_name, change=False):
                     vlan_member_out = ssh_helper.run_cmd("show configuration vlans | display set | match %s.0" % interface.switch_port)
                     vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
-                    logger.warning(
-                        "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
-                        % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
-                    )
+                    if not _cloud_obj.vlan and not last_nic:
+                        logger.warning(
+                            "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
+                            % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
+                        )
                     vlan_member = None
 
                 ssh_helper.disconnect()
 
                 if not old_vlan:
-                    logger.warning(
-                        "Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
-                        % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
-                    )
+                    if not _cloud_obj.vlan and not last_nic:
+                        logger.warning(
+                            "Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
+                            % (_host["name"], interface.name, interface.ip_address, interface.switch_port)
+                        )
                     old_vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 if int(old_vlan) != int(vlan):
@@ -68,17 +70,18 @@ def verify(_cloud_name, change=False):
                     vlan = _cloud_obj.vlan.vlan_id
 
                 if not vlan_member or int(vlan_member) != int(vlan):
-                    logger.warning(
-                        "interface %s appears to be a member of VLAN %s, should be %s",
-                        interface.switch_port,
-                        vlan_member,
-                        vlan
-                    )
+                    if not _cloud_obj.vlan and not last_nic:
+                        logger.warning(
+                            "interface %s appears to be a member of VLAN %s, should be %s",
+                            interface.switch_port,
+                            vlan_member,
+                            vlan
+                        )
 
                     if change:
                         logger.info('=== INFO: change requested')
 
-                        if _cloud_obj.vlan and last_nic:
+                        if _cloud_obj.vlan and _cloud_obj.vlan != old_vlan and last_nic:
                             logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
 
                             success = juniper_convert_port_public(

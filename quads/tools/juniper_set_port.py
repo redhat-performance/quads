@@ -41,16 +41,10 @@ def juniper_set_port(ip_address, switch_port, old_vlan, new_vlan):
 
         logger.debug("commit")
         child.sendline("commit")
-        child.waitnoecho(timeout=120)
-        child.expect("#")
+        child.expect("commit complete", timeout=120)
 
-        logger.debug("exit")
-        child.sendline("exit")
-        child.expect(">")
-
-        logger.debug("exit")
-        child.sendline("exit")
         child.close()
+
     except pexpect.exceptions.TIMEOUT:
         logger.error("Timeout trying to change settings on switch %s" % ip_address)
         return False
