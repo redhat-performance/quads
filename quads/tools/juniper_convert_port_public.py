@@ -40,7 +40,7 @@ def juniper_convert_port_public(ip_address, switch_port, old_vlan, new_pub_vlan)
             switch_port, str(new_pub_vlan)))
         child.expect("#")
 
-        if old_vlan:
+        if old_vlan and old_vlan != new_pub_vlan:
             logger.debug("delete vlans vlan%s interface %s" % (str(old_vlan), switch_port))
             child.sendline("delete vlans vlan%s interface %s" % (str(old_vlan), switch_port))
             child.expect("#")
