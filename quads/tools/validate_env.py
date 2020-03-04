@@ -64,8 +64,12 @@ class Validator(object):
         now = datetime.now()
         schedule = Schedule.objects(cloud=self.cloud, start__lt=now, end__gt=now).first()
         time_delta = now - schedule.start
-        if time_delta.seconds//60 > conf["validation_grace_period"]:
+        if time_delta.seconds // 60 > conf["validation_grace_period"]:
             return True
+        logger.warning(
+            "You're still within the configurable validation grace period. Skipping validation for %s."
+            % self.cloud.name
+        )
         return False
 
     def post_system_test(self):
@@ -134,7 +138,6 @@ class Validator(object):
         host_list = " ".join([host.name for host in self.hosts])
 
         if type(ssh_helper.run_cmd("fping -u %s" % host_list)) != list:
-
             return False
 
         for i, interface in enumerate(INTERFACES.keys()):
@@ -177,7 +180,7 @@ class Validator(object):
                 if not self.post_system_test():
                     failed = True
 
-                if not self.post_network_test():
+                if not failed and not self.post_network_test():
                     failed = True
 
             # TODO: gather ansible-cmdb facts

@@ -30,6 +30,7 @@ def switch_config(host, old_cloud, new_cloud):
     ssh_helper = None
     interfaces = sorted(_host_obj.interfaces, key=lambda k: k['name'])
     for i, interface in enumerate(interfaces):
+        last_nic = i == len(_host_obj.interfaces) - 1
         if not switch_ip:
             switch_ip = interface.ip_address
             ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
@@ -43,18 +44,18 @@ def switch_config(host, old_cloud, new_cloud):
         if old_vlan_out:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
-            logger.warning(
-                "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
-                % (host, interface.name, interface.ip_address, interface.switch_port)
-            )
+            if not _new_cloud_obj.vlan and not last_nic:
+                logger.warning(
+                    "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
+                    % (host, interface.name, interface.ip_address, interface.switch_port)
+                )
             old_vlan = get_vlan(_old_cloud_obj, i)
 
         new_vlan = get_vlan(_new_cloud_obj, i)
 
-        if _new_cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
-            logger.info("Setting last interface to public vlan %s." % new_vlan)
-
+        if _new_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
+                logger.info("Setting last interface to public vlan %s." % new_vlan)
                 success = juniper_convert_port_public(
                     interface.ip_address,
                     interface.switch_port,
@@ -67,7 +68,6 @@ def switch_config(host, old_cloud, new_cloud):
                     logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
                     return False
         else:
-
             if int(old_vlan) != int(new_vlan):
                 success = juniper_set_port(
                     interface.ip_address,
