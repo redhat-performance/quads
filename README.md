@@ -23,6 +23,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
+               * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
       * [QUADS Usage Documentation](#quads-usage-documentation)
@@ -284,7 +285,20 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
    - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
+##### Limit Page Revisions in Wordpress
+   - It's advised to set the following parameter in your `wp-config.php` file to limit the amount of page revisions that are kept in the database.
+     - Before the first reference to `ABSPATH` in `wp-config.php` add:
 
+```
+define('WP_POST_REVISIONS', 100);
+```
+   - You can always clear out your old page revisions via the `wp-cli` utility as well, QUADS regenerates all content as it changes so there is no need to keep around old revisions of pages unless you want to.
+
+```
+yum install wp-cli -y
+su - wordpress -s /bin/bash
+wp post delete --force $(wp post list --post_type='revision' --format=ids)
+```
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
