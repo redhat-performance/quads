@@ -554,7 +554,7 @@ def main(_args):
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
                     if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                        _old_cloud_obj.update(provisioned=False, vlan=None, wipe=True, ccuser=[])
+                        _old_cloud_obj.update(validated=False, provisioned=False, vlan=None, wipe=True, ccuser=[])
 
             exit(0)
 
