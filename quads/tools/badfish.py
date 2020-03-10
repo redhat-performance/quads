@@ -254,6 +254,9 @@ class Badfish:
                     raise BadfishException
 
             host_model = self.host.split(".")[0].split("-")[-1]
+            host_blade = self.host.split(".")[0].split("-")[-2]
+            if host_blade != "000":
+                host_model = "%s_%s" % (host_model, host_blade)
             interfaces = {}
             for _host in ["foreman", "director"]:
                 match = True
@@ -386,6 +389,9 @@ class Badfish:
                 raise BadfishException
 
         host_model = self.host.split(".")[0].split("-")[-1]
+        host_blade = self.host.split(".")[0].split("-")[-2]
+        if host_blade != "000":
+            host_model = "%s_%s" % (host_model, host_blade)
         interfaces = definitions["%s_%s_interfaces" % (_host_type, host_model)].split(",")
 
         boot_devices = await self.get_boot_devices()
