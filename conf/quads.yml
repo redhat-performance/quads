@@ -68,6 +68,8 @@ rt_url: https://engineering.example.com/rt/Ticket/Display.html
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
+# url for a request form if you use one
+quads_request_url: http://scalelab.example.com
 
 # Foreman Specific Variables
 # foreman URL
