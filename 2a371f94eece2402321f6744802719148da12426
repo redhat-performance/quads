@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8bba35e_70c7979b",
+        "filename": "conf/idrac_interfaces.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-11T09:29:32Z",
+      "side": 1,
+      "message": "remove prefix",
+      "range": {
+        "startLine": 8,
+        "startChar": 31,
+        "endLine": 8,
+        "endChar": 39
+      },
+      "revId": "2a371f94eece2402321f6744802719148da12426",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
