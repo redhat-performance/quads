@@ -6,7 +6,7 @@ You've been allocated a new environment!
 {{ cloud_info }}
 
 (Details)
-http://{{ wp_wiki }}/assignments/#{{ cloud }}
+{{ wp_wiki }}/assignments/#{{ cloud }}
 
 You can view your machine list, duration and other
 details above.
@@ -21,7 +21,7 @@ Password: {{ password }}
 For additional information regarding system usage
 please see the following documentation:
 
-http://{{ wp_wiki }}/faq/
-http://{{ wp_wiki }}/usage/
+{{ wp_wiki }}/faq/
+{{ wp_wiki }}/usage/
 
 Perf/Scale DevOps Team
