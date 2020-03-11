@@ -46,7 +46,10 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             foreman_url=conf["foreman_url"],
         )
 
-        postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+        postman = Postman("New QUADS Assignment Allocated - %s %s" % (
+            cloud,
+            ticket
+        ), real_owner, cc_users, content)
         postman.send_email()
     if conf["irc_notify"]:
         try:
@@ -64,14 +67,17 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
 
 def create_message(
-        real_owner,
+        cloud_obj,
         day,
-        cloud,
         cloud_info,
-        cc,
         host_list_expire,
 ):
     template_file = "message"
+    cloud = cloud_obj.name
+    real_owner = cloud_obj.owner
+    ticket = cloud_obj.ticket
+    cc = cloud_obj.ccuser
+
     cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
@@ -81,10 +87,14 @@ def create_message(
         days_to_report=day,
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
+        quads_request_url=conf["quads_request_url"],
         cloud=cloud,
         hosts=host_list_expire,
     )
-    postman = Postman("QUADS upcoming expiration notification", real_owner, cc_users, content)
+    postman = Postman("QUADS upcoming expiration for %s - %s" % (
+        cloud,
+        ticket
+    ), real_owner, cc_users, content)
     postman.send_email()
 
 
@@ -174,11 +184,9 @@ def main():
                     logger.info('=============== Additional Message')
                     host_list = [schedule.host.name for schedule in diff]
                     create_message(
-                        cloud.owner,
+                        cloud,
                         day.value,
-                        cloud.name,
                         cloud_info,
-                        cloud.ccuser,
                         host_list,
                     )
                     kwargs = {day.name.lower(): True}

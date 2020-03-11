@@ -15,11 +15,18 @@ the pool of available hosts.
 {{host}}
 {% endfor %}
 
+To request an extension please file a new request via
+the form below with your cloud number in the subject line.
+
+e.g. "cloud04 extension"
+
+{{ quads_request_url }}
+
 For additional information regarding the Scale Lab usage
 please see the following documentation:
 
-http://{{ wp_wiki }}/faq/
-http://{{ wp_wiki }}/usage/
+{{ wp_wiki }}/faq/
+{{ wp_wiki }}/usage/
 
 Thank you for your attention.
 
