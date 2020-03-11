@@ -46,7 +46,10 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             foreman_url=conf["foreman_url"],
         )
 
-        postman = Postman("New QUADS Assignment Allocated", real_owner, cc_users, content)
+        postman = Postman("New QUADS Assignment Allocated - %s %s" % (
+            cloud,
+            ticket
+        ), real_owner, cc_users, content)
         postman.send_email()
     if conf["irc_notify"]:
         try:
@@ -72,6 +75,7 @@ def create_message(
         host_list_expire,
 ):
     template_file = "message"
+    ticket=cloud.ticket
     cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
@@ -84,7 +88,10 @@ def create_message(
         cloud=cloud,
         hosts=host_list_expire,
     )
-    postman = Postman("QUADS upcoming expiration notification", real_owner, cc_users, content)
+    postman = Postman("QUADS upcoming expiration for %s - %s" % (
+        cloud,
+        ticket
+    ), real_owner, cc_users, content)
     postman.send_email()
 
 
