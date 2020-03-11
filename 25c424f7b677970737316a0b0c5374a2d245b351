@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6730700_542b4f9c",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-11T15:14:35Z",
+      "side": 1,
+      "message": "sorry my bad. Cloud name comes from the cloud argument as just cloud.",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 22
+      },
+      "revId": "25c424f7b677970737316a0b0c5374a2d245b351",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40ca2c03_bc391037",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-11T15:14:35Z",
+      "side": 1,
+      "message": "and this one is just coming as the `ticket` argument.",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "25c424f7b677970737316a0b0c5374a2d245b351",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c746914_8ae5a0dd",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-11T15:14:35Z",
+      "side": 1,
+      "message": "same here.",
+      "range": {
+        "startLine": 91,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 19
+      },
+      "revId": "25c424f7b677970737316a0b0c5374a2d245b351",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23fc0d82_b940528e",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-11T15:14:35Z",
+      "side": 1,
+      "message": "we are not passing the ticket argument to the call of create_message so we should look into adding that one here",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 20
+      },
+      "revId": "25c424f7b677970737316a0b0c5374a2d245b351",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
