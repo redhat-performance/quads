@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66474edd_3186dfe0",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-12T11:52:47Z",
+      "side": 1,
+      "message": "this cloud argument is coming through as a string with cloud name, we need to either pass the cloud object from the model so we can access it\u0027s properties or add an additional argument to create_message (being called on line #183) passing the ticket number. I\u0027d go for the latter.",
+      "range": {
+        "startLine": 78,
+        "startChar": 11,
+        "endLine": 78,
+        "endChar": 16
+      },
+      "revId": "cb3cc61e767460e9e7b399a290bd75bd71b3a1c1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2edefb01_73d84834",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-12T11:52:47Z",
+      "side": 1,
+      "message": "here pass `cloud.ticket` as `ticket` argument to create_message",
+      "range": {
+        "startLine": 183,
+        "startChar": 20,
+        "endLine": 183,
+        "endChar": 34
+      },
+      "revId": "cb3cc61e767460e9e7b399a290bd75bd71b3a1c1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
