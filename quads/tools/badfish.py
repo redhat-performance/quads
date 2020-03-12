@@ -547,7 +547,7 @@ class Badfish:
 
             await self.error_handler(_response)
 
-    async def reboot_server(self, graceful=True):
+    async def reboot_server(self, graceful=False):
         logger.debug("Rebooting server: %s." % self.host)
         power_state = await self.get_power_state()
         if power_state.lower() == "on":
@@ -576,7 +576,7 @@ class Badfish:
     async def reset_idrac(self):
         logger.debug("Running reset iDRAC.")
         _url = "%s%s/Actions/Manager.Reset/" % (self.host_uri, self.manager_resource)
-        _payload = {"ResetType": "GracefulRestart"}
+        _payload = {"ResetType": "ForceRestart"}
         _headers = {'content-type': 'application/json'}
         logger.debug("url: %s" % _url)
         logger.debug("payload: %s" % _payload)
