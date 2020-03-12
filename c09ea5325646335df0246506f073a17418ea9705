@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "352115f9_8a3be36e",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-03-12T15:31:25Z",
+      "side": 1,
+      "message": "ccuser",
+      "range": {
+        "startLine": 79,
+        "startChar": 19,
+        "endLine": 79,
+        "endChar": 27
+      },
+      "revId": "c09ea5325646335df0246506f073a17418ea9705",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
