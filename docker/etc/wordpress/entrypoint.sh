@@ -144,6 +144,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 		# https://github.com/docker-library/wordpress/issues/116
 		# https://github.com/WordPress/WordPress/commit/1acedc542fba2482bab88ec70d4bea4b997a92e4
 		sed -ri -e 's/\r$//' wp-config*
+        rm -rf wp-config.php
 
 		if [ ! -e wp-config.php ]; then
 			awk '
