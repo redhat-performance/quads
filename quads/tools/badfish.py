@@ -255,7 +255,8 @@ class Badfish:
 
             host_model = self.host.split(".")[0].split("-")[-1]
             host_blade = self.host.split(".")[0].split("-")[-2]
-            if host_blade != "000":
+            b_pattern = re.compile("b0[0-9]")
+            if b_pattern.match(host_blade):
                 host_model = "%s_%s" % (host_model, host_blade)
             interfaces = {}
             for _host in ["foreman", "director"]:
@@ -390,13 +391,19 @@ class Badfish:
 
         host_model = self.host.split(".")[0].split("-")[-1]
         host_blade = self.host.split(".")[0].split("-")[-2]
-        if host_blade != "000":
+        b_pattern = re.compile("b0[0-9]")
+        if b_pattern.match(host_blade):
             host_model = "%s_%s" % (host_model, host_blade)
         interfaces = definitions["%s_%s_interfaces" % (_host_type, host_model)].split(",")
 
         boot_devices = await self.get_boot_devices()
+        devices = [device["Name"] for device in boot_devices]
+        valid_devices = [device for device in interfaces if device in devices]
+        if len(valid_devices) < len(interfaces):
+            diff = [device for device in interfaces if device not in valid_devices]
+            logger.warning("Some interfaces are not valid boot devices. Ignoring: %s" % ", ".join(diff))
         change = False
-        for i in range(len(interfaces)):
+        for i in range(len(valid_devices)):
             for device in boot_devices:
                 if interfaces[i] == device[u"Name"]:
                     if device[u"Index"] != i:
@@ -791,7 +798,8 @@ class Badfish:
 
             host_model = self.host.split(".")[0].split("-")[-1]
             host_blade = self.host.split(".")[0].split("-")[-2]
-            if host_blade != "000":
+            b_pattern = re.compile("b0[0-9]")
+            if b_pattern.match(host_blade):
                 host_model = "%s_%s" % (host_model, host_blade)
             return definitions["%s_%s_interfaces" % (host_type, host_model)].split(",")[0]
         return None
