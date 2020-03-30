@@ -136,6 +136,7 @@ class Cloud(Document):
                 data["wipe"] = False
             else:
                 data["wipe"] = True
+        data['validated'] = False
 
         params = ['name', 'description', 'owner']
         result, data = param_check(data, params)
