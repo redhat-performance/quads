@@ -261,6 +261,9 @@ class DocumentMethodHandler(MethodHandlerBase):
                             result.append("Can't redefine cloud due to future use.")
                             cherrypy.response.status = "400 Bad Request"
                         else:
+                            obj_data['released'] = False
+                            obj_data['validated'] = False
+                            obj_data['notified'] = False
                             obj.update(**obj_data)
                             result.append("Updated %s %s" % (self.name, obj_name))
                     # otherwise create it
