@@ -99,18 +99,24 @@ def create_message(
     postman.send_email()
 
 
-def create_future_initial_message(real_owner, cloud_info, cc):
+def create_future_initial_message(cloud_obj, cloud_info):
     template_file = "future_initial_message"
+    cloud = cloud_obj.name
+    ticket = cloud_obj.ticket
     cc_users = conf["report_cc"].split(",")
-    for user in cc:
+    for user in cloud_obj.ccuser:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     content = template.render(
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
+        cloud=cloud,
     )
-    postman = Postman("New QUADS Assignment Defined for the Future", real_owner, cc_users, content)
+    postman = Postman("New QUADS Assignment Defined for the Future: %s - %s" % (
+        cloud,
+        ticket
+    ), cloud_obj.owner, cc_users, content)
     postman.send_email()
 
 
@@ -210,9 +216,8 @@ def main():
             if not notification_obj.pre_initial and conf["email_notify"]:
                 logger.info('=============== Future Initial Message')
                 create_future_initial_message(
-                    cloud.owner,
+                    cloud,
                     cloud_info,
-                    cloud.ccuser,
                 )
                 notification_obj.update(pre_initial=True)
 
