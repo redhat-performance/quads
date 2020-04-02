@@ -101,6 +101,8 @@ def create_message(
 
 def create_future_initial_message(real_owner, cloud_info, cc):
     template_file = "future_initial_message"
+    cloud = cloud_obj.name
+    ticket = cloud_obj.ticket
     cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
@@ -109,8 +111,12 @@ def create_future_initial_message(real_owner, cloud_info, cc):
     content = template.render(
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
+        cloud=cloud,
     )
-    postman = Postman("New QUADS Assignment Defined for the Future", real_owner, cc_users, content)
+    postman = Postman("New QUADS Assignment Defined for the Future: %s - %s" % (
+        cloud,
+        ticket
+    ), real_owner, cc_users, content)
     postman.send_email()
 
 
