@@ -241,6 +241,23 @@ class Badfish:
         logger.error("Not able to successfully schedule the job.")
         raise BadfishException
 
+    async def get_reset_types(self):
+        logger.debug("Getting allowable reset types.")
+        _url = "%s%s" % (self.host_uri, self.manager_resource)
+        _response = await self.get_request(_url)
+        reset_types = []
+        if _response:
+            data = await _response.json(content_type="application/json")
+            if 'Actions' not in data:
+                logger.warning("Actions resource not found")
+            else:
+                manager_reset = data["Actions"].get("#Manager.Reset")
+                if manager_reset:
+                    reset_types = manager_reset.get("ResetType@Redfish.AllowableValues")
+                    if not reset_types:
+                        logger.warning("Could not get allowable reset types")
+        return reset_types
+
     async def get_host_type(self, _interfaces_path):
         boot_devices = await self.get_boot_devices()
 
@@ -582,8 +599,14 @@ class Badfish:
 
     async def reset_idrac(self):
         logger.debug("Running reset iDRAC.")
+        _reset_types = await self.get_reset_types()
+        reset_type = "ForceRestart"
+        if reset_type not in _reset_types:
+            for rt in _reset_types:
+                if "restart" in rt.lower():
+                    reset_type = rt
         _url = "%s%s/Actions/Manager.Reset/" % (self.host_uri, self.manager_resource)
-        _payload = {"ResetType": "ForceRestart"}
+        _payload = {"ResetType": reset_type}
         _headers = {'content-type': 'application/json'}
         logger.debug("url: %s" % _url)
         logger.debug("payload: %s" % _payload)
