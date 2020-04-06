@@ -22,6 +22,30 @@
       "revId": "703ff3bf83dfd1b5788ca9e5f043a2c9b8aea335",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "299b8759_912e4e3c",
+        "filename": "quads/api_v2.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2020-04-06T15:55:14Z",
+      "side": 1,
+      "message": "In other words, can\u0027t you do:\n\nschedule \u003d model.Schedule()\n\nand then use schedule.is_host_available(host\u003d_host, start\u003d_start, end\u003d_end):\n\n?",
+      "parentUuid": "2a905b8b_292ad568",
+      "range": {
+        "startLine": 412,
+        "startChar": 19,
+        "endLine": 412,
+        "endChar": 33
+      },
+      "revId": "703ff3bf83dfd1b5788ca9e5f043a2c9b8aea335",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
