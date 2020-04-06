@@ -409,21 +409,25 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     result.append("Host is not available during that time frame")
         else:
             try:
-                schedule = model.Schedule()
                 if model.Schedule.is_host_available(host=_host, start=_start, end=_end):
-                    data["cloud"] = cloud_obj
-                    schedule.insert_schedule(**data)
-                    cherrypy.response.status = "201 Resource Created"
-                    result.append(
-                        "Added schedule for %s on %s" % (data["host"], cloud_obj.name)
-                    )
+
                     if self.model.current_schedule(cloud=cloud_obj) and cloud_obj.validated:
+                        if not cloud_obj.wipe:
+                            _host_obj.update(validated=True)
                         notification_obj = model.Notification.objects(
                             cloud=cloud_obj,
                             ticket=cloud_obj.ticket
                         ).first()
                         if notification_obj:
                             notification_obj.update(success=False)
+
+                    schedule = model.Schedule()
+                    data["cloud"] = cloud_obj
+                    schedule.insert_schedule(**data)
+                    cherrypy.response.status = "201 Resource Created"
+                    result.append(
+                        "Added schedule for %s on %s" % (data["host"], cloud_obj.name)
+                    )
                 else:
                     result.append("Host is not available during that time frame")
 
