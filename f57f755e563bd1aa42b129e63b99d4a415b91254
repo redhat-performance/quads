@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f3d6512_5d2dff91",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-04-07T17:58:45Z",
+      "side": 1,
+      "message": "(#mapping-internal-vlan-interfaces-to-problem-hosts)",
+      "revId": "f57f755e563bd1aa42b129e63b99d4a415b91254",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42441f89_9ecfe28d",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-04-07T17:58:45Z",
+      "side": 1,
+      "message": "validation_2 ?",
+      "range": {
+        "startLine": 1177,
+        "startChar": 2,
+        "endLine": 1177,
+        "endChar": 14
+      },
+      "revId": "f57f755e563bd1aa42b129e63b99d4a415b91254",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
