@@ -24,7 +24,7 @@ def quads_load_config(quads_config):
 quads_config_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(quads_config_file)
 
-QUADSVERSION = "1.1.2"
+QUADSVERSION = "1.1.3"
 QUADSCODENAME = "gaúcho"
 SUPPORTED = ["fc640", "r620", "r630", "r640", "r720", "r730xd", "r930", "r730", "r740xd", "r720xd"]
 SUPERMICRO = ["1029p", "1029u", "1028r", "6029p", "6018r", "6048r", "5039ms", "6049p"]
