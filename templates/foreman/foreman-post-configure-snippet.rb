@@ -1,10 +1,10 @@
-# This file is provided as-is as a Foreman snippet reference
-# used after hosts are provisioned.
-# This will template/create the vlan interface configs for each
-# host and compliment the settings for qinq vlan settings:
-# https://github.com/redhat-performance/quads/commit/e1f17bd6f1f733d2b226c20365111474c22aa127
-# we need net-tools, vconfig installed
-
+# Custom post bits to run at the end for the scalelab
+## define foreman template definitions here
+<%
+os_major = @host.operatingsystem.major.to_i
+%>
+# <% os_major -%>
+## end foreman template definitions
 mask2cdr ()
 {
    # Assumes there's no "255." after a non-255 byte in the mask
@@ -14,6 +14,7 @@ mask2cdr ()
    echo $(( $2 + (${#x}/4) ))
 }
 
+
 cdr2mask ()
 {
    # Number of args to shift, 255..255, first non-255 byte, zeroes
@@ -22,11 +23,27 @@ cdr2mask ()
    echo ${1-0}.${2-0}.${3-0}.${4-0}
 }
 
-def_interface=$(ip route  | egrep ^default | awk '{ print $5 }')
-def_gateway=$(ip route  | egrep ^default | awk '{ print $3 }')
+def_interface=$(ip route  | egrep ^default | awk '{ print $5 }' | head -1)
+def_gateway=$(ip route  | egrep ^default | awk '{ print $3 }' | head -1)
+#def_network=$(ip route  | egrep -v ^default | grep $def_interface | grep -v 169.254 | awk '{ print $1 }')
 def_address=$(ip a show $def_interface | grep "inet " | awk '{ print $2 }'| awk -F/ '{ print $1 }')
 def_network_address=$(netstat -rn | egrep -v 'Destination|169.254|^0.0.0.0|^Kernel'  | grep $def_interface | awk '{ print $1 }')
+#def_network_cidr=$(echo $def_network | awk -F/ '{ print $2 }')
 def_network_netmask=$(netstat -rn | egrep -v 'Destination|169.254|^0.0.0.0|^Kernel' | grep $def_interface | awk '{ print $3 }' | grep -v 255.255.255.255 )
+
+### try and make EL8 not drop this as it doesn't extrapolate correctly for netmask
+
+<% if os_major != 7 || @host.operatingsystem.name != 'Fedora' %>
+cat > /etc/sysconfig/network-scripts/ifcfg-$def_interface <<EOF
+DEVICE=$def_interface
+NAME=$def_interface
+TYPE=Ethernet
+BOOTPROTO=dhcp
+DEFROUTE=yes
+ONBOOT=yes
+EOF
+
+<% else %>
 
 cat > /etc/sysconfig/network-scripts/ifcfg-$def_interface <<EOF
 DEVICE=$def_interface
@@ -39,581 +56,39 @@ IPADDR=$def_address
 NETMASK=$def_network_netmask
 GATEWAY=$def_gateway
 EOF
+<% end -%>
+
+<% if os_major != 7 || @host.operatingsystem.name != 'Fedora' %>
+cat > /etc/sysconfig/network <<EOF
+# We leave this blank for DHCP
+EOF
+
+<% else %>
 
 cat > /etc/sysconfig/network <<EOF
 NETWORKING=yes
 GATEWAY=$def_gateway
 EOF
 
-cat > /etc/resolv.conf <<EOF
-search example.com
-nameserver 10.12.64.161
-nameserver 10.12.64.173
-nameserver 10.12.69.254
-EOF
+<% end -%>
 
+### update NTP or chronyd depending on OS
 
-##### BEGIN QINQ VLAN CONFIG SETTINGS PER HOST ####
-# the below lines are very specific to machine type.
-# we determine our machine type based on hostname
-# e.g. $rack-$ulocation-$machinetype
-#####
-##### This next section we use to generate all possible network
-##### interface templates, then drive VLAN configuration on the switch
-##### side.
-#####
-# setup em1, em2, em3, and em4 and also ens3f0/1 or ens5f0/1 === WIP
-o3=$(echo $def_address | awk -F. '{ print $3 }')
-# use pipe awk line here as 4th octect, carriage return cause render issues
-o4=$(echo $def_address | awk -F. '{ print $4 }' | awk '{ print $1 }')
-
-# if the machine is an r620 and it has a p3p1 interface:
-
-<% if @host.shortname =~ /r620/ %>
-if ip a show p3p1 1>/dev/null 2>&1 ; then
-    for i in 1 2 3 4 ; do
-        if [ p3p$i != $def_interface ]; then
-            if ip a show p3p$i 1>/dev/null 2>&1 ; then
-                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i <<EOF
-DEVICE=p3p$i
-NAME=p3p$i
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 16 + $i - 1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i.10$i <<EOF
-DEVICE=p3p$i.10$i
-NAME=p3p$i.10$i
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 20 + $i - 1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-                cat > /etc/sysconfig/network-scripts/ifcfg-p3p$i.200 <<EOF
-DEVICE=p3p$i.200
-NAME=p3p$i.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 24 + $i - 1).$o3.$o4
-NETMASK=255.252.0.0
-EOF
-            fi
-        fi
-    done
-else
-    for i in 1 2 3 4 ; do
-        if [ em$i != $def_interface ]; then
-            if ip a show em$i 1>/dev/null 2>&1 ; then
-                cat > /etc/sysconfig/network-scripts/ifcfg-em$i <<EOF
-DEVICE=em$i
-NAME=em$i
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 16 + $i - 1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-                cat > /etc/sysconfig/network-scripts/ifcfg-em$i.10$i <<EOF
-DEVICE=em$i.10$i
-NAME=em$i.10$i
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 20 + $i - 1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-                cat > /etc/sysconfig/network-scripts/ifcfg-em$i.200 <<EOF
-DEVICE=em$i.200
-NAME=em$i.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 24 + $i - 1).$o3.$o4
-NETMASK=255.252.0.0
-EOF
-            fi
-        fi
-    done
-fi
-
-<% else %>
-
-for i in 1 2 3 4 ; do
-    if [ em$i != $def_interface ]; then
-        if ip a show em$i 1>/dev/null 2>&1 ; then
-            cat > /etc/sysconfig/network-scripts/ifcfg-em$i <<EOF
-DEVICE=em$i
-NAME=em$i
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 16 + $i -1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-            cat > /etc/sysconfig/network-scripts/ifcfg-em$i.10$i <<EOF
-DEVICE=em$i.10$i
-NAME=em$i.10$i
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 20 + $i -1).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-            cat > /etc/sysconfig/network-scripts/ifcfg-em$i.200 <<EOF
-DEVICE=em$i.200
-NAME=em$i.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 24 + $i -1).$o3.$o4
-NETMASK=255.252.0.0
-EOF
-        fi
-    fi
-done
-
-<% end %>
-
-# this is for vms, and will never match on bare metal
-for i in 1 2 3 ; do
-    if ip a show eth$i 1>/dev/null 2>&1 ; then
-        cat > /etc/sysconfig/network-scripts/ifcfg-eth$i <<EOF
-DEVICE=eth$i
-NAME=eth$i
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.$(expr 16 + $i).$o3.$o4
-NETMASK=255.255.0.0
-EOF
-    fi
-done
-
-# this is for the supermicros
-if ip a show eno2 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-eno2 <<EOF
-DEVICE=eno2
-NAME=eno2
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.17.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-eno2.102 <<EOF
-DEVICE=eno2.102
-NAME=eno2.102
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.21.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-eno2.200 <<EOF
-DEVICE=eno2.200
-NAME=eno2.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.25.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-
-fi
-
-if ip a show ens5f0 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f0 <<EOF
-DEVICE=ens5f0
-NAME=ens5f0
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.16.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f0.101 <<EOF
-DEVICE=ens5f0.101
-NAME=ens5f0.101
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.20.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f0.200 <<EOF
-DEVICE=ens5f0.200
-NAME=ens5f0.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.24.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-fi
-
-if ip a show ens3f0 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f0 <<EOF
-DEVICE=ens3f0
-NAME=ens3f0
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.16.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f0.101 <<EOF
-DEVICE=ens3f0.101
-NAME=ens3f0.101
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.20.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f0.200 <<EOF
-DEVICE=ens3f0.200
-NAME=ens3f0.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.24.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-
-if ip a show ens5f1 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f1 <<EOF
-DEVICE=ens5f1
-NAME=ens5f1
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.17.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f1.102 <<EOF
-DEVICE=ens5f1.102
-NAME=ens5f1.102
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.21.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens5f1.200 <<EOF
-DEVICE=ens5f1.200
-NAME=ens5f1.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.25.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-
-if ip a show ens3f1 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f1 <<EOF
-DEVICE=ens3f1
-NAME=ens3f1
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.17.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f1.102 <<EOF
-DEVICE=ens3f1.102
-NAME=ens3f1.102
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.21.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-ens3f1.200 <<EOF
-DEVICE=ens3f1.200
-NAME=ens3f1.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.25.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-
-<% if @host.shortname =~ /r.*930/ %>
-rm -f /etc/sysconfig/network-scripts/ifcfg-em3
-rm -f /etc/sysconfig/network-scripts/ifcfg-em4
-
-if ip a show p1p1 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p1 <<EOF
-DEVICE=p1p1
-NAME=p1p1
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.18.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p1.103 <<EOF
-DEVICE=p1p1.103
-NAME=p1p1.103
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.22.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p1.200 <<EOF
-DEVICE=p1p1.200
-NAME=p1p1.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.26.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-
-if ip a show p1p2 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p2 <<EOF
-DEVICE=p1p2
-NAME=p1p2
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.19.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p2.104 <<EOF
-DEVICE=p1p2.104
-NAME=p1p2.104
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.23.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p1p2.200 <<EOF
-DEVICE=p1p2.200
-NAME=p1p2.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.27.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-<% end %>
-
-<% if @host.shortname =~ /r.*730xd/ %>
-rm -f /etc/sysconfig/network-scripts/ifcfg-em3
-rm -f /etc/sysconfig/network-scripts/ifcfg-em4
-
-if ip a show p6p1 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p1 <<EOF
-DEVICE=p6p1
-NAME=p6p1
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.18.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p1.103 <<EOF
-DEVICE=p6p1.103
-NAME=p6p1.103
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.22.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p1.200 <<EOF
-DEVICE=p6p1.200
-NAME=p6p1.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.26.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-
-if ip a show p6p2 1>/dev/null 2>&1 ; then
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p2 <<EOF
-DEVICE=p6p2
-NAME=p6p2
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.19.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p2.104 <<EOF
-DEVICE=p6p2.104
-NAME=p6p2.104
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.23.$o3.$o4
-NETMASK=255.255.0.0
-EOF
-cat > /etc/sysconfig/network-scripts/ifcfg-p6p2.200 <<EOF
-DEVICE=p6p2.200
-NAME=p6p2.200
-VLAN=yes
-BOOTPROTO=static
-DEFROUTE=no
-ONBOOT=yes
-IPADDR=172.27.$o3.$o4
-NETMASK=255.252.0.0
-EOF
-fi
-<% end %>
-##### END QINQ VLAN CONFIG SETTINGS PER HOST ####
-
-# Sorry Lubomir, we still don't like NetworkManager
-# on servers.
-yum erase NetworkManager -y
-
-# we lay down a custom RHEL repo here
-<% if @host.operatingsystem.name == 'RedHat' and @host.operatingsystem.major == '7' -%>
-# setup yum repo for RHEL7.3
-cat > /etc/yum.repos.d/RHEL73.repo <<EOF
-[rhel-7-server-73]
-name=Red Hat Enterprise Linux - 7.3 - Server
-baseurl=http://repo.example.com/released/RHEL-7/7.3/Server/x86_64/os/
-enabled=1
-gpgcheck=0
-EOF
-<% end %>
-
-# setup root ssh keys
-mkdir /root/.ssh && chmod 700 /root/.ssh
-touch /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys
-
-cat > /root/.ssh/authorized_keys <<EOF
-# XXXXX YOUR SSH PUBLIC KEYS GO HERE
-EOF
-
-# This is used for VM's provisioned via Foreman by
-# a backend Libvirt Compute Resource, if they are a member
-# of the 'vm-utility' hostgroup this applies.
-<% if @host.hostgroup.to_s == "vm-utility" -%>
-cat >> /root/.bashrc <<EOF
-#### custom addition
-export TERM="xterm-color"
-C1="\[\033[0;31m\]"
-C2="\[\033[1;30m\]"
-C3="\[\033[0m\]"
-C4="\[\033[0;36m\]"
-export PS1="\${C2}(\${C1}\u\${C2}@\${C4}\h\${C2}) - (\${C4}\A\${C2}) - (\${C4}\w\${C2})\n\${C2}-\${C1}=>>\${C3}"
-# set bash history forever
-export HISTTIMEFORMAT="%s "
-PROMPT_COMMAND="\${PROMPT_COMMAND:+\$PROMPT_COMMAND ; }"'echo \$\$ \$USER \
-               "\$(history 1)" >> ~/.bash_eternal_history'
-export HISTSIZE=100000
-export HISTFILESIZE=100000
-# fix tmux/screen garbling for history
-shopt -s checkwinsize
+<% if os_major != 7 || @host.operatingsystem.name != 'Fedora' %>
+cat > /etc/chrony.conf <<EOF
+pool foreman.rdu2.scalelab.example.com iburst
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+keyfile /etc/chrony.keys
+leapsectz right/UTC
+logdir /var/log/chrony
 EOF
 
 <% else %>
 
-cat >> /root/.bashrc <<EOF
-export HISTTIMEFORMAT="%s "
-PROMPT_COMMAND="\${PROMPT_COMMAND:+\$PROMPT_COMMAND ; }"'echo \$\$ \$USER \
-               "\$(history 1)" >> ~/.bash_eternal_history'
-export HISTSIZE=100000
-export HISTFILESIZE=100000
-EOF
-
-<% end %>
-
-# mask firewalld
-systemctl mask firewalld.service
-
-# enable sshd and network - fedora wants this
-/bin/systemctl enable sshd.service
-/bin/systemctl enable network.service
-
-# dirty hack for Fedora and removal of network-manager
-rm /etc/resolv.conf
-cat > /etc/resolv.conf <<EOF
-search example.com
-nameserver 10.12.64.161
-nameserver 10.12.64.173
-nameserver 10.12.69.254
-EOF
-
-# lay down iptables rules manually to open 8139 and other ports
-cat > /etc/sysconfig/iptables <<EOF
-*filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A INPUT -p icmp -j ACCEPT
--A INPUT -i lo -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
--A INPUT -j REJECT --reject-with icmp-host-prohibited
--A FORWARD -j REJECT --reject-with icmp-host-prohibited
-COMMIT
-EOF
-
-# start and enable iptables firewall
-systemctl enable iptables.service
-systemctl start iptables.service
-
-# update errata
-yum -t -y -e 0 update
-
-# ensure ntpd is setup correctly
-yum install -y ntpdate ntpd
-echo foreman.example.com > /etc/ntp/step-tickers
-cat > /etc/ntp.conf <<EOF
-server foreman.example.com iburst
+cat > /etc/ntpd.conf <<EOF
+server foreman.rdu2.scalelab.example.com iburst
 driftfile /var/lib/ntp/drift
 restrict default nomodify notrap nopeer noquery
 restrict 127.0.0.1
@@ -622,7 +97,21 @@ includefile /etc/ntp/crypto/pw
 keys /etc/ntp/keys
 disable monitor
 EOF
-systemctl enable ntpdate
-systemctl enable ntpd
 
-yum update -y
+<% end -%>
+
+
+cat > /etc/resolv.conf <<EOF
+search rdu2.scalelab.example.com
+nameserver 10.1.32.3
+nameserver 10.1.32.4
+EOF
+
+# setup em1, em2, em3, and em4 and also ens3f0/1 or ens5f0/1 === WIP
+o3=$(echo $def_address | awk -F. '{ print $3 }')
+# use pipe awk line here as 4th octect, carriage return cause render issues
+o4=$(echo $def_address | awk -F. '{ print $4 }' | awk '{ print $1 }')
+
+# Attempt to break snippets out for network configs
+<%= snippet 'custom-generic-network-post.rb' %>
+
