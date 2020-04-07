@@ -67,6 +67,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Understanding Validation Structure](#understanding-validation-structure)
          * [Troubleshooting Steps](#troubleshooting-steps)
          * [Validation using Debug Mode](#validation-using-debug-mode)
+         * [Mapping Internal VLAN Interfaces to Problem Hosts]
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -521,6 +522,18 @@ This pertains to the internal interfaces that QUADS will manage for you to move 
    - ```qinq: false``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
 
    - ```qinq: true``` all QUADS-managed interfaces in the same qinq VLAN. For this to take effect you need to pass the optional argument of `--qinq` to the `--define-cloud` command.
+
+   - You can use the command `quads-cli --ls-qinq` to view your current assignment VLAN configuration:
+
+```
+quads-cli --ls-qinq
+```
+```
+cloud01: 0 (Isolated)
+cloud02: 1 (Combined)
+cloud03: 0 (Isolated)
+cloud04: 1 (Combined)
+```
 
 #### Optional QUADS Public VLAN ####
 
@@ -1143,6 +1156,27 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 
 ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
 ```
+
+### Mapping Internal VLAN Interfaces to Problem Hosts
+You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/master/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
+
+The _first two octets_ here can be substituted by the _first two octets of your systems public network_ in order to determine from `validate_env.py --debug` which host internal interfaces have issues or are unreachable.
+
+![validation_1](/image/troubleshoot_validation1.png?raw=true)
+
+* Above, we can run the `host` command to determine what these machines map to by substituting `10.1` for the first two octects:
+
+```
+# for host in 10.1.37.231 10.1.38.150; do host $host; done
+231.37.1.10.in-addr.arpa domain name pointer e17-h26-b04-fc640.example.com.
+150.38.1.10.in-addr.arpa domain name pointer e17-h26-b03-fc640.example.com.
+```
+
+* Below you can see the code that maintains this mapping and assumptions:
+
+![validation_2](/image/troubleshoot_validation2.png?raw=true)
+
+This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/master/quads/tools/validate_env.py#L143)
 
 ## QUADS Talks and Media
 [![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
