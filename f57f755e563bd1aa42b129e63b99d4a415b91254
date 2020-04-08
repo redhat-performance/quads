@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d0c72d2e_739bcb80",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-04-08T09:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f3d6512_5d2dff91",
+      "revId": "f57f755e563bd1aa42b129e63b99d4a415b91254",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42441f89_9ecfe28d",
         "filename": "README.md",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "f57f755e563bd1aa42b129e63b99d4a415b91254",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b7b8add_1a2e2feb",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-04-08T09:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42441f89_9ecfe28d",
+      "range": {
+        "startLine": 1177,
+        "startChar": 2,
+        "endLine": 1177,
+        "endChar": 14
+      },
+      "revId": "f57f755e563bd1aa42b129e63b99d4a415b91254",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
