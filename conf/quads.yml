@@ -200,6 +200,11 @@ pdu_management: false
 # displaying instack env json files on quads wiki
 openstack_management: false
 
+# OpenShift variable for generation of inventory files
+# Setting this to false will prevent quads from generating and
+# displaying ocpinventory files on quads wiki
+openshift_management: false
+
 # Validation grace period in minutes
 # This gives the validation logic some time for the hosts to complete
 # provisioning. Value in minutes.
