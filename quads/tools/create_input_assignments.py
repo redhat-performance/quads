@@ -36,10 +36,12 @@ def print_summary():
         '**SUMMARY**',
         '**OWNER**',
         '**REQUEST**',
-        ' &nbsp; &nbsp; **STATUS** &nbsp; &nbsp;'
+        '<span id="status">**STATUS**</span>'
     ]
     if conf["openstack_management"]:
-        _headers.append("**INSTACKENV**")
+        _headers.append("**OSPENV**")
+    if conf["openshift_management"]:
+        _headers.append("**OCPINV**")
     if conf["gather_ansible_facts"]:
         _headers.append("**HWFACTS**")
     if conf["gather_dell_configs"]:
@@ -66,6 +68,8 @@ def print_summary():
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
+            ocpinv_link = os.path.join(conf["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
+            ocpinv_text = "download"
             status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" ' \
                      'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
         else:
@@ -76,6 +80,8 @@ def print_summary():
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
             instack_text = "validating"
+            ocpinv_link = "#"
+            ocpinv_text = "validating"
             if percent < 15:
                 classes = ["progress-bar", "progress-bar-striped", "progress-bar-danger", "active"]
                 status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" ' \
@@ -103,12 +109,17 @@ def print_summary():
                 ansible_facts_link = os.path.join(conf["quads_url"], "underconstruction")
             if cloud_name == "cloud01":
                 _data.append("")
+                _data.append("")
                 _data.append(status)
                 _data.append("")
             else:
                 _data.append(
                     "<a href=%s target=_blank>%s%s%s</a>"
                     % (instack_link, style_tag_start, instack_text, style_tag_end)
+                )
+                _data.append(
+                    "<a href=%s target=_blank>%s%s%s</a>"
+                    % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
                 )
                 _data.append(status)
                 _data.append(
@@ -120,11 +131,18 @@ def print_summary():
             if cloud_name == "cloud01":
                 if conf["openstack_management"]:
                     _data.append("")
+                if conf["openshift_management"]:
+                    _data.append("")
             else:
                 if conf["openstack_management"]:
                     _data.append(
                         "<a href=%s target=_blank>%s%s%s</a>"
                         % (instack_link, style_tag_start, instack_text, style_tag_end)
+                    )
+                if conf["openshift_management"]:
+                    _data.append(
+                        "<a href=%s target=_blank>%s%s%s</a>"
+                        % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
                     )
 
         if conf["gather_dell_configs"]:
