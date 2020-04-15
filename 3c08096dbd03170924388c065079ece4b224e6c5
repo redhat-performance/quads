@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05d87b9c_0bc6800d",
+        "filename": "quads/tools/create_input_assignments.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-04-15T14:29:16Z",
+      "side": 1,
+      "message": "We\u0027re going to run into column / HTML table length issues here, I would suggest we hyperlink both of these inventories into the same column next to each other with simple a href like \"osp\" and \"ocp\" (assuming they are both elected to be enabled).\n\nWe should take this opportunity to rename that singular column from INSTACKENV to something more generic like METADATA",
+      "revId": "3c08096dbd03170924388c065079ece4b224e6c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "953d93f4_2b2786f6",
+        "filename": "quads/tools/create_input_assignments.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-04-15T14:29:16Z",
+      "side": 1,
+      "message": "Like previous suggestion, since we\u0027re packing more stuff into generated metadata to assist with stack deployments of various kinds we should probably simplify the a href texts to simply \"osp\" and \"ocp\"",
+      "revId": "3c08096dbd03170924388c065079ece4b224e6c5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
