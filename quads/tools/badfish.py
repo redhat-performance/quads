@@ -71,7 +71,8 @@ class Badfish:
     @staticmethod
     async def error_handler(_response):
         try:
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
         except Exception:
             logger.error("Error reading response from host.")
             raise BadfishException
@@ -91,7 +92,7 @@ class Badfish:
                     async with session.get(
                         uri, auth=BasicAuth(self.username, self.password), verify_ssl=False, timeout=60
                     ) as _response:
-                        await _response.json(content_type="application/json")
+                        await _response.text("utf-8", "ignore")
         except (Exception, TimeoutError) as ex:
             if _continue:
                 return
@@ -115,7 +116,7 @@ class Badfish:
                         verify_ssl=False,
                     ) as _response:
                         if _response.status != 204:
-                            await _response.json(content_type="application/json")
+                            await _response.text("utf-8", "ignore")
                         else:
                             return _response
         except (Exception, TimeoutError):
@@ -136,7 +137,7 @@ class Badfish:
                         auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as _response:
-                        await _response.json(content_type="application/json")
+                        await _response.text("utf-8", "ignore")
         except Exception as ex:
             if _continue:
                 return
@@ -158,7 +159,7 @@ class Badfish:
                         auth=BasicAuth(self.username, self.password),
                         ssl=False,
                     ) as _response:
-                        await _response.json(content_type="application/json")
+                        await _response.text("utf-8", "ignore")
         except (Exception, TimeoutError):
             logger.exception("Failed to communicate with server.")
             raise BadfishException
@@ -177,7 +178,8 @@ class Badfish:
         _response = await self.get_request(_uri)
 
         try:
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
         except ValueError:
             logger.error("Could not retrieve Bios Boot mode.")
             raise BadfishException
@@ -194,7 +196,8 @@ class Badfish:
         _uri = "%s%s/BootSources" % (self.host_uri, self.system_resource)
         _response = await self.get_request(_uri)
 
-        data = await _response.json(content_type="application/json")
+        raw = await _response.text("utf-8", "ignore")
+        data = json.loads(raw.strip())
         if "Attributes" in data:
             return data[u"Attributes"][_boot_seq]
         else:
@@ -207,8 +210,7 @@ class Badfish:
         _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
         _response = await self.get_request(_url)
 
-        data = await _response.json(content_type="application/json")
-        data = str(data)
+        data = await _response.text("utf-8", "ignore")
         job_queue = re.findall("[JR]ID_.+?'", data)
         jobs = [job.strip("}").strip("\"").strip("'") for job in job_queue]
         return jobs
@@ -231,7 +233,8 @@ class Badfish:
 
                 await self.error_handler(_response)
 
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
             if data[u"Message"] == "Task successfully scheduled.":
                 logger.info("Job id %s successfully scheduled." % _job_id)
                 return
@@ -247,7 +250,8 @@ class Badfish:
         _response = await self.get_request(_url)
         reset_types = []
         if _response:
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
             if 'Actions' not in data:
                 logger.warning("Actions resource not found")
             else:
@@ -301,7 +305,8 @@ class Badfish:
         response = await self.get_request(self.root_uri)
 
         if response:
-            data = await response.json(content_type="application/json")
+            raw = await response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
             if 'Systems' not in data:
                 logger.error("Systems resource not found")
                 raise BadfishException
@@ -309,7 +314,8 @@ class Badfish:
                 systems = data["Systems"]["@odata.id"]
                 _response = await self.get_request(self.host_uri + systems)
                 if _response:
-                    data = await _response.json(content_type="application/json")
+                    raw = await _response.text("utf-8", "ignore")
+                    data = json.loads(raw.strip())
                     if data.get(u'Members'):
                         for member in data[u'Members']:
                             systems_service = member[u'@odata.id']
@@ -322,7 +328,8 @@ class Badfish:
     async def find_managers_resource(self):
         response = await self.get_request(self.root_uri)
         if response:
-            data = await response.json(content_type="application/json")
+            raw = await response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
             if 'Managers' not in data:
                 logger.error("Managers resource not found")
                 raise BadfishException
@@ -330,7 +337,8 @@ class Badfish:
                 managers = data["Managers"]["@odata.id"]
                 response = await self.get_request(self.host_uri + managers)
                 if response:
-                    data = await response.json(content_type="application/json")
+                    raw = await response.text("utf-8", "ignore")
+                    data = json.loads(raw.strip())
                     if data.get(u'Members'):
                         for member in data[u'Members']:
                             managers_service = member[u'@odata.id']
@@ -349,7 +357,8 @@ class Badfish:
             return "Down"
 
         if _response.status == 200:
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
         else:
             logger.debug("Couldn't get power state. Retrying.")
             return "Down"
@@ -617,7 +626,7 @@ class Badfish:
         if status_code == 204:
             logger.info("Status code %s returned for POST command to reset iDRAC." % status_code)
         else:
-            data = await _response.json()
+            data = await _response.text("utf-8", "ignore")
             logger.error("Status code %s returned, error is: \n%s." % (status_code, data))
             raise BadfishException
         time.sleep(15)
@@ -734,7 +743,8 @@ class Badfish:
         _response = await self.get_request(_url)
 
         try:
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
         except ValueError:
             logger.error("Not able to access Firmware inventory.")
             raise BadfishException
@@ -757,7 +767,8 @@ class Badfish:
             if not _response:
                 continue
 
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
             for info in data.items():
                 if "odata" not in info[0] and "Description" not in info[0]:
                     logger.info("%s: %s" % (info[0], info[1]))
@@ -797,7 +808,8 @@ class Badfish:
                 pass
 
             status_code = _response.status
-            data = await _response.json(content_type="application/json")
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
 
             if status_code == 202 or status_code == 200:
                 logger.info("JobStatus not completed, current status: \"%s\", percent complete: \"%s\"" % (

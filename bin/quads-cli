@@ -538,8 +538,6 @@ def main(_args):
                             logger.exception("There was something wrong configuring the switch.")
                             provisioned = False
 
-                    # TODO: Add logic here for setting host to validated=false
-                    #  if result["new"]==default_cloud
                     if done:
                         for future in done:
                             if isinstance(future, Exception):
