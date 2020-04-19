@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4baa3ff_f54d1ea0",
+        "filename": "quads/tools/create_input_assignments.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-04-19T15:24:08Z",
+      "side": 1,
+      "message": "We could alternatively roll with two columns here like it is done here but we\u0027ll want to cut down on the characters used.\n\nSuggestion #1) Roll both ocp and osp inventory into same generic column like \"METADATA\"\n\nSuggestion #2) Keep two columns, but rename:\n\nA)  OCPINVENTORY to simply OCP\nB)  INSTACKENV to simply OSP\n\nSuggestion #2 is a less work, though in future if there is a third product/stack that consumes ironic and this file format we\u0027ll need to adjust at that time.",
+      "revId": "c1021d3c63534453144d237106508ee147444725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
