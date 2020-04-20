@@ -503,7 +503,7 @@ def main(_args):
                     if not _args.dryrun:
                         if new != "cloud01":
                             has_active_schedule = Schedule.current_schedule(cloud=cloud)
-                            if has_active_schedule:
+                            if has_active_schedule and cloud.wipe:
                                 cloud.update(validated=False)
                         try:
                             if _args.movecommand == default_move_command:
@@ -547,7 +547,8 @@ def main(_args):
 
                     if provisioned:
                         _new_cloud_obj = Cloud.objects(name=_cloud).first()
-                        _new_cloud_obj.update(provisioned=True, validated=False)
+                        validate = not _new_cloud_obj.wipe
+                        _new_cloud_obj.update(provisioned=True, validated=validate)
 
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
