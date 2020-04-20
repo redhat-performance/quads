@@ -494,7 +494,7 @@ class Badfish:
 
     async def delete_job_queue(self):
         _url = "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue" % self.root_uri
-        _payload = {"JobID": "JID_CLEARALL"}
+        _payload = {"JobID": "JID_CLEARALL_FORCE"}
         _headers = {'content-type': 'application/json'}
         response = await self.post_request(_url, _payload, _headers)
         if response.status == 200:
