@@ -76,6 +76,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Automated network and provisioning validation prior to delivering sets of machines/networks to tenants
    - Automated allocation of optional, publicly routable VLANs
    - Generates/maintains user-configurable [instackenv.json](https://docs.openstack.org/tripleo-docs/latest/install/environments/baremetal.html#instackenv-json) to accomodate OpenStack deployment.
+   - Generates/maintains user-configurable ocpinventory.json for OpenShift on Baremetal Deployments
    - Automatically generate/maintain documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
      * Current system details, infrastructure fleet inventory
      * Current system group ownership (cloud), workloads and assignments
