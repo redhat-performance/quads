@@ -6,7 +6,7 @@ from datetime import datetime
 from time import sleep
 
 from quads.config import conf
-from quads.helpers import is_supported, is_supermicro, get_vlan
+from quads.helpers import is_supported, get_vlan
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
@@ -148,13 +148,6 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
             # TODO: pdu management
             pass
 
-        if is_supermicro(host):
-            ipmi_pxe_persistent = [
-                "chassis", "bootdev", "pxe",
-                "options", "=", "persistent"
-            ]
-            await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore)
-
         if is_supported(host):
             try:
                 badfish = await badfish_factory("mgmt-%s" % host, conf["ipmi_username"], conf["ipmi_password"])
@@ -217,12 +210,18 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 await badfish.reboot_server(graceful=False)
                 return False
         else:
-            if is_supermicro(host):
-                try:
-                    await ipmi_reset(host, new_semaphore)
-                except Exception as ex:
-                    logger.debug(ex)
-                    logger.error(f"There was something wrong resetting IPMI on {host}.")
+            try:
+                ipmi_pxe_persistent = [
+                    "chassis", "bootdev", "pxe",
+                    "options", "=", "persistent"
+                ]
+                await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore)
+                await ipmi_reset(host, new_semaphore)
+            except Exception as ex:
+                logger.debug(ex)
+                logger.error(
+                    f"There was something wrong setting PXE flag or resetting IPMI on {host}."
+                )
 
     schedule = Schedule.current_schedule(cloud=_new_cloud_obj, host=_host_obj).first()
     if schedule:
