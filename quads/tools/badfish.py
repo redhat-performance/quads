@@ -492,7 +492,7 @@ class Badfish:
 
         return True
 
-    async def delete_job_queue(self):
+    async def delete_job_queue_dell(self):
         _url = "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue" % self.root_uri
         _payload = {"JobID": "JID_CLEARALL"}
         _headers = {'content-type': 'application/json'}
@@ -502,6 +502,16 @@ class Badfish:
         else:
             logger.error("Job queue not cleared, there was something wrong with your request.")
             raise BadfishException
+
+    async def delete_job_queue_force(self):
+        _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
+        _headers = {"content-type": "application/json"}
+        url = "%s/JID_CLEARALL_FORCE" % _url
+        try:
+            await self.delete_request(url, _headers)
+        except BadfishException:
+            logger.warning("There was something wrong clearing the job queue.")
+            raise
 
     async def clear_job_list(self, _job_queue):
         _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
@@ -524,9 +534,13 @@ class Badfish:
         if _job_queue:
             supported = await self.check_supported_idrac_version()
             if supported:
-                await self.delete_job_queue()
+                await self.delete_job_queue_dell()
             else:
-                await self.clear_job_list(_job_queue)
+                try:
+                    await self.delete_job_queue_force()
+                except BadfishException:
+                    logger.info("Attempting to clear job list instead.")
+                    await self.clear_job_list(_job_queue)
         else:
             logger.warning(
                 "Job queue already cleared for iDRAC %s, DELETE command will not execute." % self.host
