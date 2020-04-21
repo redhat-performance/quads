@@ -269,7 +269,7 @@ ipmitool -I lanplus -H mgmt-<hostname> -U ADMIN -P ADMIN channel setaccess 1 3 i
 
 ```
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user set name 4 quads
-ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user set password 4 quads
+ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user set password 4 quadspassword
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user priv 4 0x4
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> user enable 4
 ipmitool -I lanplus -H mgmt-<hostname> -U root -P <pw> channel setaccess 1 4 ipmi=on
