@@ -60,7 +60,8 @@ def print_summary():
         desc = "%s (%s)" % (cloud["count"], cloud["description"])
         owner = cloud["owner"]
         ticket = cloud["ticket"]
-        link = "<a href=%s?id=%s target=_blank>%s</a>" % (conf["rt_url"], ticket, ticket)
+        link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
+            conf["ticket_url"], conf["ticket_queue"], ticket, ticket)
         cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
 
         style_tag_end = "</span>"
