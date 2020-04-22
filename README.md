@@ -521,9 +521,9 @@ This pertains to the internal interfaces that QUADS will manage for you to move 
 
    -  VLAN design (optional, will default to `qinq: false` below)
 
-   - ```qinq: false``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
+   - ```qinq: 0 (false)``` (default) qinq VLAN separation by interface: primary, secondary and beyond QUADS-managed interfaces all match the same VLAN membership across other hosts in the same cloud allocation.  Each interface per host is in its own VLAN, and these match across the rest of your allocated hosts by interface (all nic1, all nic2, all nic3, all nic4 etc).
 
-   - ```qinq: true``` all QUADS-managed interfaces in the same qinq VLAN. For this to take effect you need to pass the optional argument of `--qinq` to the `--define-cloud` command.
+   - ```qinq: 1 (true)``` all QUADS-managed interfaces in the same qinq VLAN. For this to take effect you need to pass the optional argument of `--qinq` to the `--define-cloud` command.
 
    - You can use the command `quads-cli --ls-qinq` to view your current assignment VLAN configuration:
 

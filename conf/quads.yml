@@ -63,8 +63,11 @@ wp_wiki_vlans_page_id: 14244
 wp_wiki_git_manage: false
 wp_wiki_git_repo_path: /opt/quads/git/wiki
 
-# (optional RT location)
-rt_url: https://engineering.example.com/rt/Ticket/Display.html
+# (optional ticket system URL) in this case we're using JIRA
+ticket_url: https://projects.engineering.example.com/browse
+# (optional ticket queue name) this is typically the ticket queue
+# name or abbreviation in the case of JIRA
+ticket_queue: SCALELAB
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
