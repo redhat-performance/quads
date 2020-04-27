@@ -67,6 +67,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Understanding Validation Structure](#understanding-validation-structure)
          * [Troubleshooting Steps](#troubleshooting-steps)
          * [Validation using Debug Mode](#validation-using-debug-mode)
+         * [Skipping Past Foreman Validation](#skipping-past-foreman-validation)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
@@ -1157,6 +1158,14 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
 
 ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
+```
+
+### Skipping Past Foreman Validation
+
+* If you know your systems are built you can force `validate_env.py` to move into the network portions of the validation by toggling the `provisioned` attribute in MongoDB for your cloud object.
+
+```
+db.cloud.update({"name": "cloud23"}, {$set:{'provisioned':true}}
 ```
 
 ### Mapping Internal VLAN Interfaces to Problem Hosts
