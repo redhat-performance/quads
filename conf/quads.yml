@@ -217,3 +217,8 @@ validation_grace_period: 120
 # sw_vlan_first - The first VLAN ID used for the first interface of cloud01
 # this defaults to 1100 unless set otherwise.
 sw_vlan_first: 1100
+
+# default behavior is to change wipe back to true when all schedules expire
+# Use this carefully! Setting this will leave "wipe" behavior alone which
+# could cause issues unless you are certain what you are doing.
+#default_wipe: True
