@@ -67,7 +67,7 @@ def make_env_json(filename):
                     if len(host.interfaces) > 1:
                         mac.append(host.interfaces[1].mac_address)
                 if filename == "ocpinventory":
-                    for i in host.interfaces[1:3]:
+                    for i in host.interfaces[0:]:
                         mac.append(host.interfaces[i].mac_address)
                 data["nodes"].append(
                     {
