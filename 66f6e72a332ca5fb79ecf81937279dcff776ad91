@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5efa86f0_48d79ce1",
+        "filename": "quads/tools/make_instackenv_json.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-05-05T13:15:59Z",
+      "side": 1,
+      "message": "replace whole for loop with:\nmac \u003d [interface.mac_address for interface in host.interfaces]",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 66
+      },
+      "revId": "66f6e72a332ca5fb79ecf81937279dcff776ad91",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
