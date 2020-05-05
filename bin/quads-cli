@@ -552,8 +552,14 @@ def main(_args):
 
                     _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
                     old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
+
+                    default_wipe=True
+                    if "wipe_reset" in conf:
+                        if not conf["wipe_reset"]:
+                            default_wipe=False
+
                     if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                        _old_cloud_obj.update(validated=False, provisioned=False, vlan=None, wipe=True, ccuser=[])
+                        _old_cloud_obj.update(validated=False, provisioned=False, vlan=None, wipe=default_wipe, ccuser=[])
 
             exit(0)
 
