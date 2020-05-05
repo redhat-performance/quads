@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25963288_b0d831c9",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-05-05T13:55:14Z",
+      "side": 1,
+      "message": "\"via `pip`\" seems redundant",
+      "range": {
+        "startLine": 238,
+        "startChar": 31,
+        "endLine": 238,
+        "endChar": 41
+      },
+      "revId": "8580c6e2d046ccaddee684331628e9eef67de67f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
