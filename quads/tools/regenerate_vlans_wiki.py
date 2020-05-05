@@ -13,7 +13,7 @@ HEADERS = [
     'Gateway',
     'IPFree',
     'Owner',
-    'RTTicket',
+    'Ticket',
     'Cloud',
 ]
 
@@ -38,11 +38,11 @@ def render_vlans(markdown):
         cloud_current_count = Schedule.current_schedule(cloud=cloud_obj).count()
         if cloud_obj and cloud_current_count > 0:
             owner = cloud_obj.owner
-            rt_ticket = cloud_obj.ticket
+            ticket = cloud_obj.ticket
             cloud_name = cloud_obj.name
         else:
             owner = "nobody"
-            rt_ticket = ""
+            ticket = ""
             cloud_name = ""
 
         columns = [
@@ -52,7 +52,7 @@ def render_vlans(markdown):
             gateway,
             ip_free,
             owner,
-            rt_ticket,
+            ticket,
             cloud_name,
         ]
 
