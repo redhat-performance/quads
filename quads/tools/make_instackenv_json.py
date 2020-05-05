@@ -67,8 +67,7 @@ def make_env_json(filename):
                     if len(host.interfaces) > 1:
                         mac.append(host.interfaces[1].mac_address)
                 if filename == "ocpinventory":
-                    for i in host.interfaces[1:3]:
-                        mac.append(host.interfaces[i].mac_address)
+                    mac = [interface.mac_address for interface in host.interfaces]
                 data["nodes"].append(
                     {
                         "pm_password": foreman_password,
