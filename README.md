@@ -114,9 +114,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 
 | Step | Documentation | Details |
 |------|---------------|---------|
+| General Architecture Overview | [docs](/docs/quads-workflow.md) | Architecture overview |
 | Install and Setup Foreman/Satellite | [docs](https://theforeman.org/manuals/nightly/#3.InstallingForeman) | Not covered here |
 | Setup Foreman/Satellite Validation Templates] | [examples](/templates/README.md) | Templates for internal interface configs |
-| Prepare Host and Network Environment | [docs](/docs/quads-workflow.md) | Covers Juniper Environments |
+| Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | RPM, Docker or Github Source |
 | Install MongoDB | [docs](docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
 | Install Wiki | [docs](#installing-other-quads-components) | For RPM or Github Source only |
