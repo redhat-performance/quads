@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2148698c_ada503ff",
+        "filename": "rpm/quads.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-05-12T14:18:59Z",
+      "side": 0,
+      "message": "We still can\u0027t remove this yet, we still call ipmitool for supermicros, we\u0027d need to substitute badfish --pxe here:\n\nhttps://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py#L90",
+      "revId": "01f8c455b983f1ad797433ab48dc1485ce4e19c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
