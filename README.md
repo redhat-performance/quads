@@ -196,7 +196,7 @@ git clone https://github.com/redhat-performance/quads /opt/quads
 ```
    - Install pre-requisite Python packages
 ```
-dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
+dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
 ```
    - Install a webserver (Apache, nginx, etc)
 ```

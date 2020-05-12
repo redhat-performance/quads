@@ -37,7 +37,6 @@ Requires: python3-PyYAML >= 3.0
 Requires: python3-requests >= 2.0
 Requires: python3-aiohttp >= 3.1
 Requires: git >= 2.1
-Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
