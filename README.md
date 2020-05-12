@@ -462,8 +462,10 @@ In the above example the default move command called ```/bin/echo``` for illustr
 * Runs against all hosts according to the QUADS schedule.
 
 ```
-quads-cli --move-hosts --path-to-command quads/tools/move_and_rebuild_hosts.py
+quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 ```
+
+* You can modify the default settings via the `default_move_command` setting in [quads-cli](https://github.com/redhat-performance/quads/blob/master/bin/quads-cli).
 
 * You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script as an example.  It's useful to note that with `quads/tools/             move_and_rebuild_hosts.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
