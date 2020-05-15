@@ -101,9 +101,20 @@ class Validator(object):
 
             if pending:
                 logger.info("The following hosts are marked for build:")
-                self.report = self.report + "The following hosts are marked for build:\n"
+                self.report = self.report + "The following hosts are marked for build and will now be rebooted:\n"
                 for host in pending:
                     logger.info(host)
+                    try:
+                        badfish = Badfish(
+                            "mgmt-" + host.name,
+                            str(conf["ipmi_cloud_username"]),
+                            password,
+                            loop
+                        )
+                        loop.run_until_complete(badfish.set_next_boot_pxe())
+                        loop.run_until_complete(badfish.reboot_server())
+                    except BadfishException:
+                        logger.info(f"Could not run reboot for: {host.name}")
                     self.report = self.report + "%s\n" % host
                 return False
 
