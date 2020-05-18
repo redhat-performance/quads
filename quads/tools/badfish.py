@@ -20,7 +20,8 @@ RETRIES = 15
 logger = logging.getLogger(__name__)
 
 
-async def badfish_factory(_host, _username, _password, loop=None, _retries=RETRIES):
+async def badfish_factory(_host, _username, _password, loop=None, _retries=RETRIES, propagate=False):
+    logger.propagate = propagate
     badfish = Badfish(_host, _username, _password, loop, _retries=RETRIES)
     await badfish.init()
     return badfish
