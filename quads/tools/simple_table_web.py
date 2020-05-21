@@ -21,11 +21,19 @@ def main():
     if not os.path.exists(conf["visual_web_dir"]):
         os.makedirs(conf["visual_web_dir"])
 
+    _static_web = os.path.join(conf["visual_web_dir"], "static")
+    if not os.path.exists(_static_web):
+        _static = os.path.join(conf.TEMPLATES_PATH, "static")
+        os.symlink(_static_web, _static)
+
     for _date in dates:
-        gen_time = "Allocation Map for %s-%.2d" % (
-            _date.year, _date.month)
-        content = generator(None, calendar.mdays[_date.month], _date.month, _date.year, gen_time)
-        file_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (_date.year, _date.month))
+        gen_time = "Allocation Map for %s-%.2d" % (_date.year, _date.month)
+        content = generator(
+            None, calendar.mdays[_date.month], _date.month, _date.year, gen_time
+        )
+        file_path = os.path.join(
+            conf["visual_web_dir"], "%s-%.2d.html" % (_date.year, _date.month)
+        )
         with open(file_path, "w+") as _file:
             _file.write(content)
         os.chmod(file_path, 0o644)
@@ -37,10 +45,14 @@ def main():
     if os.path.exists(_next):
         os.remove(_next)
 
-    current_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (dates[0].year, dates[0].month))
+    current_path = os.path.join(
+        conf["visual_web_dir"], "%s-%.2d.html" % (dates[0].year, dates[0].month)
+    )
     os.symlink(current_path, _current)
 
-    next_path = os.path.join(conf["visual_web_dir"], "%s-%.2d.html" % (dates[1].year, dates[1].month))
+    next_path = os.path.join(
+        conf["visual_web_dir"], "%s-%.2d.html" % (dates[1].year, dates[1].month)
+    )
     os.symlink(next_path, _next)
 
     files = [html for html in os.listdir(conf["visual_web_dir"]) if ".html" in html]

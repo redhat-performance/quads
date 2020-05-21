@@ -1,3 +1,5 @@
+
+
 <html>
 <head>
 <style>
@@ -11,6 +13,12 @@
   box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
   -webkit-box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
   -moz-box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
+}
+.nami {
+    background-image: url("static/nami.png");
+}
+.maze {
+    background-image: url("static/maze-black.png");
 }
 </style>
 {% if gentime %}
@@ -37,10 +45,14 @@
     <td>{{ line["hostname"] }}</td>
     {% for day in line["days"] %}
         <td
-        {% if day["chosen_color"]|int % 2 == 0:  %}
-        class="gradient"
-        {% else %}
+        {% if day["chosen_color"]|int == 1 :  %}
         class="degradient"
+        {% elif 19 > day["chosen_color"]|int > 1 :  %}
+        class="gradient"
+        {% elif 37 > day["chosen_color"]|int > 18 : %}
+        class="gradient nami"
+        {% else %}
+        class="degradient maze"
         {% endif %}
         bgcolor="{{ day["color"] }}"
         data-toggle="tooltip"
