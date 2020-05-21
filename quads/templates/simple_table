@@ -1,3 +1,5 @@
+
+
 <html>
 <head>
 <style>
@@ -11,6 +13,12 @@
   box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
   -webkit-box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
   -moz-box-shadow: -4px -4px 4px 1px rgba(255, 255, 255, 0.5) inset;
+}
+.basket {
+    background-image: url("static/basketball.png");
+}
+.metal {
+    background-image: url("static/gun-metal.png");
 }
 </style>
 {% if gentime %}
@@ -37,10 +45,14 @@
     <td>{{ line["hostname"] }}</td>
     {% for day in line["days"] %}
         <td
-        {% if day["chosen_color"]|int % 2 == 0:  %}
-        class="gradient"
-        {% else %}
+        {% if day["chosen_color"]|int == 1 :  %}
         class="degradient"
+        {% elif 19 > day["chosen_color"]|int > 1 :  %}
+        class="gradient"
+        {% elif 37 > day["chosen_color"]|int > 18 : %}
+        class="gradient basket"
+        {% else %}
+        class="gradient metal"
         {% endif %}
         bgcolor="{{ day["color"] }}"
         data-toggle="tooltip"
