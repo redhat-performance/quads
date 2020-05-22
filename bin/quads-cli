@@ -567,10 +567,14 @@ def main(_args):
             exit(1)
 
         if not _args.check:
+            end_date = None
             for schedule in schedules:
                 end_date = schedule.end + timedelta(weeks=int(weeks))
                 schedule.update(end=end_date)
-            logger.info("The cloud has now been extended for %s weeks" % str(weeks))
+            logger.info(
+                "Cloud %s has now been extended for %s week[s] until %s"
+                % (cloud.name, str(weeks), str(end_date)[:16])
+            )
         else:
             logger.info("The cloud can be extended for %s weeks" % str(weeks))
         exit(0)
