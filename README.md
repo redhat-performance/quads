@@ -595,6 +595,23 @@ quads-cli --cloud-only cloud03
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
 In this example we'll be extending the assignment end date for cloud03
 
+In QUADS version `1.1.4` or higher or the current `master` branch you can extend a cloud environment with a simple command.
+
+```
+quads-cli --extend-cloud cloud02 --weeks 2 --check
+```
+
+This will check whether or not the environment can be extended without conflicts.
+
+To go ahead and extend it remove the `--check`
+
+```
+quads-cli --extend-cloud cloud02 --weeks 2
+```
+
+For older versions of QUADS you'll want to do this via the `--mod-schedule` command as documented below.
+
+
    - First, get the updated list of current assignments
 
 ```
@@ -673,6 +690,10 @@ for h in $(quads-cli --cloud-only cloud03) ; do quads-cli --host $h --mod-schedu
 ```
 
 ### Extending the __Schedule__ of Existing Cloud with Differing Active Schedules
+
+**NOTE** You should use the `quads-cli --extend-cloud` commands for QUADS versions `1.1.4` or current `master` branch.
+
+For older versions of QUADS you can follow the below set of commands for more complicated extensions below.
 
 When in heavy usage some machines primary, active schedule may differ from one another, e.g. 0 versus 1, versus 2, etc.  Because schedules operate on a per-host basis sometimes the same schedule used within a cloud may differ in schedule number.  Here's how you modify them across the board for the current active schedule if the ID differs.
 
