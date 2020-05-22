@@ -76,7 +76,7 @@ mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
-tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/templates/static/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
@@ -93,6 +93,7 @@ rm -rf %{buildroot}
 /opt/quads/quads/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/templates/*
+/opt/quads/quads/templates/static/*
 /opt/quads/conf/logrotate_quads.conf
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
