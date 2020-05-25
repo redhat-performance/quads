@@ -130,7 +130,7 @@ class Validator(object):
                         loop.run_until_complete(badfish.set_next_boot_pxe())
                         loop.run_until_complete(badfish.reboot_server())
                     except BadfishException:
-                        logger.info(f"Could not run reboot for: {host.name}")
+                        logger.info(f"Could not run reboot for: {host}")
                     self.report = self.report + "%s\n" % host
                 return False
 

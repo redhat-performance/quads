@@ -20,7 +20,9 @@ RETRIES = 15
 logger = logging.getLogger(__name__)
 
 
-async def badfish_factory(_host, _username, _password, loop=None, _retries=RETRIES, propagate=False):
+async def badfish_factory(
+    _host, _username, _password, loop=None, _retries=RETRIES, propagate=False
+):
     logger.propagate = propagate
     badfish = Badfish(_host, _username, _password, loop, _retries=RETRIES)
     await badfish.init()
@@ -54,18 +56,22 @@ class Badfish:
         await self.validate_credentials()
         self.system_resource = await self.find_systems_resource()
         self.manager_resource = await self.find_managers_resource()
-        self.bios_uri = "%s/Bios/Settings" % self.system_resource[len(self.redfish_uri):]
+        self.bios_uri = (
+            "%s/Bios/Settings" % self.system_resource[len(self.redfish_uri) :]
+        )
 
     @staticmethod
     def progress_bar(value, end_value, state, bar_length=20):
         percent = float(value) / end_value
-        arrow = '-' * int(round(percent * bar_length) - 1) + '>'
-        spaces = ' ' * (bar_length - len(arrow))
+        arrow = "-" * int(round(percent * bar_length) - 1) + ">"
+        spaces = " " * (bar_length - len(arrow))
 
         if state.lower() == "on":
             state = "On  "
         sys.stdout.write(
-            "\r  Polling: [{0}] {1}% - Host state: {2}\n".format(arrow + spaces, int(round(percent * 100)), state)
+            "\r  Polling: [{0}] {1}% - Host state: {2}\n".format(
+                arrow + spaces, int(round(percent * 100)), state
+            )
         )
         sys.stdout.flush()
 
@@ -87,11 +93,12 @@ class Badfish:
     async def get_request(self, uri, _continue=False):
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.get(
-                        uri, auth=BasicAuth(self.username, self.password), verify_ssl=False, timeout=60
+                        uri,
+                        auth=BasicAuth(self.username, self.password),
+                        verify_ssl=False,
+                        timeout=60,
                     ) as _response:
                         await _response.text("utf-8", "ignore")
         except (Exception, TimeoutError) as ex:
@@ -106,9 +113,7 @@ class Badfish:
     async def post_request(self, uri, payload, headers):
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.post(
                         uri,
                         data=json.dumps(payload),
@@ -128,9 +133,7 @@ class Badfish:
     async def patch_request(self, uri, payload, headers, _continue=False):
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.patch(
                         uri,
                         data=json.dumps(payload),
@@ -151,9 +154,7 @@ class Badfish:
     async def delete_request(self, uri, headers):
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.delete(
                         uri,
                         headers=headers,
@@ -186,7 +187,7 @@ class Badfish:
             raise BadfishException
 
         try:
-            bios_boot_mode = data[u"Attributes"]["BootMode"]
+            bios_boot_mode = data["Attributes"]["BootMode"]
             return bios_boot_mode
         except KeyError:
             logger.warning("Could not retrieve Bios Attributes. Assuming Bios.")
@@ -200,7 +201,7 @@ class Badfish:
         raw = await _response.text("utf-8", "ignore")
         data = json.loads(raw.strip())
         if "Attributes" in data:
-            return data[u"Attributes"][_boot_seq]
+            return data["Attributes"][_boot_seq]
         else:
             logger.debug(data)
             logger.error("Boot order modification is not supported by this host.")
@@ -213,7 +214,7 @@ class Badfish:
 
         data = await _response.text("utf-8", "ignore")
         job_queue = re.findall("[JR]ID_.+?'", data)
-        jobs = [job.strip("}").strip("\"").strip("'") for job in job_queue]
+        jobs = [job.strip("}").strip('"').strip("'") for job in job_queue]
         return jobs
 
     async def get_job_status(self, _job_id):
@@ -230,17 +231,22 @@ class Badfish:
                 logger.info(f"Command passed to check job status {_job_id}")
                 time.sleep(10)
             else:
-                logger.error(f"Command failed to check job status {_job_id}, return code is %s." % status_code)
+                logger.error(
+                    f"Command failed to check job status {_job_id}, return code is %s."
+                    % status_code
+                )
 
                 await self.error_handler(_response)
 
             raw = await _response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
-            if data[u"Message"] == "Task successfully scheduled.":
+            if data["Message"] == "Task successfully scheduled.":
                 logger.info("Job id %s successfully scheduled." % _job_id)
                 return
             else:
-                logger.warning("JobStatus not scheduled, current status is: %s." % data[u"Message"])
+                logger.warning(
+                    "JobStatus not scheduled, current status is: %s." % data["Message"]
+                )
 
         logger.error("Not able to successfully schedule the job.")
         raise BadfishException
@@ -253,7 +259,7 @@ class Badfish:
         if _response:
             raw = await _response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
-            if 'Actions' not in data:
+            if "Actions" not in data:
                 logger.warning("Actions resource not found")
             else:
                 manager_reset = data["Actions"].get("#Manager.Reset")
@@ -283,9 +289,13 @@ class Badfish:
             interfaces = {}
             for _host in ["foreman", "director"]:
                 match = True
-                interfaces[_host] = definitions["%s_%s_interfaces" % (_host, host_model)].split(",")
-                for device in sorted(boot_devices[: len(interfaces)], key=lambda x: x[u"Index"]):
-                    if device[u"Name"] == interfaces[_host][device[u"Index"]]:
+                interfaces[_host] = definitions[
+                    "%s_%s_interfaces" % (_host, host_model)
+                ].split(",")
+                for device in sorted(
+                    boot_devices[: len(interfaces)], key=lambda x: x["Index"]
+                ):
+                    if device["Name"] == interfaces[_host][device["Index"]]:
                         continue
                     else:
                         match = False
@@ -296,10 +306,18 @@ class Badfish:
         return None
 
     async def validate_credentials(self):
-        response = await self.get_request(self.root_uri)
+        response = await self.get_request(self.root_uri + "/Systems")
 
         if response.status == 401:
-            logger.error(f"Failed to authenticate. Verify your credentials for {self.host}")
+            logger.error(
+                f"Failed to authenticate. Verify your credentials for {self.host}"
+            )
+            raise BadfishException
+
+        if response.status not in [200, 201]:
+            logger.error(
+                f"Failed to communicate with {self.host}"
+            )
             raise BadfishException
 
     async def find_systems_resource(self):
@@ -308,7 +326,7 @@ class Badfish:
         if response:
             raw = await response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
-            if 'Systems' not in data:
+            if "Systems" not in data:
                 logger.error("Systems resource not found")
                 raise BadfishException
             else:
@@ -317,13 +335,15 @@ class Badfish:
                 if _response:
                     raw = await _response.text("utf-8", "ignore")
                     data = json.loads(raw.strip())
-                    if data.get(u'Members'):
-                        for member in data[u'Members']:
-                            systems_service = member[u'@odata.id']
+                    if data.get("Members"):
+                        for member in data["Members"]:
+                            systems_service = member["@odata.id"]
                             logger.info("Systems service: %s." % systems_service)
                             return systems_service
                     else:
-                        logger.error("ComputerSystem's Members array is either empty or missing")
+                        logger.error(
+                            "ComputerSystem's Members array is either empty or missing"
+                        )
                         raise BadfishException
 
     async def find_managers_resource(self):
@@ -331,7 +351,7 @@ class Badfish:
         if response:
             raw = await response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
-            if 'Managers' not in data:
+            if "Managers" not in data:
                 logger.error("Managers resource not found")
                 raise BadfishException
             else:
@@ -340,17 +360,19 @@ class Badfish:
                 if response:
                     raw = await response.text("utf-8", "ignore")
                     data = json.loads(raw.strip())
-                    if data.get(u'Members'):
-                        for member in data[u'Members']:
-                            managers_service = member[u'@odata.id']
+                    if data.get("Members"):
+                        for member in data["Members"]:
+                            managers_service = member["@odata.id"]
                             logger.info("Managers service: %s." % managers_service)
                             return managers_service
                     else:
-                        logger.error("Manager's Members array is either empty or missing")
+                        logger.error(
+                            "Manager's Members array is either empty or missing"
+                        )
                         raise BadfishException
 
     async def get_power_state(self):
-        _uri = '%s%s' % (self.host_uri, self.system_resource)
+        _uri = "%s%s" % (self.host_uri, self.system_resource)
         logger.debug("url: %s" % _uri)
 
         _response = await self.get_request(_uri, _continue=True)
@@ -363,9 +385,9 @@ class Badfish:
         else:
             logger.debug("Couldn't get power state. Retrying.")
             return "Down"
-        logger.debug("Current server power state is: %s." % data[u'PowerState'])
+        logger.debug("Current server power state is: %s." % data["PowerState"])
 
-        return data[u'PowerState']
+        return data["PowerState"]
 
     async def change_boot(self, host_type, interfaces_path, pxe=False):
         if host_type.lower() not in ("foreman", "director"):
@@ -400,7 +422,9 @@ class Badfish:
                 await self.reboot_server()
 
             else:
-                logger.error("Couldn't communicate with host after %s attempts." % self.retries)
+                logger.error(
+                    "Couldn't communicate with host after %s attempts." % self.retries
+                )
                 raise BadfishException
         else:
             logger.warning(
@@ -421,20 +445,25 @@ class Badfish:
         b_pattern = re.compile("b0[0-9]")
         if b_pattern.match(host_blade):
             host_model = "%s_%s" % (host_model, host_blade)
-        interfaces = definitions["%s_%s_interfaces" % (_host_type, host_model)].split(",")
+        interfaces = definitions["%s_%s_interfaces" % (_host_type, host_model)].split(
+            ","
+        )
 
         boot_devices = await self.get_boot_devices()
         devices = [device["Name"] for device in boot_devices]
         valid_devices = [device for device in interfaces if device in devices]
         if len(valid_devices) < len(interfaces):
             diff = [device for device in interfaces if device not in valid_devices]
-            logger.warning("Some interfaces are not valid boot devices. Ignoring: %s" % ", ".join(diff))
+            logger.warning(
+                "Some interfaces are not valid boot devices. Ignoring: %s"
+                % ", ".join(diff)
+            )
         change = False
         for i in range(len(valid_devices)):
             for device in boot_devices:
-                if interfaces[i] == device[u"Name"]:
-                    if device[u"Index"] != i:
-                        device[u"Index"] = i
+                if interfaces[i] == device["Name"]:
+                    if device["Index"] != i:
+                        device["Index"] = i
                         change = True
                     break
 
@@ -442,7 +471,9 @@ class Badfish:
             await self.patch_boot_seq(boot_devices)
 
         else:
-            logger.warning("No changes were made since the boot order already matches the requested.")
+            logger.warning(
+                "No changes were made since the boot order already matches the requested."
+            )
 
     async def patch_boot_seq(self, boot_devices):
         _boot_seq = await self.get_boot_seq()
@@ -478,7 +509,10 @@ class Badfish:
         time.sleep(5)
 
         if _response.status == 200:
-            logger.info('PATCH command passed to set next boot onetime boot device to: "%s".' % "Pxe")
+            logger.info(
+                'PATCH command passed to set next boot onetime boot device to: "%s".'
+                % "Pxe"
+            )
         else:
             logger.error("Command failed, error code is %s." % _response.status)
 
@@ -494,14 +528,19 @@ class Badfish:
         return True
 
     async def delete_job_queue_dell(self):
-        _url = "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue" % self.root_uri
+        _url = (
+            "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue"
+            % self.root_uri
+        )
         _payload = {"JobID": "JID_CLEARALL"}
-        _headers = {'content-type': 'application/json'}
+        _headers = {"content-type": "application/json"}
         response = await self.post_request(_url, _payload, _headers)
         if response.status == 200:
             logger.info("Job queue for iDRAC %s successfully cleared." % self.host)
         else:
-            logger.error("Job queue not cleared, there was something wrong with your request.")
+            logger.error(
+                "Job queue not cleared, there was something wrong with your request."
+            )
             raise BadfishException
 
     async def delete_job_queue_force(self):
@@ -527,7 +566,10 @@ class Badfish:
         if not job_queue:
             logger.info("Job queue for iDRAC %s successfully cleared." % self.host)
         else:
-            logger.error("Job queue not cleared, current job queue contains jobs: %s." % job_queue)
+            logger.error(
+                "Job queue not cleared, current job queue contains jobs: %s."
+                % job_queue
+            )
             raise BadfishException
 
     async def clear_job_queue(self):
@@ -544,7 +586,8 @@ class Badfish:
                     await self.clear_job_list(_job_queue)
         else:
             logger.warning(
-                "Job queue already cleared for iDRAC %s, DELETE command will not execute." % self.host
+                "Job queue already cleared for iDRAC %s, DELETE command will not execute."
+                % self.host
             )
 
     async def create_job(self, _url, _payload, _headers, expected=200):
@@ -555,13 +598,16 @@ class Badfish:
         if status_code == expected:
             logger.info("POST command passed to create target config job.")
         else:
-            logger.error("POST command failed to create BIOS config job, status code is %s." % status_code)
+            logger.error(
+                "POST command failed to create BIOS config job, status code is %s."
+                % status_code
+            )
 
             await self.error_handler(_response)
 
         convert_to_string = str(_response.__dict__)
         job_id_search = re.search("[RJ]ID_.+?,", convert_to_string).group()
-        _job_id = re.sub("[,']", "", job_id_search).strip("}").strip("\"").strip("'")
+        _job_id = re.sub("[,']", "", job_id_search).strip("}").strip('"').strip("'")
         logger.info("%s job ID successfully created." % _job_id)
         return _job_id
 
@@ -573,7 +619,10 @@ class Badfish:
         return _job
 
     async def send_reset(self, reset_type):
-        _url = "%s%s/Actions/ComputerSystem.Reset" % (self.host_uri, self.system_resource)
+        _url = "%s%s/Actions/ComputerSystem.Reset" % (
+            self.host_uri,
+            self.system_resource,
+        )
         _payload = {"ResetType": reset_type}
         _headers = {"content-type": "application/json"}
         _response = await self.post_request(_url, _payload, _headers)
@@ -581,16 +630,19 @@ class Badfish:
         status_code = _response.status
         if status_code in [200, 204]:
             logger.info(
-                "Command passed to %s server, code return is %s." % (reset_type, status_code)
+                "Command passed to %s server, code return is %s."
+                % (reset_type, status_code)
             )
             time.sleep(10)
         elif status_code == 409:
             logger.warning(
-                "Command failed to %s server, host appears to be already in that state." % reset_type
+                "Command failed to %s server, host appears to be already in that state."
+                % reset_type
             )
         else:
             logger.error(
-                "Command failed to %s server, status code is: %s." % (reset_type, status_code)
+                "Command failed to %s server, status code is: %s."
+                % (reset_type, status_code)
             )
 
             await self.error_handler(_response)
@@ -631,7 +683,7 @@ class Badfish:
                     reset_type = rt
         _url = "%s%s/Actions/Manager.Reset/" % (self.host_uri, self.manager_resource)
         _payload = {"ResetType": reset_type}
-        _headers = {'content-type': 'application/json'}
+        _headers = {"content-type": "application/json"}
         logger.debug("url: %s" % _url)
         logger.debug("payload: %s" % _payload)
         logger.debug("headers: %s" % _headers)
@@ -639,10 +691,14 @@ class Badfish:
 
         status_code = _response.status
         if status_code == 204:
-            logger.info("Status code %s returned for POST command to reset iDRAC." % status_code)
+            logger.info(
+                "Status code %s returned for POST command to reset iDRAC." % status_code
+            )
         else:
             data = await _response.text("utf-8", "ignore")
-            logger.error("Status code %s returned, error is: \n%s." % (status_code, data))
+            logger.error(
+                "Status code %s returned, error is: \n%s." % (status_code, data)
+            )
             raise BadfishException
         time.sleep(15)
 
@@ -677,7 +733,12 @@ class Badfish:
 
     async def send_one_time_boot(self, device):
         _url = "%s%s" % (self.root_uri, self.bios_uri)
-        _payload = {"Attributes": {"OneTimeBootMode": "OneTimeBootSeq", "OneTimeBootSeqDev": device}}
+        _payload = {
+            "Attributes": {
+                "OneTimeBootMode": "OneTimeBootSeq",
+                "OneTimeBootSeqDev": device,
+            }
+        }
         _headers = {"content-type": "application/json"}
         _first_reset = False
         for i in range(self.retries):
@@ -712,14 +773,14 @@ class Badfish:
 
                 logger.warning("Current boot order does not match any of the given.")
                 logger.info("Current boot order:")
-                for device in sorted(boot_devices, key=lambda x: x[u"Index"]):
-                    logger.info("%s: %s" % (int(device[u"Index"]) + 1, device[u"Name"]))
+                for device in sorted(boot_devices, key=lambda x: x["Index"]):
+                    logger.info("%s: %s" % (int(device["Index"]) + 1, device["Name"]))
 
         else:
             boot_devices = await self.get_boot_devices()
             logger.info("Current boot order:")
-            for device in sorted(boot_devices, key=lambda x: x[u"Index"]):
-                logger.info("%s: %s" % (int(device[u"Index"]) + 1, device[u"Name"]))
+            for device in sorted(boot_devices, key=lambda x: x["Index"]):
+                logger.info("%s: %s" % (int(device["Index"]) + 1, device["Name"]))
         return True
 
     async def check_device(self, device):
@@ -730,7 +791,10 @@ class Badfish:
         if device.lower() in boot_devices:
             return True
         else:
-            logger.error("Device %s does not match any of the existing for host %s" % (device, self.host))
+            logger.error(
+                "Device %s does not match any of the existing for host %s"
+                % (device, self.host)
+            )
             return False
 
     async def polling_host_state(self, state, equals=True):
@@ -754,7 +818,7 @@ class Badfish:
     async def get_firmware_inventory(self):
         logger.debug("Getting firmware inventory for all devices supported by iDRAC.")
 
-        _url = '%s/UpdateService/FirmwareInventory/' % self.root_uri
+        _url = "%s/UpdateService/FirmwareInventory/" % self.root_uri
         _response = await self.get_request(_url)
 
         try:
@@ -768,15 +832,15 @@ class Badfish:
             logger.debug(data["error"])
             logger.error("Not able to access Firmware inventory.")
             raise BadfishException
-        for device in data[u'Members']:
-            a = device[u'@odata.id']
+        for device in data["Members"]:
+            a = device["@odata.id"]
             a = a.replace("/redfish/v1/UpdateService/FirmwareInventory/", "")
             if "Installed" in a:
                 installed_devices.append(a)
 
         for device in installed_devices:
             logger.debug("Getting device info for %s" % device)
-            _uri = '%s/UpdateService/FirmwareInventory/%s' % (self.root_uri, device)
+            _uri = "%s/UpdateService/FirmwareInventory/%s" % (self.root_uri, device)
 
             _response = await self.get_request(_uri, _continue=True)
             if not _response:
@@ -791,14 +855,19 @@ class Badfish:
             logger.info("*" * 48)
 
     async def export_configuration(self):
-        _url = '%s%s/Actions/' \
-               'Oem/EID_674_Manager.ExportSystemConfiguration' % (self.host_uri, self.manager_resource)
-        _payload = {"ExportFormat": "XML", "ShareParameters": {"Target": "ALL"},
-                    "IncludeInExport": "IncludeReadOnly,IncludePasswordHashValues"}
-        _headers = {'content-type': 'application/json'}
+        _url = "%s%s/Actions/" "Oem/EID_674_Manager.ExportSystemConfiguration" % (
+            self.host_uri,
+            self.manager_resource,
+        )
+        _payload = {
+            "ExportFormat": "XML",
+            "ShareParameters": {"Target": "ALL"},
+            "IncludeInExport": "IncludeReadOnly,IncludePasswordHashValues",
+        }
+        _headers = {"content-type": "application/json"}
         job_id = await self.create_job(_url, _payload, _headers, 202)
 
-        _uri = '%s/TaskService/Tasks/%s' % (self.root_uri, job_id)
+        _uri = "%s/TaskService/Tasks/%s" % (self.root_uri, job_id)
 
         for _ in range(self.retries):
 
@@ -814,7 +883,12 @@ class Badfish:
 
                 with open(filename, "w") as _file:
                     _content = data["_content"]
-                    _file.writelines(["%s\n" % line.decode("utf-8") for line in _content.split(b"\n")])
+                    _file.writelines(
+                        [
+                            "%s\n" % line.decode("utf-8")
+                            for line in _content.split(b"\n")
+                        ]
+                    )
 
                 logger.info("Exported attributes saved in file: %s" % filename)
 
@@ -827,11 +901,18 @@ class Badfish:
             data = json.loads(raw.strip())
 
             if status_code == 202 or status_code == 200:
-                logger.info("JobStatus not completed, current status: \"%s\", percent complete: \"%s\"" % (
-                    data[u'Oem'][u'Dell'][u'Message'], data[u'Oem'][u'Dell'][u'PercentComplete']))
+                logger.info(
+                    'JobStatus not completed, current status: "%s", percent complete: "%s"'
+                    % (
+                        data["Oem"]["Dell"]["Message"],
+                        data["Oem"]["Dell"]["PercentComplete"],
+                    )
+                )
                 time.sleep(1)
             else:
-                logger.error("Execute job ID command failed, error code is: %s" % status_code)
+                logger.error(
+                    "Execute job ID command failed, error code is: %s" % status_code
+                )
                 raise BadfishException
 
         logger.error("Could not export settings after %s attempts." % self.retries)
@@ -851,5 +932,7 @@ class Badfish:
             b_pattern = re.compile("b0[0-9]")
             if b_pattern.match(host_blade):
                 host_model = "%s_%s" % (host_model, host_blade)
-            return definitions["%s_%s_interfaces" % (host_type, host_model)].split(",")[0]
+            return definitions["%s_%s_interfaces" % (host_type, host_model)].split(",")[
+                0
+            ]
         return None
