@@ -764,7 +764,7 @@ def main(_args):
                 _args.datearg, "%Y-%m-%d %H:%M"
             ).isoformat()
         try:
-            summary = quads.get_summary()
+            summary = quads.get_summary(**_kwargs)
         except ConnectionError:
             logger.error(
                 "Could not connect to the quads-server, verify service is up and running."
