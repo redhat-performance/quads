@@ -44,8 +44,6 @@ def print_summary():
         _headers.append("**OCPINV**")
     if conf["gather_ansible_facts"]:
         _headers.append("**HWFACTS**")
-    if conf["gather_dell_configs"]:
-        _headers.append("**DELLCFG**")
 
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
@@ -146,30 +144,6 @@ def print_summary():
                         % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
                     )
 
-        if conf["gather_dell_configs"]:
-            dellstyle_tag_end = "</span>"
-            dell_config_path = os.path.join(
-                conf["json_web_path"],
-                "%s-%s-%s-dellconfig.html" % (cloud_name, owner, ticket)
-            )
-            if os.path.exists(dell_config_path):
-                dellstyle_tag_start = '<span style="color:green">'
-                dellconfig_link = os.path.join(
-                    conf["quads_url"], "cloud", "%s-%s-%s-dellconfig.html" % (cloud_name, owner, ticket)
-                )
-                dellconfig_text = "view"
-            else:
-                dellstyle_tag_start = '<span style="color:red">'
-                dellconfig_link = os.path.join(conf["quads_url"], "underconstruction")
-                dellconfig_text = "unavailable"
-
-            if cloud_name == "cloud01":
-                _data.append("")
-            else:
-                _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (dellconfig_link, dellstyle_tag_start, dellconfig_text, dellstyle_tag_end)
-                )
         _summary.append("| %s |\n" % " | ".join(_data))
 
     _host_response = requests.get(os.path.join(API_URL, "host"))

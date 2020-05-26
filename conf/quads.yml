@@ -20,11 +20,6 @@ quads_base_url: http://127.0.0.1:8080/
 # add your email here to receive copies of notification emails
 report_cc: someuser@example.com, someuser@example.com, someuser@example.com, someuser@example.com
 
-# notification options
-# location for notification stub files
-# these are markers that track notification send status
-report_dir: /opt/quads/data/report
-
 # set to true to receive notifications when:
 # 1) upon cloud definition for a future workload
 # 2) upon passing of validated tests
@@ -83,7 +78,7 @@ foreman_url: http://foreman.example.com/hosts/
 foreman_api_url: https://foreman.example.com/api/v2
 foreman_username: admin
 foreman_password: password
-
+# more foreman settings for your OS, medium, partition table
 foreman_default_os: "RHEL 7"
 foreman_default_ptable: "generic-rhel7"
 foreman_default_medium: "RHEL Local"
@@ -118,14 +113,6 @@ json_retention_days: 0
 # an HTMl page, you need ansible-cmdb rpm for this functionality which can be
 # got from https://github.com/fboender/ansible-cmdb/releases
 gather_ansible_facts: false
-
-# Whether or not you want the QUADS host to gather and display dell configs
-# in an HTML page.  This is done over ssh using racadm commands. This presumes
-# a particular hostname convention that splits your hosts into three elements:
-# e.g. <rack>-<location>-<hosttype>.<yourdomain>, where hosttype is what is
-# checked against several Dell types.  Be careful as this is environment specific
-# and may not work in all environments.  Default is false.
-gather_dell_configs: false
 
 # this is where we place the generated ansible configuration management database
 # html
