@@ -560,7 +560,7 @@ def main(_args):
 
         if non_available:
             logger.info(
-                "The following hosts can not be extended for the current allocation:"
+                "The following hosts cannot be extended for the current allocation:"
             )
             for host in non_available:
                 logger.info(host.name)
@@ -576,7 +576,9 @@ def main(_args):
                 % (cloud.name, str(weeks), str(end_date)[:16])
             )
         else:
-            logger.info("The cloud can be extended for %s weeks" % str(weeks))
+            logger.info(
+                "Cloud %s can be extended for %s weeks until %s"
+                % (cloud.name, str(weeks), str(end_date)[:16]))
         exit(0)
 
     elif _args.movehosts:
