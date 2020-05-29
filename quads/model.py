@@ -158,11 +158,26 @@ class Notification(Document):
     seven_days = BooleanField(default=False)
 
 
+class Disk(EmbeddedDocument):
+    disk_type = StringField()
+    size_gb = LongField()
+    count = IntField()
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ['disk_type', 'size_gb', 'count']
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
 class Interface(EmbeddedDocument):
     name = StringField()
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
+    speed = LongField()
+    maintenance = BooleanField(default=False)
 
     @staticmethod
     def prep_data(data):
@@ -174,6 +189,7 @@ class Interface(EmbeddedDocument):
 
 class Host(Document):
     name = StringField(unique=True)
+    model = StringField()
     default_cloud = ReferenceField(Cloud)
     cloud = ReferenceField(Cloud)
     host_type = StringField()
@@ -182,6 +198,7 @@ class Host(Document):
     build = BooleanField(default=False)
     validated = BooleanField(default=False)
     last_build = DateTimeField()
+    disks = ListField(EmbeddedDocumentField(Disk))
     meta = {
         'indexes': [
             {
@@ -192,7 +209,7 @@ class Host(Document):
     }
 
     @staticmethod
-    def prep_data(data):
+    def prep_data(data, fields=None):
         if 'cloud' in data:
             _cloud_obj = Cloud.objects(name=data['cloud']).first()
             if _cloud_obj:
@@ -207,8 +224,10 @@ class Host(Document):
                     data['cloud'] = _default_cloud_obj
             else:
                 return ['Cloud %s does not exist.' % data['default_cloud']], {}
+        if not fields:
+            fields = ['name', 'host_type']
 
-        result, data = param_check(data, ['name', 'host_type'])
+        result, data = param_check(data, fields)
 
         return result, data
 
