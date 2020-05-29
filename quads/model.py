@@ -158,11 +158,23 @@ class Notification(Document):
     seven_days = BooleanField(default=False)
 
 
+class Disk(EmbeddedDocument):
+    disk_type = StringField()
+    size = LongField()
+
+
+class HostMetadata(EmbeddedDocument):
+    model = StringField()
+    disks = ListField(EmbeddedDocument(Disk))
+
+
 class Interface(EmbeddedDocument):
     name = StringField()
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
+    speed = LongField()
+    maintenance = BooleanField()
 
     @staticmethod
     def prep_data(data):
