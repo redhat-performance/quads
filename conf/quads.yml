@@ -228,3 +228,6 @@ sw_vlan_first: 1100
 # could cause issues unless you are certain what you are doing.
 # In most cases, leave it commented, or set to True
 default_wipe: True
+
+
+models: R620,R630,R930,730XD,6018R,6048R,1029U-TRTP,1029U-TN10RT,1029P,5039MS,6049P
