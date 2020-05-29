@@ -97,6 +97,7 @@ rm -rf %{buildroot}
 /opt/quads/conf/logrotate_quads.conf
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
+%config(noreplace) /opt/quads/conf/hosts_metadata.yml
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
 %config(noreplace) /etc/logrotate.d/logrotate_quads.conf
 
