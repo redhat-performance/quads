@@ -131,8 +131,11 @@ class DocumentMethodHandler(MethodHandlerBase):
             if "end" in data:
                 _end = datetime.datetime.strptime(data["end"], "%Y-%m-%dT%H:%M:%S")
 
+            kwargs = data.copy()
+            kwargs.pop("end")
+            kwargs.pop("start")
             available = []
-            all_hosts = model.Host.objects().all()
+            all_hosts = model.Host.objects(**kwargs).all()
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             foreman = Foreman(
