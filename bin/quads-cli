@@ -21,6 +21,8 @@ from datetime import datetime, timedelta
 import functools
 import logging
 from collections import defaultdict
+
+import yaml
 from requests.exceptions import ConnectionError
 
 import requests
@@ -35,7 +37,7 @@ from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
-from quads.model import Cloud, Schedule, Host, Notification
+from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -236,6 +238,26 @@ def main(_args):
             exit(0)
 
         elif _args.action == "available":
+            data = {}
+            if _args.filter:
+                ops = {
+                    "==": "",
+                    "!=": "__ne",
+                    "<": "__lt",
+                    "<=": "__lte",
+                    ">": "__gt",
+                    ">=": "__gte",
+                }
+                conditions = _args.filter.split(",")
+                query = {}
+                for condition in conditions:
+                    for op, op_suffix in ops.items():
+                        if op in condition:
+                            k, v = condition.split(op)
+                            key = k.split(".")
+                            query["_".join(key) + op_suffix] = v
+                            data.update(query)
+
             if _args.schedstart and _args.schedend is None:
                 _args.schedend = _args.schedstart
 
@@ -248,10 +270,11 @@ def main(_args):
             _start = datetime.strptime(_args.schedstart, "%Y-%m-%d %H:%M").isoformat()
             _end = datetime.strptime(_args.schedend, "%Y-%m-%d %H:%M").isoformat()
 
-            data = {
+            dates = {
                 "start": _start,
                 "end": _end,
             }
+            data.update(dates)
 
             try:
                 available_hosts = quads.get_available(**data)
@@ -388,6 +411,86 @@ def main(_args):
         }
         _response = requests.post(url, data)
         output_json_result(_response, data)
+        exit(0)
+
+    # Host Add / Modify metadata
+    elif _args.host_metadata:
+        if not _args.metadata:
+            logger.error("Missing option --metadata")
+            exit(1)
+        if not os.path.exists(_args.metadata):
+            logger.error("The path for the --metadata yaml is not valid")
+            exit(1)
+        try:
+            with open(_args.metadata) as md:
+                hosts_metadata = yaml.safe_load(md)
+        except IOError as ಠ_ಠ:
+            logger.debug(ಠ_ಠ)
+            logger.error(f"There was something wrong reading from {_args.metadata}")
+            exit(1)
+
+        for host_md in hosts_metadata:
+            ready_defined = []
+            host = Host.objects(name=host_md.get("name")).first()
+            data = {}
+            if host:
+                for key, value in host_md.items():
+                    if key != "name" and host[key]:
+                        ready_defined.append(key)
+                        if not _args.force:
+                            continue
+                    if type(value) == list:
+                        dispatch = {"disks": Disk, "interfaces": Interface}
+                        if host[key]:
+                            param_key = f"unset__{key}"
+                            kwargs = {param_key: 1}
+                            Host.objects(name=host.name).update_one(**kwargs)
+                        for obj in value:
+                            result = True
+                            if dispatch.get(key):
+                                result, data_obj = dispatch[key].prep_data(obj)
+                            else:
+                                logger.error(
+                                    f"Invalid key '{key}' on metadata for {host.name}"
+                                )
+                                exit(1)
+                            if result:
+                                logger.error(
+                                    f"{key.capitalize()} data for {host.name} is invalid"
+                                )
+                                break
+                            new_obj = dispatch[key](**data_obj)
+
+                            param_key = f"push__{key}"
+                            kwargs = {param_key: new_obj}
+                            Host.objects(name=host.name).update_one(**kwargs)
+                    elif key == "default_cloud":
+                        cloud = Cloud.objects(name=value).first()
+                        data[key] = cloud
+                    else:
+                        result, prep_data = host.prep_data(
+                            data={"name": host.name, key: value}, fields=["name", key]
+                        )
+                        if result:
+                            logger.error(
+                                f"{key.capitalize()} data for {host.name} is invalid"
+                            )
+                            continue
+                        data.update(prep_data)
+                if ready_defined:
+                    action = "SKIPPING" if not _args.force else "RECREATING"
+                    logger.warning(f"{host.name} [{action}]: {ready_defined}")
+                if data and len(data.keys()) > 1:
+                    host.update(**data)
+
+            else:
+                logger.error(
+                    "Host not found. Check hostname or if name is defined on the yaml."
+                )
+
+        if not _args.force:
+            logger.warning("For overwriting existing values use the --force.")
+
         exit(0)
 
     # Host Remove
@@ -572,10 +675,7 @@ def main(_args):
             ).first()
             if notification_obj:
                 notification_obj.update(
-                    one_day=False,
-                    three_days=False,
-                    five_days=False,
-                    seven_days=False,
+                    one_day=False, three_days=False, five_days=False, seven_days=False,
                 )
 
             end_date = None
@@ -589,7 +689,8 @@ def main(_args):
         else:
             logger.info(
                 "Cloud %s can be extended for %s weeks until %s"
-                % (cloud.name, str(weeks), str(end_date)[:16]))
+                % (cloud.name, str(weeks), str(end_date)[:16])
+            )
         exit(0)
 
     elif _args.movehosts:
@@ -880,6 +981,12 @@ if __name__ == "__main__":
         help="Define a host resource",
     )
     group.add_argument(
+        "--define-host-details",
+        dest="host_metadata",
+        action="store_true",
+        help="Define a host resource details via yaml",
+    )
+    group.add_argument(
         "--define-cloud",
         dest="cloudresource",
         type=str,
@@ -996,6 +1103,7 @@ if __name__ == "__main__":
         const="report_detailed",
         help="QUADS reporting scheduled assignments",
     )
+
     parser.add_argument(
         "--host", dest="host", type=str, default=None, help="Specify the host to query"
     )
@@ -1190,6 +1298,20 @@ if __name__ == "__main__":
         type=int,
         default=None,
         help="VLAN id number for public routable network",
+    )
+    parser.add_argument(
+        "--metadata",
+        dest="metadata",
+        type=str,
+        default=None,
+        help="Path to yml with hosts metadata",
+    )
+    parser.add_argument(
+        "--filter",
+        dest="filter",
+        type=str,
+        default=None,
+        help="Filter search by host metadata",
     )
     parser.add_argument(
         "--debug",
