@@ -119,12 +119,12 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Setup Foreman/Satellite Validation Templates] | [examples](/templates/README.md) | Templates for internal interface configs |
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | RPM, Docker or Github Source |
-| Install MongoDB | [docs](docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
+| Install MongoDB | [docs](/docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
 | Install Wiki | [docs](#installing-other-quads-components) | For RPM or Github Source only |
 | Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
 | Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
 | Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
-
+| Host Metadata Model and Search | [docs](/docs/quads-host-metadata-search.md) | Host metadata info and filtering |
 
 ## QUADS Workflow
 
