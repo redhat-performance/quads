@@ -81,7 +81,7 @@ def verify(_cloud_name, change=False):
                     if change:
                         logger.info('=== INFO: change requested')
 
-                        if _cloud_obj.vlan and _cloud_obj.vlan != old_vlan and last_nic:
+                        if _cloud_obj.vlan and _cloud_obj.vlan.vlan_id != int(old_vlan) and last_nic:
                             logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
 
                             success = juniper_convert_port_public(
