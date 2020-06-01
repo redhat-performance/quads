@@ -31,10 +31,11 @@ SUPERMICRO = ["1029p", "1029u", "1028r", "6029p", "6018r", "6048r", "5039ms", "6
 OFFSETS = {"em1": 0, "em2": 1, "em3": 2, "em4": 3}
 TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "templates")
 INTERFACES = {
-    "em1": ["172.16", "172.20"],
-    "em2": ["172.17", "172.21"],
-    "em3": ["172.18", "172.22"],
-    "em4": ["172.19", "172.23"],
+    "em1": ["172.16", "172.21"],
+    "em2": ["172.17", "172.22"],
+    "em3": ["172.18", "172.23"],
+    "em4": ["172.19", "172.24"],
+    "em5": ["172.20", "172.25"],
 }
 LOGFMT = "%(asctime)-12s : %(levelname)-8s - %(message)s"
 STDFMT = "- %(levelname)-8s - %(message)s"
