@@ -11,6 +11,7 @@ from paramiko import SSHException
 from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import conf, TEMPLATES_PATH, INTERFACES
+from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
@@ -114,8 +115,7 @@ class Validator(object):
                     "The following hosts are marked for build and will now be rebooted:"
                 )
                 self.report = (
-                    self.report
-                    + "The following hosts are marked for build:\n"
+                    self.report + "The following hosts are marked for build:\n"
                 )
                 for host in pending:
                     logger.info(host)
@@ -127,7 +127,18 @@ class Validator(object):
                                 str(conf["ipmi_password"]),
                             )
                         )
-                        loop.run_until_complete(badfish.set_next_boot_pxe())
+                        if is_supported(host):
+                            loop.run_until_complete(
+                                badfish.boot_to_type(
+                                    "foreman",
+                                    os.path.join(
+                                        os.path.dirname(__file__),
+                                        "../../conf/idrac_interfaces.yml",
+                                    ),
+                                )
+                            )
+                        else:
+                            loop.run_until_complete(badfish.set_next_boot_pxe())
                         loop.run_until_complete(badfish.reboot_server())
                     except BadfishException:
                         logger.info(f"Could not run reboot for: {host}")
