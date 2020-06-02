@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b131c125_e14585c1",
+        "filename": "quads/tools/verify_switchconf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-06-02T12:20:59Z",
+      "side": 1,
+      "message": "offending line",
+      "revId": "4a2a711a4472f50e275fd12fd3e80cae1b2a2d22",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
