@@ -88,25 +88,27 @@ def verify(_cloud_name, change=False):
                         )
 
                     if change:
-                        logger.info("=== INFO: change requested")
 
-                        if (
-                            _cloud_obj.vlan
-                            and int(_cloud_obj.vlan.vlan_id) != int(old_vlan)
-                            and last_nic
-                        ):
-                            logger.info(
-                                "Setting last interface to public vlan %s."
-                                % _cloud_obj.vlan.vlan_id
-                            )
+                        if _cloud_obj.vlan and last_nic:
+                            if int(_cloud_obj.vlan.vlan_id) != int(old_vlan):
 
-                            success = juniper_convert_port_public(
-                                interface.ip_address,
-                                interface.switch_port,
-                                old_vlan,
-                                vlan,
-                            )
+                                logger.info("=== INFO: change requested")
+                                logger.info(
+                                    "Setting last interface to public vlan %s."
+                                    % _cloud_obj.vlan.vlan_id
+                                )
+
+                                success = juniper_convert_port_public(
+                                    interface.ip_address,
+                                    interface.switch_port,
+                                    old_vlan,
+                                    vlan,
+                                )
+                            else:
+                                logger.info("=== INFO: no changes required.")
+                                return
                         else:
+                            logger.info("=== INFO: change requested")
                             success = juniper_set_port(
                                 interface.ip_address,
                                 interface.switch_port,
