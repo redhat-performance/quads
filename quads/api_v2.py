@@ -153,11 +153,16 @@ class DocumentMethodHandler(MethodHandlerBase):
         if self.name == "summary":
             _clouds = model.Cloud.objects().all()
             clouds_summary = []
+            total_count = 0
             for cloud in _clouds:
                 if cloud.name == "cloud01":
                     count = model.Host.objects(cloud=cloud).count()
                 else:
-                    count = self.model.current_schedule(cloud=cloud).count()
+                    date = datetime.datetime.now()
+                    if "date" in data:
+                        date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
+                    count = self.model.current_schedule(cloud=cloud, date=date).count()
+                    total_count += count
                 clouds_summary.append(
                     {
                         "name": cloud.name,
@@ -170,6 +175,11 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "validated": cloud.validated,
                     }
                 )
+            if "date" in data:
+                host_count = model.Host.objects().count()
+                for cloud in clouds_summary:
+                    if cloud["name"] == "cloud01":
+                        cloud["count"] = host_count - total_count
 
             return json.dumps(clouds_summary)
 
