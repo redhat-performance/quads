@@ -35,7 +35,7 @@ from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
-from quads.model import Cloud, Schedule, Host
+from quads.model import Cloud, Schedule, Host, Notification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -567,6 +567,17 @@ def main(_args):
             exit(1)
 
         if not _args.check:
+            notification_obj = Notification.objects(
+                cloud=cloud, ticket=cloud.ticket
+            ).first()
+            if notification_obj:
+                notification_obj.update(
+                    one_day=False,
+                    three_days=False,
+                    five_days=False,
+                    seven_days=False,
+                )
+
             end_date = None
             for schedule in schedules:
                 end_date = schedule.end + timedelta(weeks=int(weeks))
