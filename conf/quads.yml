@@ -70,6 +70,10 @@ quads_url: http://quads.scalelab.example.com
 # e.g. http://scalelab.example.com
 quads_request_url:
 
+# Deadline day you'd like extension requests for assignments
+# to be submitted prior to, e.g. Wednesday
+quads_request_deadline_day:
+
 # Foreman Specific Variables
 # foreman URL
 # set to true of foreman unavailable (useful for testing)

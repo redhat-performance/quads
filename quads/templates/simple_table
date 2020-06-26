@@ -63,7 +63,7 @@
         "Description: {{ day["display_description"] }}
 Env: cloud{{ day["chosen_color"] }}
 Owner: {{ day["display_owner"] }}
-RT: {{ day["display_ticket"] }}
+Ticket: {{ day["display_ticket"] }}
 Day: {{ day["day"] }}"></td>
     {% endfor %}
     </tr>
