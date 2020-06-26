@@ -25,6 +25,10 @@ the form below with your cloud number in the subject line.
 {{ quads_request_url }}
 {% endif %}
 
+{% if quads_request_deadline_day %}
+Please submit extensions prior to {{ quads_request_deadline_day }}
+of your expiration date.
+
 Docs:
 
 {{ wp_wiki }}/faq/
