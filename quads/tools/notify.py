@@ -89,6 +89,7 @@ def create_message(
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
         quads_request_url=quads_request_url,
+        quads_request_deadline_day=conf["quads_request_deadline_day"],
         cloud=cloud,
         hosts=host_list_expire,
     )
