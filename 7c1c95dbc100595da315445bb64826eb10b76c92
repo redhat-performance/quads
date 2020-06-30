@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ff6b0e0_ae83ca04",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-06-30T13:37:07Z",
+      "side": 1,
+      "message": "quads_request_deadline_day\u003dconf[\"quads_request_deadline_day\"],",
+      "revId": "7c1c95dbc100595da315445bb64826eb10b76c92",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
