@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6072cb95_31102ef2",
+        "filename": "quads/templates/message",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-06-30T13:12:18Z",
+      "side": 1,
+      "message": "you need to pass this variable to the rendering here:\nhttps://github.com/redhat-performance/quads/blob/master/quads/tools/notify.py#L87",
+      "revId": "7dce3e9f651b4d5f9bc837588f19df5a298b7a41",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
