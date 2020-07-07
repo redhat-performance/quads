@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c14387b_d78872ee",
+        "filename": "conf/hosts.yml",
+        "patchSetId": 10
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-07-07T13:54:24Z",
+      "side": 1,
+      "message": "Let\u0027s fold this into a YAML key/value pair data source like conf/quads.yml - this way users can define/expand their vendor -\u003e model hierarchy,  we won\u0027t wipe this via RPM upgrades and we can probably get rid of IS_SUPPORTED in config.py as well to list supported badfish types of hosts.",
+      "range": {
+        "startLine": 4,
+        "startChar": 2,
+        "endLine": 5,
+        "endChar": 19
+      },
+      "revId": "3f061e4247b554187da4e66303fed368f6389dca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b69d223d_a6819e4b",
+        "filename": "conf/hosts.yml",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-07-07T13:54:24Z",
+      "side": 1,
+      "message": "generic identifier would be ok here.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 8
+      },
+      "revId": "3f061e4247b554187da4e66303fed368f6389dca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
