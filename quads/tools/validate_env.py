@@ -119,6 +119,7 @@ class Validator(object):
                 )
                 for host in pending:
                     logger.info(host)
+                    badfish = None
                     try:
                         badfish = loop.run_until_complete(
                             badfish_factory(
@@ -140,8 +141,14 @@ class Validator(object):
                         else:
                             loop.run_until_complete(badfish.set_next_boot_pxe())
                         loop.run_until_complete(badfish.reboot_server())
-                    except BadfishException:
-                        logger.info(f"Could not run reboot for: {host}")
+                    except BadfishException as ಥ﹏ಥ:
+                        logger.debug(ಥ﹏ಥ)
+                        if badfish:
+                            logger.warning(f"There was something wrong trying to boot from Foreman interface for: {host}")
+                            loop.run_until_complete(badfish.reboot_server())
+                        else:
+                            logger.error(f"Could not initiate Badfish instance for: {host}")
+
                     self.report = self.report + "%s\n" % host
                 return False
 
