@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 def main():
     loop = asyncio.get_event_loop()
 
-    foreman = Foreman(
+    foreman_admin = Foreman(
         conf["foreman_api_url"],
         conf["foreman_username"],
         conf["foreman_password"],
@@ -32,42 +32,63 @@ def main():
     for cloud in clouds:
         if cloud.name not in ignore:
             logger.info(f"Processing {cloud.name}")
-            user_id = loop.run_until_complete(foreman.get_user_id(cloud.name))
-            roles = loop.run_until_complete(foreman.get_user_roles(user_id))
+
+            foreman_cloud_user = Foreman(
+                conf["foreman_api_url"],
+                conf["foreman_username"],
+                conf["foreman_password"],
+                loop=loop,
+            )
+
+            user_id = loop.run_until_complete(foreman_admin.get_user_id(cloud.name))
+            admin_id = loop.run_until_complete(
+                foreman_admin.get_user_id(conf["foreman_username"])
+            )
+            cloud_hosts = loop.run_until_complete(foreman_cloud_user.get_all_hosts())
+
             current_schedule = Schedule.current_schedule(cloud=cloud)
             if current_schedule:
                 infra_pass = f"{conf['infra_location']}@{cloud.ticket}"
-                loop.run_until_complete(foreman.update_user_password(cloud.name, infra_pass))
-                logger.info(f"  Current Roles:")
-                for role in roles:
-                    logger.info(f"    {role}")
+                loop.run_until_complete(
+                    foreman_admin.update_user_password(cloud.name, infra_pass)
+                )
+                logger.info(f"  Current Host Permissions:")
+                for host, properties in cloud_hosts.items():
+                    logger.info(f"    {host}")
 
-                for role, data in roles.items():
                     match = [
-                        schedule.host.name for schedule in current_schedule
-                        if schedule.host.name == role
+                        schedule.host.name
+                        for schedule in current_schedule
+                        if schedule.host.name == host
                     ]
                     if not match:
-                        loop.run_until_complete(foreman.remove_role(cloud.name, role))
-                        logger.info(f"* Removed role {role}")
+                        loop.run_until_complete(
+                            foreman_admin.set_host_parameter(host, "owner_id", admin_id)
+                        )
+                        logger.info(f"* Removed permission {host}")
 
                 for schedule in current_schedule:
-                    match = [role for role in roles if role == schedule.host.name]
+                    match = [
+                        host
+                        for host, _ in cloud_hosts.items()
+                        if host == schedule.host.name
+                    ]
                     if not match:
                         # want to run these separetely to avoid ServerDisconnect
                         loop.run_until_complete(
-                            foreman.add_role(
-                                schedule.cloud.name,
-                                schedule.host.name
+                            foreman_admin.set_host_parameter(
+                                schedule.host.name, "owner_id", user_id
                             )
                         )
-                        logger.info(f"* Added role {schedule.host.name}")
+                        logger.info(f"* Added permission {schedule.host.name}")
             else:
-                if roles:
+                if cloud_hosts:
                     logger.info("  No active schedule, removing pre-existing roles.")
-                    for role, data in roles.items():
-                        loop.run_until_complete(foreman.remove_role(cloud.name, role))
-                        logger.info(f"* Removed role {role}")
+                    for host, properties in cloud_hosts.items():
+                        loop.run_until_complete(
+                            foreman_admin.set_host_parameter(host, "owner_id", admin_id)
+                        )
+                        logger.info(f"* Removed permission {host}")
                 else:
                     logger.info("  No active schedule nor roles assigned.")
 
