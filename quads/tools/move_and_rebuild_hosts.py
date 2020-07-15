@@ -229,6 +229,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         put_param_result = await foreman.put_parameters_by_name(host, params)
         foreman_results.append(put_param_result)
 
+        owner_id = await foreman.get_user_id(new_cloud)
+        host_id = await foreman.get_host_id(host)
+        put_result = await foreman.put_element("hosts", host_id, "owner_id", owner_id)
+        foreman_results.append(put_result)
+
         for result in foreman_results:
             if isinstance(result, Exception) or not result:
                 logger.error(
