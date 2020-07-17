@@ -225,7 +225,11 @@ hammer filter update --role clouduser_views --permissions edit_params,view_param
 ```
    * Your filters should look something like this when you're done, this can also be done in the Foreman UI as well.
 
+   * `clouduser_views` role filter
+
 ![clouduser_rbac2](../image/cloud_rbac2.png?raw=true)
+
+   * `clouduser_hosts` role filter
 
 ![clouduser_rbac](../image/cloud_rbac.png?raw=true)
 
@@ -238,6 +242,10 @@ hammer user-group create --name cloudusers --roles clouduser_views clouduser_hos
 for clouduser in $(seq 1 9); do hammer user-group add-user --name cloudusers --user cloud0$clouduser; done
 for clouduser in $(seq 10 32); do hammer user-group add-user --name cloudusers --user cloud$clouduser; done
 ```
+
+   * You should see the `cloudusers` group now have the following roles added above:
+
+![clouduser_rbac3](../image/cloud_rbac3.png?raw=true)
 
    * In order for non-admin environment users (e.g. cloud02, cloud03) to see only their hosts the hosts simply need to have their ownership changed to that respective cloud user. [foreman_heal.py](https://github.com/redhat-performance/quads/blob/master/quads/tools/foreman_heal.py) will take care of this for you, we typically run this every 3 hours outside of [cron](https://github.com/redhat-performance/quads/blob/master/cron/quads#L45).  This will both setup system ownership as well as fix inconsistencies if they exist when run.
 
