@@ -22,6 +22,52 @@
       "revId": "60b95504d3c682a6d366ed9f6114fb7d6889e23c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6ac3a6f_496792b4",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 23
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-07-21T16:28:07Z",
+      "side": 1,
+      "message": "integer?",
+      "range": {
+        "startLine": 38,
+        "startChar": 34,
+        "endLine": 38,
+        "endChar": 47
+      },
+      "revId": "60b95504d3c682a6d366ed9f6114fb7d6889e23c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a4a1ac_9949bc90",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 23
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-07-21T16:28:07Z",
+      "side": 1,
+      "message": "disks.size_gb\u003e\u003d2000 based on context",
+      "range": {
+        "startLine": 49,
+        "startChar": 127,
+        "endLine": 49,
+        "endChar": 145
+      },
+      "revId": "60b95504d3c682a6d366ed9f6114fb7d6889e23c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
