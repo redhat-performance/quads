@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c4296de_ba504190",
+        "filename": "README.md",
+        "patchSetId": 23
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-07-21T16:23:21Z",
+      "side": 1,
+      "message": "remove as in line#122",
+      "range": {
+        "startLine": 127,
+        "startChar": 42,
+        "endLine": 127,
+        "endChar": 43
+      },
+      "revId": "60b95504d3c682a6d366ed9f6114fb7d6889e23c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
