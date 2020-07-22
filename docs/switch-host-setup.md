@@ -222,8 +222,9 @@ hammer filter update --role clouduser_views --permissions view_architectures --i
 hammer filter update --role clouduser_views --permissions view_media --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
 hammer filter update --role clouduser_views --permissions view_ptables --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
 hammer filter update --role clouduser_views --permissions edit_params,view_params --id $(hammer filter list | grep clouduser_views | awk '{print $1}')
+hammer filter update --role clouduser_views --permissions view_users --id $(hammer filter list | grep clouduser_views | awk '{print   $1}')
 ```
-   * Your filters should look something like this when you're done, this can also be done in the Foreman UI as well.
+   * Your filters should look something like this when you're done, this can also be done in the Foreman UI as well if you have problems with CLI.
 
    * `clouduser_views` role filter
 
