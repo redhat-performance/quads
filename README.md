@@ -61,6 +61,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Example: Query Multiple Values in MongoDB inside Collections](#example-query-multiple-values-in-mongodb-inside-collections)
          * [Example: Manually moving a Host Cloud in MongoDB](#example-manually-moving-a-host-cloud-in-mongodb)
          * [Example: Toggling Individual Cloud Metadata Settings](#example-toggling-individual-cloud-metadata-settings)
+         * [Example: Modifying cc-users](#example-modifying-cc-users)
       * [Backing up QUADS](#backing-up-quads)
       * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
       * [Troubleshooting Validation Failures](#troubleshooting-validation-failures)
@@ -116,7 +117,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 |------|---------------|---------|
 | General Architecture Overview | [docs](/docs/quads-workflow.md) | Architecture overview |
 | Install and Setup Foreman/Satellite | [docs](https://theforeman.org/manuals/nightly/#3.InstallingForeman) | Not covered here |
-| Setup Foreman/Satellite Validation Templates] | [examples](/templates/README.md) | Templates for internal interface configs |
+| Setup Foreman/Satellite Validation Templates | [examples](/templates/README.md) | Templates for internal interface configs |
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | RPM, Docker or Github Source |
 | Install MongoDB | [docs](docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
@@ -1000,6 +1001,14 @@ If you really need to manually toggle individual cloud metadata settings this is
 
 ```
 db.cloud.update({name:"cloud21"}, {$set:{validated:true}})
+```
+
+### Example: Modifying cc-users
+
+If a future cloud is defined and scheduled with future hosts you will currently not be able to redefine it with `--define-cloud --force` to either append or remove `cc-users`.  To do this in MongoDB you can adjust it like so:
+
+```
+db.cloud.update({name:"cloud07"}, {$set:{ccuser:["bengland", "twilkins", "rsussman", "vumrao"]}})
 ```
 
 ## Backing up QUADS
