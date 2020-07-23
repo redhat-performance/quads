@@ -269,9 +269,13 @@ class Schedule(Document):
         return True
 
     @queryset_manager
-    def future_schedules(self, queryset, host):
+    def future_schedules(self, queryset, host=None, cloud=None):
         now = datetime.datetime.now()
-        _query = Q(host=host) & Q(end__gte=now)
+        _query = Q(end__gte=now)
+        if host:
+            _query = _query & Q(host=host)
+        if cloud:
+            _query = _query & Q(cloud=cloud)
         return queryset.filter(_query)
 
     @queryset_manager

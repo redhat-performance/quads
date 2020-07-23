@@ -269,10 +269,7 @@ def main(_args):
         elif _args.action == "free_cloud":
             _clouds = Cloud.objects(name__ne="cloud01")
             for cloud in _clouds:
-                cloud_count = Schedule.objects(
-                    end__gte=datetime.now(), cloud=cloud
-                ).count()
-                if cloud_count > 0:
+                if Schedule.future_schedules(cloud=cloud).count():
                     continue
                 else:
                     logger.info(cloud.name)
@@ -660,6 +657,19 @@ def main(_args):
                             provisioned = False
 
                 if not _args.dryrun:
+                    _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
+                    old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
+
+                    default_wipe = conf.get("default_wipe", True)
+                    if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
+                        _old_cloud_obj.update(
+                            validated=False,
+                            provisioned=False,
+                            vlan=None,
+                            wipe=default_wipe,
+                            ccuser=[],
+                        )
+
                     done = None
                     loop = asyncio.get_event_loop()
                     loop.set_exception_handler(exception_handler)
@@ -696,19 +706,6 @@ def main(_args):
                         _new_cloud_obj = Cloud.objects(name=_cloud).first()
                         validate = not _new_cloud_obj.wipe
                         _new_cloud_obj.update(provisioned=True, validated=validate)
-
-                    _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
-                    old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
-
-                    default_wipe = conf.get("default_wipe", True)
-                    if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                        _old_cloud_obj.update(
-                            validated=False,
-                            provisioned=False,
-                            vlan=None,
-                            wipe=default_wipe,
-                            ccuser=[],
-                        )
 
             exit(0)
 
