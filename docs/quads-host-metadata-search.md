@@ -16,18 +16,22 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
 ## How to Import Host Metadata
 ### Modify YAML Host Data
   * Host metadata uses a standard YAML key/value pair format, here's a [reference example](../conf/hosts_metadata.yml)
-  * We'll be providing a tool later to automatically interrogate and generate this for you across all or some subset of hosts, in lieu of this you'd want to modify this file to match your baremetal host details you want to capture.
   * Host metadata is not required unless you want to use it, **it is entirely optional**
 
 ### Add any Supporting Model Type
   * We list some example model types of baremetal systems we use, you will also want to edit the `models:` value so it has any additional system models you might use in the [QUADS Conf](../conf/hosts_metadata.yml#L238)
+  * To generate a YAML metadata file for importing QUADS-managed hosts you can use this command:
+
+```
+for h in $(quads --ls-hosts) ; do echo "- name: $h" ; echo "  model: $(echo $h | awk -F. '{ print $1 }' | awk -F- '{ print $NF }' | tr a-z A-Z)" ; done > /tmp/hosts_metadata.yml
+```
 
 ### Importing Host Metadata
 
-  * To import host metadata:
+  * To import host metadata from a file:
 
 ```
-quads-cli --define-host-details --metadata conf/hosts_metadata.yml
+quads-cli --define-host-details --metadata /tmp/hosts_metadata.yml
 ```
 
   * Doing this again or modifying your `hosts_metadata.yml` file and re-importing will overwrite all values or remove ones that might have been removed from the QUADS database.
