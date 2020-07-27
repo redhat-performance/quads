@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.3
+%define version 1.1.4
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -116,6 +116,12 @@ fi;
 :;
 
 %changelog
+
+* Tue Jul 28 2020 Will Foster <wfoster@redhat.com>
+- 1.1.4 release
+- bare-metal host metadata model implemented
+- quads-cli now has --extend-cloud functionality
+- bug fixes
 
 * Tue Apr 07 2020 Will Foster <wfoster@redhat.com>
 - 1.1.3 release

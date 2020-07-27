@@ -30,7 +30,9 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
 quads-cli --define-host-details --metadata conf/hosts_metadata.yml
 ```
 
-  * Doing this again or modifying your `hosts_metadata.yml` file and re-importing will overwrite all values or remove ones that might have been removed from the QUADS database.
+  * Doing this again or modifying your `hosts_metadata.yml` file and re-importing will update any values you had before for the same categories within sets of hosts if you change the values.
+  * You can choose to define any small or large subset of host details as you care about filtering via `quads-cli --ls-available`
+  * When you remove a host from QUADS it will remove its corresponding metadata.
 
 ## How to Export Host Metadata
   * To export the same formatted YAML key/value pair metadata data source from your hosts use the `--export-host-details` command.
