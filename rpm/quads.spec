@@ -128,6 +128,19 @@ fi;
 
 %changelog
 
+* Tue Nov 24 2020 Will Foster <wfoster@redhat.com>
+- 1.1.4 release
+- bare-metal host metadata model implemented
+- quads-cli now has --mod-cloud functionality
+- quads-cli now has --extend-cloud functionality
+- quads-cli manages broken systems now with
+  --mark-broken, --mark-repaired and --ls-broken
+- asyncio enhancements
+- flask-based --ls-available ui tech preview, new
+  service 'quads-web'
+- --ls-available now has --filter capability
+- bug fixes for quads and badfish
+
 * Tue Apr 07 2020 Will Foster <wfoster@redhat.com>
 - 1.1.3 release
 

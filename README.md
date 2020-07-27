@@ -931,6 +931,7 @@ quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "202
 * Available in QUADS `1.1.4` or above as a tech preview (when we migrate fully to Flask this will be supplanted with a full UI).
 * This is provided via the `quads-web` systemd service or you can run it manually via `cd /opt/quads/web ; python3 main.py`
 * You will need to seed the `models` data for your systems using the new [host metadata feature](/docs/quads-host-metadata-search.md)
+* This is **not** available in containers as it's a tech preview but will be featured once our move from CherryPy to Flask is completed later.
 
 ![quads-available-web](/image/quads-available-web.png?raw=true)
 
