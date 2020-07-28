@@ -39,6 +39,9 @@ Requires: python3-aiohttp >= 3.1
 Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
+Requires: python3-flask >= 1.1.2
+Requires: python3-flask-wtf >= 0.14.3
+Requires: python3-wtforms >= 2.3.1
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
@@ -78,6 +81,7 @@ mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/templates/static/* quads/*.py conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
+cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
@@ -103,6 +107,7 @@ rm -rf %{buildroot}
 
 %post
 /usr/bin/systemctl enable quads-server
+/usr/bin/systemctl enable quads-web
 /usr/bin/systemctl enable mongod
 /usr/bin/systemctl enable httpd
 /usr/bin/systemctl enable haveged
@@ -112,6 +117,8 @@ source /etc/profile.d/quads.sh
 if [ "$1" -eq 0 ]; then
   /usr/bin/systemctl stop quads-server
   /usr/bin/systemctl disable quads-server
+  /usr/bin/systemctl stop quads-web
+  /usr/bin/systemctl disable quads-web
 fi;
 :;
 
