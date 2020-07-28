@@ -54,6 +54,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
          * [Find Free Cloud Environment](#find-free-cloud-environment)
          * [Find Available Hosts](#find-available-hosts)
+            * [Find Available Web Preview](#find-available-web-preview)
       * [Interacting with MongoDB](#interacting-with-mongodb)
          * [Example: Get hosts by switch port and switch ip](#example-get-hosts-by-switch-port-and-switch-ip)
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
@@ -848,6 +849,14 @@ quads-cli --ls-available --schedule-start "2019-12-05 08:00" --schedule-end "201
 ```
 quads --ls-available --schedule-end "2019-06-02 22:00"
 ```
+
+#### Find Available Web Preview
+
+* We now have a Flask-based `--ls-available` web interface available on `quadshost:5001` if your firewall rules are open for `TCP/5001`.
+* Available in QUADS `1.1.4` or above as a tech preview (when we migrate fully to Flask this will be supplanted with a full UI).
+* This is provided via the `quads-web` systemd service or you can run it manually via `cd /opt/quads/web ; python3 main.py`
+
+![quads-available-web](/image/quads-available-web.png?raw=true)
 
 ## Interacting with MongoDB
 * In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
