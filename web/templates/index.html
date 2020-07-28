@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QUADS Available Hosts</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script>
+    $(function() {
+      $( ".dtpick" ).datepicker();
+    });
+    </script>
+</head>
+<body>
+<h2>QUADS Available Hosts</h2>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+  {{ render_field(form.model) }}
+  <br/>
+  <br/>
+  {{ form.start.label }}: {{ form.start(class_="dtpick") }}
+  <br/>
+  <br/>
+  {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
+  <br/>
+  <br/>
+  <input type="submit" value="Search">
+</form>
+</body>
+</html>
