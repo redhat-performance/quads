@@ -70,7 +70,7 @@ quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "202
   * Search for systems of model type `1029U-TRTP` available from `2020-07-20 17:00` until `2020-07-22 13:00`
 
 ```
-quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "model=1029U-TRTP"
+quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "model==1029U-TRTP"
 ```
 
   * Search for systems with **two NVMe** disks **and** disk size of **more than** 2TB, available from `2020-07-20 17:00` until `2020-07-22 13:00`

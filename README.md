@@ -54,6 +54,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
          * [Find Free Cloud Environment](#find-free-cloud-environment)
          * [Find Available Hosts](#find-available-hosts)
+            * [Find Available Hosts based on Hardware or Model](#find-available-hosts-based-on-hardware-or-model)
             * [Find Available Web Preview](#find-available-web-preview)
       * [Interacting with MongoDB](#interacting-with-mongodb)
          * [Example: Get hosts by switch port and switch ip](#example-get-hosts-by-switch-port-and-switch-ip)
@@ -695,6 +696,18 @@ for h in $(quads-cli --cloud-only cloud03) ; do quads-cli --host $h --mod-schedu
 
 **NOTE** You should use the `quads-cli --extend-cloud` commands for QUADS versions `1.1.4` or current `master` branch.
 
+* First check extension viability
+
+```
+quads-cli --extend-cloud --cloud cloud02 --weeks 2 --check
+```
+
+* Proceed with extension
+
+```
+quads-cli --extend-cloud --cloud cloud02 --weeks 2
+```
+
 For older versions of QUADS you can follow the below set of commands for more complicated extensions below.
 
 When in heavy usage some machines primary, active schedule may differ from one another, e.g. 0 versus 1, versus 2, etc.  Because schedules operate on a per-host basis sometimes the same schedule used within a cloud may differ in schedule number.  Here's how you modify them across the board for the current active schedule if the ID differs.
@@ -848,6 +861,16 @@ quads-cli --ls-available --schedule-start "2019-12-05 08:00" --schedule-end "201
 
 ```
 quads --ls-available --schedule-end "2019-06-02 22:00"
+```
+
+#### Find Available Hosts based on Hardware or Model
+
+* In QUADS `1.1.4` and higher you can now filter your availability search based on hardware capabilities or model type.
+* Using this feature requires [importing hardware metadata](/docs/quads-host-metadata-search.md#how-to-import-host-metadata)
+* Example below using `--filter "model==1029U-TRTP"`
+
+```
+quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "2020-08-16 22:00" --filter "model==1029U-TRTP"
 ```
 
 #### Find Available Web Preview
