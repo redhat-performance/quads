@@ -91,6 +91,7 @@ echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d
 rm -rf %{buildroot}
 
 %files
+/etc/systemd/system/quads-web.service
 /etc/systemd/system/quads-server.service
 /etc/profile.d/quads.sh
 /opt/quads/bin/*
