@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # main.py
 import asyncio
 from datetime import datetime, time
