@@ -2,6 +2,8 @@
 import asyncio
 from datetime import datetime, time
 
+from mongoengine import Q
+
 from app import app
 from forms import ModelSearchForm
 from flask import flash, render_template, request, redirect
@@ -22,15 +24,19 @@ def index():
 
 @app.route('/results')
 def search_results(search):
-    hosts = []
-    model = search.data['model']
+    models = search.data['model']
 
-    if search.data['model'] != '':
-        if search.data['model'].lower() == "all":
-            hosts = Host.objects().all()
-        else:
-            _filter = {"model": model}
-            hosts = Host.objects(**_filter).all()
+    if models:
+        query = None
+        for model in models:
+            if query:
+                query = query | Q(model=model.upper())
+            else:
+                query = Q(model=model.upper())
+
+        hosts = Host.objects.filter(query)
+    else:
+        hosts = Host.objects().all()
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
