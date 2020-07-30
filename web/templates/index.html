@@ -8,7 +8,13 @@
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script>
     $(function() {
-      $( ".dtpick" ).datepicker();
+        $("#start").datepicker({
+            minDate: 0,
+            onSelect: function(selected){
+                $("#end").datepicker("option","minDate", selected)
+            }
+        });
+        $( "#end" ).datepicker({ minDate: 0 });
     });
     </script>
 </head>
