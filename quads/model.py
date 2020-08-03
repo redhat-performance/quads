@@ -199,6 +199,7 @@ class Host(Document):
     validated = BooleanField(default=False)
     last_build = DateTimeField()
     disks = ListField(EmbeddedDocumentField(Disk))
+    switch_config_applied = BooleanField(default=False)
     meta = {
         'indexes': [
             {

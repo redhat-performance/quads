@@ -831,6 +831,8 @@ def main(_args):
                         % (host, current, new, cloud.wipe)
                     )
                     if not _args.dryrun:
+                        host_obj = Host.objects(name=host).first()
+                        host_obj.update(switch_config_applied=False)
                         if new != "cloud01":
                             has_active_schedule = Schedule.current_schedule(cloud=cloud)
                             if has_active_schedule and cloud.wipe:
@@ -888,8 +890,11 @@ def main(_args):
                         provisioned = False
                     for task in switch_tasks:
                         try:
-                            logger.info(f"Running switch config for {task.args[0]}")
-                            task()
+                            host_obj = Host.objects(name=task.args[0]).first()
+                            if not host_obj.switch_config_applied:
+                                logger.info(f"Running switch config for {task.args[0]}")
+                                task()
+                                host_obj.update(switch_config_applied=True)
                         except Exception:
                             logger.exception(
                                 "There was something wrong configuring the switch."
