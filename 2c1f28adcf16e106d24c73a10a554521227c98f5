@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a608de6_e3b363ac",
+        "filename": "quads/model.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-08-06T13:04:22Z",
+      "side": 1,
+      "message": "I assume that we\u0027ll revert this back as we do the other Mongo values when assignment is reclaimed.",
+      "revId": "2c1f28adcf16e106d24c73a10a554521227c98f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
