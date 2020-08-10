@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84f1548c_4223dcc4",
+        "filename": "quads/tools/verify_switchconf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2020-08-10T12:47:15Z",
+      "side": 1,
+      "message": "I\u0027m not convinced this is the issue we are seeing.  Furthermore, do we even need a continue?  You have a nested loop (the outer loop is the hosts, the inner loop is the enumeration of the interfaces).  So do we even need a continue here if we are on the last interface anyway?",
+      "revId": "46f06a50a55c65f1a9340babe4ffd0b606211340",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
