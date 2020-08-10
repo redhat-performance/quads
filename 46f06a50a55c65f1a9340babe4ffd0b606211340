@@ -16,6 +16,24 @@
       "revId": "46f06a50a55c65f1a9340babe4ffd0b606211340",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a8844e3_8f2c2f61",
+        "filename": "quads/tools/verify_switchconf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2020-08-10T13:19:43Z",
+      "side": 1,
+      "message": "I want it to continue so it moves to the next object in the `for (interfaces)`, since the `success` variable is never initialized and later fails to evaluate the conditional on L#117. \nThe `return` instruction we had in place before was terminating the complete execution of the tasks as soon as it found one correct host configured, most likely the first one, prevent the evaluation of the rest of the hosts in the cloud.",
+      "parentUuid": "84f1548c_4223dcc4",
+      "revId": "46f06a50a55c65f1a9340babe4ffd0b606211340",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
