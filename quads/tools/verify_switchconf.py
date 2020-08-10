@@ -11,7 +11,7 @@ from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(_cloud_name, change=False):
@@ -19,6 +19,7 @@ def verify(_cloud_name, change=False):
     hosts = Host.objects(cloud=_cloud_obj)
 
     for _host_obj in hosts:
+        logger.info(f"Host: {_host_obj.name}")
         if _host_obj.interfaces:
             interfaces = sorted(_host_obj.interfaces, key=lambda k: k["name"])
             for i, interface in enumerate(interfaces):
@@ -45,9 +46,8 @@ def verify(_cloud_name, change=False):
                 except IndexError:
                     if not _cloud_obj.vlan and not last_nic:
                         logger.warning(
-                            "Could not determine the previous VLAN member for %s on %s, switch %s, switchport %s"
+                            "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
                             % (
-                                _host_obj.name,
                                 interface.name,
                                 interface.ip_address,
                                 interface.switch_port,
@@ -60,9 +60,8 @@ def verify(_cloud_name, change=False):
                 if not old_vlan:
                     if not _cloud_obj.vlan and not last_nic:
                         logger.warning(
-                            "Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
+                            "Could not determine the previous VLAN for %s, switch %s, switchport %s"
                             % (
-                                _host_obj.name,
                                 interface.name,
                                 interface.ip_address,
                                 interface.switch_port,
@@ -72,7 +71,7 @@ def verify(_cloud_name, change=False):
 
                 if int(old_vlan) != int(vlan):
                     logger.warning(
-                        "interface %s not using QinQ_vl%s", interface.switch_port, vlan
+                        "Interface %s not using QinQ_vl%s", interface.switch_port, vlan
                     )
 
                 if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
@@ -81,18 +80,17 @@ def verify(_cloud_name, change=False):
                 if not vlan_member or int(vlan_member) != int(vlan):
                     if not _cloud_obj.vlan and not last_nic:
                         logger.warning(
-                            "interface %s appears to be a member of VLAN %s, should be %s",
+                            "Interface %s appears to be a member of VLAN %s, should be %s",
                             interface.switch_port,
                             vlan_member,
                             vlan,
                         )
 
                     if change:
-
                         if _cloud_obj.vlan and last_nic:
                             if int(_cloud_obj.vlan.vlan_id) != int(old_vlan):
 
-                                logger.info("=== INFO: change requested")
+                                logger.info(f"Change requested for {interface.name}")
                                 logger.info(
                                     "Setting last interface to public vlan %s."
                                     % _cloud_obj.vlan.vlan_id
@@ -105,10 +103,10 @@ def verify(_cloud_name, change=False):
                                     vlan,
                                 )
                             else:
-                                logger.info("=== INFO: no changes required.")
-                                return
+                                logger.info(f"No changes required for {interface.name}")
+                                continue
                         else:
-                            logger.info("=== INFO: change requested")
+                            logger.info(f"Change requested for {interface.name}")
                             success = juniper_set_port(
                                 interface.ip_address,
                                 interface.switch_port,
@@ -120,8 +118,7 @@ def verify(_cloud_name, change=False):
                             logger.info("Successfully updated switch settings.")
                         else:
                             logger.error(
-                                "There was something wrong updating switch for %s:%s"
-                                % (_host_obj.name, interface.name)
+                                f"There was something wrong updating switch for {interface.name}"
                             )
 
 
