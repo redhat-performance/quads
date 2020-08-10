@@ -34,6 +34,24 @@
       "revId": "46f06a50a55c65f1a9340babe4ffd0b606211340",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f2ab5ef_a7a84e15",
+        "filename": "quads/tools/verify_switchconf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2020-08-10T13:31:24Z",
+      "side": 1,
+      "message": "I see. But aren\u0027t we already on the \"last\" interface regardless?  Because in order to get to the \"return\" statement the following have to be met:\n\n                    if change:\n                        if _cloud_obj.vlan and last_nic:\nand furthermore:\n                            if int(_cloud_obj.vlan.vlan_id) \u003d\u003d int(old_vlan)\n(since we are in the else clause for the !\u003d check).",
+      "parentUuid": "9a8844e3_8f2c2f61",
+      "revId": "46f06a50a55c65f1a9340babe4ffd0b606211340",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
