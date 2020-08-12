@@ -1,0 +1,24 @@
+{% extends "bootstrap/base.html" %}
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+    {% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
+    {% endblock %}
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+        <div class="container">
+            {% block page_content %}{% endblock %}
+        </div>
+    {% endblock %}
+</body>
+</html>
