@@ -40,6 +40,7 @@ Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.3
 Requires: python3-flask >= 1.0
+Requires: python3-flask-bootstrap >= 3.3.7.1
 Requires: python3-flask-wtf >= 0.12
 Requires: python3-wtforms >= 2.2.0
 Requires: python3-wordpress-xmlrpc >= 2.2
