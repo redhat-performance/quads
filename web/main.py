@@ -7,7 +7,7 @@ from mongoengine import Q
 
 from app import app
 from forms import ModelSearchForm
-from flask import flash, render_template, request, redirect
+from flask import flash, render_template, request, redirect, jsonify
 
 from quads.config import conf
 from quads.model import Host, Schedule
@@ -20,11 +20,18 @@ def index():
     if request.method == 'POST':
         return search_results(search)
 
-    return render_template('index.html', form=search)
+    return render_template('index.html', form=search, available_hosts=[])
 
 
 @app.route('/results')
 def search_results(search):
+    available_hosts = available(search)
+
+    return render_template('index.html', form=search, available_hosts=available_hosts)
+
+
+@app.route('/available')
+def available(search):
     models = search.data['model']
 
     if models:
@@ -49,7 +56,7 @@ def search_results(search):
     )
     broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
 
-    available = []
+    available_hosts = []
     start = datetime.combine(search.data['start'], time.min)
     end = datetime.combine(search.data['end'], time.min)
 
@@ -58,17 +65,10 @@ def search_results(search):
             if Schedule.is_host_available(
                 host=host["name"], start=start, end=end
             ) and not broken_hosts.get(host["name"], False):
-                available.append(host["name"])
+                host_dict = {"name": host.name, "model": host.model}
+                available_hosts.append(host_dict)
 
-    if not available:
-        flash('No results found!')
-        return redirect('/')
-    else:
-        # display results
-        for i in available:
-            flash(i)
-        flash(f"Total: {len(available)}")
-        return redirect('/')
+    return jsonify(available_hosts)
 
 
 if __name__ == '__main__':

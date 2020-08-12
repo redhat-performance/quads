@@ -1,57 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+{% block head %}
     <title>QUADS Available Hosts</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <script>
-    $(function() {
-        now = new Date();
-        sunday = new Date();
-        future = new Date();
-        days_till_next_sunday = 7 - now.getDay();
-        now.setDate(now.getDate() + days_till_next_sunday);
-        sunday.setDate(sunday.getDate() + days_till_next_sunday);
-        $("#start").datepicker({
-            minDate: 0,
-            onSelect: function(selected){
-                $("#end").datepicker("option","minDate", selected);
-            }
+    {% block styles %}
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/dt-1.10.21/b-1.6.3/b-html5-1.6.3/sl-1.3.1/datatables.min.css"/>
+    {% endblock %}
+    {% block scripts %}
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <script type="text/javascript"
+            src="https://cdn.datatables.net/v/dt/dt-1.10.21/b-1.6.3/b-html5-1.6.3/sl-1.3.1/datatables.min.js"></script>
+
+        <script>
+        $(document).ready( function () {
+            var table = $('#results').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'selectAll',
+                    'selectNone',
+                    {
+                        extend: 'copy',
+                        title: null,
+                        header: false,
+                        exportOptions: {columns: [1, ':selected']}
+                    }
+                ],
+                select: {
+                    style: 'multi'
+                }
+            });
+        } );
+        </script>
+        <script>
+        $(function() {
+            now = new Date();
+            sunday = new Date();
+            future = new Date();
+            days_till_next_sunday = 7 - now.getDay();
+            now.setDate(now.getDate() + days_till_next_sunday);
+            sunday.setDate(sunday.getDate() + days_till_next_sunday);
+            $("#start").datepicker({
+                minDate: 0,
+                onSelect: function(selected){
+                    $("#end").datepicker("option","minDate", selected);
+                }
+            });
+            $("#start").datepicker("setDate", sunday);
+            future.setDate(sunday.getDate() + 14)
+            $("#end").datepicker({ minDate: 0 });
+            $("#end").datepicker("setDate", future);
         });
-        $("#start").datepicker("setDate", sunday);
-        future.setDate(sunday.getDate() + 14)
-        $("#end").datepicker({ minDate: 0 });
-        $("#end").datepicker("setDate", future);
-    });
-    </script>
-</head>
-<body>
-<h2>QUADS Available Hosts</h2>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-{% from "_formhelpers.html" import render_field %}
-<form method="post">
-  {{ render_field(form.model) }}
-  <br/>
-  <br/>
-  {{ form.start.label }}: {{ form.start(class_="dtpick") }}
-  <br/>
-  <br/>
-  {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
-  <br/>
-  <br/>
-  <input type="submit" value="Search">
-</form>
-</body>
-</html>
+        </script>
+    {% endblock %}
+{% endblock %}
+{% block body %}
+    <h2>QUADS Available Hosts</h2>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                {% from "_formhelpers.html" import render_field %}
+                <form method="post" id="search">
+                  {{ render_field(form.model) }}
+                  <br/>
+                  <br/>
+                  {{ form.start.label }}: {{ form.start(class_="dtpick") }}
+                  <br/>
+                  <br/>
+                  {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
+                  <br/>
+                  <br/>
+                  <input type="submit" value="Search">
+                </form>
+            </div>
+            <div class="col-md-9">
+                <table class="table" id="results">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Hostname</th>
+                      <th scope="col">Model</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for host in available_hosts.json %}
+                    <tr>
+                      <th scope="row">{{ loop.index }}</th>
+                      <td>{{ host["name"] }}</td>
+                      <td>{{ host["model"] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
