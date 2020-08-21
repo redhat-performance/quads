@@ -15,6 +15,7 @@ from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
+from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
 
@@ -169,9 +170,20 @@ class Validator(object):
 
     def post_network_test(self):
         test_host = self.hosts[0]
+        hosts_down = []
         for host in self.hosts:
+            nc = Netcat(host.name)
+            if not nc.health_check():
+                hosts_down.append(host.name)
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
+
+        if hosts_down:
+            logger.error("The following hosts appear to be down or with no ssh connection:")
+            for i in hosts_down:
+                logger.error(i)
+            return False
+
         try:
             ssh_helper = SSHHelper(test_host.name)
         except (SSHException, NoValidConnectionsError, socket.timeout) as ex:
