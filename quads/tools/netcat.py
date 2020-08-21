@@ -6,7 +6,7 @@ import socket
 class Netcat:
     """ Python 'netcat like' module """
 
-    def __init__(self, ip, port):
+    def __init__(self, ip, port=22):
         self.ip = ip
         self.port = port
         self.buff = ""
@@ -18,6 +18,14 @@ class Netcat:
 
     def __exit__(self, *args):
         self.close()
+
+    def health_check(self, timeout=15):
+        try:
+            self.socket.settimeout(timeout)
+            self.connect()
+        except (TimeoutError, socket.timeout):
+            return False
+        return True
 
     def read(self, length=1024):
         """ Read 1024 bytes off the socket """

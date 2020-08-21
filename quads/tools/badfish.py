@@ -430,6 +430,7 @@ class Badfish:
             logger.warning(
                 "No changes were made since the boot order already matches the requested."
             )
+            return False
         return True
 
     async def change_boot_order(self, _interfaces_path, _host_type):

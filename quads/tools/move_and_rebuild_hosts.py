@@ -12,12 +12,15 @@ from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
+from quads.tools.netcat import Netcat
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+RETRIES = 30
 
 
 def switch_config(host, old_cloud, new_cloud):
@@ -188,7 +191,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 )
                 return False
             try:
-                asyncio.run_coroutine_threadsafe(
+                changed_boot_order = asyncio.run_coroutine_threadsafe(
                     badfish.change_boot(
                         "director",
                         os.path.join(
@@ -197,6 +200,8 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     ),
                     loop,
                 )
+                if changed_boot_order:
+                    await badfish.reboot_server(graceful=False)
             except BadfishException:
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
@@ -240,6 +245,17 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     "There was something wrong setting Foreman host parameters."
                 )
                 return False
+
+        healthy = False
+        nc = Netcat(_host_obj.name)
+        for i in range(RETRIES):
+            if nc.health_check():
+                healthy = True
+                break
+
+        if not healthy:
+            logger.error("Failed to recover host after changing boot order.")
+            return False
 
         if is_supported(host):
             try:
