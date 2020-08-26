@@ -315,9 +315,7 @@ class Badfish:
             raise BadfishException
 
         if response.status not in [200, 201]:
-            logger.error(
-                f"Failed to communicate with {self.host}"
-            )
+            logger.error(f"Failed to communicate with {self.host}")
             raise BadfishException
 
     async def find_systems_resource(self):
@@ -502,7 +500,12 @@ class Badfish:
 
     async def set_next_boot_pxe(self):
         _url = "%s%s" % (self.host_uri, self.system_resource)
-        _payload = {"Boot": {"BootSourceOverrideTarget": "Pxe"}}
+        _payload = {
+            "Boot": {
+                "BootSourceOverrideTarget": "Pxe",
+                "BootSourceOverrideEnabled": "Once",
+            }
+        }
         _headers = {"content-type": "application/json"}
         _response = await self.patch_request(_url, _payload, _headers)
 
