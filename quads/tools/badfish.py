@@ -161,11 +161,11 @@ class Badfish:
                         auth=BasicAuth(self.username, self.password),
                         ssl=False,
                     ) as _response:
-                        await _response.text("utf-8", "ignore")
+                        await _response.read()
         except (Exception, TimeoutError):
             logger.exception("Failed to communicate with server.")
             raise BadfishException
-        return
+        return _response
 
     async def get_boot_seq(self):
         bios_boot_mode = await self.get_bios_boot_mode()
@@ -213,7 +213,7 @@ class Badfish:
         _response = await self.get_request(_url)
 
         data = await _response.text("utf-8", "ignore")
-        job_queue = re.findall("[JR]ID_.+?'", data)
+        job_queue = re.findall("[JR]ID_.+?\d+", data)
         jobs = [job.strip("}").strip('"').strip("'") for job in job_queue]
         return jobs
 
@@ -315,9 +315,7 @@ class Badfish:
             raise BadfishException
 
         if response.status not in [200, 201]:
-            logger.error(
-                f"Failed to communicate with {self.host}"
-            )
+            logger.error(f"Failed to communicate with {self.host}")
             raise BadfishException
 
     async def find_systems_resource(self):
@@ -502,7 +500,12 @@ class Badfish:
 
     async def set_next_boot_pxe(self):
         _url = "%s%s" % (self.host_uri, self.system_resource)
-        _payload = {"Boot": {"BootSourceOverrideTarget": "Pxe"}}
+        _payload = {
+            "Boot": {
+                "BootSourceOverrideTarget": "Pxe",
+                "BootSourceOverrideEnabled": "Once",
+            }
+        }
         _headers = {"content-type": "application/json"}
         _response = await self.patch_request(_url, _payload, _headers)
 
@@ -548,27 +551,29 @@ class Badfish:
         _headers = {"content-type": "application/json"}
         url = "%s/JID_CLEARALL_FORCE" % _url
         try:
-            await self.delete_request(url, _headers)
+            _response = await self.delete_request(url, _headers)
         except BadfishException:
             logger.warning("There was something wrong clearing the job queue.")
             raise
+        return _response
 
     async def clear_job_list(self, _job_queue):
         _url = "%s%s/Jobs" % (self.host_uri, self.manager_resource)
         _headers = {"content-type": "application/json"}
         logger.warning("Clearing job queue for job IDs: %s." % _job_queue)
+        failed = False
         for _job in _job_queue:
             job = _job.strip("'")
             url = "%s/%s" % (_url, job)
-            await self.delete_request(url, _headers)
+            response = await self.delete_request(url, _headers)
+            if response.status != 200:
+                failed = True
 
-        job_queue = await self.get_job_queue()
-        if not job_queue:
+        if not failed:
             logger.info("Job queue for iDRAC %s successfully cleared." % self.host)
         else:
             logger.error(
-                "Job queue not cleared, current job queue contains jobs: %s."
-                % job_queue
+                "Job queue not cleared, there was something wrong with your request."
             )
             raise BadfishException
 
@@ -580,7 +585,9 @@ class Badfish:
                 await self.delete_job_queue_dell()
             else:
                 try:
-                    await self.delete_job_queue_force()
+                    _response = await self.delete_job_queue_force()
+                    if _response.status == 400:
+                        await self.clear_job_list(_job_queue)
                 except BadfishException:
                     logger.info("Attempting to clear job list instead.")
                     await self.clear_job_list(_job_queue)
