@@ -124,7 +124,7 @@ class Validator(object):
                     if not nc.health_check():
                         logger.warning(
                             "Host %s didn't pass the health check. "
-                            "Potential provisioning in process. SKIPPING."
+                            "Potential provisioning in process. SKIPPING." % host
                         )
                         continue
                     nc.close()
