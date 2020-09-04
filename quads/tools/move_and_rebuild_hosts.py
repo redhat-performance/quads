@@ -247,11 +247,13 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 return False
 
         healthy = False
-        nc = Netcat(_host_obj.name)
         for i in range(RETRIES):
+            nc = Netcat(_host_obj.name)
             if nc.health_check():
                 healthy = True
+                nc.close()
                 break
+            nc.close()
 
         if not healthy:
             logger.error("Failed to recover host after changing boot order.")

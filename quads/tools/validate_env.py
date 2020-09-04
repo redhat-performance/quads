@@ -127,6 +127,7 @@ class Validator(object):
                             "Potential provisioning in process. SKIPPING."
                         )
                         continue
+                    nc.close()
                     badfish = None
                     try:
                         badfish = loop.run_until_complete(
@@ -182,6 +183,7 @@ class Validator(object):
             nc = Netcat(host.name)
             if not nc.health_check():
                 hosts_down.append(host.name)
+            nc.close()
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 

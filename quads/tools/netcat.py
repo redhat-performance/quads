@@ -23,7 +23,12 @@ class Netcat:
         try:
             self.socket.settimeout(timeout)
             self.connect()
-        except (TimeoutError, socket.timeout):
+        except (
+            socket.timeout,
+            TimeoutError,
+            ConnectionResetError,
+            ConnectionRefusedError,
+        ):
             return False
         return True
 
@@ -37,8 +42,8 @@ class Netcat:
             self.buff += self.socket.recv(1024)
 
         pos = self.buff.find(data)
-        return_val = self.buff[:pos + len(data)]
-        self.buff = self.buff[pos + len(data):]
+        return_val = self.buff[: pos + len(data)]
+        self.buff = self.buff[pos + len(data) :]
 
         return return_val
 
