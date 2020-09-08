@@ -1,24 +1,23 @@
 {% extends "bootstrap/base.html" %}
-<html lang="en">
-<head>
-    {% block head %}
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    {% endblock %}
+{% block html_attribs %} lang="en" {% endblock %}
+{% import "bootstrap/fixes.html" as fixes %}
+
     {% block styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css') }}"/>
+    {{ super() }}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
     {% endblock %}
 
     {% block scripts %}
-    <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    {{ super() }}
+    <script
+        src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+        integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
+        crossorigin="anonymous">
+    </script>
     {% endblock %}
-</head>
-<body>
+
     {% block content %}
-        <div class="container">
-            {% block page_content %}{% endblock %}
-        </div>
+    <div class="container">
+        {% block page_content %}{% endblock %}
+    </div>
     {% endblock %}
-</body>
-</html>

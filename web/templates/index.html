@@ -1,94 +1,96 @@
-{% extends "templates/base.html" %}
-{% block head %}
+{% extends "base.html" %}
+
     {% block title %}QUADS Available Hosts{% endblock %}
+
     {% block styles %}
-        {{ super() }}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.min.css') }}"/>
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-3.3.1/dt-1.10.21/b-1.6.3/b-html5-1.6.3/r-2.2.5/datatables.min.css"/>
     {% endblock %}
+
     {% block scripts %}
-        {{ super() }}
-        <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
-        <script>
-        $(document).ready( function () {
-            var table = $('#results').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'selectAll',
-                    'selectNone',
-                    {
-                        extend: 'copy',
-                        title: null,
-                        header: false,
-                        exportOptions: {columns: [1, ':selected']}
-                    }
-                ],
-                select: {
-                    style: 'multi'
+    {{ super() }}
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jq-3.3.1/dt-1.10.21/b-1.6.3/b-html5-1.6.3/r-2.2.5/datatables.min.js"></script>
+    <script>
+    $(document).ready( function () {
+        var table = $('#results').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'selectAll',
+                'selectNone',
+                {
+                    extend: 'copy',
+                    title: null,
+                    header: false,
+                    exportOptions: {columns: [1, ':selected']}
                 }
-            });
-        } );
-        </script>
-        <script>
-        $(function() {
-            now = new Date();
-            sunday = new Date();
-            future = new Date();
-            days_till_next_sunday = 7 - now.getDay();
-            now.setDate(now.getDate() + days_till_next_sunday);
-            sunday.setDate(sunday.getDate() + days_till_next_sunday);
-            $("#start").datepicker({
-                minDate: 0,
-                onSelect: function(selected){
-                    $("#end").datepicker("option","minDate", selected);
-                }
-            });
-            $("#start").datepicker("setDate", sunday);
-            future.setDate(sunday.getDate() + 14)
-            $("#end").datepicker({ minDate: 0 });
-            $("#end").datepicker("setDate", future);
+            ],
+            select: {
+                style: 'multi'
+            }
         });
-        </script>
+    } );
+    </script>
+    <script>
+    $(document).ready( function () {
+        now = new Date();
+        sunday = new Date();
+        future = new Date();
+        days_till_next_sunday = 7 - now.getDay();
+        now.setDate(now.getDate() + days_till_next_sunday);
+        sunday.setDate(sunday.getDate() + days_till_next_sunday);
+        $("#start").datepicker({
+            minDate: 0,
+            onSelect: function(selected){
+                $("#end").datepicker("option","minDate", selected);
+            }
+        });
+        $("#start").datepicker("setDate", sunday);
+        future.setDate(sunday.getDate() + 14)
+        $("#end").datepicker({ minDate: 0 });
+        $("#end").datepicker("setDate", future);
+    });
+    </script>
     {% endblock %}
-{% endblock %}
-{% block page_content %}
-    <h2>QUADS Available Hosts</h2>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3">
-                {% from "_formhelpers.html" import render_field %}
-                <form method="post" id="search">
-                  {{ render_field(form.model) }}
-                  <br/>
-                  <br/>
-                  {{ form.start.label }}: {{ form.start(class_="dtpick") }}
-                  <br/>
-                  <br/>
-                  {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
-                  <br/>
-                  <br/>
-                  <input type="submit" value="Search">
-                </form>
-            </div>
-            <div class="col-md-9">
-                <table class="table" id="results">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Hostname</th>
-                      <th scope="col">Model</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {% for host in available_hosts.json %}
-                    <tr>
-                      <th scope="row">{{ loop.index }}</th>
-                      <td>{{ host["name"] }}</td>
-                      <td>{{ host["model"] }}</td>
-                    </tr>
-                  {% endfor %}
-                  </tbody>
-                </table>
+
+    {% block page_content %}
+        <h2>QUADS Available Hosts</h2>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    {% from "_formhelpers.html" import render_field %}
+                    <form method="post" id="search">
+                        {{ render_field(form.model) }}
+                        <br/>
+                        <br/>
+                        {{ form.start.label }}: {{ form.start(class_="dtpick") }}
+                        <br/>
+                        <br/>
+                        {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
+                        <br/>
+                        <br/>
+                        <input type="submit" value="Search">
+                    </form>
+                </div>
+                <div class="col-md-9">
+                    <table class="table" id="results">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Hostname</th>
+                                <th scope="col">Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for host in available_hosts.json %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>{{ host["name"] }}</td>
+                                <td>{{ host["model"] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-{% endblock %}
+    {% endblock %}
