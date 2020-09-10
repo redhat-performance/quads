@@ -222,7 +222,7 @@ class Validator(object):
                 _interfaces = INTERFACES[interface]
                 last_nic = i == len(_host_obj.interfaces) - 1
                 if last_nic and self.cloud.vlan:
-                    _interfaces = _interfaces[:1]
+                    continue
                 for value in _interfaces:
                     ip_apart = host["ip"].split(".")
                     octets = value.split(".")
