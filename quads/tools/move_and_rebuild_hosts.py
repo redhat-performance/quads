@@ -177,19 +177,20 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
             # TODO: pdu management
             pass
 
+        try:
+            badfish = await badfish_factory(
+                "mgmt-%s" % host,
+                conf["ipmi_username"],
+                conf["ipmi_password"],
+                propagate=True,
+            )
+        except BadfishException:
+            logger.error(
+                f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
+            )
+            return False
+
         if is_supported(host):
-            try:
-                badfish = await badfish_factory(
-                    "mgmt-%s" % host,
-                    conf["ipmi_username"],
-                    conf["ipmi_password"],
-                    propagate=True,
-                )
-            except BadfishException:
-                logger.error(
-                    f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
-                )
-                return False
             try:
                 changed_boot_order = asyncio.run_coroutine_threadsafe(
                     badfish.change_boot(
@@ -273,6 +274,13 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 await badfish.reboot_server(graceful=False)
                 return False
         else:
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    badfish.unmount_virtual_media(), loop,
+                )
+            except BadfishException:
+                logger.warning(f"Could not unmount virtual media for mgmt-{host}.")
+
             try:
                 ipmi_pxe_persistent = [
                     "chassis",

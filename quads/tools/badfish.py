@@ -944,3 +944,127 @@ class Badfish:
                 0
             ]
         return None
+
+    async def get_virtual_media_config_uri(self):
+        _url = "%s%s" % (self.host_uri, self.manager_resource)
+        _response = await self.get_request(_url)
+
+        try:
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
+        except ValueError:
+            logger.error("Not able to access Firmware inventory.")
+            raise BadfishException
+
+        vm_endpoint = data.get("VirtualMedia")
+        if vm_endpoint:
+            virtual_media = vm_endpoint.get("@odata.id")
+            if virtual_media:
+                vm_url = "%s%s" % (self.host_uri, virtual_media)
+                vm_response = await self.get_request(vm_url)
+                try:
+                    raw = await vm_response.text("utf-8", "ignore")
+                    vm_data = json.loads(raw.strip())
+
+                    oem = vm_data.get("Oem")
+                    if oem:
+                        sm = oem.get("Supermicro")
+                        if sm:
+                            vmc = sm.get("VirtualMediaConfig")
+                            if vmc:
+                                return vmc.get("@odata.id")
+
+                except ValueError:
+                    logger.error(
+                        "Not able to check for supported virtual media unmount"
+                    )
+                    raise BadfishException
+
+        return None
+
+    async def get_virtual_media(self):
+        _url = "%s%s" % (self.host_uri, self.manager_resource)
+        _response = await self.get_request(_url)
+
+        try:
+            raw = await _response.text("utf-8", "ignore")
+            data = json.loads(raw.strip())
+        except ValueError:
+            logger.error("Not able to access Firmware inventory.")
+            raise BadfishException
+
+        vm_endpoint = data.get("VirtualMedia")
+        vms = []
+        if vm_endpoint:
+            virtual_media = vm_endpoint.get("@odata.id")
+            if virtual_media:
+                vm_url = "%s%s" % (self.host_uri, virtual_media)
+                vm_response = await self.get_request(vm_url)
+                try:
+                    raw = await vm_response.text("utf-8", "ignore")
+                    vm_data = json.loads(raw.strip())
+
+                    if vm_data.get("Members"):
+                        for member in vm_data["Members"]:
+                            vms.append(member["@odata.id"])
+                    else:
+                        logger.warning("No active VirtualMedia found")
+                        return vms
+
+                except ValueError:
+                    logger.error("Not able to access Firmware inventory.")
+                    raise BadfishException
+            else:
+                logger.error("No VirtualMedia endpoint found")
+                raise BadfishException
+        else:
+            logger.error("No VirtualMedia endpoint found")
+            raise BadfishException
+
+        return vms
+
+    async def check_virtual_media(self):
+        vms = await self.get_virtual_media()
+        for vm in vms:
+            disc_url = "%s%s" % (self.host_uri, vm)
+            disc_response = await self.get_request(disc_url)
+            try:
+                raw = await disc_response.text("utf-8", "ignore")
+                disc_data = json.loads(raw.strip())
+                _id = disc_data.get("Id")
+                name = disc_data.get("Name")
+                image_name = disc_data.get("ImageName")
+                inserted = disc_data.get("Inserted")
+                logger.info(
+                    f"ID: {_id} - Name: {name} - ImageName: {image_name} - Inserted: {inserted}"
+                )
+            except ValueError:
+                logger.error(
+                    "There was something wrong getting values for VirtualMedia"
+                )
+                raise BadfishException
+
+        return True
+
+    async def unmount_virtual_media(self):
+
+        vmc = await self.get_virtual_media_config_uri()
+        if not vmc:
+            logger.warning("OOB management does not support Virtual Media unmount")
+            return False
+
+        _vmc_url = "%s%s/Actions/IsoConfig.UnMount" % (self.host_uri, vmc)
+        _headers = {"content-type": "application/json"}
+        _payload = {}
+        try:
+            disc_response = await self.post_request(_vmc_url, _payload, _headers)
+            if disc_response.status == 200:
+                logger.info("Successfully unmounted all VirtualMedia")
+            else:
+                logger.error("There was something wrong unmounting the VirtualMedia")
+                raise BadfishException
+        except ValueError:
+            logger.error("There was something wrong getting values for VirtualMedia")
+            raise BadfishException
+
+        return True
