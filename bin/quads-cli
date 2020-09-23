@@ -282,7 +282,7 @@ def main(_args):
                                             f"Accepted model names are: {conf['models']}"
                                         )
                                         exit(1)
-                                query = {f"{'__'.join(keys)}{op_suffix}": value}
+                                query = {f"{'__'.join(keys)}{op_suffix}": value.upper()}
                                 kwargs.update(query)
                             break
                     if not op_found:
