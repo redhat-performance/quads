@@ -192,7 +192,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
         if is_supported(host):
             try:
-                changed_boot_order = asyncio.run_coroutine_threadsafe(
+                asyncio.run_coroutine_threadsafe(
                     badfish.change_boot(
                         "director",
                         os.path.join(
@@ -201,8 +201,6 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     ),
                     loop,
                 )
-                if changed_boot_order:
-                    await badfish.reboot_server(graceful=False)
             except BadfishException:
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
