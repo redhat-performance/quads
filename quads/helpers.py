@@ -4,7 +4,7 @@ import struct
 from bson.objectid import ObjectId
 from datetime import timedelta
 from mongoengine import ObjectIdField
-from quads.config import SUPPORTED, SUPERMICRO, OFFSETS, conf
+from quads.config import SUPPORTED, OFFSETS, conf
 
 
 def param_check(data, params, defaults={}):
@@ -30,13 +30,6 @@ def param_check(data, params, defaults={}):
 
 def is_supported(_host_name):
     for host_type in SUPPORTED:
-        if host_type in _host_name:
-            return True
-    return False
-
-
-def is_supermicro(_host_name):
-    for host_type in SUPERMICRO:
         if host_type in _host_name:
             return True
     return False
