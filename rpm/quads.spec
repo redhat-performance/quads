@@ -98,9 +98,6 @@ rm -rf %{buildroot}
 /opt/quads/bin/*
 /opt/quads/web/*
 /opt/quads/web/templates/*
-/opt/quads/web/static/*
-/opt/quads/web/static/css/*
-/opt/quads/web/static/js/*
 /opt/quads/quads/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/templates/*
