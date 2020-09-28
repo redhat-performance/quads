@@ -172,6 +172,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     ipmi_set_operator = ["user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"]
     await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=new_semaphore)
 
+    badfish = None
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
         if "pdu_management" in conf and conf["pdu_management"]:
             # TODO: pdu management
@@ -205,6 +206,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
 
+        await badfish.set_power_state("on")
         foreman_results = []
         params = [
             {
@@ -297,6 +299,23 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 logger.error(
                     f"There was something wrong setting PXE flag or resetting IPMI on {host}."
                 )
+
+    if _new_cloud_obj.name == _host_obj.default_cloud.name:
+        if not badfish:
+            try:
+                badfish = await badfish_factory(
+                    "mgmt-%s" % host,
+                    conf["ipmi_username"],
+                    conf["ipmi_password"],
+                    propagate=True,
+                )
+            except BadfishException:
+                logger.error(
+                    f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
+                )
+                return False
+
+        await badfish.set_power_state("off")
 
     schedule = Schedule.current_schedule(cloud=_new_cloud_obj, host=_host_obj).first()
     if schedule:
