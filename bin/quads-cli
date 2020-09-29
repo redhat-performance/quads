@@ -307,8 +307,8 @@ def main(_args):
 
             hosts = Host.objects(**kwargs).all()
             if hosts:
-                for host in hosts:
-                    logger.info(host)
+                for host in sorted(hosts, key=lambda k: k["name"]):
+                    logger.info(host.name)
             else:
                 logger.warning("No hosts found.")
 
