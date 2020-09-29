@@ -71,6 +71,66 @@ def exception_handler(loop, context):
     logger.error(f"Caught exception: {context['message']}")
 
 
+def filter_kwargs(filter_args):
+    kwargs = {}
+    ops = {
+        "==": "",
+        "!=": "__ne",
+        "<": "__lt",
+        "<=": "__lte",
+        ">": "__gt",
+        ">=": "__gte",
+    }
+    conditions = filter_args.split(",")
+    for condition in conditions:
+        op_found = False
+        for op, op_suffix in ops.items():
+            if op in condition:
+                op_found = True
+                k, v = condition.split(op)
+                keys = k.split(".")
+
+                try:
+                    value = int(v)
+                except ValueError:
+                    value = v
+
+                if keys[0].strip().lower() in ["disks", "interfaces"]:
+
+                    key = f"{keys[0].strip()}__match"
+                    condition_dict = {
+                        f"{'__'.join(keys[1:])}{op_suffix}".strip(): value
+                    }
+                    if kwargs.get(key, False):
+                        kwargs[key].update(condition_dict)
+                    else:
+                        kwargs[key] = condition_dict
+                else:
+                    if keys[0].strip().lower() == "model":
+                        if value.upper() not in conf["models"].split(","):
+                            logger.error("Model type not recognized.")
+                            logger.warning(
+                                f"Accepted model names are: {conf['models']}"
+                            )
+                            exit(1)
+                    query = {f"{'__'.join(keys)}{op_suffix}": value.upper()}
+                    kwargs.update(query)
+                break
+        if not op_found:
+            logger.error(
+                "A filter was defined but not parsed correctly. Check filter operator."
+            )
+            logger.warning(f"Condition: {condition}")
+            logger.warning(f"Accepted operators: {', '.join(ops.keys())}")
+            exit(1)
+    if not kwargs:
+        logger.error(
+            "A filter was defined but not parsed correctly. Check filter syntax."
+        )
+        exit(1)
+    return kwargs
+
+
 def main(_args):
     # List all common call
     quads = QuadsApi(API_URL)
@@ -224,7 +284,7 @@ def main(_args):
 
             exit(0)
 
-        elif _args.action in ["host", "cloud"]:
+        elif _args.action == "cloud":
             try:
                 entries = quads.get(_args.action)
             except ConnectionError:
@@ -239,64 +299,26 @@ def main(_args):
                 logger.info(entries["result"])
             exit(0)
 
+        elif _args.action == "host":
+            kwargs = {}
+            if _args.filter:
+                filter_args = filter_kwargs(_args.filter)
+                kwargs.update(filter_args)
+
+            hosts = Host.objects(**kwargs).all()
+            if hosts:
+                for host in hosts:
+                    logger.info(host)
+            else:
+                logger.warning("No hosts found.")
+
+            exit(0)
+
         elif _args.action == "available":
             kwargs = {}
             if _args.filter:
-                ops = {
-                    "==": "",
-                    "!=": "__ne",
-                    "<": "__lt",
-                    "<=": "__lte",
-                    ">": "__gt",
-                    ">=": "__gte",
-                }
-                conditions = _args.filter.split(",")
-                for condition in conditions:
-                    op_found = False
-                    for op, op_suffix in ops.items():
-                        if op in condition:
-                            op_found = True
-                            k, v = condition.split(op)
-                            keys = k.split(".")
-
-                            try:
-                                value = int(v)
-                            except ValueError:
-                                value = v
-
-                            if keys[0].strip().lower() in ["disks", "interfaces"]:
-
-                                key = f"{keys[0].strip()}__match"
-                                condition_dict = {
-                                    f"{'__'.join(keys[1:])}{op_suffix}".strip(): value
-                                }
-                                if kwargs.get(key, False):
-                                    kwargs[key].update(condition_dict)
-                                else:
-                                    kwargs[key] = condition_dict
-                            else:
-                                if keys[0].strip().lower() == "model":
-                                    if value.upper() not in conf["models"].split(","):
-                                        logger.error("Model type not recognized.")
-                                        logger.warning(
-                                            f"Accepted model names are: {conf['models']}"
-                                        )
-                                        exit(1)
-                                query = {f"{'__'.join(keys)}{op_suffix}": value.upper()}
-                                kwargs.update(query)
-                            break
-                    if not op_found:
-                        logger.error(
-                            "A filter was defined but not parsed correctly. Check filter operator."
-                        )
-                        logger.warning(f"Condition: {condition}")
-                        logger.warning(f"Accepted operators: {', '.join(ops.keys())}")
-                        exit(1)
-                if not kwargs:
-                    logger.error(
-                        "A filter was defined but not parsed correctly. Check filter syntax."
-                    )
-                    exit(1)
+                filter_args = filter_kwargs(_args.filter)
+                kwargs.update(filter_args)
 
             if _args.schedstart and _args.schedend is None:
                 _args.schedend = _args.schedstart
