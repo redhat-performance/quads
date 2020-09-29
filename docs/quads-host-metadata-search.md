@@ -78,3 +78,10 @@ quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "202
 ```
 quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "disks.disk_type==nvme,disks.count>2, disks.size_gb<2000"
 ```
+
+  * Search all available systems by MAC Address.
+  * This is useful for finding what host has what MAC Address.
+
+```
+quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48
+```

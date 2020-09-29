@@ -56,6 +56,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Find Available Hosts](#find-available-hosts)
             * [Find Available Hosts based on Hardware or Model](#find-available-hosts-based-on-hardware-or-model)
             * [Find Available Web Preview](#find-available-web-preview)
+            * [Find a System by MAC Address](#find-a-system-by-mac-address)
       * [Interacting with MongoDB](#interacting-with-mongodb)
          * [Example: Get hosts by switch port and switch ip](#example-get-hosts-by-switch-port-and-switch-ip)
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
@@ -884,6 +885,13 @@ quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "202
 
 * Control + click can select more than one model
 * Not selecting a model assumes a search for anything available.
+
+#### Find a System by MAC Address
+* You can utilize the new metadata model and `--filter` command in `1.1.4` and above along with `--ls-hosts` to search for a system by MAC Address.
+
+```
+quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48
+```
 
 ## Interacting with MongoDB
 * In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
