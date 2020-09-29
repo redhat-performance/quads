@@ -248,16 +248,21 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 return False
 
         healthy = False
-        for i in range(RETRIES):
-            nc = Netcat(_host_obj.name)
-            if nc.health_check():
-                healthy = True
+        try:
+            for i in range(RETRIES):
+                nc = Netcat(_host_obj.name)
+                if nc.health_check():
+                    healthy = True
+                    nc.close()
+                    break
                 nc.close()
-                break
-            nc.close()
+        except OSError as ex:
+            logger.debug(ex)
+            logger.error("Health check failed after several attempts. Check if host is up and port 22 open.")
+            return False
 
         if not healthy:
-            logger.error("Failed to recover host after changing boot order.")
+            logger.error("Health check failed after several attempts.")
             return False
 
         if is_supported(host):
