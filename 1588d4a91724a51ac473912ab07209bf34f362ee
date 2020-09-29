@@ -22,6 +22,30 @@
       "revId": "1588d4a91724a51ac473912ab07209bf34f362ee",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1694742c_9eecfc25",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-09-29T15:26:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3985b8a9_063724e4",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 72
+      },
+      "revId": "1588d4a91724a51ac473912ab07209bf34f362ee",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
