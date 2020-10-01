@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+import asyncio
 import logging
 import os
 
@@ -24,7 +24,7 @@ class Days(Enum):
     SEVEN_DAYS = 7
 
 
-def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
+async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     template_file = "initial_message"
     irc_bot_ip = conf["ircbot_ipaddr"]
     irc_bot_port = conf["ircbot_port"]
@@ -53,14 +53,14 @@ def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         postman.send_email()
     if conf["irc_notify"]:
         try:
-            with Netcat(irc_bot_ip, irc_bot_port) as nc:
+            async with Netcat(irc_bot_ip, irc_bot_port) as nc:
                 message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
                     irc_bot_channel,
                     cloud_info,
                     conf["wp_wiki"],
                     cloud
                 )
-                nc.write(bytes(message.encode("utf-8")))
+                await nc.write(bytes(message.encode("utf-8")))
         except (TypeError, BrokenPipeError) as ex:
             logger.debug(ex)
             logger.error("Beep boop netcat can't communicate with your IRC.")
@@ -148,6 +148,8 @@ def create_future_message(
 
 
 def main():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     future_days = 7
 
     _all_clouds = Cloud.objects()
@@ -173,12 +175,14 @@ def main():
         )
         if not notification_obj.initial:
             logger.info('=============== Initial Message')
-            create_initial_message(
-                cloud.owner,
-                cloud.name,
-                cloud_info,
-                cloud.ticket,
-                cloud.ccuser,
+            loop.run_until_complete(
+                create_initial_message(
+                    cloud.owner,
+                    cloud.name,
+                    cloud_info,
+                    cloud.ticket,
+                    cloud.ccuser,
+                )
             )
             notification_obj.update(initial=True)
 
