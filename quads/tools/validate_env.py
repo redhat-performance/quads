@@ -121,13 +121,14 @@ class Validator(object):
                 for host in pending:
                     logger.info(host)
                     nc = Netcat(host)
-                    if not nc.health_check():
+                    healthy = loop.run_until_complete(nc.health_check())
+                    if not healthy:
                         logger.warning(
                             "Host %s didn't pass the health check. "
                             "Potential provisioning in process. SKIPPING." % host
                         )
                         continue
-                    nc.close()
+                    loop.run_until_complete(nc.close())
                     badfish = None
                     try:
                         badfish = loop.run_until_complete(
@@ -177,13 +178,16 @@ class Validator(object):
         return not failed
 
     def post_network_test(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         test_host = self.hosts[0]
         hosts_down = []
         for host in self.hosts:
             nc = Netcat(host.name)
-            if not nc.health_check():
+            healthy = loop.run_until_complete(nc.health_check())
+            if not healthy:
                 hosts_down.append(host.name)
-            nc.close()
+            loop.run_until_complete(nc.close())
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 

@@ -1,28 +1,29 @@
 #!/usr/bin/python3
-
+import asyncio
 import socket
 
 
 class Netcat:
     """ Python 'netcat like' module """
 
-    def __init__(self, ip, port=22):
+    def __init__(self, ip, port=22, loop=None):
         self.ip = ip
         self.port = port
         self.buff = ""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.loop = loop if loop else get_running_loop()
 
-    def __enter__(self):
-        self.connect()
+    async def __aenter__(self):
+        await self.connect()
         return self
 
-    def __exit__(self, *args):
-        self.close()
+    async def __aexit__(self, *args):
+        await self.close()
 
-    def health_check(self, timeout=15):
+    async def health_check(self, timeout=15):
         try:
             self.socket.settimeout(timeout)
-            self.connect()
+            await self.connect()
         except (
             socket.timeout,
             TimeoutError,
@@ -32,14 +33,15 @@ class Netcat:
             return False
         return True
 
-    def read(self, length=1024):
+    async def read(self, length=1024):
         """ Read 1024 bytes off the socket """
-        return self.socket.recv(length)
+        sock_recv = await self.loop.sock_recv(self.socket, length)
+        return sock_recv
 
-    def read_until(self, data):
+    async def read_until(self, data):
         """ Read data into the buffer until we have data """
         while data not in self.buff:
-            self.buff += self.socket.recv(1024)
+            self.buff += await self.loop.sock_recv(self.socket, 1024)
 
         pos = self.buff.find(data)
         return_val = self.buff[: pos + len(data)]
@@ -47,11 +49,20 @@ class Netcat:
 
         return return_val
 
-    def write(self, data):
-        self.socket.send(data)
+    async def write(self, data):
+        await self.loop.sock_sendall(self.socket, data)
 
-    def connect(self):
-        self.socket.connect((self.ip, self.port))
+    async def connect(self):
+        await self.loop.sock_connect(self.socket, (self.ip, self.port))
 
-    def close(self):
+    async def close(self):
         self.socket.close()
+
+
+def get_running_loop() -> asyncio.AbstractEventLoop:
+    loop = asyncio.get_event_loop()
+    if not loop.is_running():
+        raise RuntimeError(
+            "The object should be created within an async function"
+        )
+    return loop
