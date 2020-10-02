@@ -15,6 +15,7 @@ from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
+from quads.tools.helpers import get_running_loop
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
@@ -23,13 +24,14 @@ logger = logging.getLogger(__name__)
 
 
 class Validator(object):
-    def __init__(self, cloud):
+    def __init__(self, cloud, _loop=None):
         self.cloud = cloud
         self.report = ""
         self.hosts = Host.objects(cloud=self.cloud, validated=False)
         self.hosts = [
             host for host in self.hosts if Schedule.current_schedule(host=host)
         ]
+        self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
         template_file = "validation_failed"
@@ -82,15 +84,14 @@ class Validator(object):
         )
         return False
 
-    def post_system_test(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    async def post_system_test(self):
         password = f"{conf['infra_location']}@{self.cloud.ticket}"
         foreman = Foreman(
-            conf["foreman_api_url"], self.cloud.name, password, loop=loop,
+            conf["foreman_api_url"], self.cloud.name, password, loop=self.loop,
         )
 
-        if not loop.run_until_complete(foreman.verify_credentials()):
+        valid_creds = await foreman.verify_credentials()
+        if not valid_creds:
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % password)
             self.report = (
@@ -102,7 +103,7 @@ class Validator(object):
             )
             return False
 
-        build_hosts = loop.run_until_complete(foreman.get_build_hosts())
+        build_hosts = await foreman.get_build_hosts()
 
         pending = []
         schedules = Schedule.current_schedule(cloud=self.cloud)
@@ -121,42 +122,43 @@ class Validator(object):
                 for host in pending:
                     logger.info(host)
                     nc = Netcat(host)
-                    if not nc.health_check():
+                    healthy = await nc.health_check()
+                    if not healthy:
                         logger.warning(
                             "Host %s didn't pass the health check. "
                             "Potential provisioning in process. SKIPPING." % host
                         )
                         continue
-                    nc.close()
+                    await nc.close()
                     badfish = None
                     try:
-                        badfish = loop.run_until_complete(
-                            badfish_factory(
-                                "mgmt-" + host,
-                                str(conf["ipmi_username"]),
-                                str(conf["ipmi_password"]),
-                            )
+                        badfish = await badfish_factory(
+                            "mgmt-" + host,
+                            str(conf["ipmi_username"]),
+                            str(conf["ipmi_password"]),
                         )
                         if is_supported(host):
-                            loop.run_until_complete(
-                                badfish.boot_to_type(
-                                    "foreman",
-                                    os.path.join(
-                                        os.path.dirname(__file__),
-                                        "../../conf/idrac_interfaces.yml",
-                                    ),
-                                )
+                            await badfish.boot_to_type(
+                                "foreman",
+                                os.path.join(
+                                    os.path.dirname(__file__),
+                                    "../../conf/idrac_interfaces.yml",
+                                ),
                             )
                         else:
-                            loop.run_until_complete(badfish.set_next_boot_pxe())
-                        loop.run_until_complete(badfish.reboot_server())
+                            await badfish.set_next_boot_pxe()
+                        await badfish.reboot_server()
                     except BadfishException as ಥ﹏ಥ:
                         logger.debug(ಥ﹏ಥ)
                         if badfish:
-                            logger.warning(f"There was something wrong trying to boot from Foreman interface for: {host}")
-                            loop.run_until_complete(badfish.reboot_server())
+                            logger.warning(
+                                f"There was something wrong trying to boot from Foreman interface for: {host}"
+                            )
+                            await badfish.reboot_server()
                         else:
-                            logger.error(f"Could not initiate Badfish instance for: {host}")
+                            logger.error(
+                                f"Could not initiate Badfish instance for: {host}"
+                            )
 
                     self.report = self.report + "%s\n" % host
                 return False
@@ -164,31 +166,32 @@ class Validator(object):
         failed = False
         for host in self.hosts:
             try:
-                badfish = loop.run_until_complete(
-                    badfish_factory(
-                        "mgmt-" + host.name, str(conf["ipmi_cloud_username"]), password,
-                    )
+                badfish = await badfish_factory(
+                    "mgmt-" + host.name, str(conf["ipmi_cloud_username"]), password,
                 )
-                loop.run_until_complete(badfish.validate_credentials())
+                await badfish.validate_credentials()
             except BadfishException:
                 logger.info(f"Could not verify badfish credentials for: {host.name}")
                 failed = True
 
         return not failed
 
-    def post_network_test(self):
+    async def post_network_test(self):
         test_host = self.hosts[0]
         hosts_down = []
         for host in self.hosts:
             nc = Netcat(host.name)
-            if not nc.health_check():
+            healthy = await nc.health_check()
+            if not healthy:
                 hosts_down.append(host.name)
-            nc.close()
+            await nc.close()
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 
         if hosts_down:
-            logger.error("The following hosts appear to be down or with no ssh connection:")
+            logger.error(
+                "The following hosts appear to be down or with no ssh connection:"
+            )
             for i in hosts_down:
                 logger.error(i)
             return False
@@ -238,7 +241,7 @@ class Validator(object):
 
         return True
 
-    def validate_env(self):
+    async def validate_env(self):
         logger.info(f"Validating {self.cloud.name}")
         notification_obj = Notification.objects(
             cloud=self.cloud, ticket=self.cloud.ticket
@@ -247,10 +250,12 @@ class Validator(object):
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                if not self.post_system_test():
+                result_pst = await self.post_system_test()
+                if not result_pst:
                     failed = True
 
-                if not failed and not self.post_network_test():
+                result_pnt = await self.post_network_test()
+                if not failed and not result_pnt:
                     failed = True
 
             # TODO: gather ansible-cmdb facts
@@ -273,6 +278,19 @@ class Validator(object):
         return
 
 
+def main(_loop):
+    clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
+    for _cloud in clouds:
+        _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
+        if _schedule_count and _cloud.wipe:
+            validator = Validator(_cloud, _loop=_loop)
+            try:
+                _loop.run_until_complete(validator.validate_env())
+            except Exception as ex:
+                logger.debug(ex)
+                logger.info("Failed validation for %s" % _cloud.name)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
     parser.add_argument(
@@ -289,13 +307,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=level, format="%(message)s")
 
-    clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
-    for _cloud in clouds:
-        _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
-        if _schedule_count and _cloud.wipe:
-            validator = Validator(_cloud)
-            try:
-                validator.validate_env()
-            except Exception as ex:
-                logger.debug(ex)
-                logger.info("Failed validation for %s" % _cloud.name)
+    loop_main = asyncio.get_event_loop()
+    asyncio.set_event_loop(loop_main)
+
+    main(loop_main)
