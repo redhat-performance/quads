@@ -62,6 +62,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Example: Change the wipe value in MongoDB](#example-change-the-wipe-value-in-mongodb)
          * [Example: Querying Notification Values in MongoDB](#example-querying-notification-values-in-mongodb)
          * [Example: Query Multiple Values in MongoDB inside Collections](#example-query-multiple-values-in-mongodb-inside-collections)
+         * [Example: Manually Validate Hosts](#example-manually-validate-hosts)
          * [Example: Manually moving a Host Cloud in MongoDB](#example-manually-moving-a-host-cloud-in-mongodb)
          * [Example: Toggling Individual Cloud Metadata Settings](#example-toggling-individual-cloud-metadata-settings)
          * [Example: Modifying cc-users](#example-modifying-cc-users)
@@ -993,6 +994,23 @@ db.notification.find({cloud:ObjectId("5c82b3690f767d000692acff"), ticket: "49173
 ```
 { "_id" : ObjectId("5d03b161913706625477d581"), "cloud" : ObjectId("5c82b3690f767d000692acff"), "ticket" : "491731", "fail" : false, "success" : true, "initial" : true, "pre_initial" : true, "pre" : false, "one_day" : false, "three_days" : false, "five_days" : false, "seven_days" : false }
 ```
+
+### Example: Manually Validate Hosts
+* If there's systems you want to quickly pass through QUADS validation you can set `validated: true` in Mongo to release them.
+
+* Check the `validated` flag
+
+```
+db.host.find({name: "f20-h01-000-5039ms.example.com"})
+```
+
+* Set `validated` to true.
+
+```
+db.host.update({name:"f20-h01-000-5039ms.example.com"}, {$set:{validated:true}})
+```
+
+* Re-running `/opt/quads/quads/tools/validate_env.py` should pass the systems.
 
 ### Example: Manually moving a Host Cloud in MongoDB
 
