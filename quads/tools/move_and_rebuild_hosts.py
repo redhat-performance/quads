@@ -290,9 +290,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     "chassis",
                     "bootdev",
                     "pxe",
-                    "options",
-                    "=",
-                    "persistent",
+                    "options=persistent",
                 ]
                 await execute_ipmi(
                     host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore
