@@ -101,7 +101,7 @@ class Badfish:
                         uri,
                         auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
-                        timeout=60,
+                        timeout=120,
                     ) as _response:
                         await _response.text("utf-8", "ignore")
         except (Exception, TimeoutError) as ex:
@@ -123,6 +123,7 @@ class Badfish:
                         headers=headers,
                         auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
+                        timeout=120,
                     ) as _response:
                         if _response.status != 204:
                             await _response.text("utf-8", "ignore")
@@ -143,6 +144,7 @@ class Badfish:
                         headers=headers,
                         auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
+                        timeout=120,
                     ) as _response:
                         await _response.text("utf-8", "ignore")
         except Exception as ex:
