@@ -10,6 +10,7 @@ from distutils.util import strtobool
 from datetime import datetime
 from shutil import copyfile
 from quads.model import Cloud, Host
+from quads.tools.ansible_facts import get_host_interfaces
 from quads.tools.foreman import Foreman
 from quads.config import conf
 
@@ -46,6 +47,7 @@ def make_env_json(filename):
             foreman_password = f"{conf['infra_location']}@{cloud.ticket}"
 
         data = defaultdict(list)
+        host_interfaces = get_host_interfaces(host_list)
         for host in host_list:
             if conf["foreman_unavailable"]:
                 overcloud = {"result": "true"}
@@ -70,15 +72,16 @@ def make_env_json(filename):
                     mac = [interface.mac_address for interface in host.interfaces]
                 data["nodes"].append(
                     {
+                        "arch": "x86_64",
+                        "cpu": "2",
+                        "disk": "20",
+                        "mac": mac,
+                        "memory": "1024",
+                        "pm_addr": "mgmt-%s" % host.name,
+                        "pm_user": conf["ipmi_cloud_username"],
                         "pm_password": foreman_password,
                         "pm_type": "pxe_ipmitool",
-                        "mac": mac,
-                        "cpu": "2",
-                        "memory": "1024",
-                        "disk": "20",
-                        "arch": "x86_64",
-                        "pm_user": conf["ipmi_cloud_username"],
-                        "pm_addr": "mgmt-%s" % host.name,
+                        "net_devices": host_interfaces.get(host)
                     }
                 )
 
