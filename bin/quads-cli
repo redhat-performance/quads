@@ -367,7 +367,15 @@ def main(_args):
                 if Schedule.future_schedules(cloud=cloud).count():
                     continue
                 else:
-                    logger.info(cloud.name)
+                    cloud_reservation_lock = int(conf["cloud_reservation_lock"])
+                    lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
+                    cloud_string = f"{cloud.name}"
+                    if lock_release > datetime.now():
+                        time_left = lock_release - datetime.now()
+                        hours = time_left.total_seconds() // 3600
+                        minutes = (time_left.total_seconds() % 3600) // 60
+                        cloud_string += " (reserved: %dhr %dmin remaining)" % (hours, minutes)
+                    logger.info(cloud_string)
 
             exit(0)
 
@@ -454,6 +462,31 @@ def main(_args):
                 "Could not connect to the quads-server, verify service is up and running."
             )
             exit(1)
+        exit(0)
+
+    # Cloud Modify
+    elif _args.modcloud:
+        if not _args.cloudresource:
+            logger.error("Missing option --cloud")
+            exit(1)
+        data = {
+            "name": _args.cloudresource,
+            "description": _args.description,
+            "owner": _args.cloudowner,
+            "ccuser": _args.ccusers,
+            "qinq": _args.qinq,
+            "wipe": _args.wipe,
+            "ticket": _args.cloudticket,
+            "vlan": _args.vlan,
+        }
+        clean_data = {k: v for k, v in data.items() if v and k is not "name"}
+        cloud = Cloud.objects(name=data["name"]).first()
+        if cloud:
+            cloud.update(**clean_data)
+        else:
+            logger.error("Cloud not found")
+            exit(1)
+
         exit(0)
 
     # Cloud Remove
@@ -1123,6 +1156,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Define a cloud environment",
+    )
+    group.add_argument(
+        "--mod-cloud",
+        dest="modcloud",
+        type=str,
+        default=None,
+        help="Modify a cloud",
     )
     group.add_argument(
         "--add-schedule",
