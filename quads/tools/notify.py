@@ -54,11 +54,13 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     if conf["irc_notify"]:
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s" % (
+                message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s -  %s %s" % (
                     irc_bot_channel,
                     cloud_info,
                     conf["wp_wiki"],
-                    cloud
+                    cloud,
+                    real_owner,
+                    conf["report_cc"],
                 )
                 await nc.write(bytes(message.encode("utf-8")))
         except (TypeError, BrokenPipeError) as ex:
