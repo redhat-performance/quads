@@ -46,7 +46,9 @@ class MovesMethodHandler(MethodHandlerBase):
 
                     _scheduled_cloud = _host.default_cloud.name
                     _host_defined_cloud = _host.cloud.name
-                    _current_schedule = self.model.current_schedule(host=_host, date=date).first()
+                    _current_schedule = self.model.current_schedule(
+                        host=_host, date=date
+                    ).first()
                     try:
                         if _current_schedule:
                             _scheduled_cloud = _current_schedule.cloud.name
@@ -160,7 +162,9 @@ class DocumentMethodHandler(MethodHandlerBase):
                 else:
                     date = datetime.datetime.now()
                     if "date" in data:
-                        date = datetime.datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S")
+                        date = datetime.datetime.strptime(
+                            data["date"], "%Y-%m-%dT%H:%M:%S"
+                        )
                     count = self.model.current_schedule(cloud=cloud, date=date).count()
                     total_count += count
                 clouds_summary.append(
@@ -192,10 +196,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                 else:
                     qinq_value = "1 (Combined)"
                 clouds_qinq.append(
-                    {
-                        "name": cloud.name,
-                        "qinq": qinq_value,
-                    }
+                    {"name": cloud.name, "qinq": qinq_value,}
                 )
 
             return json.dumps(clouds_qinq)
@@ -237,6 +238,25 @@ class DocumentMethodHandler(MethodHandlerBase):
                     if force and obj:
                         schedule_count = 0
                         if self.name == "cloud":
+                            if obj.last_redefined:
+                                cloud_reservation_lock = int(
+                                    conf["cloud_reservation_lock"]
+                                )
+                                lock_release = obj.last_redefined + datetime.timedelta(
+                                    hours=cloud_reservation_lock
+                                )
+                                if lock_release > datetime.datetime.now():
+                                    time_left = lock_release - datetime.datetime.now()
+                                    hours = time_left.total_seconds() // 3600
+                                    minutes = (time_left.total_seconds() % 3600) // 60
+                                    cloud_string = (
+                                        "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
+                                        % (obj.name, hours, minutes,)
+                                    )
+                                    result.append(cloud_string)
+                                    cherrypy.response.status = "400 Bad Request"
+                                    return json.dumps({"result": result})
+
                             schedule_count = model.Schedule.objects(
                                 cloud=obj, start__gte=datetime.datetime.now()
                             ).count()
@@ -261,7 +281,9 @@ class DocumentMethodHandler(MethodHandlerBase):
                             else:
                                 model.CloudHistory(**history_data).save()
 
-                            current_schedule = model.Schedule.current_schedule(cloud=obj).count()
+                            current_schedule = model.Schedule.current_schedule(
+                                cloud=obj
+                            ).count()
                             if current_schedule:
                                 if data.get("wipe", False):
                                     if data["wipe"]:
@@ -421,12 +443,14 @@ class ScheduleMethodHandler(MethodHandlerBase):
             try:
                 if model.Schedule.is_host_available(host=_host, start=_start, end=_end):
 
-                    if self.model.current_schedule(cloud=cloud_obj) and cloud_obj.validated:
+                    if (
+                        self.model.current_schedule(cloud=cloud_obj)
+                        and cloud_obj.validated
+                    ):
                         if not cloud_obj.wipe:
                             _host_obj.update(validated=True)
                         notification_obj = model.Notification.objects(
-                            cloud=cloud_obj,
-                            ticket=cloud_obj.ticket
+                            cloud=cloud_obj, ticket=cloud_obj.ticket
                         ).first()
                         if notification_obj:
                             notification_obj.update(success=False)

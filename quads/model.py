@@ -102,6 +102,7 @@ class Cloud(Document):
     provisioned = BooleanField(default=False)
     validated = BooleanField(default=False)
     vlan = ReferenceField(Vlan)
+    last_redefined = DateTimeField(default=datetime.datetime.now())
     meta = {
         'indexes': [
             {
@@ -137,6 +138,8 @@ class Cloud(Document):
             else:
                 data["wipe"] = True
         data['validated'] = False
+
+        data['last_redefined'] = datetime.datetime.now()
 
         params = ['name', 'description', 'owner']
         result, data = param_check(data, params)
