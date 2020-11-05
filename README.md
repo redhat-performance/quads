@@ -419,6 +419,21 @@ cloud01 : 45 (Primary Cloud Environment)
 cloud02 : 0 (02 Cloud Environment)
 cloud03 : 0 (03 Cloud Environment)
 ```
+   - For a more in-detail summary, use --detail:
+
+```
+quads-cli --summary --detail
+```
+```
+cloud01 (quads): 45 (Primary Cloud Environment) - 451
+cloud02 (jdoe): 0 (02 Cloud Environment) - 462
+cloud03 (jhoffa): 0 (03 Cloud Environment) - 367
+```
+**NOTE:**
+
+The format here is based on the following:
+`{cloud_name} ({owner}): {count} ({description}) - {ticket_number}`
+
    - Define a custom schedule for a host
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
