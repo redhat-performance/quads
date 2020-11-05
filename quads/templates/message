@@ -17,8 +17,8 @@ the pool of available hosts.
 
 
 {% if quads_request_url %}
-To request an extension please file a new request via
-the form below with your cloud number in the subject line.
+To request an extension to your assignment, visit the
+the extension request page below noting you cloud number.
 
 {{ cloud }} Extension
 
