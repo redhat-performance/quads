@@ -1052,10 +1052,22 @@ def main(_args):
             exit(1)
         for cloud in summary:
             if _args.fullsummary or cloud["count"] > 0:
-                logger.info(
-                    "%s: %s (%s)"
-                    % (cloud["name"], cloud["count"], cloud["description"])
-                )
+                if _args.detail:
+                    logger.info(
+                        "%s (%s): %s (%s) - %s"
+                        % (
+                            cloud["name"],
+                            cloud["owner"],
+                            cloud["count"],
+                            cloud["description"],
+                            cloud["ticket"],
+                        )
+                    )
+                else:
+                    logger.info(
+                        "%s: %s (%s)"
+                        % (cloud["name"], cloud["count"], cloud["description"])
+                    )
         exit(0)
 
     elif _args.version:
@@ -1360,6 +1372,12 @@ if __name__ == "__main__":
         dest="summary",
         action="store_true",
         help="Generate a summary report",
+    )
+    parser.add_argument(
+        "--detail",
+        dest="detail",
+        action="store_true",
+        help="Get additional data over the summary",
     )
     parser.add_argument(
         "--full-summary",
