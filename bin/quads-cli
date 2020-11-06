@@ -39,7 +39,7 @@ from quads.quads import Api as QuadsApi
 from quads.tools import reports
 from quads.tools.foreman import Foreman
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
-from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification
+from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -193,6 +193,21 @@ def main(_args):
                         f"port: {interface['switch_port']}"
                     )
                     logger.info(message)
+            exit(0)
+
+        if _args.action == "ls_vlan":
+            _vlans = Vlan.objects().all()
+            if not _vlans:
+                logger.error("No VLANs defined")
+                exit(1)
+
+            for vlan in _vlans:
+                _cloud = Cloud.objects(vlan=vlan).first()
+                cloud_assigned = "Free"
+                if _cloud:
+                    cloud_assigned = _cloud.name
+                logger.info(f"{vlan.vlan_id}: {cloud_assigned}")
+
             exit(0)
 
         if _args.action == "schedule":
@@ -1266,6 +1281,13 @@ if __name__ == "__main__":
         action="store_const",
         const="interface",
         help="List the host interfaces",
+    )
+    group.add_argument(
+        "--ls-vlan",
+        dest="action",
+        action="store_const",
+        const="ls_vlan",
+        help="List the available vlans with the clouds assigned",
     )
     group.add_argument(
         "--find-free-cloud",
