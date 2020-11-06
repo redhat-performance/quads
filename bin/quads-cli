@@ -164,6 +164,13 @@ def main(_args):
                         logger.info(str(k["name"]) + ": " + str(k[_args.action]))
                 exit(0)
 
+        if _args.action == "broken":
+            _hosts = Host.objects(broken=True)
+            for host in _hosts:
+                logger.info(host.name)
+
+            exit(0)
+
         if _args.action == "interface":
             if _args.host is None:
                 logger.error(
@@ -324,10 +331,10 @@ def main(_args):
                 _args.schedend = _args.schedstart
 
             if _args.schedstart is None and _args.schedend:
-                _args.schedstart = datetime.now()
+                _args.schedstart = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             if _args.schedstart is None and _args.schedend is None:
-                _args.schedstart = _args.schedend = datetime.now()
+                _args.schedstart = _args.schedend = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             _start = datetime.strptime(_args.schedstart, "%Y-%m-%d %H:%M")
             _end = datetime.strptime(_args.schedend, "%Y-%m-%d %H:%M")
@@ -340,20 +347,13 @@ def main(_args):
                 logger.debug(ᵔᴥᵔ)
                 logger.debug(f"search params: {kwargs}")
                 logger.error("There was something wrong constructing the parameters for the query.")
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            foreman = Foreman(
-                conf["foreman_api_url"],
-                conf["foreman_username"],
-                conf["foreman_password"],
-                loop=loop,
-            )
-            broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
+
+            broken_hosts = Host.objects(broken=True)
 
             for host in all_hosts:
                 if Schedule.is_host_available(
                     host=host["name"], start=_start, end=_end
-                ) and not broken_hosts.get(host["name"], False):
+                ) and host not in broken_hosts:
                     available.append(host["name"])
 
             for host in available:
@@ -741,6 +741,7 @@ def main(_args):
             exit(1)
         exit(0)
 
+    # Schedule Remove
     elif _args.rmschedule is not None:
         if _args.host:
             data = {"host": _args.host, "index": str(_args.rmschedule)}
@@ -756,6 +757,7 @@ def main(_args):
             logger.error("Missing option. Need --host when using --rm-schedule")
             exit(1)
 
+    # Schedule Mod
     elif _args.modschedule is not None:
         if _args.host is None:
             logger.error("Missing option. Need --host when using --mod-schedule")
@@ -790,6 +792,7 @@ def main(_args):
             exit(1)
         exit(0)
 
+    # Schedule Extend
     elif _args.extendcloud is not None:
         if _args.weeks is None:
             logger.error("Missing option. Need --weeks when using --extend-cloud")
@@ -854,6 +857,7 @@ def main(_args):
             )
         exit(0)
 
+    # Move hosts
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:
             logger.error(
@@ -978,6 +982,42 @@ def main(_args):
                         _new_cloud_obj.update(provisioned=True, validated=validate)
 
             exit(0)
+
+    elif _args.mark_broken:
+        if _args.host:
+            host = Host.objects(name=_args.host).first()
+            if host:
+                if host.broken:
+                    logger.warning("Host has already been marked broken")
+                else:
+                    host.update(broken=True)
+                    logger.info("Host is now marked as broken")
+            else:
+                logger.error("Host not found")
+                exit(1)
+
+            exit(0)
+        else:
+            logger.error("Missing option. Need --host when using --mark-broken")
+            exit(1)
+
+    elif _args.mark_repaired:
+        if _args.host:
+            host = Host.objects(name=_args.host).first()
+            if host:
+                if not host.broken:
+                    logger.warning("Host has already been marked repaired")
+                else:
+                    host.update(broken=False)
+                    logger.info("Host is now marked as repaired")
+            else:
+                logger.error("Host not found")
+                exit(1)
+
+            exit(0)
+        else:
+            logger.error("Missing option. Need --host when using --mark-repaired")
+            exit(1)
 
     elif _args.host:
         _host = Host.objects(name=_args.host).first()
@@ -1283,6 +1323,13 @@ if __name__ == "__main__":
         const="report_detailed",
         help="QUADS reporting scheduled assignments",
     )
+    group.add_argument(
+        "--ls-broken",
+        dest="action",
+        action="store_const",
+        const="broken",
+        help="List all hosts marked as broken",
+    )
 
     parser.add_argument(
         "--host", dest="host", type=str, default=None, help="Specify the host to query"
@@ -1492,6 +1539,18 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Filter search by host metadata",
+    )
+    parser.add_argument(
+        "--mark-broken",
+        action="store_true",
+        default=False,
+        help="Mark host as broken",
+    )
+    parser.add_argument(
+        "--mark-repaired",
+        action="store_true",
+        default=False,
+        help="Mark broken host as repaired",
     )
     parser.add_argument(
         "--debug",
