@@ -203,6 +203,7 @@ class Host(Document):
     last_build = DateTimeField()
     disks = ListField(EmbeddedDocumentField(Disk))
     switch_config_applied = BooleanField(default=False)
+    broken = BooleanField(default=False)
     meta = {
         'indexes': [
             {
