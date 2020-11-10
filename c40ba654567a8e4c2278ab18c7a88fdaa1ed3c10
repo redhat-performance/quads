@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22ccdbe6_e5c36104",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2020-11-10T11:45:26Z",
+      "side": 1,
+      "message": "I think this is missing the dest\u003d\"mark_broken\"",
+      "revId": "c40ba654567a8e4c2278ab18c7a88fdaa1ed3c10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17b7bbe2_5ae64760",
+        "filename": "bin/quads-cli",
+        "patchSetId": 2
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2020-11-10T11:45:26Z",
+      "side": 1,
+      "message": "I think this is missing the dest\u003d\"mark_repaired\"",
+      "revId": "c40ba654567a8e4c2278ab18c7a88fdaa1ed3c10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
