@@ -161,25 +161,19 @@ def print_summary():
     return _summary
 
 
-def print_unmanaged(hosts, broken_hosts):
+def print_unmanaged(hosts):
     lines = ["\n", '### <a name="unmanaged"></a>Unmanaged systems ###\n', "\n"]
     _headers = ["**SystemHostname**", "**OutOfBand**"]
     lines.append("| %s |\n" % " | ".join(_headers))
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
         real_host = host[5:]
-        if not broken_hosts.get(real_host, False):
+        host_obj = Host.objects(name=real_host).first()
+        if not host_obj:
             short_host = real_host.split(".")[0]
-
-            _host_response = requests.get(os.path.join(API_URL, "host?name=%s" % real_host))
-            _host = {}
-            if _host_response.status_code == 200:
-                _host = _host_response.json()
-
-            if not _host or "name" not in _host:
-                lines.append(
-                    "| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host)
-                )
+            lines.append(
+                "| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host)
+            )
     return lines
 
 
@@ -188,9 +182,9 @@ def print_faulty(broken_hosts):
     _headers = ["**SystemHostname**", "**OutOfBand**"]
     lines.append("| %s |\n" % " | ".join(_headers))
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
-    for host, properties in broken_hosts.items():
-        short_host = host.split(".")[0]
-        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host))
+    for host in broken_hosts:
+        short_host = host.name.split(".")[0]
+        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host.name))
     return lines
 
 
@@ -245,12 +239,8 @@ def main():
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
 
-    broken_hosts = loop.run_until_complete(foreman.get_broken_hosts())
-    domain_broken_hosts = {
-        host: properties
-        for host, properties in broken_hosts.items()
-        if conf["domain"] in host
-    }
+    broken_hosts = Host.objects(broken=True)
+    domain_broken_hosts = [host for host in broken_hosts if conf["domain"] in host.name]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -283,7 +273,7 @@ def main():
             lines.extend(add_row(host))
         lines.append("\n")
 
-    lines.extend(print_unmanaged(mgmt_hosts, domain_broken_hosts))
+    lines.extend(print_unmanaged(mgmt_hosts))
     lines.extend(print_faulty(domain_broken_hosts))
 
     _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "assignments.md")

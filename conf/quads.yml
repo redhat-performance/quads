@@ -87,13 +87,6 @@ foreman_default_os: "RHEL 7"
 foreman_default_ptable: "generic-rhel7"
 foreman_default_medium: "RHEL Local"
 
-# Foreman host health checks
-# by setting the Foreman host parameter: broken_state: true
-# you can mark certain systems as broken and keep them from being scheduled
-# e.g.  hammer host set-parameter --host host01 --name broken_state --value true
-# set the following variable to true if you want this functionality
-foreman_check_host_health:
-
 # Foreman RBAC fix ignore
 # variable to pass cloud names to be excluded from foreman_heal
 # with values separated by pipes 'cloud32|cloud04' or singularly 'cloud02'
