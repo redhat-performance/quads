@@ -42,6 +42,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Optional QUADS Public VLAN](#optional-quads-public-vlan)
             * [Defining a New Cloud](#defining-a-new-cloud)
             * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
+         * [Managing Faulty Hosts](#managing-faulty-hosts)
+            * [Migrating to QUADS-managed Host Health](#migrating-to-quads-managed-host-health)
          * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
          * [Adding Hosts to an existing Cloud](#adding-hosts-to-an-existing-cloud)
@@ -608,6 +610,39 @@ After your hosts are provisioned and moved you should see them populate under th
 
 ```
 quads-cli --cloud-only cloud03
+```
+
+### Managing Faulty Hosts
+Starting with `1.1.4` QUADS can manage broken or faulty hosts for you and ensure they are ommitted from being added to a future schedule or listed as available.  Prior to `1.1.4` this is managed via the Foreman host parameter `broken_state` (true/false).
+
+* Listing all broken systems.
+```
+# quads-cli --ls-broken
+f18-h22-000-r620.stage.example.com
+```
+
+* Marking a system as faulty
+```
+# quads-cli --mark-broken --host f18-h23-000-r620.example.com
+Host f18-h23-000-r620.example.com is now marked as broken
+```
+
+* Marking a system as repaired or no longer faulty.
+```
+# quads-cli --mark-repaired --host f18-h23-000-r620.example.com
+Host f18-h23-000-r620.example.com is now marked as repaired.
+```
+
+* Hosts marked as faulty will be ommitted from `--ls-available`
+* Hosts marked as faulty are not able to be scheduled until they are marked as repaired again.
+
+#### Migrating to QUADS-managed Host Health
+
+* If you previously used the `broken_state` Foreman host parameter to manage your broken or out-of-service systems within your fleet you'll want to migrate to using the new methodology of the QUADS database handling this for you for versions `1.1.4` and higher.
+* You can use the following command to query Foreman and convert `broken_state` host parameters and status into QUADS:
+
+```
+for h in $(hammer host list --per-page 1000 --search params.broken_state=true | grep $(egrep ^domain /opt/quads/conf/quads.yml | awk '{ print $NF }') | awk '{ print $3 }') ; do quads-cli --mark-broken --host $h ; done
 ```
 
 ### Extending the __Schedule__ of an Existing Cloud

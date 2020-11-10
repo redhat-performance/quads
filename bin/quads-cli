@@ -1003,12 +1003,12 @@ def main(_args):
             host = Host.objects(name=_args.host).first()
             if host:
                 if host.broken:
-                    logger.warning("Host has already been marked broken")
+                    logger.warning("Host %s has already been marked broken" % (host.name))
                 else:
                     host.update(broken=True)
-                    logger.info("Host is now marked as broken")
+                    logger.info("Host %s is now marked as broken" % (host.name))
             else:
-                logger.error("Host not found")
+                logger.error("Host %s not found" % (host.name))
                 exit(1)
 
             exit(0)
@@ -1021,10 +1021,10 @@ def main(_args):
             host = Host.objects(name=_args.host).first()
             if host:
                 if not host.broken:
-                    logger.warning("Host has already been marked repaired")
+                    logger.warning("Host %s has already been marked repaired" % (host.name))
                 else:
                     host.update(broken=False)
-                    logger.info("Host is now marked as repaired")
+                    logger.info("Host %s is now marked as repaired" % (host.name))
             else:
                 logger.error("Host not found")
                 exit(1)
