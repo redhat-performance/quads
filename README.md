@@ -610,6 +610,30 @@ After your hosts are provisioned and moved you should see them populate under th
 quads-cli --cloud-only cloud03
 ```
 
+### Managing Faulty Hosts
+Starting with `1.1.4` QUADS can manage broken or faulty hosts for you and ensure they are ommitted from being added to a future schedule or listed as available.  Prior to `1.1.4` this is managed via the Foreman host parameter `broken_state` (true/false).
+
+* Listing all broken systems.
+```
+# quads-cli --ls-broken
+f18-h22-000-r620.stage.example.com
+```
+
+* Marking a system as faulty
+```
+# quads-cli --mark-broken --host f18-h23-000-r620.example.com
+Host f18-h23-000-r620.example.com is now marked as broken
+```
+
+* Marking a system as repaired or no longer faulty.
+```
+# quads-cli --mark-repaired --host f18-h23-000-r620.example.com
+Host f18-h23-000-r620.example.com is now marked as repaired.
+``` 
+
+* Hosts marked as faulty will be ommitted from `--ls-available`
+* Hosts marked as faulty are not able to be scheduled until they are marked as repaired again.
+
 ### Extending the __Schedule__ of an Existing Cloud
 
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
