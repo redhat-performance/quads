@@ -188,11 +188,13 @@ class DocumentMethodHandler(MethodHandlerBase):
             _clouds = Cloud.objects().all()
             clouds_qinq = []
             for cloud in _clouds:
-                if cloud.qinq:
-                    qinq_value = "0 (Isolated)"
-                else:
-                    qinq_value = "1 (Combined)"
-                clouds_qinq.append({"name": cloud.name, "qinq": qinq_value})
+                _type = "Isolated"
+                if cloud.qinq == 1:
+                    _type = "Combined"
+                qinq_value = f"{cloud.qinq} ({_type})"
+                clouds_qinq.append(
+                    {"name": cloud.name, "qinq": qinq_value}
+                )
 
             return json.dumps(clouds_qinq)
 

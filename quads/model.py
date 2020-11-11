@@ -66,7 +66,7 @@ class CloudHistory(Document):
     description = StringField()
     owner = StringField()
     ticket = StringField()
-    qinq = BooleanField()
+    qinq = IntField()
     wipe = BooleanField()
     ccuser = ListField()
     vlan_id = LongField()
@@ -96,7 +96,7 @@ class Cloud(Document):
     description = StringField()
     owner = StringField(default='quads')
     ticket = StringField(default='000000')
-    qinq = BooleanField(default=False)
+    qinq = IntField(default=0)
     wipe = BooleanField(default=True)
     ccuser = ListField()
     provisioned = BooleanField(default=False)
@@ -127,11 +127,6 @@ class Cloud(Document):
             data["vlan"] = None
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
-        if 'qinq' in data:
-            if str(data['qinq']).lower() == "false":
-                data["qinq"] = False
-            else:
-                data["qinq"] = True
         if 'wipe' in data:
             if str(data['wipe']).lower() == "false":
                 data["wipe"] = False
