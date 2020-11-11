@@ -37,7 +37,6 @@ from quads.config import conf, API_URL
 from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
-from quads.tools.foreman import Foreman
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
 
@@ -383,13 +382,18 @@ def main(_args):
                     continue
                 else:
                     cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-                    lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
+                    lock_release = cloud.last_redefined + timedelta(
+                        hours=cloud_reservation_lock
+                    )
                     cloud_string = f"{cloud.name}"
                     if lock_release > datetime.now():
                         time_left = lock_release - datetime.now()
                         hours = time_left.total_seconds() // 3600
                         minutes = (time_left.total_seconds() % 3600) // 60
-                        cloud_string += " (reserved: %dhr %dmin remaining)" % (hours, minutes)
+                        cloud_string += " (reserved: %dhr %dmin remaining)" % (
+                            hours,
+                            minutes,
+                        )
                     logger.info(cloud_string)
 
             exit(0)
@@ -465,7 +469,7 @@ def main(_args):
             "owner": _args.cloudowner,
             "ccuser": _args.ccusers,
             "qinq": _args.qinq,
-            "wipe": _args.wipe,
+            "wipe": _args.no_wipe or _args.wipe,
             "ticket": _args.cloudticket,
             "vlan": _args.vlan,
             "force": _args.force,
@@ -498,12 +502,17 @@ def main(_args):
             "description": _args.description,
             "owner": _args.cloudowner,
             "ccuser": _args.ccusers,
-            "qinq": _args.qinq,
-            "wipe": _args.wipe,
             "ticket": _args.cloudticket,
             "vlan": _args.vlan,
         }
+
         clean_data = {k: v for k, v in data.items() if v and k is not "name"}
+
+        if "--wipe" in sys.argv or "--no-wipe" in sys.argv:
+            clean_data["wipe"] = _args.no_wipe or _args.wipe
+        if "--qinq" in sys.argv:
+            clean_data["qinq"] = _args.qinq
+
         cloud = Cloud.objects(name=data["name"]).first()
         if cloud:
             cloud.update(**clean_data)
@@ -938,7 +947,8 @@ def main(_args):
                                     subprocess.check_call(
                                         [args.movecommand, host, current, new, "nowipe"]
                                     )
-                        except:
+                        except Exception as ex:
+                            logger.debug(ex)
                             logger.exception("Move command failed for host: %s" % host)
                             provisioned = False
 
@@ -1163,7 +1173,6 @@ def main(_args):
 
 
 if __name__ == "__main__":
-
     sys.path.append(conf["install_dir"])
     sys.path.append(os.path.dirname(__file__) + "/../")
 
@@ -1400,14 +1409,22 @@ if __name__ == "__main__":
     parser.add_argument(
         "--qinq",
         dest="qinq",
-        action="store_false",
+        type=int,
+        choices=[0, 1],
+        default=0,
         help="Define environment qinq state",
     )
     parser.add_argument(
         "--no-wipe",
-        dest="wipe",
+        dest="no_wipe",
         action="store_false",
         help="Define no wipe for safeguarding data after assignment",
+    )
+    parser.add_argument(
+        "--wipe",
+        dest="wipe",
+        action="store_true",
+        help="Define wipe for reprovisioning server before assignment",
     )
     parser.add_argument(
         "--cloud-ticket",
