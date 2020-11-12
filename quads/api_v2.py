@@ -470,6 +470,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
         if _host:
             schedule = self.model.objects(host=_host, index=data["index"]).first()
             if schedule:
+                cloud_history = CloudHistory.objects(schedules=schedule)
+                for cloud in cloud_history:
+                    cloud.schedules.remove(schedule)
+                    cloud.save()
                 schedule.delete()
                 cherrypy.response.status = "204 No Content"
                 result = ["deleted %s " % self.name]
