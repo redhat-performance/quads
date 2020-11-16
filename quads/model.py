@@ -81,7 +81,7 @@ class CloudHistory(Document):
 
     @staticmethod
     def prep_data(data):
-        for flag in ['provisioned', 'validated', 'vlan']:
+        for flag in ['provisioned', 'validated', 'vlan', 'last_redefined']:
             if flag in data:
                 data.pop(flag)
 
