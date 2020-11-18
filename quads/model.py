@@ -81,9 +81,16 @@ class CloudHistory(Document):
 
     @staticmethod
     def prep_data(data):
-        for flag in ['provisioned', 'validated', 'vlan', 'last_redefined']:
+        for flag in ['provisioned', 'validated', 'last_redefined']:
             if flag in data:
                 data.pop(flag)
+
+        if 'vlan' in data:
+            if type(data.get('vlan')) == str:
+                data['vlan_id'] = int(data.get('vlan'))
+            elif type(data.get('vlan')) == Vlan:
+                data['vlan_id'] = data.get('vlan').vlan_id
+            data.pop('vlan')
 
         params = ['name', 'description', 'owner', 'ticket']
         result, data = param_check(data, params)
