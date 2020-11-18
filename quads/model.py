@@ -113,7 +113,7 @@ class Cloud(Document):
     }
 
     @staticmethod
-    def prep_data(data):
+    def prep_data(data, fields=None, mod=False):
         if 'vlan' in data and data['vlan']:
             vlan_id = data.pop('vlan')
             vlan_obj = Vlan.objects(vlan_id=vlan_id).first()
@@ -132,12 +132,15 @@ class Cloud(Document):
                 data["wipe"] = False
             else:
                 data["wipe"] = True
-        data['validated'] = False
 
-        data['last_redefined'] = datetime.datetime.now()
+        if not mod:
+            data['validated'] = False
+            data['last_redefined'] = datetime.datetime.now()
 
-        params = ['name', 'description', 'owner']
-        result, data = param_check(data, params)
+        if not fields:
+            fields = ['name', 'description', 'owner']
+
+        result, data = param_check(data, fields)
 
         return result, data
 
