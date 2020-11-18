@@ -514,11 +514,21 @@ def main(_args):
             clean_data["qinq"] = _args.qinq
 
         cloud = Cloud.objects(name=data["name"]).first()
-        if cloud:
-            cloud.update(**clean_data)
+        results, prep_data = Cloud.prep_data(clean_data, fields=clean_data.keys(), mod=True)
+        if cloud and not results:
+            cloud.update(**prep_data)
         else:
-            logger.error("Cloud not found")
-            exit(1)
+            if results:
+                logger.error(
+                    f"Failed to validate data for {_args.modcloud}"
+                )
+                for result in results:
+                    logger.error(result)
+                exit(1)
+            else:
+                logger.error("Cloud not found")
+                exit(1)
+
         logger.info("Cloud modified successfully")
         exit(0)
 
