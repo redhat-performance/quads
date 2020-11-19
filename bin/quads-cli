@@ -112,7 +112,9 @@ def filter_kwargs(filter_args):
                                 f"Accepted model names are: {conf['models']}"
                             )
                             exit(1)
-                    query = {f"{'__'.join(keys)}{op_suffix}": value.upper()}
+                    if type(value) == str:
+                        value = value.upper()
+                    query = {f"{'__'.join(keys)}{op_suffix}": value}
                     kwargs.update(query)
                 break
         if not op_found:
