@@ -31,6 +31,13 @@ of your expiration date.
 
 {% endif %}
 
+{% if notify_until_extended %}
+If you have already submitted an extension you can disregard
+this message, our system will continue to send out expiration
+notices until the actual extension is executed.
+
+{% endif %}
+
 Docs:
 
 {{ wp_wiki }}/faq/
