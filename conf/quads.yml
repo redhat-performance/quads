@@ -232,3 +232,14 @@ models: R620,R630,R640,R930,R730XD,FC640,6018R,6048R,1029U-TRTP,1029U-TN10RT,102
 
 # Amount of hours for locking a cloud for redefinition
 cloud_reservation_lock: 48
+
+# Continue to send notifications for expiration until assignments are
+# actually extended.  We set this because our ticket system (JIRA) is not tied
+# into QUADS to silence expiration notices if an expiration request is
+# submitted, only when it's executed will notifications cease.
+# Unless you have done custom modification of notify.py/QUADS to tie toggling
+# MongoDB flags for 'message' you want to leave this alone.
+# Leaving the below to True will include a message in expiration notifications
+# that users can ignore future expiration warnings if they have already
+# submitted an extension request but it hasn't been executed yet.
+notify_until_extended: True
