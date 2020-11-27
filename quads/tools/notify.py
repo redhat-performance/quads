@@ -92,6 +92,7 @@ def create_message(
         wp_wiki=conf["wp_wiki"],
         quads_request_url=quads_request_url,
         quads_request_deadline_day=conf["quads_request_deadline_day"],
+        quads_notify_until_extended=conf["quads_notify_until_extended"],
         cloud=cloud,
         hosts=host_list_expire,
     )
