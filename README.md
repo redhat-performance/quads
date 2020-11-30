@@ -45,7 +45,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Managing Faulty Hosts](#managing-faulty-hosts)
             * [Migrating to QUADS-managed Host Health](#migrating-to-quads-managed-host-health)
          * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
-         * [Extending the <strong>Schedule</strong> of Existing Cloud with Differing Active Schedules](#extending-the-schedule-of-existing-cloud-with-differing-active-schedules)
+         * [Extending the <strong>Schedule</strong> of a Specific Host](#extending-the-schedule-of-a-specific-host)
+         * [Shrinking the <strong>Schedule</strong> of an Existing Cloud](#shrinking-the-schedule-of-an-existing-cloud)
+         * [Shrinking the <strong>Schedule</strong> of a Specific Host](#shrinking-the-schedule-of-a-specific-host)
+         * [Terminating a <strong>Schedule</strong>](#terminating-a-schedule)
          * [Adding Hosts to an existing Cloud](#adding-hosts-to-an-existing-cloud)
          * [Removing a Schedule](#removing-a-schedule)
          * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
@@ -648,12 +651,12 @@ for h in $(hammer host list --per-page 1000 --search params.broken_state=true | 
 ### Extending the __Schedule__ of an Existing Cloud
 
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
-In this example we'll be extending the assignment end date for cloud03
+In this example we'll be extending the assignment end date for cloud02
 
 In QUADS version `1.1.4` or higher or the current `master` branch you can extend a cloud environment with a simple command.
 
 ```
-quads-cli --extend-cloud cloud02 --weeks 2 --check
+quads-cli --extend --cloud cloud02 --weeks 2 --check
 ```
 
 This will check whether or not the environment can be extended without conflicts.
@@ -661,120 +664,76 @@ This will check whether or not the environment can be extended without conflicts
 To go ahead and extend it remove the `--check`
 
 ```
-quads-cli --extend-cloud cloud02 --weeks 2
+quads-cli --extend --cloud cloud02 --weeks 2
 ```
 
-For older versions of QUADS you'll want to do this via the `--mod-schedule` command as documented below.
+### Extending the __Schedule__ of a Specific Host
 
-
-   - First, get the updated list of current assignments
-
-```
-quads-cli --summary
-```
-```
-cloud01 : 55 (Pool of available servers)
-cloud02 : 12 (Small OSPD deployment)
-cloud03 : 20 (Messaging - AMQ - dispatch router and artemis broker)
-cloud04 : 60 (Ceph deployment)
-cloud07 : 10 (Small OSPD deployment)
-cloud09 : 5 (Keystone OSPD deployment)
-cloud10 : 14 (Openshift + OSPD testing)
-```
-
-   - Next, List the owners of the clouds.
+You might also want to extend the lifetime of a specific host.
+In this example we'll be extending the assignment end date for host01.
 
 ```
-quads-cli --ls-owner
-```
-```
-cloud01 : nobody
-cloud02 : bjohnson
-cloud03 : jhoffa
-cloud04 : ltorvalds
-cloud05 : nobody
-cloud06 : nobody
-cloud07 : dtrump
-cloud08 : nobody
-cloud09 : dtrump
-cloud10 : cnorris
+quads-cli --extend --host host01 --weeks 2 --check
 ```
 
-   - Lastly, obtain a list of the current machines in cloud03
+This will check whether or not the environment can be extended without conflicts.
+
+To go ahead and extend it remove the `--check`
 
 ```
-quads-cli --cloud-only cloud03
-```
-```
-b09-h01-r620.rdu.openstack.example.com
-b09-h02-r620.rdu.openstack.example.com
-b09-h03-r620.rdu.openstack.example.com
-b09-h05-r620.rdu.openstack.example.com
-b09-h06-r620.rdu.openstack.example.com
-b09-h07-r620.rdu.openstack.example.com
-b09-h09-r620.rdu.openstack.example.com
-b09-h11-r620.rdu.openstack.example.com
-b09-h14-r620.rdu.openstack.example.com
-b09-h15-r620.rdu.openstack.example.com
-b09-h17-r620.rdu.openstack.example.com
-b09-h18-r620.rdu.openstack.example.com
-b09-h19-r620.rdu.openstack.example.com
+quads-cli --extend --host host01 --weeks 2
 ```
 
-   - Take a look at the existing schedule for one of these machines, you'll see it expires 2016-10-30.
+### Shrinking the __Schedule__ of an Existing Cloud
+
+Occasionally you'll want to shrink the lifetime of a particular assignment.
+In this example we'll be shrinking the assignment end date for cloud02
 
 ```
-quads-cli --host b09-h01-r620.rdu.openstack.example.com --ls-schedule
-```
-```
-Default cloud: cloud01
-Current cloud: cloud03
-Current schedule: 0
-Defined schedules:
-  0| start=2016-10-17 00:00,end=2016-10-30 18:00,cloud=cloud03
+quads-cli --shrink --cloud cloud02 --weeks 2 --check
 ```
 
-   - Extend the ```--schedule-end``` date for the Cloud
+This will check whether or not the environment can be shrunk without conflicts.
 
-If you are sure you've got the right cloud assignment from above you can proceed
-This is the actual command that extends the schedule, the other commands above are more for your verification.
-Below we will be extending the schedule end date from 2016-10-30 to 2016-11-27 at 18:00
+To go ahead and shrink it remove the `--check`
 
 ```
-for h in $(quads-cli --cloud-only cloud03) ; do quads-cli --host $h --mod-schedule 0 --schedule-end "2016-11-27 18:00"; done
+quads-cli --shrink --cloud cloud02 --weeks 2
 ```
 
-### Extending the __Schedule__ of Existing Cloud with Differing Active Schedules
+### Shrinking the __Schedule__ of a Specific Host
 
-**NOTE** You should use the `quads-cli --extend-cloud` commands for QUADS versions `1.1.4` or current `master` branch.
-
-* First check extension viability
-
-```
-quads-cli --extend-cloud --cloud cloud02 --weeks 2 --check
-```
-
-* Proceed with extension
+You might also want to shrink the lifetime of a specific host.
+In this example we'll be shrinking the assignment end date for host01.
 
 ```
-quads-cli --extend-cloud --cloud cloud02 --weeks 2
+quads-cli --shrink --host host01 --weeks 2 --check
 ```
 
-For older versions of QUADS you can follow the below set of commands for more complicated extensions below.
+This will check whether or not the host schedule can be shrunk without conflicts.
 
-When in heavy usage some machines primary, active schedule may differ from one another, e.g. 0 versus 1, versus 2, etc.  Because schedules operate on a per-host basis sometimes the same schedule used within a cloud may differ in schedule number.  Here's how you modify them across the board for the current active schedule if the ID differs.
-
-* Example: extend all machines in cloud10 to end on 2019-03-06 22:00 UTC (they previously would end 2019-02-09 22:00)
-* These have differing primary active schedule IDs.
-
-  - Check your commands via echo first
-  - Reschedule against a certain cloud **and** start date
+To go ahead and shrink it remove the `--check`
 
 ```
-for h in $(quads-cli --cloud-only cloud05); do echo quads-cli --mod-schedule $(quads-cli --ls-schedule --host $h | grep cloud05 | grep "end=2019-02-09" | tail -1 | awk -F\| '{ print $1 }') --host $h --schedule-end "2019-03-06 22:00" ; done
+quads-cli --shrink --host host01 --weeks 2
 ```
 
-  * If all looks good you can remove **remove the echo lines** and apply.
+### Terminating a __Schedule__
+
+If you would like to terminate the lifetime of a schedule at either a host or cloud level, you can pass the `--now` argument instead of `--weeks` which will set the schedules end date to now.
+In this example we'll be terminating the assignment end date for cloud02.
+
+```
+quads-cli --shrink --cloud cloud02 --now --check
+```
+
+This will check whether or not the environment can be terminated without conflicts.
+
+To go ahead and terminate it remove the `--check`
+
+```
+quads-cli --shrink --cloud cloud02 --now
+```
 
 ### Adding Hosts to an existing Cloud
 
