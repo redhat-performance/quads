@@ -463,6 +463,240 @@ def main(_args):
 
             exit(0)
 
+        # Schedule Extend
+        elif _args.action == "extend":
+            if _args.weeks is None:
+                logger.error("Missing option. Need --weeks when using --extend")
+                exit(1)
+
+            if _args.cloud is None and _args.host is None:
+                logger.error("Missing option. At least one of either --host or --cloud is required.")
+                exit(1)
+
+            if _args.cloud and _args.host:
+                logger.error("--cloud and --host arguments are mutually exclusive.")
+                exit(1)
+
+            try:
+                weeks = int(_args.weeks)
+            except ValueError:
+                logger.error("The value of --weeks must be an integer")
+                exit(1)
+
+            if _args.cloud:
+                cloud = Cloud.objects(name=str(_args.extendcloud)).first()
+                if not cloud:
+                    logger.error("Cloud not found")
+                    exit(1)
+
+                schedules = Schedule.current_schedule(cloud=cloud)
+                if not schedules:
+                    logger.error("The selected cloud does not have any active schedules")
+                    exit(1)
+
+                hosts = Host.objects(cloud=cloud)
+                non_shrinkable = []
+
+                if not hosts:
+                    logger.error("The selected cloud does not have any active hosts assigned")
+                    exit(1)
+
+                for host in hosts:
+                    schedule = Schedule.current_schedule(host=host).first()
+                    end_date = schedule.end + timedelta(weeks=weeks)
+                    if not Schedule.is_host_available(
+                        host=host.name, start=schedule.end, end=end_date
+                    ):
+                        non_shrinkable.append(host)
+
+                if non_shrinkable:
+                    logger.info(
+                        "The following hosts cannot be extended for the current allocation:"
+                    )
+                    for host in non_shrinkable:
+                        logger.info(host.name)
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=cloud, ticket=cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=False, three_days=False, five_days=False, seven_days=False,
+                        )
+
+                    end_date = None
+                    for schedule in schedules:
+                        end_date = schedule.end + timedelta(weeks=int(weeks))
+                        schedule.update(end=end_date)
+                    logger.info(
+                        "Cloud %s has now been extended for %s week[s] until %s"
+                        % (cloud.name, str(weeks), str(end_date)[:16])
+                    )
+                else:
+                    logger.info(
+                        "Cloud %s can be extended for %s weeks until %s"
+                        % (cloud.name, str(weeks), str(end_date)[:16])
+                    )
+
+            elif _args.host:
+                host = Host.objects(name=str(_args.host)).first()
+                if not host:
+                    logger.error("Host not found")
+                    exit(1)
+
+                schedule = Schedule.current_schedule(host=host).first()
+                if not schedule:
+                    logger.error("The selected host does not have any active schedules")
+                    exit(1)
+
+                end_date = schedule.end + timedelta(weeks=weeks)
+                if not Schedule.is_host_available(host=host.name, start=schedule.end, end=end_date):
+                    logger.info(
+                        "The host cannot be extended for the current allocation as "
+                        "it is not available during that time frame"
+                    )
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=schedule.cloud, ticket=schedule.cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=False, three_days=False, five_days=False, seven_days=False,
+                        )
+
+                    end_date = schedule.end + timedelta(weeks=int(weeks))
+                    schedule.update(end=end_date)
+                    logger.info(
+                        "Host %s has now been extended for %s week[s] until %s"
+                        % (host.name, str(weeks), str(end_date)[:16])
+                    )
+                else:
+                    logger.info(
+                        "Host %s can be extended for %s weeks until %s"
+                        % (host.name, str(weeks), str(end_date)[:16])
+                    )
+
+            exit(0)
+
+        elif _args.action == "shrink":
+            if _args.weeks is None:
+                logger.error("Missing option. Need --weeks when using --shrink")
+                exit(1)
+
+            if _args.cloud is None and _args.host is None:
+                logger.error("Missing option. At least one of either --host or --cloud is required.")
+                exit(1)
+
+            if _args.cloud and _args.host:
+                logger.error("--cloud and --host arguments are mutually exclusive.")
+                exit(1)
+
+            try:
+                weeks = int(_args.weeks)
+            except ValueError:
+                logger.error("The value of --weeks must be an integer")
+                exit(1)
+
+            if _args.cloud:
+                cloud = Cloud.objects(name=str(_args.extendcloud)).first()
+                if not cloud:
+                    logger.error("Cloud not found")
+                    exit(1)
+
+                schedules = Schedule.current_schedule(cloud=cloud)
+                if not schedules:
+                    logger.error("The selected cloud does not have any active schedules")
+                    exit(1)
+
+                hosts = Host.objects(cloud=cloud)
+                non_shrinkable = []
+
+                if not hosts:
+                    logger.error("The selected cloud does not have any active hosts assigned")
+                    exit(1)
+
+                for host in hosts:
+                    schedule = Schedule.current_schedule(host=host).first()
+                    end_date = schedule.end - timedelta(weeks=weeks)
+                    if end_date < schedule.start:
+                        non_shrinkable.append(host)
+
+                if non_shrinkable:
+                    logger.info(
+                        "The following hosts cannot be shrunk past it's start date:"
+                    )
+                    for host in non_shrinkable:
+                        logger.info(host.name)
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=cloud, ticket=cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=True, three_days=True, five_days=True, seven_days=True,
+                        )
+
+                    end_date = None
+                    for schedule in schedules:
+                        end_date = schedule.end - timedelta(weeks=weeks)
+                        schedule.update(end=end_date)
+                    logger.info(
+                        "Cloud %s has now been shrunk for %s week[s] until %s"
+                        % (cloud.name, str(weeks), str(end_date)[:16])
+                    )
+                else:
+                    logger.info(
+                        "Cloud %s can be shrunk for %s weeks until %s"
+                        % (cloud.name, str(weeks), str(end_date)[:16])
+                    )
+
+            elif _args.host:
+                host = Host.objects(name=str(_args.host)).first()
+                if not host:
+                    logger.error("Host not found")
+                    exit(1)
+
+                schedule = Schedule.current_schedule(host=host).first()
+                if not schedule:
+                    logger.error("The selected host does not have any active schedules")
+                    exit(1)
+
+                end_date = schedule.end - timedelta(weeks=weeks)
+                if end_date < schedule.start:
+                    logger.info(
+                        "The host cannot be shrunk past it's start date"
+                    )
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=schedule.cloud, ticket=schedule.cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=True, three_days=True, five_days=True, seven_days=True,
+                        )
+
+                    end_date = schedule.end - timedelta(weeks=weeks)
+                    schedule.update(end=end_date)
+                    logger.info(
+                        "Host %s has now been shrunk for %s week[s] until %s"
+                        % (host.name, str(weeks), str(end_date)[:16])
+                    )
+                else:
+                    logger.info(
+                        "Host %s can be shrunk for %s weeks until %s"
+                        % (host.name, str(weeks), str(end_date)[:16])
+                    )
+
+            exit(0)
+
     # Cloud Add / Modify
     elif _args.cloudresource:
         data = {
@@ -828,71 +1062,6 @@ def main(_args):
             exit(1)
         exit(0)
 
-    # Schedule Extend
-    elif _args.extendcloud is not None:
-        if _args.weeks is None:
-            logger.error("Missing option. Need --weeks when using --extend-cloud")
-            exit(1)
-
-        try:
-            weeks = int(_args.weeks)
-        except ValueError:
-            logger.error("The value of --weeks must be an integer")
-            exit(1)
-
-        cloud = Cloud.objects(name=str(_args.extendcloud)).first()
-        schedules = Schedule.current_schedule(cloud=cloud)
-        if not schedules:
-            logger.error("The selected cloud does not have any active schedules")
-            exit(1)
-
-        hosts = Host.objects(cloud=cloud)
-        non_available = []
-
-        if not hosts:
-            logger.error("The selected cloud does not have any active hosts assigned")
-            exit(1)
-
-        for host in hosts:
-            schedule = Schedule.current_schedule(host=host).first()
-            end_date = schedule.end + timedelta(weeks=int(weeks))
-            if not Schedule.is_host_available(
-                host=host.name, start=schedule.end, end=end_date
-            ):
-                non_available.append(host)
-
-        if non_available:
-            logger.info(
-                "The following hosts cannot be extended for the current allocation:"
-            )
-            for host in non_available:
-                logger.info(host.name)
-            exit(1)
-
-        if not _args.check:
-            notification_obj = Notification.objects(
-                cloud=cloud, ticket=cloud.ticket
-            ).first()
-            if notification_obj:
-                notification_obj.update(
-                    one_day=False, three_days=False, five_days=False, seven_days=False,
-                )
-
-            end_date = None
-            for schedule in schedules:
-                end_date = schedule.end + timedelta(weeks=int(weeks))
-                schedule.update(end=end_date)
-            logger.info(
-                "Cloud %s has now been extended for %s week[s] until %s"
-                % (cloud.name, str(weeks), str(end_date)[:16])
-            )
-        else:
-            logger.info(
-                "Cloud %s can be extended for %s weeks until %s"
-                % (cloud.name, str(weeks), str(end_date)[:16])
-            )
-        exit(0)
-
     # Move hosts
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:
@@ -1228,6 +1397,20 @@ if __name__ == "__main__":
         help="List cloud wipe state",
     )
     group.add_argument(
+        "--extend",
+        dest="action",
+        action="store_const",
+        const="extend",
+        help="Extend an existing schedule",
+    )
+    group.add_argument(
+        "--shrink",
+        dest="action",
+        action="store_const",
+        const="shrink",
+        help="Shrink an existing schedule",
+    )
+    group.add_argument(
         "--define-host",
         dest="hostresource",
         type=str,
@@ -1275,13 +1458,6 @@ if __name__ == "__main__":
         help="Modify a host reservation",
     )
     group.add_argument(
-        "--extend-cloud",
-        dest="extendcloud",
-        type=str,
-        default=None,
-        help="Extend an existing schedule",
-    )
-    group.add_argument(
         "--add-interface",
         dest="addinterface",
         type=str,
@@ -1317,10 +1493,18 @@ if __name__ == "__main__":
         help="List all clouds",
     )
     group.add_argument(
-        "--rm-host", dest="rmhost", type=str, default=None, help="Remove a host"
+        "--rm-host",
+        dest="rmhost",
+        type=str,
+        default=None,
+        help="Remove a host",
     )
     group.add_argument(
-        "--rm-cloud", dest="rmcloud", type=str, default=None, help="Remove a cloud"
+        "--rm-cloud",
+        dest="rmcloud",
+        type=str,
+        default=None,
+        help="Remove a cloud"
     )
     group.add_argument(
         "--ls-available",
@@ -1387,7 +1571,18 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--host", dest="host", type=str, default=None, help="Specify the host to query"
+        "--host",
+        dest="host",
+        type=str,
+        default=None,
+        help="Specify the host to query",
+    )
+    parser.add_argument(
+        "--cloud",
+        dest="cloud",
+        type=str,
+        default=None,
+        help="Specify cloud name",
     )
     parser.add_argument(
         "--cloud-only",
