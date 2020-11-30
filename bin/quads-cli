@@ -350,7 +350,9 @@ def main(_args):
                 _args.schedstart = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             if _args.schedstart is None and _args.schedend is None:
-                _args.schedstart = _args.schedend = datetime.now().strftime("%Y-%m-%d %H:%M")
+                _args.schedstart = _args.schedend = datetime.now().strftime(
+                    "%Y-%m-%d %H:%M"
+                )
 
             _start = datetime.strptime(_args.schedstart, "%Y-%m-%d %H:%M")
             _end = datetime.strptime(_args.schedend, "%Y-%m-%d %H:%M")
@@ -362,14 +364,19 @@ def main(_args):
             except InvalidQueryError as ᵔᴥᵔ:
                 logger.debug(ᵔᴥᵔ)
                 logger.debug(f"search params: {kwargs}")
-                logger.error("There was something wrong constructing the parameters for the query.")
+                logger.error(
+                    "There was something wrong constructing the parameters for the query."
+                )
 
             broken_hosts = Host.objects(broken=True)
 
             for host in all_hosts:
-                if Schedule.is_host_available(
-                    host=host["name"], start=_start, end=_end
-                ) and host not in broken_hosts:
+                if (
+                    Schedule.is_host_available(
+                        host=host["name"], start=_start, end=_end
+                    )
+                    and host not in broken_hosts
+                ):
                     available.append(host["name"])
 
             for host in available:
@@ -422,10 +429,6 @@ def main(_args):
             exit(0)
 
         elif _args.action == "report_scheduled":
-            if _args.months and _args.year:
-                logger.error("--months and --year are mutually exclusive.")
-                exit(1)
-
             if _args.months is None and _args.year is None:
                 logger.error("Missing argument. --months or --year must be provided.")
                 exit(1)
@@ -460,6 +463,341 @@ def main(_args):
             _end = datetime.strptime(_args.schedend, "%Y-%m-%d %H:%M")
 
             reports.report_detailed(logger, _start, _end)
+
+            exit(0)
+
+        # Schedule Extend
+        elif _args.action == "extend":
+            if not _args.weeks and not _args.datearg:
+                logger.error(
+                    "Missing option. Need --weeks or --date when using --extend"
+                )
+                exit(1)
+
+            if _args.cloud is None and _args.host is None:
+                logger.error(
+                    "Missing option. At least one of either --host or --cloud is required."
+                )
+                exit(1)
+
+            if _args.weeks:
+                try:
+                    weeks = int(_args.weeks)
+                except ValueError:
+                    logger.error("The value of --weeks must be an integer")
+                    exit(1)
+            else:
+                _date = datetime.strptime(_args.datearg, "%Y-%m-%d %H:%M")
+
+            if _args.cloud:
+                cloud = Cloud.objects(name=str(_args.cloud)).first()
+                if not cloud:
+                    logger.error("Cloud not found")
+                    exit(1)
+
+                schedules = Schedule.current_schedule(cloud=cloud)
+                if not schedules:
+                    logger.error(
+                        "The selected cloud does not have any active schedules"
+                    )
+                    exit(1)
+
+                hosts = Host.objects(cloud=cloud)
+                non_extendable = []
+
+                if not hosts:
+                    logger.error(
+                        "The selected cloud does not have any active hosts assigned"
+                    )
+                    exit(1)
+
+                for host in hosts:
+                    schedule = Schedule.current_schedule(host=host).first()
+                    if _args.weeks:
+                        end_date = schedule.end + timedelta(weeks=weeks)
+                    else:
+                        end_date = _date
+                    if (
+                        not Schedule.is_host_available(
+                            host=host.name, start=schedule.end, end=end_date
+                        )
+                        or end_date < schedule.end
+                    ):
+                        non_extendable.append(host)
+
+                if non_extendable:
+                    logger.info(
+                        "The following hosts cannot be extended for the current allocation or target date is sooner than current end date:"
+                    )
+                    for host in non_extendable:
+                        logger.info(host.name)
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=cloud, ticket=cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=False,
+                            three_days=False,
+                            five_days=False,
+                            seven_days=False,
+                        )
+
+                    for schedule in schedules:
+                        if _args.weeks:
+                            end_date = schedule.end + timedelta(weeks=weeks)
+                        else:
+                            end_date = _date
+                        schedule.update(end=end_date)
+
+                    if _args.weeks:
+                        logger.info(
+                            "Cloud %s has now been extended for %s week[s] until %s"
+                            % (cloud.name, str(weeks), str(end_date)[:16])
+                        )
+                    else:
+                        logger.info(
+                            "Cloud %s has now been extended until %s"
+                            % (cloud.name, str(end_date)[:16])
+                        )
+                else:
+                    logger.info(
+                        "Cloud %s can be extended until %s"
+                        % (cloud.name, str(end_date)[:16])
+                    )
+
+            elif _args.host:
+                host = Host.objects(name=str(_args.host)).first()
+                if not host:
+                    logger.error("Host not found")
+                    exit(1)
+
+                schedule = Schedule.current_schedule(host=host).first()
+                if not schedule:
+                    logger.error("The selected host does not have any active schedules")
+                    exit(1)
+
+                if _args.weeks:
+                    end_date = schedule.end + timedelta(weeks=weeks)
+                else:
+                    end_date = _date
+                if not Schedule.is_host_available(
+                    host=host.name, start=schedule.end, end=end_date
+                ):
+                    logger.info(
+                        "The host cannot be extended for the current allocation as "
+                        "it is not available during that time frame"
+                    )
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=schedule.cloud, ticket=schedule.cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=False,
+                            three_days=False,
+                            five_days=False,
+                            seven_days=False,
+                        )
+
+                    if _args.weeks:
+                        end_date = schedule.end + timedelta(weeks=int(weeks))
+                    else:
+                        end_date = _date
+                    schedule.update(end=end_date)
+                    if _args.weeks:
+                        logger.info(
+                            "Host %s has now been extended for %s week[s] until %s"
+                            % (host.name, str(weeks), str(end_date)[:16])
+                        )
+                    else:
+                        logger.info(
+                            "Host %s has now been extended until %s"
+                            % (host.name, str(end_date)[:16])
+                        )
+
+                else:
+                    logger.info(
+                        "Host %s can be extended until %s"
+                        % (host.name, str(end_date)[:16])
+                    )
+
+            exit(0)
+
+        elif _args.action == "shrink":
+            if not _args.weeks and not _args.now and not _args.datearg:
+                logger.error(
+                    "Missing option. Need --weeks, --date or --now when using --shrink"
+                )
+                exit(1)
+
+            if _args.cloud is None and _args.host is None:
+                logger.error(
+                    "Missing option. At least one of either --host or --cloud is required"
+                )
+                exit(1)
+
+            time_delta = timedelta()
+            if _args.weeks:
+                try:
+                    weeks = int(_args.weeks)
+                except ValueError:
+                    logger.error("The value of --weeks must be an integer")
+                    exit(1)
+                time_delta = timedelta(weeks=weeks)
+            elif _args.datearg:
+                _date = datetime.strptime(_args.datearg, "%Y-%m-%d %H:%M")
+            elif _args.now:
+                _date = datetime.now()
+
+            if _args.cloud:
+                cloud = Cloud.objects(name=str(_args.extendcloud)).first()
+                if not cloud:
+                    logger.error("Cloud not found")
+                    exit(1)
+
+                schedules = Schedule.current_schedule(cloud=cloud)
+                if not schedules:
+                    logger.error(
+                        "The selected cloud does not have any active schedules"
+                    )
+                    exit(1)
+
+                hosts = Host.objects(cloud=cloud)
+                non_shrinkable = []
+
+                if not hosts:
+                    logger.error(
+                        "The selected cloud does not have any active hosts assigned"
+                    )
+                    exit(1)
+
+                for host in hosts:
+                    schedule = Schedule.current_schedule(host=host).first()
+                    if _args.weeks:
+                        end_date = schedule.end - time_delta
+                    else:
+                        end_date = _date
+                    if end_date < schedule.start or end_date > schedule.end:
+                        non_shrinkable.append(host)
+
+                if non_shrinkable:
+                    logger.info(
+                        "The following hosts cannot be shrunk past it's start date or target date means an extension:"
+                    )
+                    for host in non_shrinkable:
+                        logger.info(host.name)
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=cloud, ticket=cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=True,
+                            three_days=True,
+                            five_days=True,
+                            seven_days=True,
+                        )
+
+                    for schedule in schedules:
+                        if _args.weeks:
+                            end_date = schedule.end - time_delta
+                        else:
+                            end_date = _date
+                        schedule.update(end=end_date)
+                    if _args.weeks:
+                        logger.info(
+                            "Cloud %s has now been shrunk for %s week[s] until %s"
+                            % (cloud.name, str(weeks), str(end_date)[:16])
+                        )
+                    elif _args.datearg:
+                        logger.info(
+                            "Cloud %s has now been shrunk to %s"
+                            % (cloud.name, str(end_date)[:16])
+                        )
+                    else:
+                        logger.info("Cloud %s has now been terminated" % cloud.name)
+                else:
+                    if _args.weeks:
+                        logger.info(
+                            "Cloud %s can been shrunk for %s week[s] to %s"
+                            % (cloud.name, str(weeks), str(end_date)[:16])
+                        )
+                    elif _args.datearg:
+                        logger.info(
+                            "Cloud %s can been shrunk to %s"
+                            % (cloud.name, str(end_date)[:16])
+                        )
+                    else:
+                        logger.info("Cloud %s can be terminated now" % cloud.name)
+
+            elif _args.host:
+                host = Host.objects(name=str(_args.host)).first()
+                if not host:
+                    logger.error("Host not found")
+                    exit(1)
+
+                schedule = Schedule.current_schedule(host=host).first()
+                if not schedule:
+                    logger.error("The selected host does not have any active schedules")
+                    exit(1)
+
+                if _args.weeks:
+                    end_date = schedule.end - time_delta
+                else:
+                    end_date = _date
+                if end_date < schedule.start:
+                    logger.info("The host cannot be shrunk past it's start date")
+                    exit(1)
+
+                if not _args.check:
+                    notification_obj = Notification.objects(
+                        cloud=schedule.cloud, ticket=schedule.cloud.ticket
+                    ).first()
+                    if notification_obj:
+                        notification_obj.update(
+                            one_day=True,
+                            three_days=True,
+                            five_days=True,
+                            seven_days=True,
+                        )
+
+                    schedule.update(end=end_date)
+                    if _args.weeks:
+                        logger.info(
+                            "Host %s has now been shrunk for %s week[s] to %s"
+                            % (host.name, str(weeks), str(end_date)[:16])
+                        )
+                    elif _args.datearg:
+                        logger.info(
+                            "Host %s has now been shrunk to %s"
+                            % (host.name, str(end_date)[:16])
+                        )
+                    else:
+                        logger.info(
+                            "Host %s schedule has now been terminated" % host.name
+                        )
+                else:
+                    if _args.weeks:
+                        logger.info(
+                            "Host %s can be shrunk for %s weeks until %s"
+                            % (host.name, str(weeks), str(end_date)[:16])
+                        )
+                    elif _args.datearg:
+                        logger.info(
+                            "Host %s can been shrunk to %s"
+                            % (host.name, str(end_date)[:16])
+                        )
+                    else:
+                        logger.info(
+                            "Host %s schedule can be terminated now" % host.name
+                        )
 
             exit(0)
 
@@ -516,14 +854,14 @@ def main(_args):
             clean_data["qinq"] = _args.qinq
 
         cloud = Cloud.objects(name=data["name"]).first()
-        results, prep_data = Cloud.prep_data(clean_data, fields=clean_data.keys(), mod=True)
+        results, prep_data = Cloud.prep_data(
+            clean_data, fields=clean_data.keys(), mod=True
+        )
         if cloud and not results:
             cloud.update(**prep_data)
         else:
             if results:
-                logger.error(
-                    f"Failed to validate data for {_args.modcloud}"
-                )
+                logger.error(f"Failed to validate data for {_args.modcloud}")
                 for result in results:
                     logger.error(result)
                 exit(1)
@@ -546,9 +884,7 @@ def main(_args):
         if not _args.hostcloud:
             logger.error("Missing option --default-cloud")
             exit(1)
-        if _args.cloudresource:
-            logger.error("--define-cloud and --define-host are mutually exclusive.")
-            exit(1)
+
         url = os.path.join(API_URL, "host")
         data = {
             "name": _args.hostresource,
@@ -828,71 +1164,6 @@ def main(_args):
             exit(1)
         exit(0)
 
-    # Schedule Extend
-    elif _args.extendcloud is not None:
-        if _args.weeks is None:
-            logger.error("Missing option. Need --weeks when using --extend-cloud")
-            exit(1)
-
-        try:
-            weeks = int(_args.weeks)
-        except ValueError:
-            logger.error("The value of --weeks must be an integer")
-            exit(1)
-
-        cloud = Cloud.objects(name=str(_args.extendcloud)).first()
-        schedules = Schedule.current_schedule(cloud=cloud)
-        if not schedules:
-            logger.error("The selected cloud does not have any active schedules")
-            exit(1)
-
-        hosts = Host.objects(cloud=cloud)
-        non_available = []
-
-        if not hosts:
-            logger.error("The selected cloud does not have any active hosts assigned")
-            exit(1)
-
-        for host in hosts:
-            schedule = Schedule.current_schedule(host=host).first()
-            end_date = schedule.end + timedelta(weeks=int(weeks))
-            if not Schedule.is_host_available(
-                host=host.name, start=schedule.end, end=end_date
-            ):
-                non_available.append(host)
-
-        if non_available:
-            logger.info(
-                "The following hosts cannot be extended for the current allocation:"
-            )
-            for host in non_available:
-                logger.info(host.name)
-            exit(1)
-
-        if not _args.check:
-            notification_obj = Notification.objects(
-                cloud=cloud, ticket=cloud.ticket
-            ).first()
-            if notification_obj:
-                notification_obj.update(
-                    one_day=False, three_days=False, five_days=False, seven_days=False,
-                )
-
-            end_date = None
-            for schedule in schedules:
-                end_date = schedule.end + timedelta(weeks=int(weeks))
-                schedule.update(end=end_date)
-            logger.info(
-                "Cloud %s has now been extended for %s week[s] until %s"
-                % (cloud.name, str(weeks), str(end_date)[:16])
-            )
-        else:
-            logger.info(
-                "Cloud %s can be extended for %s weeks until %s"
-                % (cloud.name, str(weeks), str(end_date)[:16])
-            )
-        exit(0)
-
     # Move hosts
     elif _args.movehosts:
         if _args.datearg is not None and not _args.dryrun:
@@ -1025,7 +1296,9 @@ def main(_args):
             host = Host.objects(name=_args.host).first()
             if host:
                 if host.broken:
-                    logger.warning("Host %s has already been marked broken" % (host.name))
+                    logger.warning(
+                        "Host %s has already been marked broken" % (host.name)
+                    )
                 else:
                     host.update(broken=True)
                     logger.info(f"Host {host.name} is now marked as broken")
@@ -1043,7 +1316,9 @@ def main(_args):
             host = Host.objects(name=_args.host).first()
             if host:
                 if not host.broken:
-                    logger.warning("Host %s has already been marked repaired" % (host.name))
+                    logger.warning(
+                        "Host %s has already been marked repaired" % (host.name)
+                    )
                 else:
                     host.update(broken=False)
                     logger.info("Host %s is now marked as repaired" % (host.name))
@@ -1228,6 +1503,20 @@ if __name__ == "__main__":
         help="List cloud wipe state",
     )
     group.add_argument(
+        "--extend",
+        dest="action",
+        action="store_const",
+        const="extend",
+        help="Extend an existing schedule",
+    )
+    group.add_argument(
+        "--shrink",
+        dest="action",
+        action="store_const",
+        const="shrink",
+        help="Shrink an existing schedule",
+    )
+    group.add_argument(
         "--define-host",
         dest="hostresource",
         type=str,
@@ -1255,11 +1544,7 @@ if __name__ == "__main__":
         help="Define a cloud environment",
     )
     group.add_argument(
-        "--mod-cloud",
-        dest="modcloud",
-        type=str,
-        default=None,
-        help="Modify a cloud",
+        "--mod-cloud", dest="modcloud", type=str, default=None, help="Modify a cloud",
     )
     group.add_argument(
         "--add-schedule",
@@ -1273,13 +1558,6 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Modify a host reservation",
-    )
-    group.add_argument(
-        "--extend-cloud",
-        dest="extendcloud",
-        type=str,
-        default=None,
-        help="Extend an existing schedule",
     )
     group.add_argument(
         "--add-interface",
@@ -1317,7 +1595,7 @@ if __name__ == "__main__":
         help="List all clouds",
     )
     group.add_argument(
-        "--rm-host", dest="rmhost", type=str, default=None, help="Remove a host"
+        "--rm-host", dest="rmhost", type=str, default=None, help="Remove a host",
     )
     group.add_argument(
         "--rm-cloud", dest="rmcloud", type=str, default=None, help="Remove a cloud"
@@ -1386,23 +1664,58 @@ if __name__ == "__main__":
         help="List all hosts marked as broken",
     )
 
-    parser.add_argument(
-        "--host", dest="host", type=str, default=None, help="Specify the host to query"
+    time_args = parser.add_mutually_exclusive_group()
+    time_args.add_argument(
+        "-d",
+        "--date",
+        dest="datearg",
+        type=str,
+        default=None,
+        help='date and time to query; e.g. "2016-06-01 08:00"',
     )
+    time_args.add_argument(
+        "--months",
+        dest="months",
+        type=str,
+        default=None,
+        help="Number of months for reporting scheduled assignments",
+    )
+    time_args.add_argument(
+        "--year",
+        dest="year",
+        type=str,
+        default=None,
+        help="Year for reporting scheduled assignments",
+    )
+    time_args.add_argument(
+        "--weeks",
+        dest="weeks",
+        type=str,
+        default=None,
+        help="Number of weeks to extend an existing schedule",
+    )
+    time_args.add_argument(
+        "--now",
+        dest="now",
+        action="store_true",
+        default=None,
+        help="Now flag for use with --extend or --shrink instead of --week",
+    )
+
+    object_args = parser.add_mutually_exclusive_group()
+    object_args.add_argument(
+        "--host", dest="host", type=str, default=None, help="Specify the host to query",
+    )
+    object_args.add_argument(
+        "--cloud", dest="cloud", type=str, default=None, help="Specify cloud name",
+    )
+
     parser.add_argument(
         "--cloud-only",
         dest="cloudonly",
         type=str,
         default=None,
         help="Limit full report to hosts only in this cloud",
-    )
-    parser.add_argument(
-        "-d",
-        "--datetime",
-        dest="datearg",
-        type=str,
-        default=None,
-        help='date and time to query; e.g. "2016-06-01 08:00"',
     )
     parser.add_argument(
         "--cloud-owner",
@@ -1498,27 +1811,6 @@ if __name__ == "__main__":
         help="Schedule end date/time",
     )
     parser.add_argument(
-        "--months",
-        dest="months",
-        type=str,
-        default=None,
-        help="Number of months for reporting scheduled assignments",
-    )
-    parser.add_argument(
-        "--year",
-        dest="year",
-        type=str,
-        default=None,
-        help="Year for reporting scheduled assignments",
-    )
-    parser.add_argument(
-        "--weeks",
-        dest="weeks",
-        type=str,
-        default=None,
-        help="Number of weeks to extend an existing schedule",
-    )
-    parser.add_argument(
         "--check",
         dest="check",
         action="store_true",
@@ -1610,10 +1902,7 @@ if __name__ == "__main__":
         help="Filter search by host metadata",
     )
     parser.add_argument(
-        "--mark-broken",
-        action="store_true",
-        default=False,
-        help="Mark host as broken",
+        "--mark-broken", action="store_true", default=False, help="Mark host as broken",
     )
     parser.add_argument(
         "--mark-repaired",
