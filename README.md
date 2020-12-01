@@ -52,6 +52,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Removing a Host from QUADS](#removing-a-host-from-quads)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
       * [Additional Tools and Commands](#additional-tools-and-commands)
+         * [Modifying Cloud-level Attributes](#modifying-cloud-level-attributes)
          * [Looking into the Future](#looking-into-the-future)
          * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
          * [Find Free Cloud Environment](#find-free-cloud-environment)
@@ -585,6 +586,8 @@ if you need to clear the vlan association with your cloud, rerun your command an
 quads-cli --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
 ```
 
+   * Note: in QUADS `1.1.4` you can change any of these values selectively via the `--mod-cloud` command [described below](#modifying-cloud-level  attributes).
+
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
      - We're going to find the first 20 Dell r620's and assign them as an example.
 
@@ -846,6 +849,26 @@ Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 
 ## Additional Tools and Commands
 
+### Modifying Cloud-level Attributes
+* You can re-define or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
+* This can be done a per-parameter or combined basis:
+
+```
+quads-cli --mod-cloud cloud02 --cloud-owner jhoffa
+```
+
+```
+quads-cli --mod-cloud cloud04 --cc-users "tpetty fmercury"
+```
+
+```
+quads-cli --mod-cloud cloud06 --vlan 604 --wipe
+```
+
+```
+quads-cli --mod-cloud cloud50 --no-wipe
+```
+
 ### Looking into the Future
 * Because QUADS knows about all future schedules you can display what your environment will look like at any point in time using the `--date` command.
 
@@ -947,6 +970,8 @@ quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 
 ## Interacting with MongoDB
 * In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
+
+* **NOTE**: For most of the below examples usage of `quads-cli --mod-cloud` supplants the need for making any changes in MongoDB post QUADS version `1.1.4`.  We'll leave these examples below for posterity or in the case they can be modeled to do something else useful otherwise.
 
 * Example:  Toggling the `wipe:` cloud value that determines whether new systems entering an environment should be reprovisioned or not.  In this example `cloud02` has the value of `wipe: 0` and we want to change this within Mongodb.
 
