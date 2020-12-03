@@ -79,7 +79,7 @@ def main():
                         if host == schedule.host.name
                     ]
                     if not match:
-                        # want to run these separetely to avoid ServerDisconnect
+                        # want to run these separately to avoid ServerDisconnect
                         _host_id = loop.run_until_complete(foreman_admin.get_host_id(schedule.host.name))
                         loop.run_until_complete(
                             foreman_admin.put_element("hosts", _host_id, "owner_id", user_id)
