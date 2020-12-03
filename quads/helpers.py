@@ -15,15 +15,15 @@ def param_check(data, params, defaults={}):
 
     if data:
         # check for missing params
-        for p in params:
-            if p not in data:
-                result.append("Missing required parameter: %s" % p)
-            elif not (data[p] or data[p] is None):
-                result.append("Could not parse %s parameter" % p)
-            elif data[p] == 'None':
-                data[p] = None
-            if p == "_id":
-                data["_id"] = ObjectIdField(data[p])
+        for param in params:
+            if param not in data:
+                result.append("Missing required parameter: %s" % param)
+            elif not data[param]:
+                result.append("Could not parse %s parameter" % param)
+            elif data[param] == 'None':
+                data[param] = None
+            if param == "_id":
+                data["_id"] = ObjectIdField(data[param])
 
     return result, data
 

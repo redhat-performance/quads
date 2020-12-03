@@ -123,15 +123,18 @@ class Cloud(Document):
     def prep_data(data, fields=None, mod=False):
         if 'vlan' in data and data['vlan']:
             vlan_id = data.pop('vlan')
-            vlan_obj = Vlan.objects(vlan_id=vlan_id).first()
-            if not vlan_obj:
-                return ["No VLAN object defined with id: %s" % vlan_id], {}
-            cloud_obj = Cloud.objects(vlan=vlan_obj).first()
-            if cloud_obj:
-                return ["VLAN %s already in use." % vlan_id], {}
-            data["vlan"] = vlan_obj
-        else:
-            data["vlan"] = None
+            try:
+                int(vlan_id)
+            except ValueError:
+                data['vlan'] = None
+            else:
+                vlan_obj = Vlan.objects(vlan_id=vlan_id).first()
+                if not vlan_obj:
+                    return ["No VLAN object defined with id: %s" % vlan_id], {}
+                cloud_obj = Cloud.objects(vlan=vlan_obj).first()
+                if cloud_obj:
+                    return ["VLAN %s already in use." % vlan_id], {}
+                data["vlan"] = vlan_obj
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
         if 'wipe' in data:
@@ -146,6 +149,9 @@ class Cloud(Document):
 
         if not fields:
             fields = ['name', 'description', 'owner']
+
+        fields = list(fields)
+        fields.remove("wipe")
 
         result, data = param_check(data, fields)
 
