@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "befb7a41_5b3316fa",
+        "filename": "README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2020-12-10T17:28:58Z",
+      "side": 0,
+      "message": "I bet it felt good removing all of this.",
+      "revId": "5efc99a22fc168f6fe024a52c8b725225e0a5f74",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
