@@ -151,7 +151,10 @@ class Cloud(Document):
             fields = ['name', 'description', 'owner']
 
         fields = list(fields)
-        fields.remove("wipe")
+        if 'qinq' in fields:
+            fields.remove('qinq')
+        if 'wipe' in fields:
+            fields.remove('wipe')
 
         result, data = param_check(data, fields)
 
