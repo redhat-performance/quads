@@ -1032,6 +1032,13 @@ quads-cli --ls-wipe | grep cloud02
 cloud02: True
 ```
 
+   - Another example. We want to disassociate a public vlan from a cloud.
+
+```
+> db.cloud.update({name:"cloud02"}, {$set:{vlan:null}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+```
+
 * **Disclaimer** Generally you never need to modify things in MongoDB, there should be a `quads-cli` equivalent to do this safely and easily without mucking with the database.  If there's functionality missing here please [file a Github RFE](https://github.com/redhat-performance/quads/issues/new).
 
 * Above, the correct way to adjust this is by redefining your cloud with all the same values but just not specify a wipe value.
