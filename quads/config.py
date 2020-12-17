@@ -24,7 +24,7 @@ def quads_load_config(quads_config):
 quads_config_file = os.path.join(os.path.dirname(__file__), "../conf/quads.yml")
 conf = quads_load_config(quads_config_file)
 
-QUADSVERSION = "1.1.4"
+QUADSVERSION = "1.1.4.1"
 QUADSCODENAME = "gaúcho"
 SUPPORTED = ["fc640", "r620", "r630", "r640", "640", "r720", "r730xd", "r930", "r730", "r740xd", "740xd", "r720xd"]
 OFFSETS = {"em1": 0, "em2": 1, "em3": 2, "em4": 3, "em5": 4}
