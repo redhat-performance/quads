@@ -1,5 +1,7 @@
 #!/usr/bin/python3
+import logging
 
+from xmlrpc.client import ProtocolError
 from quads.tools.racks_wiki import update_wiki
 from quads.config import conf as quads_config
 from quads.model import Vlan, Cloud, Schedule
@@ -7,15 +9,17 @@ from tempfile import NamedTemporaryFile
 
 
 HEADERS = [
-    'VLANID',
-    'IPRange',
-    'NetMask',
-    'Gateway',
-    'IPFree',
-    'Owner',
-    'Ticket',
-    'Cloud',
+    "VLANID",
+    "IPRange",
+    "NetMask",
+    "Gateway",
+    "IPFree",
+    "Owner",
+    "Ticket",
+    "Cloud",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def render_header(markdown):
@@ -73,7 +77,12 @@ def regenerate_vlans_wiki():
         render_header(_markdown)
         render_vlans(_markdown)
         _markdown.seek(0)
-        update_wiki(wp_url, wp_username, wp_password, page_title, page_id, _markdown.name)
+        try:
+            update_wiki(
+                wp_url, wp_username, wp_password, page_title, page_id, _markdown.name
+            )
+        except ProtocolError as ex:
+            logger.error(ex.errmsg)
 
 
 if __name__ == "__main__":
