@@ -33,10 +33,12 @@ import sys
 import os
 
 from json import JSONDecodeError
-from quads.config import conf, API_URL
+from jinja2 import Template
+from quads.config import conf, API_URL, TEMPLATES_PATH
 from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
+from quads.tools.jira import Jira
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
 
@@ -1107,29 +1109,106 @@ def main(_args):
             _args.schedstart is None
             or _args.schedend is None
             or _args.schedcloud is None
-            or _args.host is None
         ):
             logger.error(
-                "Missing option. All these options are required for --add-schedule:"
+                "Missing option. All of these options are required for --add-schedule:"
             )
-            logger.error("    --host")
             logger.error("    --schedule-start")
             logger.error("    --schedule-end")
             logger.error("    --schedule-cloud")
             exit(1)
-        data = {
-            "cloud": _args.schedcloud,
-            "host": _args.host,
-            "start": _args.schedstart,
-            "end": _args.schedend,
-        }
-        try:
-            logger.info(quads.insert_schedule(data)["result"])
-        except ConnectionError:
+
+        if _args.host is None and _args.host_list is None:
             logger.error(
-                "Could not connect to the quads-server, verify service is up and running."
+                "Missing option. --host or --host-list required."
             )
             exit(1)
+
+        if _args.host:
+            data = {
+                "cloud": _args.schedcloud,
+                "host": _args.host,
+                "start": _args.schedstart,
+                "end": _args.schedend,
+            }
+            try:
+                logger.info(quads.insert_schedule(data)["result"][0])
+            except ConnectionError:
+                logger.error(
+                    "Could not connect to the quads-server, verify service is up and running."
+                )
+                exit(1)
+
+        elif _args.host_list:
+            try:
+                with open(_args.host_list) as _file:
+                    host_list_stream = _file.read()
+            except IOError:
+                logger.error(f"{_args.host_list} File Error.")
+                exit(1)
+
+            host_list = host_list_stream.split()
+            non_available = []
+            _sched_start = datetime.strptime(_args.schedstart, "%Y-%m-%d %H:%M")
+            _sched_end = datetime.strptime(_args.schedend, "%Y-%m-%d %H:%M")
+            for host in host_list:
+                is_available = Schedule.is_host_available(
+                    host=host,
+                    start=_sched_start,
+                    end=_sched_end,
+                )
+                host_obj = Host.objects(name=host).first()
+                if not is_available or host_obj.broken:
+                    non_available.append(host)
+
+            if non_available:
+                logger.error("The following hosts are either broken or unavailable:")
+                for host in non_available:
+                    logger.error(host)
+                logger.error("Remove these from your host list and try again.")
+                exit(1)
+
+            for host in host_list:
+                data = {
+                    "cloud": _args.schedcloud,
+                    "host": host,
+                    "start": _args.schedstart,
+                    "end": _args.schedend,
+                }
+                try:
+                    logger.info(quads.insert_schedule(data)["result"][0])
+                except ConnectionError:
+                    logger.error(
+                        "Could not connect to the quads-server, verify service is up and running."
+                    )
+                    exit(1)
+
+            template_file = "jira_ticket_assignment"
+            with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+                template = Template(_file.read())
+
+            _cloud = Cloud.objects(name=_args.schedcloud).first()
+            jira_docs_links = conf["jira_docs_links"].split(',')
+            comment = template.render(
+                schedule_start=_args.schedstart,
+                schedule_end=_args.schedend,
+                cloud=_args.schedcloud,
+                jira_docs_links=jira_docs_links,
+                host_list=host_list_stream,
+                vlan=_cloud.vlan,
+            )
+
+            loop = asyncio.get_event_loop()
+            jira = Jira(
+                conf["jira_url"],
+                conf["jira_username"],
+                conf["jira_password"],
+                loop=loop,
+            )
+            result = loop.run_until_complete(jira.post_comment(_cloud.ticket, comment))
+            if not result:
+                logger.warning("Failed to update Jira ticket")
+
         exit(0)
 
     # Schedule Remove
@@ -1724,6 +1803,9 @@ if __name__ == "__main__":
     object_args = parser.add_mutually_exclusive_group()
     object_args.add_argument(
         "--host", dest="host", type=str, default=None, help="Specify the host to query",
+    )
+    object_args.add_argument(
+        "--host-list", dest="host_list", type=str, default=None, help="Specify file path to host list",
     )
     object_args.add_argument(
         "--cloud", dest="cloud", type=str, default=None, help="Specify cloud name",

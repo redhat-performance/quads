@@ -63,6 +63,10 @@ ticket_url: https://projects.engineering.example.com/browse
 # (optional ticket queue name) this is typically the ticket queue
 # name or abbreviation in the case of JIRA
 ticket_queue: SCALELAB
+# Jira Specific Variables
+jira_url: https://projects.engineering.example.com/rest/api/2
+jira_username: admin
+jira_password: password
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
@@ -243,3 +247,6 @@ cloud_reservation_lock: 48
 # that users can ignore future expiration warnings if they have already
 # submitted an extension request but it hasn't been executed yet.
 quads_notify_until_extended: True
+
+# Comma separated docs links for jira ticket template
+jira_docs_links: http://wiki.example.com/faq/,http://wiki.example.com/usage/,http://docs.example.com/wiki/ScaleLabTipsAndTricks
