@@ -63,6 +63,10 @@ ticket_url: https://projects.engineering.example.com/browse
 # (optional ticket queue name) this is typically the ticket queue
 # name or abbreviation in the case of JIRA
 ticket_queue: SCALELAB
+# Jira Specific Variables
+jira_url: https://projects.engineering.example.com/rest/api/2
+jira_username: admin
+jira_password: password
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
