@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2899c11c_ce9f3845",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-01-14T15:57:37Z",
+      "side": 1,
+      "message": "LGTM, nice start of jira lib.",
+      "revId": "45533e6199ae628e6e0bf006801a6070b2cd2a01",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
