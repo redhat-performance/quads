@@ -41,6 +41,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "248a7696_0062e4b7",
+        "filename": "quads/templates/jira_ticket_assignment",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-01-14T14:34:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0d1adf3_2c41f335",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 72
+      },
+      "revId": "6fb101dd0e04d542617be37d8922263d1de34071",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f49d850_7a0be09d",
