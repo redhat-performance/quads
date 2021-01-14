@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1629829d_52ab20a7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-01-14T12:45:57Z",
+      "side": 1,
+      "message": "Awesome RFE, just a few comments about variabilizing urls",
+      "revId": "6fb101dd0e04d542617be37d8922263d1de34071",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0d1adf3_2c41f335",
+        "filename": "quads/templates/jira_ticket_assignment",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-01-14T12:45:57Z",
+      "side": 1,
+      "message": "Let\u0027s make these links variables in quads.yml for the jinja templating and sanitization.\n\nLet\u0027s variabilize the docs link also and remove the domain entries.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 72
+      },
+      "revId": "6fb101dd0e04d542617be37d8922263d1de34071",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f49d850_7a0be09d",
+        "filename": "quads/templates/jira_ticket_assignment",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-01-14T12:45:57Z",
+      "side": 1,
+      "message": "same thing here.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 50
+      },
+      "revId": "6fb101dd0e04d542617be37d8922263d1de34071",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
