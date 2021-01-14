@@ -1209,6 +1209,18 @@ def main(_args):
             if not result:
                 logger.warning("Failed to update Jira ticket")
 
+            transitions = loop.run_until_complete(jira.get_transitions(_cloud.ticket))
+            transition_result = False
+            for transition in transitions:
+                t_name = transition.get("name")
+                if t_name and t_name.lower() == "scheduled":
+                    transition_id = transition.get("id")
+                    transition_result = loop.run_until_complete(jira.post_transition(_cloud.ticket, transition_id))
+                    break
+
+            if not transition_result:
+                logger.warning("Failed to update ticket status")
+
         exit(0)
 
     # Schedule Remove

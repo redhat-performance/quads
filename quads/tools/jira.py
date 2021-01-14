@@ -60,3 +60,60 @@ class Jira(object):
         if response.status == 404:
             logger.error("Resource not found: %s" % self.url + endpoint)
         return False
+
+    async def post_transition(self, ticket, transition):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s/transitions" % issue_id
+        logger.debug("POST transition: {%s:%s}" % (issue_id, transition))
+        data = {"transition": {"id": transition}}
+        try:
+            async with self.semaphore:
+                async with aiohttp.ClientSession(
+                    loop=self.loop
+                ) as session:
+                    async with session.post(
+                        self.url + endpoint,
+                        json=data,
+                        auth=BasicAuth(self.username, self.password),
+                        verify_ssl=False,
+                    ) as response:
+                        await response.json(content_type="application/json")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return False
+        if response.status in [200, 201, 204]:
+            logger.info("Transition updated correctly.")
+            return True
+        if response.status == 404:
+            logger.error("Resource not found: %s" % self.url + endpoint)
+        return False
+
+    async def get_transitions(self, ticket):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s/transitions" % issue_id
+        logger.debug("GET transitions: %s" % endpoint)
+        try:
+            async with aiohttp.ClientSession(
+                loop=self.loop
+            ) as session:
+                async with session.get(
+                    self.url + endpoint,
+                    auth=BasicAuth(self.username, self.password),
+                    verify_ssl=False,
+                ) as response:
+                    result = await response.json(content_type="application/json")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return []
+        if response.status == 404:
+            logger.error("Resource not found: %s" % self.url + endpoint)
+            return []
+
+        transitions = result.get("transitions")
+        if transitions:
+            return transitions
+        else:
+            logger.error("No transitions found under %s" % issue_id)
+            return []
