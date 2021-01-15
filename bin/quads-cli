@@ -482,6 +482,10 @@ def main(_args):
                 )
                 exit(1)
 
+            weeks = 0
+            _date = None
+            end_date = None
+
             if _args.weeks:
                 try:
                     weeks = int(_args.weeks)
@@ -499,37 +503,40 @@ def main(_args):
 
                 schedules = Schedule.current_schedule(cloud=cloud)
                 if not schedules:
-                    logger.error(
+                    logger.warning(
                         "The selected cloud does not have any active schedules"
                     )
-                    exit(1)
+                    future_schedule = Schedule.future_schedules(cloud=cloud)
+                    if future_schedule:
+                        confirmation = input(
+                            f"Would you like to extend a future allocation of {cloud.name}? (y/N): "
+                        ) or "N"
 
-                hosts = Host.objects(cloud=cloud)
+                        if confirmation.lower() not in ("y", "yes"):
+                            exit(0)
+
+                        schedules = future_schedule
+                    else:
+                        exit(1)
+
                 non_extendable = []
-
-                if not hosts:
-                    logger.error(
-                        "The selected cloud does not have any active hosts assigned"
-                    )
-                    exit(1)
-
-                for host in hosts:
-                    schedule = Schedule.current_schedule(host=host).first()
-                    if _args.weeks:
+                for schedule in schedules:
+                    if weeks:
                         end_date = schedule.end + timedelta(weeks=weeks)
                     else:
                         end_date = _date
                     if (
                         not Schedule.is_host_available(
-                            host=host.name, start=schedule.end, end=end_date
+                            host=schedule.host.name, start=schedule.end, end=end_date
                         )
                         or end_date < schedule.end
                     ):
-                        non_extendable.append(host)
+                        non_extendable.append(schedule.host)
 
                 if non_extendable:
                     logger.info(
-                        "The following hosts cannot be extended for the current allocation or target date is sooner than current end date:"
+                        "The following hosts cannot be extended for the "
+                        "allocation or target date is sooner than current end date:"
                     )
                     for host in non_extendable:
                         logger.info(host.name)
@@ -548,13 +555,13 @@ def main(_args):
                         )
 
                     for schedule in schedules:
-                        if _args.weeks:
+                        if weeks:
                             end_date = schedule.end + timedelta(weeks=weeks)
                         else:
                             end_date = _date
                         schedule.update(end=end_date)
 
-                    if _args.weeks:
+                    if weeks:
                         logger.info(
                             "Cloud %s has now been extended for %s week[s] until %s"
                             % (cloud.name, str(weeks), str(end_date)[:16])
@@ -562,7 +569,7 @@ def main(_args):
                     else:
                         logger.info(
                             "Cloud %s has now been extended until %s"
-                            % (cloud.name, str(end_date)[:16])
+                            % (cloud.name, str(_date)[:16])
                         )
                 else:
                     logger.info(
@@ -579,7 +586,18 @@ def main(_args):
                 schedule = Schedule.current_schedule(host=host).first()
                 if not schedule:
                     logger.error("The selected host does not have any active schedules")
-                    exit(1)
+                    future_schedule = Schedule.future_schedules(host=host).first()
+                    if future_schedule:
+                        confirmation = input(
+                            f"Would you like to extend a future allocation of {host.name}? (y/N): "
+                        ) or "N"
+
+                        if confirmation.lower() not in ("y", "yes"):
+                            exit(0)
+
+                        schedule = future_schedule
+                    else:
+                        exit(1)
 
                 if _args.weeks:
                     end_date = schedule.end + timedelta(weeks=weeks)
@@ -587,10 +605,11 @@ def main(_args):
                     end_date = _date
                 if not Schedule.is_host_available(
                     host=host.name, start=schedule.end, end=end_date
-                ):
+                ) or end_date < schedule.end:
                     logger.info(
                         "The host cannot be extended for the current allocation as "
-                        "it is not available during that time frame"
+                        "it is not available during that time frame or end date would "
+                        "result in a shrink action."
                     )
                     exit(1)
 
@@ -606,10 +625,6 @@ def main(_args):
                             seven_days=False,
                         )
 
-                    if _args.weeks:
-                        end_date = schedule.end + timedelta(weeks=int(weeks))
-                    else:
-                        end_date = _date
                     schedule.update(end=end_date)
                     if _args.weeks:
                         logger.info(
@@ -644,6 +659,10 @@ def main(_args):
                 exit(1)
 
             time_delta = timedelta()
+            weeks = 0
+            _date = None
+            end_date = None
+
             if _args.weeks:
                 try:
                     weeks = int(_args.weeks)
@@ -669,25 +688,28 @@ def main(_args):
                     logger.error(
                         "The selected cloud does not have any active schedules"
                     )
-                    exit(1)
+                    future_schedules = Schedule.future_schedules(cloud=cloud)
+                    if future_schedules:
+                        confirmation = input(
+                            f"Would you like to shrink a future allocation of {cloud.name}? (y/N): "
+                        ) or "N"
 
-                hosts = Host.objects(cloud=cloud)
+                        if confirmation.lower() not in ("y", "yes"):
+                            exit(0)
+
+                        schedules = future_schedules
+                    else:
+                        exit(1)
+
                 non_shrinkable = []
 
-                if not hosts:
-                    logger.error(
-                        "The selected cloud does not have any active hosts assigned"
-                    )
-                    exit(1)
-
-                for host in hosts:
-                    schedule = Schedule.current_schedule(host=host).first()
+                for schedule in schedules:
                     if _args.weeks:
                         end_date = schedule.end - time_delta
                     else:
                         end_date = _date
                     if end_date < schedule.start or end_date > schedule.end or (not _args.now and end_date < threshold):
-                        non_shrinkable.append(host)
+                        non_shrinkable.append(schedule.host)
 
                 if non_shrinkable:
                     logger.info(
@@ -710,10 +732,14 @@ def main(_args):
                             seven_days=True,
                         )
 
-                    if _args.weeks:
-                        confirmation = input(f"Are you sure you want to shrink {cloud.name} for {_args.weeks} week[s]? (y/N): ") or "N"
+                    if weeks:
+                        confirmation = input(
+                            f"Are you sure you want to shrink {cloud.name} for {_args.weeks} week[s]? (y/N): "
+                        ) or "N"
                     else:
-                        confirmation = input(f"Are you sure you want to shrink {cloud.name} to {str(_date)[:16]}? (y/N): ") or "N"
+                        confirmation = input(
+                            f"Are you sure you want to shrink {cloud.name} to {str(_date)[:16]}? (y/N): "
+                        ) or "N"
 
                     if confirmation.lower() not in ("y", "yes"):
                         exit(0)
@@ -724,7 +750,7 @@ def main(_args):
                         else:
                             end_date = _date
                         schedule.update(end=end_date)
-                    if _args.weeks:
+                    if weeks:
                         logger.info(
                             "Cloud %s has now been shrunk for %s week[s] until %s"
                             % (cloud.name, str(weeks), str(end_date)[:16])
@@ -737,7 +763,7 @@ def main(_args):
                     else:
                         logger.info("Cloud %s has now been terminated" % cloud.name)
                 else:
-                    if _args.weeks:
+                    if weeks:
                         logger.info(
                             "Cloud %s can be shrunk for %s week[s] to %s"
                             % (cloud.name, str(weeks), str(end_date)[:16])
@@ -759,9 +785,20 @@ def main(_args):
                 schedule = Schedule.current_schedule(host=host).first()
                 if not schedule:
                     logger.error("The selected host does not have any active schedules")
-                    exit(1)
+                    future_schedule = Schedule.future_schedules(host=host).first()
+                    if future_schedule:
+                        confirmation = input(
+                            f"Would you like to shrink a future allocation of {host.name}? (y/N): "
+                        ) or "N"
 
-                if _args.weeks:
+                        if confirmation.lower() not in ("y", "yes"):
+                            exit(0)
+
+                        schedule = future_schedule
+                    else:
+                        exit(1)
+
+                if weeks:
                     end_date = schedule.end - time_delta
                 else:
                     end_date = _date
@@ -784,13 +821,15 @@ def main(_args):
                             seven_days=True,
                         )
 
-                    confirmation = input(f"Are you sure you want to shrink {host.name} to {str(end_date)[:16]}? (y/N): ") or "N"
+                    confirmation = input(
+                        f"Are you sure you want to shrink {host.name} to {str(end_date)[:16]}? (y/N): "
+                    ) or "N"
 
                     if confirmation.lower() not in ("y", "yes"):
                         exit(0)
 
                     schedule.update(end=end_date)
-                    if _args.weeks:
+                    if weeks:
                         logger.info(
                             "Host %s has now been shrunk for %s week[s] to %s"
                             % (host.name, str(weeks), str(end_date)[:16])
@@ -805,7 +844,7 @@ def main(_args):
                             "Host %s schedule has now been terminated" % host.name
                         )
                 else:
-                    if _args.weeks:
+                    if weeks:
                         logger.info(
                             "Host %s can be shrunk for %s weeks until %s"
                             % (host.name, str(weeks), str(end_date)[:16])
@@ -1050,8 +1089,8 @@ def main(_args):
     # Host Remove
     elif _args.rmhost is not None:
         _host = Host.objects(name=_args.rmhost).first()
-        future_schedules = Schedule.future_schedules(host=_host)
-        if future_schedules:
+        future_schedule = Schedule.future_schedules(host=_host)
+        if future_schedule:
             logger.error("Can't remove host with future schedule.")
             exit(1)
         url = os.path.join(API_URL, "host", _args.rmhost)
@@ -1442,17 +1481,27 @@ def main(_args):
             exit(1)
 
     elif _args.host:
+        if _args.schedstart or _args.schedend:
+            logger.error(
+                "Missing arguments: `--schedule-start` and/or `--schedule-end` "
+                "can be used with `--add-schedule` or `--mod-schedule`"
+            )
+            exit(1)
         _host = Host.objects(name=_args.host).first()
         if _host:
             _kwargs = {"host": _host}
             if _args.datearg:
-                _kwargs["date"] = datetime.strptime(
+                datetime_obj = datetime.strptime(
                     _args.datearg, "%Y-%m-%d %H:%M"
-                ).isoformat()
+                )
+                _kwargs["date"] = datetime_obj.isoformat()
+            else:
+                datetime_obj = datetime.now()
             schedules = Schedule.current_schedule(**_kwargs)
             if schedules:
                 for schedule in schedules:
-                    logger.info(schedule.cloud.name)
+                    if schedule.end != datetime_obj:
+                        logger.info(schedule.cloud.name)
             else:
                 logger.info(_host.default_cloud.name)
         else:
