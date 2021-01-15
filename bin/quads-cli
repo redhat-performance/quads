@@ -1442,17 +1442,25 @@ def main(_args):
             exit(1)
 
     elif _args.host:
+        if _args.schedstart or _args.schedend:
+            logger.error(
+                "Missing arguments: `--schedule-start` and/or `--schedule-end` "
+                "can be used with `--add-schedule` or `--mod-schedule`"
+            )
+            exit(1)
         _host = Host.objects(name=_args.host).first()
         if _host:
             _kwargs = {"host": _host}
             if _args.datearg:
-                _kwargs["date"] = datetime.strptime(
+                datetime_obj = datetime.strptime(
                     _args.datearg, "%Y-%m-%d %H:%M"
-                ).isoformat()
+                )
+                _kwargs["date"] = datetime_obj.isoformat()
             schedules = Schedule.current_schedule(**_kwargs)
             if schedules:
                 for schedule in schedules:
-                    logger.info(schedule.cloud.name)
+                    if schedule.end != datetime_obj:
+                        logger.info(schedule.cloud.name)
             else:
                 logger.info(_host.default_cloud.name)
         else:
