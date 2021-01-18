@@ -250,3 +250,9 @@ quads_notify_until_extended: True
 
 # Comma separated docs links for jira ticket template
 jira_docs_links: http://wiki.example.com/faq/,http://wiki.example.com/usage/,http://docs.example.com/wiki/ScaleLabTipsAndTricks
+
+# This following variable will determine the default PXE boot interface
+# when defining a new host. This variable will be overridden if pxe flag
+# is passed when used in --add-interface argument.
+# This will be most useful when generating the instack_env json
+default_pxe_interface: em2
