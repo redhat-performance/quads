@@ -193,7 +193,9 @@ class Interface(EmbeddedDocument):
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
-    speed = LongField()
+    speed = LongField(default=-1)
+    vendor = StringField(default="")
+    pxe_boot = BooleanField(default=False)
     maintenance = BooleanField(default=False)
 
     @staticmethod
