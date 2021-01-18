@@ -137,7 +137,7 @@ class Cloud(Document):
                 data["vlan"] = vlan_obj
         if 'ccuser' in data:
             data['ccuser'] = data['ccuser'].split()
-        if 'wipe' in data:
+        if 'wipe' in data and data.get("wipe").lower() != 'none':
             if str(data['wipe']).lower() == "false":
                 data["wipe"] = False
             else:
@@ -193,7 +193,9 @@ class Interface(EmbeddedDocument):
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
-    speed = LongField()
+    speed = LongField(default=-1)
+    vendor = StringField(default="")
+    pxe_boot = BooleanField(default=False)
     maintenance = BooleanField(default=False)
 
     @staticmethod
