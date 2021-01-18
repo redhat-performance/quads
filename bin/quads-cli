@@ -138,6 +138,9 @@ def main(_args):
     # List all common call
     quads = QuadsApi(API_URL)
 
+    if _args.debug:
+        logger.setLevel(logging.DEBUG)
+
     if _args.action:
         _kwargs = {}
         if _args.cloudonly:
@@ -197,10 +200,14 @@ def main(_args):
                 result = [json.loads(entry) for entry in data["result"]]
                 for interface in sorted(result, key=lambda k: k["name"]):
                     message = (
-                        f"interface: {interface['name']}, "
-                        f"mac address: {interface['mac_address']}, "
-                        f"switch IP: {interface['ip_address']}, "
-                        f"port: {interface['switch_port']}"
+                        f"interface: {interface.get('name')}, "
+                        f"mac address: {interface.get('mac_address')}, "
+                        f"switch IP: {interface.get('ip_address')}, "
+                        f"port: {interface.get('switch_port')}, "
+                        f"speed: {interface.get('speed')}, "
+                        f"vendor: {interface.get('vendor')}, "
+                        f"pxe_boot: {interface.get('pxe_boot')}, "
+                        f"maintenance: {interface.get('maintenance')}"
                     )
                     logger.info(message)
             exit(0)
@@ -869,11 +876,14 @@ def main(_args):
             "owner": _args.cloudowner,
             "ccuser": _args.ccusers,
             "qinq": _args.qinq,
-            "wipe": _args.no_wipe or _args.wipe,
             "ticket": _args.cloudticket,
             "vlan": _args.vlan,
             "force": _args.force,
         }
+        if hasattr(_args, "wipe"):
+            data["wipe"] = _args.wipe
+        else:
+            data["wipe"] = True
         cloud_reservation_lock = int(conf["cloud_reservation_lock"])
         cloud = Cloud.objects(name=data["name"]).first()
         lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
@@ -908,8 +918,8 @@ def main(_args):
 
         clean_data = {k: v for k, v in data.items() if v and k is not "name"}
 
-        if "--wipe" in sys.argv or "--no-wipe" in sys.argv:
-            clean_data["wipe"] = _args.no_wipe or _args.wipe
+        if hasattr(_args, "wipe"):
+            clean_data["wipe"] = _args.wipe
         if "--qinq" in sys.argv:
             clean_data["qinq"] = _args.qinq
 
@@ -1006,7 +1016,7 @@ def main(_args):
 
                             param_key = f"push__{key}"
                             kwargs = {param_key: new_obj}
-                            Host.objects(name=host.name).update_one(**kwargs)
+                            host.update_one(**kwargs)
                     elif key == "default_cloud":
                         cloud = Cloud.objects(name=value).first()
                         data[key] = cloud
@@ -1056,6 +1066,8 @@ def main(_args):
                     "ip_address": interface.ip_address,
                     "switch_port": interface.switch_port,
                     "speed": interface.speed,
+                    "vendor": interface.vendor,
+                    "pxe_boot": interface.pxe_boot,
                     "maintenance": interface.maintenance,
                 }
                 interfaces.append(interface_dict)
@@ -1114,14 +1126,27 @@ def main(_args):
             logger.error("    --interface-ip")
             logger.error("    --interface-port")
         url = os.path.join(API_URL, "interfaces")
+
+        default_interface = conf.get("default_pxe_interface")
+        if default_interface and _args.addinterface == default_interface:
+            pxe_boot = True
+        else:
+            pxe_boot = _args.ifpxe if hasattr(_args, "ifpxe") else False
+
         data = {
+            "host": _args.host,
             "name": _args.addinterface,
             "mac_address": _args.ifmac,
             "ip_address": _args.ifip,
             "switch_port": _args.ifport,
-            "host": _args.host,
+            "speed": _args.ifspeed,
+            "vendor": _args.ifvendor,
+            "pxe_boot": pxe_boot,
             "force": _args.force,
         }
+        if hasattr(_args, "ifmaintenance"):
+            data["maintenance"] = _args.ifmaintenance
+
         _response = requests.post(url, data)
         output_json_result(_response, data)
         exit(0)
@@ -1139,6 +1164,80 @@ def main(_args):
             logger.error(
                 "Could not connect to the quads-server, verify service is up and running."
             )
+            exit(1)
+        exit(0)
+
+    elif _args.modinterface is not None:
+        if _args.host is None:
+            logger.error(
+                "Missing option. --host option is required for --mod-interface:"
+            )
+            exit(1)
+
+        host = Host.objects(name=_args.host).first()
+        if not host:
+            logger.error("Host not found")
+            exit(1)
+
+        mod_interface = None
+        for interface in host.interfaces:
+            if interface.name.lower() == _args.modinterface.lower():
+                mod_interface = interface
+
+        if not mod_interface:
+            logger.error("Interface not found")
+            exit(1)
+
+        if (
+            _args.ifmac is None
+            and _args.ifip is None
+            and _args.ifport is None
+            and _args.ifspeed is None
+            and _args.ifvendor is None
+            and not hasattr(_args, "ifpxe")
+            and not hasattr(_args, "ifmaintenance")
+        ):
+            logger.error(
+                "Missing options. At least one these options are required for --add-interface:"
+            )
+            logger.error("    --interface-mac")
+            logger.error("    --interface-ip")
+            logger.error("    --interface-port")
+            logger.error("    --interface-speed")
+            logger.error("    --interface-vendor")
+            logger.error("    --pxe-boot")
+            logger.error("    --maintenance")
+            exit(1)
+
+        new_interface = Interface()
+        for key in mod_interface:
+            new_interface[key] = mod_interface[key]
+
+        data = {
+            "name": _args.modinterface,
+            "mac_address": _args.ifmac,
+            "ip_address": _args.ifip,
+            "switch_port": _args.ifport,
+            "speed": _args.ifspeed,
+            "vendor": _args.ifvendor,
+        }
+
+        for key in data.keys():
+            if data.get(key):
+                new_interface[key] = data.get(key)
+
+        if hasattr(_args, "ifpxe"):
+            new_interface["pxe_boot"] = _args.ifpxe
+        if hasattr(_args, "ifmaintenance"):
+            new_interface["maintenance"] = _args.ifmaintenance
+
+        try:
+            kwargs = {"set__interfaces__S": new_interface}
+            Host.objects.filter(name=_args.host, interfaces__name=_args.modinterface).update_one(**kwargs)
+            logger.info("Interface successfully updated")
+        except Exception as ex:
+            logger.error("Failed to update interface")
+            logger.debug(ex)
             exit(1)
         exit(0)
 
@@ -1740,6 +1839,13 @@ if __name__ == "__main__":
         help="Remove a host interface",
     )
     group.add_argument(
+        "--mod-interface",
+        dest="modinterface",
+        type=str,
+        default=None,
+        help="Modify a host interface",
+    )
+    group.add_argument(
         "--ls-hosts",
         dest="action",
         action="store_const",
@@ -1901,18 +2007,23 @@ if __name__ == "__main__":
         default=0,
         help="Define environment qinq state",
     )
-    parser.add_argument(
+
+    wipe_group_args = parser.add_mutually_exclusive_group()
+    wipe_group_args.add_argument(
         "--no-wipe",
-        dest="no_wipe",
+        dest="wipe",
+        default=argparse.SUPPRESS,
         action="store_false",
         help="Define no wipe for safeguarding data after assignment",
     )
-    parser.add_argument(
+    wipe_group_args.add_argument(
         "--wipe",
         dest="wipe",
+        default=argparse.SUPPRESS,
         action="store_true",
         help="Define wipe for reprovisioning server before assignment",
     )
+
     parser.add_argument(
         "--cloud-ticket",
         dest="cloudticket",
@@ -1991,22 +2102,69 @@ if __name__ == "__main__":
         dest="ifmac",
         type=str,
         default=None,
-        help="MAC address for --add-interface",
+        help="Interface MAC address",
     )
     parser.add_argument(
         "--interface-ip",
         dest="ifip",
         type=str,
         default=None,
-        help="IP address for --add-interface",
+        help="Interface IP address",
     )
     parser.add_argument(
         "--interface-port",
         dest="ifport",
         type=str,
         default=None,
-        help="Switch port for --add-interface",
+        help="Switch port",
     )
+    parser.add_argument(
+        "--interface-speed",
+        dest="ifspeed",
+        type=str,
+        default=None,
+        help="Interface speed",
+    )
+    parser.add_argument(
+        "--interface-vendor",
+        dest="ifvendor",
+        type=str,
+        default=None,
+        help="Interface vendor",
+    )
+
+    pxe_group_args = parser.add_mutually_exclusive_group()
+    pxe_group_args.add_argument(
+        "--pxe-boot",
+        dest="ifpxe",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Interface pxe boot flag",
+    )
+    pxe_group_args.add_argument(
+        "--no-pxe-boot",
+        dest="ifpxe",
+        action="store_false",
+        default=argparse.SUPPRESS,
+        help="Disable Interface pxe boot flag",
+    )
+
+    maintenance_group_args = parser.add_mutually_exclusive_group()
+    maintenance_group_args.add_argument(
+        "--maintenance",
+        dest="ifmaintenance",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Interface maintenance flag",
+    )
+    maintenance_group_args.add_argument(
+        "--no-maintenance",
+        dest="ifmaintenance",
+        action="store_false",
+        default=argparse.SUPPRESS,
+        help="Disable Interface maintenance flag",
+    )
+
     parser.add_argument(
         "--move-hosts",
         dest="movehosts",
