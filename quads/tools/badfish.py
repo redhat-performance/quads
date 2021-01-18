@@ -298,7 +298,7 @@ class Badfish:
             else:
                 manager_reset = data["Actions"].get("#Manager.Reset")
                 if manager_reset:
-                    reset_types = manager_reset.get("ResetType@Redfish.AllowableValues")
+                    reset_types = manager_reset.get("ResetType@Redfish.AllowableValues", [])
                     if not reset_types:
                         logger.warning("Could not get allowable reset types")
         return reset_types
