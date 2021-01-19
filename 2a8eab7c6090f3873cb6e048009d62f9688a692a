@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da90775d_82f5719e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2021-01-19T16:43:12Z",
+      "side": 1,
+      "message": "gonz is a beast.",
+      "revId": "2a8eab7c6090f3873cb6e048009d62f9688a692a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
