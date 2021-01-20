@@ -9,7 +9,11 @@ your allocated environment:
 
 will change.  As host schedules are activated some
 hosts will automatically be reprovisioned and moved to
-your environment.  Specifically:
+your environment.  This could also mean that one or more
+hosts will evacuate your environment ahead of others.
+
+QUADS has detected a change in schedule to the following
+hosts:
 
 {% for host in hosts %}
 {{host}}
