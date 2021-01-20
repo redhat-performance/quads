@@ -199,17 +199,15 @@ def main(_args):
             if data:
                 result = [json.loads(entry) for entry in data["result"]]
                 for interface in sorted(result, key=lambda k: k["name"]):
-                    message = (
-                        f"interface: {interface.get('name')}, "
-                        f"mac address: {interface.get('mac_address')}, "
-                        f"switch IP: {interface.get('ip_address')}, "
-                        f"port: {interface.get('switch_port')}, "
-                        f"speed: {interface.get('speed')}, "
-                        f"vendor: {interface.get('vendor')}, "
-                        f"pxe_boot: {interface.get('pxe_boot')}, "
-                        f"maintenance: {interface.get('maintenance')}"
-                    )
-                    logger.info(message)
+                    logger.info(f"interface: {interface.get('name')}")
+                    logger.info(f"  bios id: {interface.get('bios_id')}")
+                    logger.info(f"  mac address: {interface.get('mac_address')}")
+                    logger.info(f"  switch IP: {interface.get('ip_address')}")
+                    logger.info(f"  port: {interface.get('switch_port')}")
+                    logger.info(f"  speed: {interface.get('speed')}")
+                    logger.info(f"  vendor: {interface.get('vendor')}")
+                    logger.info(f"  pxe_boot: {interface.get('pxe_boot')}")
+                    logger.info(f"  maintenance: {interface.get('maintenance')}")
             exit(0)
 
         if _args.action == "ls_vlan":
@@ -515,9 +513,12 @@ def main(_args):
                     )
                     future_schedule = Schedule.future_schedules(cloud=cloud)
                     if future_schedule:
-                        confirmation = input(
-                            f"Would you like to extend a future allocation of {cloud.name}? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Would you like to extend a future allocation of {cloud.name}? (y/N): "
+                            )
+                            or "N"
+                        )
 
                         if confirmation.lower() not in ("y", "yes"):
                             exit(0)
@@ -595,9 +596,12 @@ def main(_args):
                     logger.error("The selected host does not have any active schedules")
                     future_schedule = Schedule.future_schedules(host=host).first()
                     if future_schedule:
-                        confirmation = input(
-                            f"Would you like to extend a future allocation of {host.name}? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Would you like to extend a future allocation of {host.name}? (y/N): "
+                            )
+                            or "N"
+                        )
 
                         if confirmation.lower() not in ("y", "yes"):
                             exit(0)
@@ -610,9 +614,12 @@ def main(_args):
                     end_date = schedule.end + timedelta(weeks=weeks)
                 else:
                     end_date = _date
-                if not Schedule.is_host_available(
-                    host=host.name, start=schedule.end, end=end_date
-                ) or end_date < schedule.end:
+                if (
+                    not Schedule.is_host_available(
+                        host=host.name, start=schedule.end, end=end_date
+                    )
+                    or end_date < schedule.end
+                ):
                     logger.info(
                         "The host cannot be extended for the current allocation as "
                         "it is not available during that time frame or end date would "
@@ -697,9 +704,12 @@ def main(_args):
                     )
                     future_schedules = Schedule.future_schedules(cloud=cloud)
                     if future_schedules:
-                        confirmation = input(
-                            f"Would you like to shrink a future allocation of {cloud.name}? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Would you like to shrink a future allocation of {cloud.name}? (y/N): "
+                            )
+                            or "N"
+                        )
 
                         if confirmation.lower() not in ("y", "yes"):
                             exit(0)
@@ -715,7 +725,11 @@ def main(_args):
                         end_date = schedule.end - time_delta
                     else:
                         end_date = _date
-                    if end_date < schedule.start or end_date > schedule.end or (not _args.now and end_date < threshold):
+                    if (
+                        end_date < schedule.start
+                        or end_date > schedule.end
+                        or (not _args.now and end_date < threshold)
+                    ):
                         non_shrinkable.append(schedule.host)
 
                 if non_shrinkable:
@@ -740,13 +754,19 @@ def main(_args):
                         )
 
                     if weeks:
-                        confirmation = input(
-                            f"Are you sure you want to shrink {cloud.name} for {_args.weeks} week[s]? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Are you sure you want to shrink {cloud.name} for {_args.weeks} week[s]? (y/N): "
+                            )
+                            or "N"
+                        )
                     else:
-                        confirmation = input(
-                            f"Are you sure you want to shrink {cloud.name} to {str(_date)[:16]}? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Are you sure you want to shrink {cloud.name} to {str(_date)[:16]}? (y/N): "
+                            )
+                            or "N"
+                        )
 
                     if confirmation.lower() not in ("y", "yes"):
                         exit(0)
@@ -794,9 +814,12 @@ def main(_args):
                     logger.error("The selected host does not have any active schedules")
                     future_schedule = Schedule.future_schedules(host=host).first()
                     if future_schedule:
-                        confirmation = input(
-                            f"Would you like to shrink a future allocation of {host.name}? (y/N): "
-                        ) or "N"
+                        confirmation = (
+                            input(
+                                f"Would you like to shrink a future allocation of {host.name}? (y/N): "
+                            )
+                            or "N"
+                        )
 
                         if confirmation.lower() not in ("y", "yes"):
                             exit(0)
@@ -809,7 +832,11 @@ def main(_args):
                     end_date = schedule.end - time_delta
                 else:
                     end_date = _date
-                if end_date < schedule.start or end_date > schedule.end or (not _args.now and end_date < threshold):
+                if (
+                    end_date < schedule.start
+                    or end_date > schedule.end
+                    or (not _args.now and end_date < threshold)
+                ):
                     logger.info(
                         "The host cannot be shrunk past it's start date, target date means an extension"
                         " or target date is earlier than 1 hour from now:"
@@ -828,9 +855,12 @@ def main(_args):
                             seven_days=True,
                         )
 
-                    confirmation = input(
-                        f"Are you sure you want to shrink {host.name} to {str(end_date)[:16]}? (y/N): "
-                    ) or "N"
+                    confirmation = (
+                        input(
+                            f"Are you sure you want to shrink {host.name} to {str(end_date)[:16]}? (y/N): "
+                        )
+                        or "N"
+                    )
 
                     if confirmation.lower() not in ("y", "yes"):
                         exit(0)
@@ -1136,6 +1166,7 @@ def main(_args):
         data = {
             "host": _args.host,
             "name": _args.addinterface,
+            "bios_id": _args.ifbiosid,
             "mac_address": _args.ifmac,
             "ip_address": _args.ifip,
             "switch_port": _args.ifport,
@@ -1189,7 +1220,8 @@ def main(_args):
             exit(1)
 
         if (
-            _args.ifmac is None
+            _args.ifbiosid is None
+            and _args.ifmac is None
             and _args.ifip is None
             and _args.ifport is None
             and _args.ifspeed is None
@@ -1198,8 +1230,9 @@ def main(_args):
             and not hasattr(_args, "ifmaintenance")
         ):
             logger.error(
-                "Missing options. At least one these options are required for --add-interface:"
+                "Missing options. At least one these options are required for --mod-interface:"
             )
+            logger.error("    --interface-bios-id")
             logger.error("    --interface-mac")
             logger.error("    --interface-ip")
             logger.error("    --interface-port")
@@ -1215,6 +1248,7 @@ def main(_args):
 
         data = {
             "name": _args.modinterface,
+            "bios_id": _args.ifbiosid,
             "mac_address": _args.ifmac,
             "ip_address": _args.ifip,
             "switch_port": _args.ifport,
@@ -1222,9 +1256,16 @@ def main(_args):
             "vendor": _args.ifvendor,
         }
 
-        for key in data.keys():
-            if data.get(key):
-                new_interface[key] = data.get(key)
+        results, prep_data = Interface.prep_data(data, ["name"])
+        if results:
+            logger.error(f"Failed to validate data for {_args.modinterface}")
+            for result in results:
+                logger.error(result)
+            exit(1)
+
+        for key in prep_data.keys():
+            if prep_data.get(key):
+                new_interface[key] = prep_data.get(key)
 
         if hasattr(_args, "ifpxe"):
             new_interface["pxe_boot"] = _args.ifpxe
@@ -1233,7 +1274,9 @@ def main(_args):
 
         try:
             kwargs = {"set__interfaces__S": new_interface}
-            Host.objects.filter(name=_args.host, interfaces__name=_args.modinterface).update_one(**kwargs)
+            Host.objects.filter(
+                name=_args.host, interfaces__name=_args.modinterface
+            ).update_one(**kwargs)
             logger.info("Interface successfully updated")
         except Exception as ex:
             logger.error("Failed to update interface")
@@ -1257,9 +1300,7 @@ def main(_args):
             exit(1)
 
         if _args.host is None and _args.host_list is None:
-            logger.error(
-                "Missing option. --host or --host-list required."
-            )
+            logger.error("Missing option. --host or --host-list required.")
             exit(1)
 
         if _args.host:
@@ -1326,7 +1367,7 @@ def main(_args):
                 template = Template(_file.read())
 
             _cloud = Cloud.objects(name=_args.schedcloud).first()
-            jira_docs_links = conf["jira_docs_links"].split(',')
+            jira_docs_links = conf["jira_docs_links"].split(",")
             comment = template.render(
                 schedule_start=_args.schedstart,
                 schedule_end=_args.schedend,
@@ -1353,7 +1394,9 @@ def main(_args):
                 t_name = transition.get("name")
                 if t_name and t_name.lower() == "scheduled":
                     transition_id = transition.get("id")
-                    transition_result = loop.run_until_complete(jira.post_transition(_cloud.ticket, transition_id))
+                    transition_result = loop.run_until_complete(
+                        jira.post_transition(_cloud.ticket, transition_id)
+                    )
                     break
 
             if not transition_result:
@@ -1590,9 +1633,7 @@ def main(_args):
         if _host:
             _kwargs = {"host": _host}
             if _args.datearg:
-                datetime_obj = datetime.strptime(
-                    _args.datearg, "%Y-%m-%d %H:%M"
-                )
+                datetime_obj = datetime.strptime(_args.datearg, "%Y-%m-%d %H:%M")
                 _kwargs["date"] = datetime_obj.isoformat()
             else:
                 datetime_obj = datetime.now()
@@ -1802,7 +1843,11 @@ if __name__ == "__main__":
         help="Define a cloud environment",
     )
     group.add_argument(
-        "--mod-cloud", dest="modcloud", type=str, default=None, help="Modify a cloud",
+        "--mod-cloud",
+        dest="modcloud",
+        type=str,
+        default=None,
+        help="Modify a cloud",
     )
     group.add_argument(
         "--add-schedule",
@@ -1860,7 +1905,11 @@ if __name__ == "__main__":
         help="List all clouds",
     )
     group.add_argument(
-        "--rm-host", dest="rmhost", type=str, default=None, help="Remove a host",
+        "--rm-host",
+        dest="rmhost",
+        type=str,
+        default=None,
+        help="Remove a host",
     )
     group.add_argument(
         "--rm-cloud", dest="rmcloud", type=str, default=None, help="Remove a cloud"
@@ -1969,13 +2018,25 @@ if __name__ == "__main__":
 
     object_args = parser.add_mutually_exclusive_group()
     object_args.add_argument(
-        "--host", dest="host", type=str, default=None, help="Specify the host to query",
+        "--host",
+        dest="host",
+        type=str,
+        default=None,
+        help="Specify the host to query",
     )
     object_args.add_argument(
-        "--host-list", dest="host_list", type=str, default=None, help="Specify file path to host list",
+        "--host-list",
+        dest="host_list",
+        type=str,
+        default=None,
+        help="Specify file path to host list",
     )
     object_args.add_argument(
-        "--cloud", dest="cloud", type=str, default=None, help="Specify cloud name",
+        "--cloud",
+        dest="cloud",
+        type=str,
+        default=None,
+        help="Specify cloud name",
     )
 
     parser.add_argument(
@@ -2096,6 +2157,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Schedule cloud",
+    )
+    parser.add_argument(
+        "--interface-bios-id",
+        dest="ifbiosid",
+        type=str,
+        default=None,
+        help="Interface BIOS ID name",
     )
     parser.add_argument(
         "--interface-mac",
@@ -2222,7 +2290,10 @@ if __name__ == "__main__":
         help="Filter search by host metadata",
     )
     parser.add_argument(
-        "--mark-broken", action="store_true", default=False, help="Mark host as broken",
+        "--mark-broken",
+        action="store_true",
+        default=False,
+        help="Mark host as broken",
     )
     parser.add_argument(
         "--mark-repaired",

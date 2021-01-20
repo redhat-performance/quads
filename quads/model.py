@@ -21,10 +21,7 @@ from mongoengine import (
 from quads.helpers import param_check
 
 
-connect(
-    'quads',
-    host=os.environ.get('MONGODB_IP', '127.0.0.1')
-)
+connect("quads", host=os.environ.get("MONGODB_IP", "127.0.0.1"))
 
 
 class Vlan(Document):
@@ -33,29 +30,22 @@ class Vlan(Document):
     ip_range = StringField()
     netmask = StringField()
     vlan_id = LongField()
-    meta = {
-        'indexes': [
-            {
-                'fields': ['$vlan_id']
-            }
-        ],
-        'strict': False
-    }
+    meta = {"indexes": [{"fields": ["$vlan_id"]}], "strict": False}
 
     @staticmethod
     def prep_data(data):
         _fields = [
-            'gateway',
-            'ip_range',
-            'vlan_id',
+            "gateway",
+            "ip_range",
+            "vlan_id",
         ]
-        if 'iprange' in data:
-            data['ip_range'] = data.pop('iprange')
-        if 'vlanid' in data:
-            data['vlan_id'] = data.pop('vlanid')
+        if "iprange" in data:
+            data["ip_range"] = data.pop("iprange")
+        if "vlanid" in data:
+            data["vlan_id"] = data.pop("vlanid")
         ip_address = ipaddress.ip_network(data["ip_range"])
-        data['netmask'] = str(ip_address.netmask)
-        data['ip_free'] = ip_address.num_addresses - 2
+        data["netmask"] = str(ip_address.netmask)
+        data["ip_free"] = ip_address.num_addresses - 2
         result, data = param_check(data, _fields)
 
         return result, data
@@ -70,29 +60,22 @@ class CloudHistory(Document):
     wipe = BooleanField()
     ccuser = ListField()
     vlan_id = LongField()
-    meta = {
-        'indexes': [
-            {
-                'fields': ['$name']
-            }
-        ],
-        'strict': False
-    }
+    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
     def prep_data(data):
-        for flag in ['provisioned', 'validated', 'last_redefined']:
+        for flag in ["provisioned", "validated", "last_redefined"]:
             if flag in data:
                 data.pop(flag)
 
-        if 'vlan' in data:
-            if type(data.get('vlan')) == str:
-                data['vlan_id'] = int(data.get('vlan'))
-            elif type(data.get('vlan')) == Vlan:
-                data['vlan_id'] = data.get('vlan').vlan_id
-            data.pop('vlan')
+        if "vlan" in data:
+            if type(data.get("vlan")) == str:
+                data["vlan_id"] = int(data.get("vlan"))
+            elif type(data.get("vlan")) == Vlan:
+                data["vlan_id"] = data.get("vlan").vlan_id
+            data.pop("vlan")
 
-        params = ['name', 'description', 'owner', 'ticket']
+        params = ["name", "description", "owner", "ticket"]
         result, data = param_check(data, params)
 
         return result, data
@@ -101,8 +84,8 @@ class CloudHistory(Document):
 class Cloud(Document):
     name = StringField(unique=True)
     description = StringField()
-    owner = StringField(default='quads')
-    ticket = StringField(default='000000')
+    owner = StringField(default="quads")
+    ticket = StringField(default="000000")
     qinq = IntField(default=0)
     wipe = BooleanField(default=True)
     ccuser = ListField()
@@ -110,23 +93,16 @@ class Cloud(Document):
     validated = BooleanField(default=False)
     vlan = ReferenceField(Vlan)
     last_redefined = DateTimeField(default=datetime.datetime.now())
-    meta = {
-        'indexes': [
-            {
-                'fields': ['$name']
-            }
-        ],
-        'strict': False
-    }
+    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
     def prep_data(data, fields=None, mod=False):
-        if 'vlan' in data and data['vlan']:
-            vlan_id = data.pop('vlan')
+        if "vlan" in data and data["vlan"]:
+            vlan_id = data.pop("vlan")
             try:
                 int(vlan_id)
             except ValueError:
-                data['vlan'] = None
+                data["vlan"] = None
             else:
                 vlan_obj = Vlan.objects(vlan_id=vlan_id).first()
                 if not vlan_obj:
@@ -135,26 +111,26 @@ class Cloud(Document):
                 if cloud_obj:
                     return ["VLAN %s already in use." % vlan_id], {}
                 data["vlan"] = vlan_obj
-        if 'ccuser' in data:
-            data['ccuser'] = data['ccuser'].split()
-        if 'wipe' in data:
-            if str(data['wipe']).lower() == "false":
+        if "ccuser" in data:
+            data["ccuser"] = data["ccuser"].split()
+        if "wipe" in data:
+            if str(data["wipe"]).lower() == "false":
                 data["wipe"] = False
             else:
                 data["wipe"] = True
 
         if not mod:
-            data['validated'] = False
-            data['last_redefined'] = datetime.datetime.now()
+            data["validated"] = False
+            data["last_redefined"] = datetime.datetime.now()
 
         if not fields:
-            fields = ['name', 'description', 'owner']
+            fields = ["name", "description", "owner"]
 
         fields = list(fields)
-        if 'qinq' in fields:
-            fields.remove('qinq')
-        if 'wipe' in fields:
-            fields.remove('wipe')
+        if "qinq" in fields:
+            fields.remove("qinq")
+        if "wipe" in fields:
+            fields.remove("wipe")
 
         result, data = param_check(data, fields)
 
@@ -182,7 +158,7 @@ class Disk(EmbeddedDocument):
 
     @staticmethod
     def prep_data(data):
-        _fields = ['disk_type', 'size_gb', 'count']
+        _fields = ["disk_type", "size_gb", "count"]
         result, data = param_check(data, _fields)
 
         return result, data
@@ -190,6 +166,7 @@ class Disk(EmbeddedDocument):
 
 class Interface(EmbeddedDocument):
     name = StringField()
+    bios_id = StringField()
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
@@ -199,9 +176,14 @@ class Interface(EmbeddedDocument):
     maintenance = BooleanField(default=False)
 
     @staticmethod
-    def prep_data(data):
-        _fields = ['name', 'mac_address', 'ip_address', 'switch_port']
-        result, data = param_check(data, _fields)
+    def prep_data(data, fields=None):
+        if not fields:
+            fields = ["name", "mac_address", "ip_address", "switch_port"]
+
+        if data.get("vendor"):
+            data["vendor"] = data.get("vendor").upper()
+
+        result, data = param_check(data, fields)
 
         return result, data
 
@@ -220,33 +202,26 @@ class Host(Document):
     disks = ListField(EmbeddedDocumentField(Disk))
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
-    meta = {
-        'indexes': [
-            {
-                'fields': ['$name']
-            }
-        ],
-        'strict': False
-    }
+    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
     def prep_data(data, fields=None):
-        if 'cloud' in data:
-            _cloud_obj = Cloud.objects(name=data['cloud']).first()
+        if "cloud" in data:
+            _cloud_obj = Cloud.objects(name=data["cloud"]).first()
             if _cloud_obj:
-                data['cloud'] = _cloud_obj
+                data["cloud"] = _cloud_obj
             else:
-                return ['Cloud %s does not exist.' % data['cloud']], {}
-        if 'default_cloud' in data:
-            _default_cloud_obj = Cloud.objects(name=data['default_cloud']).first()
+                return ["Cloud %s does not exist." % data["cloud"]], {}
+        if "default_cloud" in data:
+            _default_cloud_obj = Cloud.objects(name=data["default_cloud"]).first()
             if _default_cloud_obj:
-                data['default_cloud'] = _default_cloud_obj
-                if 'cloud' not in data:
-                    data['cloud'] = _default_cloud_obj
+                data["default_cloud"] = _default_cloud_obj
+                if "cloud" not in data:
+                    data["cloud"] = _default_cloud_obj
             else:
-                return ['Cloud %s does not exist.' % data['default_cloud']], {}
+                return ["Cloud %s does not exist." % data["default_cloud"]], {}
         if not fields:
-            fields = ['name', 'host_type']
+            fields = ["name", "host_type"]
 
         result, data = param_check(data, fields)
 
@@ -266,18 +241,18 @@ class Schedule(Document):
     build_start = DateTimeField()
     build_end = DateTimeField()
     index = IntField()
-    meta = {'strict': False}
+    meta = {"strict": False}
 
     @staticmethod
     def prep_data(data):
-        result, data = param_check(data, ['host'])
+        result, data = param_check(data, ["host"])
 
         return result, data
 
     @staticmethod
     def get_next_sequence(name):
         Counters.objects(_id=name).update_one(upsert=True, inc__seq=1)
-        return Counters.objects(_id=name).first()['seq']
+        return Counters.objects(_id=name).first()["seq"]
 
     def insert_schedule(self, cloud, host, start, end):
         if host:
@@ -300,11 +275,11 @@ class Schedule(Document):
             _query = _query & Q(index__ne=exclude)
         results = queryset.filter(_query)
         for result in results:
-            if result['start'] <= start < result['end']:
+            if result["start"] <= start < result["end"]:
                 return False
-            if result['start'] < end <= result['end']:
+            if result["start"] < end <= result["end"]:
                 return False
-            if start < result['start'] and end > result['end']:
+            if start < result["start"] and end > result["end"]:
                 return False
         return True
 
