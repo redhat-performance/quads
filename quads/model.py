@@ -190,6 +190,7 @@ class Disk(EmbeddedDocument):
 
 class Interface(EmbeddedDocument):
     name = StringField()
+    bios_id = StringField()
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
