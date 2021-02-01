@@ -28,7 +28,7 @@ def verify(_cloud_name, change=False):
                 vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 try:
-                    old_vlan_out = ssh_helper.run_cmd(
+                    _, old_vlan_out = ssh_helper.run_cmd(
                         "show configuration interfaces %s" % interface.switch_port
                     )
                     old_vlan = old_vlan_out[0].split(";")[0].split()[1]
@@ -38,7 +38,7 @@ def verify(_cloud_name, change=False):
                     old_vlan = None
 
                 try:
-                    vlan_member_out = ssh_helper.run_cmd(
+                    _, vlan_member_out = ssh_helper.run_cmd(
                         "show configuration vlans | display set | match %s.0"
                         % interface.switch_port
                     )

@@ -47,14 +47,15 @@ class SSHHelper(object):
     def run_cmd(self, cmd):
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         errors = stderr.readlines()
-        if errors:
+        exit_code = stdout.channel.recv_exit_status()
+        if errors or exit_code > 0:
             logger.error("There was something wrong with your request")
             for line in errors:
                 logger.debug(line)
-            return False
+            return False, errors
         else:
             logger.debug("Command executed successfully: %s" % cmd)
-            return stdout.readlines()
+            return True, stdout.readlines()
 
     def copy_ssh_key(self, _ssh_key):
 
