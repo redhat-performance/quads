@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-RETRIES = 30
+RETRIES = 3
 
 
 def switch_config(host, old_cloud, new_cloud):
@@ -44,11 +44,11 @@ def switch_config(host, old_cloud, new_cloud):
                 ssh_helper.disconnect()
                 switch_ip = interface.ip_address
                 ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
-        old_vlan_out = ssh_helper.run_cmd(
+        result, old_vlan_out = ssh_helper.run_cmd(
             "show configuration interfaces %s" % interface.switch_port
         )
         old_vlan = None
-        if old_vlan_out:
+        if result:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
             if not _new_cloud_obj.vlan and not last_nic:

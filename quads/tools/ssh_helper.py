@@ -51,10 +51,10 @@ class SSHHelper(object):
             logger.error("There was something wrong with your request")
             for line in errors:
                 logger.debug(line)
-            return False
+            return False, errors
         else:
             logger.debug("Command executed successfully: %s" % cmd)
-            return stdout.readlines()
+            return True, stdout.readlines()
 
     def copy_ssh_key(self, _ssh_key):
 

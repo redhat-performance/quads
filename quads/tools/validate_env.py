@@ -210,7 +210,8 @@ class Validator(object):
             return False
         host_list = " ".join([host.name for host in self.hosts])
 
-        if type(ssh_helper.run_cmd("fping -u %s" % host_list)) != list:
+        result, output = ssh_helper.run_cmd("fping -u %s" % host_list)
+        if not result:
             return False
 
         for i, interface in enumerate(INTERFACES.keys()):
@@ -234,7 +235,19 @@ class Validator(object):
                     new_ips.append(".".join(ip_apart))
 
             if new_ips:
-                if type(ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))) != list:
+                result, output = ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))
+                if not result:
+                    import re
+                    pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
+                    hosts = []
+                    for error in output:
+                        ip = pattern.search(error.split()[-1])[0]
+                        if ip:
+                            hosts.append(ip)
+                    hosts_set = set(hosts)
+                    logger.warning("The following IPs are not responsive:")
+                    for host in hosts_set:
+                        logger.warning(host)
                     return False
 
         ssh_helper.disconnect()
