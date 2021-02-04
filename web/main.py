@@ -43,8 +43,8 @@ def available(search):
     broken_hosts = Host.objects(broken=True)
 
     available_hosts = []
-    start = datetime.combine(search.data["start"], time.min)
-    end = datetime.combine(search.data["end"], time.min)
+    start = datetime.combine(search.data["start"], time(hour=22))
+    end = datetime.combine(search.data["end"], time(hour=22))
 
     if hosts:
         for host in hosts:
