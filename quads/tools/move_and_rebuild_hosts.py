@@ -12,15 +12,12 @@ from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
-from quads.tools.netcat import Netcat
-from quads.tools.ssh_helper import SSHHelper
+from quads.tools.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
-RETRIES = 3
 
 
 def switch_config(host, old_cloud, new_cloud):
@@ -38,7 +35,11 @@ def switch_config(host, old_cloud, new_cloud):
         last_nic = i == len(_host_obj.interfaces) - 1
         if not switch_ip:
             switch_ip = interface.ip_address
-            ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+            try:
+                ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+            except SSHHelperException:
+                logger.error(f"Failed to connect to switch: {switch_ip}")
+                return False
         else:
             if switch_ip != interface.ip_address:
                 ssh_helper.disconnect()
@@ -48,7 +49,7 @@ def switch_config(host, old_cloud, new_cloud):
             "show configuration interfaces %s" % interface.switch_port
         )
         old_vlan = None
-        if result:
+        if result and old_vlan_out:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
             if not _new_cloud_obj.vlan and not last_nic:
@@ -246,23 +247,6 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     "There was something wrong setting Foreman host parameters."
                 )
                 return False
-
-        healthy = False
-        try:
-            for i in range(RETRIES):
-                nc = Netcat(_host_obj.name)
-                healthy = await nc.health_check()
-                await nc.close()
-                if healthy:
-                    break
-        except OSError as ex:
-            logger.debug(ex)
-            logger.error("Health check failed after several attempts. Check if host is up and port 22 open.")
-            return False
-
-        if not healthy:
-            logger.error("Health check failed after several attempts.")
-            return False
 
         if is_supported(host):
             try:
