@@ -1,6 +1,9 @@
 QUADS (quick and dirty scheduler)
 =================================
 
+
+HI, Tomas here!
+
 QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.
 
 * Visit the [QUADS blog](https://quads.dev)
