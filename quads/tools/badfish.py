@@ -87,7 +87,10 @@ class Badfish:
             raise BadfishException
 
         if "error" in data:
-            detail_message = str(data["error"]["@Message.ExtendedInfo"][0]["Message"])
+            message = data["error"]["@Message.ExtendedInfo"][0].get("Message")
+            if not message:
+                message = data["error"]["@Message.ExtendedInfo"][0].get("MessageArgs")
+            detail_message = str(message)
             logger.warning(detail_message)
 
         raise BadfishException
@@ -774,7 +777,7 @@ class Badfish:
                 % (reset_type, status_code)
             )
             await asyncio.sleep(10)
-        elif status_code == 409:
+        elif status_code in [409, 400]:
             logger.warning(
                 "Command failed to %s server, host appears to be already in that state."
                 % reset_type
