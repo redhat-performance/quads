@@ -155,6 +155,7 @@ class Disk(EmbeddedDocument):
     disk_type = StringField()
     size_gb = LongField()
     count = IntField()
+    meta = {"strict": False}
 
     @staticmethod
     def prep_data(data):
@@ -174,6 +175,7 @@ class Interface(EmbeddedDocument):
     vendor = StringField(default="")
     pxe_boot = BooleanField(default=False)
     maintenance = BooleanField(default=False)
+    meta = {"strict": False}
 
     @staticmethod
     def prep_data(data, fields=None):
