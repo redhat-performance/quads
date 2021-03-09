@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Instackenv Task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/make_instackenv_json.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

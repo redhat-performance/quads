@@ -1,0 +1,10 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Foreman Heal Timer
+
+[Timer]
+# Every two hours, Monday to Saturday
+OnCalendar=Mon..Sat 00/2:00:00
+
+[Install]
+WantedBy=timers.target

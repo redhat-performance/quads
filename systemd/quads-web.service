@@ -7,6 +7,7 @@
 Description = QUADS Web Service
 Documentation = https://github.com/redhat-performance/quads
 After=network.target mongod.service
+Wants=quads-make-instackenv.timer quads-regenerate-wiki.timer quads-simple-table-web.timer
 
 [Service]
 Type = simple

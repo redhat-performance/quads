@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Simple Table Web Task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/simple_table_web.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

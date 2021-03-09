@@ -1,0 +1,10 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Instackenv Timer
+
+[Timer]
+# Every 12th minute
+OnCalendar=*:00/12:00
+
+[Install]
+WantedBy=timers.target

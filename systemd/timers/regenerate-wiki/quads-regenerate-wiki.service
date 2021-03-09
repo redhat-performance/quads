@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Regenerate Wiki Task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/regenerate_wiki.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Validate env task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/validate_env.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

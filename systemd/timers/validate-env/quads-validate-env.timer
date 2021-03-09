@@ -1,0 +1,10 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Validate env timer
+
+[Timer]
+# Every 20th minute
+OnCalendar=*:0/20
+
+[Install]
+WantedBy=timers.target

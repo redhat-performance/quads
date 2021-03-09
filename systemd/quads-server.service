@@ -7,6 +7,8 @@
 Description = QUADS Daemon
 Documentation = https://github.com/redhat-performance/quads
 After=network.target mongod.service httpd.service
+# Enable consecutive timers when this service is enabled (not started)
+Wants=quads-foreman-heal.timer quads-move-and-rebuild.timer quads-notify.timer quads-validate-env.timer
 
 [Service]
 Type = simple

@@ -1,0 +1,9 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Simple Table Web Timer
+
+[Timer]
+OnCalendar=*:00/10:00
+
+[Install]
+WantedBy=timers.target
