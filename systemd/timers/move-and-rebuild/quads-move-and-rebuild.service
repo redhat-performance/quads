@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Move & Rebuild task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/bin/quads-cli --move-hosts
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

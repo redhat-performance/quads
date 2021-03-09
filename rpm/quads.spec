@@ -83,6 +83,7 @@ mkdir %{buildroot}/etc/logrotate.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/templates/static/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
+cp -rf systemd/timers/*/*.{service,timer} %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
@@ -92,16 +93,12 @@ echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d
 rm -rf %{buildroot}
 
 %files
-/etc/systemd/system/quads-web.service
-/etc/systemd/system/quads-server.service
+/etc/systemd/system/quads-*.service
+/etc/systemd/system/quads-*.timer
 /etc/profile.d/quads.sh
 /opt/quads/bin/*
 /opt/quads/web/*
-/opt/quads/web/templates/*
 /opt/quads/quads/*
-/opt/quads/quads/tools/*
-/opt/quads/quads/templates/*
-/opt/quads/quads/templates/static/*
 /opt/quads/conf/logrotate_quads.conf
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml

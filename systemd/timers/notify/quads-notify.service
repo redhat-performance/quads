@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Notify Task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/notify.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

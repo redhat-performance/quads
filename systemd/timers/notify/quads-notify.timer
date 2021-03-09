@@ -1,0 +1,10 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Notify Timer
+
+[Timer]
+# Every 15th minute
+OnCalendar=*:00/15:00
+
+[Install]
+WantedBy=timers.target

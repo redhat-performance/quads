@@ -1,0 +1,8 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Foreman Heal Task (managed by timer)
+
+[Service]
+ExecStart=/opt/quads/quads/tools/foreman_heal.py
+WorkingDirectory=/opt/quads
+Environment="PYTHONPATH=$PYTHONPATH:/opt/quads/"

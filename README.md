@@ -26,6 +26,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
                * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
+         * [Quads Systemd Timers](#quads-systemd-timers)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [Adding New Hosts to QUADS](#adding-new-hosts-to-quads)
             * [Define Initial Cloud Environments](#define-initial-cloud-environments)
@@ -321,9 +322,13 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
    - Note: RPM installations will have ```quads-cli``` and tools in your system $PATH but you will need to login to a new shell to pick it up.
 
 ### Making QUADS Run
-   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/master/cron/quads) to your liking, adjust as needed.
+   - QUADS is a passive service and does not do anything you do not tell it to do.  
+     We control QUADS with timers, please modify our 
+     [example systemd timers](https://raw.githubusercontent.com/redhat-performance/quads/master/systemd/timers) 
+     to your liking, and copy them into `/etc/systemd/system`.
+     See [Quads Systemd Timers](#quads-systemd-timers)
 
-   - Below are the major components run out of cron that makes everything work.
+   - Below are the major components run by timers that makes everything work.
 
 | Service Command | Category | Purpose |
 |-----------------|----------|---------|
@@ -333,6 +338,77 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 | simple_table_web.py | visualization | keeps your systems availability and usage visualization up to date |
 | make_instackenv_json.py | openstack | keeps optional openstack triple-o installation files up-to-date |
 
+### Quads Systemd Timers
+
+#### Enable/Disable Timer
+
+```shell
+systemctl enable quads-foreman-heal.timer
+systemctl disable quads-foreman-heal.timer
+```
+- **Important:** The underlying service (`quads-foreman-heal.service`) **should not** be enabled as that will start the service directly. The timer is in control of the service lifecycle.
+- By default `enable` won't fire the timer immediately (it will only start ticking), but if needed this can be done with `systemctl enable --now ...`
+which will both start elapsing the timer and fire, executing its corresponding service.
+
+#### Get Status Of A Timer
+
+```shell
+systemctl status quads-regenerate-wiki.timer
+```
+
+```shell
+systemctl list-timers --all quads-*.timer
+```
+
+- Lists all timers starting with `quads-` offering nice overview of their statuses (last time fired, remaining duration to fire, ...). Without `--all` you will get only currently enabled/ticking timers.
+
+#### Get Status Of Service/Task
+
+```shell
+systemctl status quads-validate-env.service
+```
+
+- **Tip:** `.service` suffix can be omitted, systemd defaults to showing status of the service, not timer.
+
+List all Quads services:
+
+```shell
+systemctl status quads-*.service
+```
+
+#### Get Logs Of Service/Task
+
+**Tips:** `-f` is a shorthand for `--follow`, `-u` for `--unit <unit_name>`
+
+```shell
+journalctl -u quads-notify
+```
+
+Stream/tail/watch live log:
+
+```shell
+journalctl -fu quads-validate-env
+```
+
+Last N lines of log:
+
+```shell
+journalctl [-f] -n 500 -u quads-validate-env 
+```
+
+Watch multiple services:
+
+```shell
+journalctl -fu quads-*.service
+```
+
+#### Bypass Timer, Fire/Start Service Manually
+
+- If needed, [disable the timer](#enabledisable-timer)
+
+```shell
+systemctl start quads-move-and-rebuild.service
+```
 
 ## QUADS Usage Documentation
 

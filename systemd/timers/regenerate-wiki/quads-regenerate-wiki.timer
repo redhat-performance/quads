@@ -1,0 +1,10 @@
+[Unit]
+Documentation=https://github.com/redhat-performance/quads
+Description=Quads - Regenerate Wiki Timer
+
+[Timer]
+# Every 10th minute
+OnCalendar=*:00/10:00
+
+[Install]
+WantedBy=timers.target
