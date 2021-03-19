@@ -33,66 +33,8 @@ class Jira(object):
         if self.new_loop:
             self.loop.close()
 
-    async def post_comment(self, ticket, comment):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
-        endpoint = "/issue/%s/comment" % issue_id
-        logger.debug("POST comment: {%s:%s}" % (issue_id, comment))
-        data = {"body": comment}
-        try:
-            async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
-                    async with session.post(
-                        self.url + endpoint,
-                        json=data,
-                        auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
-                    ) as response:
-                        await response.json(content_type="application/json")
-        except Exception as ex:
-            logger.debug(ex)
-            logger.error("There was something wrong with your request.")
-            return False
-        if response.status in [200, 201, 204]:
-            logger.info("Jira comment posted successfully.")
-            return True
-        if response.status == 404:
-            logger.error("Resource not found: %s" % self.url + endpoint)
-        return False
-
-    async def post_transition(self, ticket, transition):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
-        endpoint = "/issue/%s/transitions" % issue_id
-        logger.debug("POST transition: {%s:%s}" % (issue_id, transition))
-        data = {"transition": {"id": transition}}
-        try:
-            async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
-                    async with session.post(
-                        self.url + endpoint,
-                        json=data,
-                        auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
-                    ) as response:
-                        await response.json(content_type="application/json")
-        except Exception as ex:
-            logger.debug(ex)
-            logger.error("There was something wrong with your request.")
-            return False
-        if response.status in [200, 201, 204]:
-            logger.info("Transition updated correctly.")
-            return True
-        if response.status == 404:
-            logger.error("Resource not found: %s" % self.url + endpoint)
-        return False
-
-    async def get_transitions(self, ticket):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
-        endpoint = "/issue/%s/transitions" % issue_id
-        logger.debug("GET transitions: %s" % endpoint)
+    async def get_request(self, endpoint):
+        logger.debug("GET: %s" % endpoint)
         try:
             async with aiohttp.ClientSession(
                 loop=self.loop
@@ -106,9 +48,57 @@ class Jira(object):
         except Exception as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
-            return []
+            return None
         if response.status == 404:
             logger.error("Resource not found: %s" % self.url + endpoint)
+            return None
+        return result
+
+    async def post_request(self, endpoint, payload):
+        logger.debug("POST: {%s:%s}" % (endpoint, payload))
+        try:
+            async with self.semaphore:
+                async with aiohttp.ClientSession(
+                    loop=self.loop
+                ) as session:
+                    async with session.post(
+                        self.url + endpoint,
+                        json=payload,
+                        auth=BasicAuth(self.username, self.password),
+                        verify_ssl=False,
+                    ) as response:
+                        await response.json(content_type="application/json")
+        except Exception as ex:
+            logger.debug(ex)
+            logger.error("There was something wrong with your request.")
+            return False
+        if response.status in [200, 201, 204]:
+            logger.info("Post successful.")
+            return True
+        if response.status == 404:
+            logger.error("Resource not found: %s" % self.url + endpoint)
+        return False
+
+    async def post_comment(self, ticket, comment):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s/comment" % issue_id
+        payload = {"body": comment}
+        response = await self.post_request(endpoint, payload)
+        return response
+
+    async def post_transition(self, ticket, transition):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s/transitions" % issue_id
+        payload = {"transition": {"id": transition}}
+        response = await self.post_request(endpoint, payload)
+        return response
+
+    async def get_transitions(self, ticket):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s/transitions" % issue_id
+        result = await self.get_request(endpoint)
+        if not result:
+            logger.error("Failed to get transitions")
             return []
 
         transitions = result.get("transitions")
@@ -117,3 +107,12 @@ class Jira(object):
         else:
             logger.error("No transitions found under %s" % issue_id)
             return []
+
+    async def get_ticket(self, ticket):
+        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        endpoint = "/issue/%s" % issue_id
+        result = await self.get_request(endpoint)
+        if not result:
+            logger.error("Failed to get ticket")
+            return None
+        return result
