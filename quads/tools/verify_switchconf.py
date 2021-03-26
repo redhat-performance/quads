@@ -5,7 +5,7 @@ import logging
 
 from quads.config import conf
 from quads.helpers import get_vlan
-from quads.model import Cloud, Host
+from quads.model import Cloud, Host, Assignment
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
@@ -15,11 +15,11 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(_cloud_name, _host_name, change=False):
+    _cloud_obj = Cloud.objects(name=_cloud_name).first()
+    _assignment = Assignment.objects(cloud=_cloud_obj, on_cloud=True).first()
+
     if _host_name:
         _host_obj = Host.objects(name=_host_name).first()
-    _cloud_obj = Cloud.objects(name=_cloud_name).first()
-
-    if _host_obj:
         hosts = [_host_obj]
     else:
         hosts = Host.objects(cloud=_cloud_obj)
@@ -31,7 +31,7 @@ def verify(_cloud_name, _host_name, change=False):
             for i, interface in enumerate(interfaces):
                 ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
                 last_nic = i == len(_host_obj.interfaces) - 1
-                vlan = get_vlan(_cloud_obj, i, last_nic)
+                vlan = get_vlan(_assignment, i, last_nic)
 
                 try:
                     _, old_vlan_out = ssh_helper.run_cmd(
@@ -50,7 +50,7 @@ def verify(_cloud_name, _host_name, change=False):
                     )
                     vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
-                    if not _cloud_obj.vlan and not last_nic:
+                    if not _assignment.vlan and not last_nic:
                         logger.warning(
                             "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
                             % (
@@ -78,13 +78,13 @@ def verify(_cloud_name, _host_name, change=False):
                         )
 
                     if change:
-                        if _cloud_obj.vlan and last_nic:
-                            if int(_cloud_obj.vlan.vlan_id) != int(old_vlan):
+                        if _assignment.vlan and last_nic:
+                            if int(_assignment.vlan.vlan_id) != int(old_vlan):
 
                                 logger.info(f"Change requested for {interface.name}")
                                 logger.info(
                                     "Setting last interface to public vlan %s."
-                                    % _cloud_obj.vlan.vlan_id
+                                    % _assignment.vlan.vlan_id
                                 )
 
                                 success = juniper_convert_port_public(
