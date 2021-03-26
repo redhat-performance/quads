@@ -13,7 +13,7 @@ from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.helpers import is_supported
-from quads.model import Cloud, Schedule, Host, Notification
+from quads.model import Cloud, Schedule, Host, Notification, Assignment
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
 from quads.tools.helpers import get_running_loop
@@ -25,13 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 class Validator(object):
-    def __init__(self, cloud, _loop=None):
-        self.cloud = cloud
+    def __init__(self, assignment, _loop=None):
+        self.assignment = assignment
         self.report = ""
-        self.hosts = Host.objects(cloud=self.cloud, validated=False)
-        self.hosts = [
-            host for host in self.hosts if Schedule.current_schedule(host=host)
-        ]
+        self.schedules = Schedule.objects(assignment=assignment)
+        self.hosts = [schedule.host for schedule in self.schedules]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -39,9 +37,9 @@ class Validator(object):
         with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
-            "cloud": self.cloud.name,
-            "owner": self.cloud.owner,
-            "ticket": self.cloud.ticket,
+            "cloud": self.assignment.cloud.name,
+            "owner": self.assignment.owner,
+            "ticket": self.assignment.ticket,
             "report": self.report,
         }
         content = template.render(**parameters)
@@ -58,9 +56,9 @@ class Validator(object):
         with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
-            "cloud": self.cloud.name,
-            "owner": self.cloud.owner,
-            "ticket": self.cloud.ticket,
+            "cloud": self.assignment.cloud.name,
+            "owner": self.assignment.owner,
+            "ticket": self.assignment.ticket,
         }
         content = template.render(**parameters)
 
@@ -73,31 +71,29 @@ class Validator(object):
 
     def env_allocation_time_exceeded(self):
         now = datetime.now()
-        schedule = Schedule.objects(
-            cloud=self.cloud, start__lt=now, end__gt=now
-        ).first()
+        schedule = self.schedules[0]
         time_delta = now - schedule.start
         if time_delta.seconds // 60 > conf["validation_grace_period"]:
             return True
         logger.warning(
             "You're still within the configurable validation grace period. Skipping validation for %s."
-            % self.cloud.name
+            % self.assignment.cloud.name
         )
         return False
 
     async def post_system_test(self):
-        password = f"{conf['infra_location']}@{self.cloud.ticket}"
+        password = f"{conf['infra_location']}@{self.assignment.ticket}"
         foreman = Foreman(
-            conf["foreman_api_url"], self.cloud.name, password, loop=self.loop,
+            conf["foreman_api_url"], self.assignment.cloud.name, password, loop=self.loop,
         )
 
         valid_creds = await foreman.verify_credentials()
         if not valid_creds:
-            logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
+            logger.error("Unable to query Foreman for cloud: %s" % self.assignment.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % password)
             self.report = (
                 self.report
-                + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
+                + "Unable to query Foreman for cloud: %s\n" % self.assignment.cloud.name
             )
             self.report = (
                 self.report + "Verify Foreman password is correct: %s\n" % password
@@ -107,9 +103,8 @@ class Validator(object):
         build_hosts = await foreman.get_build_hosts()
 
         pending = []
-        schedules = Schedule.current_schedule(cloud=self.cloud)
-        if schedules:
-            for schedule in schedules:
+        if self.schedules:
+            for schedule in self.schedules:
                 if schedule.host and schedule.host.name in build_hosts:
                     pending.append(schedule.host.name)
 
@@ -123,7 +118,10 @@ class Validator(object):
                 for host in pending:
                     logger.info(host)
                     nc = Netcat(host)
-                    healthy = await nc.health_check()
+                    try:
+                        healthy = await nc.health_check()
+                    except OSError:
+                        healthy = False
                     if not healthy:
                         logger.warning(
                             "Host %s didn't pass the health check. "
@@ -226,7 +224,7 @@ class Validator(object):
                 _host_obj = host["host"]
                 _interfaces = INTERFACES[interface]
                 last_nic = i == len(_host_obj.interfaces) - 1
-                if last_nic and self.cloud.vlan:
+                if last_nic and self.assignment.vlan:
                     continue
                 for value in _interfaces:
                     ip_apart = host["ip"].split(".")
@@ -255,10 +253,7 @@ class Validator(object):
         return True
 
     async def validate_env(self):
-        logger.info(f"Validating {self.cloud.name}")
-        notification_obj = Notification.objects(
-            cloud=self.cloud, ticket=self.cloud.ticket
-        ).first()
+        logger.info(f"Validating {self.assignment.cloud.name}")
         failed = False
 
         if self.env_allocation_time_exceeded():
@@ -276,27 +271,28 @@ class Validator(object):
             # TODO: quads dell config report
 
             if not failed:
-                if not notification_obj.success:
+                if not self.assignment.notification.success:
                     self.notify_success()
-                    notification_obj.update(success=True, fail=False)
+                    self.assignment.update(notification__success=True, notification__fail=False)
 
                 for host in self.hosts:
                     host.update(validated=True)
-                self.cloud.update(validated=True)
+                self.assignment.update(validated=True)
 
-        if failed and not notification_obj.fail:
+        if failed and not self.assignment.notification.fail:
             self.notify_failure()
-            notification_obj.update(fail=True)
+            self.assignment.update(notification__fail=True)
 
         return
 
 
 def main(_loop):
-    clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
+    clouds = Cloud.objects(name__ne="cloud01")
     for _cloud in clouds:
-        _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
+        assignment = Assignment.objects(cloud=_cloud, validated=False, provisioned=True).first()
+        _schedule_count = Schedule.current_schedule(assignment=assignment).count()
         if _schedule_count and _cloud.wipe:
-            validator = Validator(_cloud, _loop=_loop)
+            validator = Validator(assignment, _loop=_loop)
             try:
                 _loop.run_until_complete(validator.validate_env())
             except Exception as ex:

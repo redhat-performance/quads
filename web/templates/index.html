@@ -34,8 +34,7 @@
         sunday = new Date();
         future = new Date();
         days_till_next_sunday = 7 - now.getDay();
-        now.setDate(now.getDate() + days_till_next_sunday);
-        sunday.setDate(sunday.getDate() + days_till_next_sunday);
+        sunday.setDate(now.getDate() + days_till_next_sunday);
         $("#start").datepicker({
             minDate: 0,
             onSelect: function(selected){

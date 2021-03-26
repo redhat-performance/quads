@@ -7,7 +7,7 @@ from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, get_vlan
-from quads.model import Host, Cloud, Schedule
+from quads.model import Host, Cloud, Schedule, Assignment
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -52,7 +52,7 @@ def switch_config(host, old_cloud, new_cloud):
         if result and old_vlan_out:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
-            if not _new_cloud_obj.vlan and not last_nic:
+            if not _new_cloud_obj.assignment.vlan and not last_nic:
                 logger.warning(
                     "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
                     % (
@@ -66,14 +66,14 @@ def switch_config(host, old_cloud, new_cloud):
 
         new_vlan = get_vlan(_new_cloud_obj, i)
 
-        if _new_cloud_obj.vlan and last_nic:
-            if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
+        if _new_cloud_obj.assignment.vlan and last_nic:
+            if int(old_vlan) != int(_new_cloud_obj.assignment.vlan.vlan_id):
                 logger.info("Setting last interface to public vlan %s." % new_vlan)
                 success = juniper_convert_port_public(
                     interface.ip_address,
                     interface.switch_port,
                     old_vlan,
-                    _new_cloud_obj.vlan.vlan_id,
+                    _new_cloud_obj.assignment.vlan.vlan_id,
                 )
                 if success:
                     logger.info("Successfully updated switch settings.")
@@ -152,10 +152,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         return False
 
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
+    _new_assignment = Assignment.objects(cloud=_new_cloud_obj, active=True).first()
 
     ipmi_new_pass = (
-        f"{conf['infra_location']}@{_new_cloud_obj.ticket}"
-        if _new_cloud_obj.ticket
+        f"{conf['infra_location']}@{_new_assignment.ticket}"
+        if _new_assignment
         else conf["ipmi_password"]
     )
 
