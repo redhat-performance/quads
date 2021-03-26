@@ -51,52 +51,46 @@ class Vlan(Document):
         return result, data
 
 
-class CloudHistory(Document):
-    name = StringField()
+class Notification(EmbeddedDocument):
+    fail = BooleanField(default=False)
+    success = BooleanField(default=False)
+    initial = BooleanField(default=False)
+    pre_initial = BooleanField(default=False)
+    pre = BooleanField(default=False)
+    one_day = BooleanField(default=False)
+    three_days = BooleanField(default=False)
+    five_days = BooleanField(default=False)
+    seven_days = BooleanField(default=False)
+
+
+class Cloud(Document):
+    name = StringField(unique=True)
+    active_assignment = ReferenceField('Assignment')
+    last_redefined = DateTimeField(default=datetime.datetime.now())
+
+    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
+
+
+class Assignment(Document):
+    cloud = ReferenceField(Cloud, required=True)
+    provisioned = BooleanField(default=False)
+    validated = BooleanField(default=False)
     description = StringField()
     owner = StringField()
     ticket = StringField()
     qinq = IntField()
     wipe = BooleanField()
     ccuser = ListField()
-    vlan_id = LongField()
-    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
-
-    @staticmethod
-    def prep_data(data):
-        for flag in ["provisioned", "validated", "last_redefined"]:
-            if flag in data:
-                data.pop(flag)
-
-        if "vlan" in data:
-            if type(data.get("vlan")) == str:
-                data["vlan_id"] = int(data.get("vlan"))
-            elif type(data.get("vlan")) == Vlan:
-                data["vlan_id"] = data.get("vlan").vlan_id
-            data.pop("vlan")
-
-        params = ["name", "description", "owner", "ticket"]
-        result, data = param_check(data, params)
-
-        return result, data
-
-
-class Cloud(Document):
-    name = StringField(unique=True)
-    description = StringField()
-    owner = StringField(default="quads")
-    ticket = StringField(default="000000")
-    qinq = IntField(default=0)
-    wipe = BooleanField(default=True)
-    ccuser = ListField()
-    provisioned = BooleanField(default=False)
-    validated = BooleanField(default=False)
+    notification = EmbeddedDocumentField(Notification)
     vlan = ReferenceField(Vlan)
-    last_redefined = DateTimeField(default=datetime.datetime.now())
     meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
-    def prep_data(data, fields=None, mod=False):
+    def prep_data(data, fields=None, mod=None):
+        if not mod:
+            data["validated"] = False
+            data["last_redefined"] = datetime.datetime.now()
+
         if "vlan" in data and data["vlan"]:
             vlan_id = data.pop("vlan")
             try:
@@ -119,36 +113,27 @@ class Cloud(Document):
             else:
                 data["wipe"] = True
 
-        if not mod:
-            data["validated"] = False
-            data["last_redefined"] = datetime.datetime.now()
+        if data.get("name"):
+            cloud = Cloud.objects(name=data.get("name"))
+            if not cloud:
+                cloud = Cloud(name=data.get("name"))
+            data["cloud"] = cloud
 
         if not fields:
-            fields = ["name", "description", "owner"]
+            fields = ["name", "description", "owner", "ticket"]
 
-        fields = list(fields)
         if "qinq" in fields:
             fields.remove("qinq")
         if "wipe" in fields:
             fields.remove("wipe")
 
+        for flag in ["provisioned", "validated", "last_redefined"]:
+            if flag in data:
+                data.pop(flag)
+
         result, data = param_check(data, fields)
 
         return result, data
-
-
-class Notification(Document):
-    cloud = ReferenceField(Cloud)
-    ticket = StringField()
-    fail = BooleanField(default=False)
-    success = BooleanField(default=False)
-    initial = BooleanField(default=False)
-    pre_initial = BooleanField(default=False)
-    pre = BooleanField(default=False)
-    one_day = BooleanField(default=False)
-    three_days = BooleanField(default=False)
-    five_days = BooleanField(default=False)
-    seven_days = BooleanField(default=False)
 
 
 class Disk(EmbeddedDocument):
@@ -193,7 +178,7 @@ class Interface(EmbeddedDocument):
 class Host(Document):
     name = StringField(unique=True)
     model = StringField()
-    default_cloud = ReferenceField(Cloud)
+    active_cloud = ReferenceField(Cloud)
     cloud = ReferenceField(Cloud)
     host_type = StringField()
     interfaces = ListField(EmbeddedDocumentField(Interface))
@@ -211,15 +196,13 @@ class Host(Document):
         if "cloud" in data:
             _cloud_obj = Cloud.objects(name=data["cloud"]).first()
             if _cloud_obj:
-                data["cloud"] = _cloud_obj
+                data["active_cloud"] = _cloud_obj
             else:
                 return ["Cloud %s does not exist." % data["cloud"]], {}
         if "default_cloud" in data:
             _default_cloud_obj = Cloud.objects(name=data["default_cloud"]).first()
             if _default_cloud_obj:
                 data["default_cloud"] = _default_cloud_obj
-                if "cloud" not in data:
-                    data["cloud"] = _default_cloud_obj
             else:
                 return ["Cloud %s does not exist." % data["default_cloud"]], {}
         if not fields:
@@ -236,7 +219,7 @@ class Counters(Document):
 
 
 class Schedule(Document):
-    cloud = ReferenceField(Cloud, required=True)
+    assignment = ReferenceField(Assignment, required=True)
     host = ReferenceField(Host, required=True)
     start = DateTimeField()
     end = DateTimeField()
@@ -262,9 +245,10 @@ class Schedule(Document):
             self.host = Host.objects(name=host).first()
         if cloud:
             if type(cloud) == Cloud:
-                self.cloud = cloud
+                self.assignment = cloud.active_assignment
             else:
-                self.cloud = Cloud.objects(name=cloud).first()
+                _cloud = Cloud.objects(name=cloud).first()
+                self.assignment = _cloud.active_assignment
         self.start = start
         self.end = end
         return self.save()

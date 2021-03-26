@@ -5,7 +5,8 @@ import datetime
 import json
 import logging
 
-from quads.model import Schedule, Host, Cloud, Notification, CloudHistory, Interface
+import quads.model
+from quads.model import Schedule, Host, Cloud, Notification, CloudHistory, Interface, Assignment
 from mongoengine.errors import DoesNotExist
 from quads.config import conf, QUADSVERSION, QUADSCODENAME
 
@@ -20,7 +21,6 @@ class MethodHandlerBase(object):
 
     def _get_obj(self, obj):
         """
-
         :rtype: object
         """
         q = {"name": obj}
@@ -141,10 +141,10 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             for host in all_hosts:
                 if (
-                    Schedule.is_host_available(
-                        host=host["name"], start=_start, end=_end
-                    )
-                    and host not in broken_hosts
+                        Schedule.is_host_available(
+                            host=host["name"], start=_start, end=_end
+                        )
+                        and host not in broken_hosts
                 ):
                     available.append(host.name)
             return json.dumps(available)
@@ -221,7 +221,10 @@ class DocumentMethodHandler(MethodHandlerBase):
             del data["force"]
 
         # make sure post data passed in is ready to pass to mongo engine
-        result, obj_data = self.model.prep_data(data)
+        model = self.model
+        if self.name == "cloud":
+            model = quads.model.Assignment
+        result, obj_data = model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -255,8 +258,8 @@ class DocumentMethodHandler(MethodHandlerBase):
                                     hours = time_left.total_seconds() // 3600
                                     minutes = (time_left.total_seconds() % 3600) // 60
                                     cloud_string = (
-                                        "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
-                                        % (obj.name, hours, minutes,)
+                                            "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
+                                            % (obj.name, hours, minutes,)
                                     )
                                     result.append(cloud_string)
                                     cherrypy.response.status = "400 Bad Request"
@@ -282,7 +285,8 @@ class DocumentMethodHandler(MethodHandlerBase):
                                 )
                                 cherrypy.response.status = "400 Bad Request"
                             else:
-                                CloudHistory(**history_data).save()
+                                cloud_history = CloudHistory(**history_data)
+                                cloud_history.save()
 
                             current_schedule = Schedule.current_schedule(
                                 cloud=obj
@@ -300,7 +304,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                             result.append("Updated %s %s" % (self.name, obj_name))
                     # otherwise create it
                     else:
-                        self.model(**obj_data).save()
+                        model(**obj_data).save()
                         obj = self._get_obj(obj_name)
                         if self.name == "cloud":
                             notification_obj = Notification.objects(
@@ -409,8 +413,12 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     _end = schedule.end
                 if not cloud_obj:
                     cloud_obj = schedule.cloud
+                else:
+                    cloud_history = CloudHistory.objects(name=cloud_obj.name, ticket=cloud_obj.ticket).first()
+                    if cloud_history:
+                        data["cloud_history"] = cloud_history
                 if Schedule.is_host_available(
-                    host=_host, start=_start, end=_end, exclude=schedule.index
+                        host=_host, start=_start, end=_end, exclude=schedule.index
                 ):
                     data["cloud"] = cloud_obj
                     notification_obj = Notification.objects(
@@ -432,8 +440,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 if Schedule.is_host_available(host=_host, start=_start, end=_end):
 
                     if (
-                        self.model.current_schedule(cloud=cloud_obj)
-                        and cloud_obj.validated
+                            self.model.current_schedule(cloud=cloud_obj)
+                            and cloud_obj.validated
                     ):
                         if not cloud_obj.wipe:
                             _host_obj.update(validated=True)
@@ -445,6 +453,8 @@ class ScheduleMethodHandler(MethodHandlerBase):
 
                     schedule = Schedule()
                     data["cloud"] = cloud_obj
+                    cloud_history = CloudHistory.objects(name=cloud_obj.name, ticket=cloud_obj.ticket).first()
+                    data["cloud_history"] = cloud_history
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
                     result.append(
