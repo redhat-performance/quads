@@ -41,8 +41,7 @@ from quads.tools import reports
 from quads.tools.jira import Jira
 from quads.tools.logger import CustomFormatter
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
-from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
-
+from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan, Assignment
 
 logger = logging.getLogger(__name__)
 sh = logging.StreamHandler(sys.stdout)
@@ -934,18 +933,6 @@ def main(_args):
             data["wipe"] = _args.wipe
         else:
             data["wipe"] = True
-        cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-        cloud = Cloud.objects(name=data["name"]).first()
-        lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
-        cloud_string = f"{cloud.name}"
-        if lock_release > datetime.now():
-            time_left = lock_release - datetime.now()
-            hours = time_left.total_seconds() // 3600
-            minutes = (time_left.total_seconds() % 3600) // 60
-            cloud_string += " (reserved: %dhr %dmin remaining)" % (hours, minutes)
-            logger.warning("Can't redefine cloud:")
-            logger.warning(cloud_string)
-            exit(1)
         try:
             logger.info(quads.insert_cloud(data)["result"])
         except ConnectionError:
@@ -1509,11 +1496,12 @@ def main(_args):
                 provisioned = True
                 tasks = []
                 switch_tasks = []
+                cloud = Cloud.objects(name=_cloud).first()
+                assignment = Assignment.objects(cloud=cloud, provisioned=False).first()
                 for result in results:
                     host = result["host"]
                     current = result["current"]
                     new = result["new"]
-                    cloud = Cloud.objects(name=new).first()
                     logger.info(
                         "Moving %s from %s to %s, wipe = %s"
                         % (host, current, new, cloud.wipe)
@@ -1521,21 +1509,21 @@ def main(_args):
                     if not _args.dryrun:
                         host_obj = Host.objects(name=host).first()
                         host_obj.update(switch_config_applied=False)
-                        if new != "cloud01":
-                            has_active_schedule = Schedule.current_schedule(cloud=cloud)
-                            if has_active_schedule and cloud.wipe:
-                                cloud.update(validated=False)
+                        if _cloud != host_obj.default_cloud.name:
+                            has_active_schedule = Schedule.current_schedule(assignment=assignment)
+                            if assignment.validated and has_active_schedule and assignment.wipe:
+                                assignment.update(validated=False)
                         try:
                             if _args.movecommand == default_move_command:
                                 fn = functools.partial(
-                                    move_and_rebuild, host, new, semaphore, cloud.wipe
+                                    move_and_rebuild, host, new, semaphore, assignment.wipe
                                 )
                                 tasks.append(fn)
                                 switch_tasks.append(
                                     functools.partial(switch_config, host, current, new)
                                 )
                             else:
-                                if cloud.wipe:
+                                if assignment.wipe:
                                     subprocess.check_call(
                                         [args.movecommand, host, current, new]
                                     )
@@ -1549,19 +1537,6 @@ def main(_args):
                             provisioned = False
 
                 if not _args.dryrun:
-                    _old_cloud_obj = Cloud.objects(name=results[0]["current"]).first()
-                    old_cloud_schedule = Schedule.current_schedule(cloud=_old_cloud_obj)
-
-                    default_wipe = conf.get("default_wipe", True)
-                    if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                        _old_cloud_obj.update(
-                            validated=False,
-                            provisioned=False,
-                            vlan=None,
-                            wipe=default_wipe,
-                            ccuser=[],
-                        )
-
                     done = None
                     loop = asyncio.get_event_loop()
                     loop.set_exception_handler(exception_handler)
@@ -1598,9 +1573,8 @@ def main(_args):
                                 provisioned = provisioned and future
 
                     if provisioned:
-                        _new_cloud_obj = Cloud.objects(name=_cloud).first()
-                        validate = not _new_cloud_obj.wipe
-                        _new_cloud_obj.update(provisioned=True, validated=validate)
+                        validate = not assignment.wipe
+                        assignment.update(provisioned=True, validated=validate, on_cloud=True)
 
             exit(0)
 

@@ -246,7 +246,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 logger.error(
                     "There was something wrong setting Foreman host parameters."
                 )
-                return False
+                # return False
 
         if is_supported(host):
             try:
