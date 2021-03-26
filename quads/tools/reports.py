@@ -2,7 +2,7 @@ import logging
 import sys
 
 from quads.helpers import date_span, first_day_month, last_day_month, month_delta_past, date_to_object_id
-from quads.model import Schedule, Host, CloudHistory, Cloud, Q
+from quads.model import Schedule, Host
 from datetime import datetime, timedelta
 
 
@@ -116,15 +116,6 @@ def process_scheduled(_logger, month, now):
     start = first_day_month(_date)
     start_id = date_to_object_id(start)
     end = last_day_month(_date)
-    end_id = date_to_object_id(end)
-    scheduled = CloudHistory.objects(
-        __raw__={
-            "_id": {
-                "$lt": end_id,
-                "$gt": start_id,
-            },
-        }
-    ).order_by("-_id").count()
     hosts = Host.objects(
         __raw__={
             "_id": {
@@ -133,11 +124,11 @@ def process_scheduled(_logger, month, now):
         }
     ).count()
     days = 0
-    scheduled_count = 0
     utilization = 0
-    for date in date_span(start, end):
-        days += 1
-        scheduled_count += Schedule.current_schedule(date=date).count()
+    schedules = Schedule.objects(start__gt=start, end__lt=end)
+    scheduled_count = schedules.count()
+    assignments = set([schedule.assignment for schedule in schedules])
+    scheduled = len(assignments)
     if hosts and days:
         utilization = scheduled_count * 100 // (days * hosts)
     f_month = f"{start.month:02}"
@@ -151,18 +142,9 @@ def process_scheduled(_logger, month, now):
 
 def report_detailed(_logger, _start, _end):
     start = _start.replace(hour=21, minute=59, second=0)
-    start_defer = start - timedelta(weeks=1)
-    start_defer_id = date_to_object_id(start_defer)
     end = _end.replace(hour=22, minute=1, second=0)
-    end_id = date_to_object_id(end)
-    cloud_history = CloudHistory.objects(
-        __raw__={
-            "_id": {
-                "$lt": end_id,
-                "$gt": start_defer_id,
-            },
-        }
-    ).order_by("-_id")
+    schedules = Schedule.objects(start__gt=start, end__lt=end)
+    assignments = set([schedule.assignment for schedule in schedules])
 
     headers = ["Owner", "Ticket", "Cloud", "Description", "Systems", "Scheduled", "Duration"]
     _logger.info(
@@ -175,23 +157,19 @@ def report_detailed(_logger, _start, _end):
         f"{headers[6]:>5}| "
     )
 
-    for cloud in cloud_history:
-        cloud_ref = Cloud.objects(name=cloud.name).first()
-        schedule = Schedule.objects(
-            Q(end__lt=end) & Q(start__gt=start) & Q(cloud=cloud_ref)
-        ).order_by("-_id")
-        if schedule:
-            delta = schedule[0].end - schedule[0].start
-            description = cloud.description[:len(headers[3])]
-            _logger.info(
-                f"{cloud.owner:<9}| "
-                f"{cloud.ticket:>9}| "
-                f"{cloud.name:>8}| "
-                f"{description:>11}| "
-                f"{schedule.count():>7}| "
-                f"{str(schedule[0].start)[:10]:>9}| "
-                f"{delta.days:>8}| "
-            )
+    for assignment in assignments:
+        schedule = Schedule.objects(assignment=assignment).first()
+        delta = schedule.end - schedule.start
+        description = assignment.description[:len(headers[3])]
+        _logger.info(
+            f"{assignment.owner:<9}| "
+            f"{assignment.ticket:>9}| "
+            f"{assignment.cloud.name:>8}| "
+            f"{description:>11}| "
+            f"{schedule.count():>7}| "
+            f"{str(schedule[0].start)[:10]:>9}| "
+            f"{delta.days:>8}| "
+        )
 
 
 if __name__ == "__main__":

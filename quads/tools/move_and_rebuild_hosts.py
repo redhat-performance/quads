@@ -7,7 +7,7 @@ from time import sleep
 
 from quads.config import conf
 from quads.helpers import is_supported, get_vlan
-from quads.model import Host, Cloud, Schedule
+from quads.model import Host, Cloud, Schedule, Assignment
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
@@ -152,10 +152,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         return False
 
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
+    _new_assignment = Assignment.objects(cloud=_new_cloud_obj).first()
 
     ipmi_new_pass = (
-        f"{conf['infra_location']}@{_new_cloud_obj.ticket}"
-        if _new_cloud_obj.ticket
+        f"{conf['infra_location']}@{_new_assignment.ticket}"
+        if _new_assignment
         else conf["ipmi_password"]
     )
 
