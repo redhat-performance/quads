@@ -270,7 +270,8 @@ def main():
         _cloud_obj = Cloud.objects(name=name).first()
         _hosts = sorted(Host.objects(cloud=_cloud_obj), key=lambda x: x.name)
         for host in _hosts:
-            lines.extend(add_row(host))
+            if not blacklist.search(host.name):
+                lines.extend(add_row(host))
         lines.append("\n")
 
     lines.extend(print_unmanaged(mgmt_hosts))
