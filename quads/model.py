@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 import ipaddress
 import os
 
@@ -51,52 +51,49 @@ class Vlan(Document):
         return result, data
 
 
-class CloudHistory(Document):
-    name = StringField()
+class Notification(EmbeddedDocument):
+    fail = BooleanField(default=False)
+    success = BooleanField(default=False)
+    initial = BooleanField(default=False)
+    pre_initial = BooleanField(default=False)
+    pre = BooleanField(default=False)
+    one_day = BooleanField(default=False)
+    three_days = BooleanField(default=False)
+    five_days = BooleanField(default=False)
+    seven_days = BooleanField(default=False)
+    meta = {"strict": False}
+
+
+class Cloud(Document):
+    name = StringField(unique=True)
+    assignment = ReferenceField('Assignment')
+    last_redefined = DateTimeField(default=datetime.now() - timedelta(hours=3))
+
+    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
+
+
+class Assignment(Document):
+    cloud = ReferenceField(Cloud, required=True)
+    active = BooleanField(default=True)
+    provisioned = BooleanField(default=False)
+    validated = BooleanField(default=False)
     description = StringField()
     owner = StringField()
     ticket = StringField()
     qinq = IntField()
     wipe = BooleanField()
     ccuser = ListField()
-    vlan_id = LongField()
-    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
-
-    @staticmethod
-    def prep_data(data):
-        for flag in ["provisioned", "validated", "last_redefined"]:
-            if flag in data:
-                data.pop(flag)
-
-        if "vlan" in data:
-            if type(data.get("vlan")) == str:
-                data["vlan_id"] = int(data.get("vlan"))
-            elif type(data.get("vlan")) == Vlan:
-                data["vlan_id"] = data.get("vlan").vlan_id
-            data.pop("vlan")
-
-        params = ["name", "description", "owner", "ticket"]
-        result, data = param_check(data, params)
-
-        return result, data
-
-
-class Cloud(Document):
-    name = StringField(unique=True)
-    description = StringField()
-    owner = StringField(default="quads")
-    ticket = StringField(default="000000")
-    qinq = IntField(default=0)
-    wipe = BooleanField(default=True)
-    ccuser = ListField()
-    provisioned = BooleanField(default=False)
-    validated = BooleanField(default=False)
+    notification = EmbeddedDocumentField(Notification)
     vlan = ReferenceField(Vlan)
-    last_redefined = DateTimeField(default=datetime.datetime.now())
-    meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
+    meta = {"strict": False}
 
     @staticmethod
     def prep_data(data, fields=None, mod=False):
+        if not mod:
+            data["validated"] = False
+            data["last_redefined"] = datetime.now()
+            data["notification"] = Notification()
+
         if "vlan" in data and data["vlan"]:
             vlan_id = data.pop("vlan")
             try:
@@ -119,36 +116,31 @@ class Cloud(Document):
             else:
                 data["wipe"] = True
 
-        if not mod:
-            data["validated"] = False
-            data["last_redefined"] = datetime.datetime.now()
+        if data.get("name"):
+            cloud = Cloud.objects(name=data.get("name")).first()
+            force = data.get("force", False) == "True"
+            if not cloud and force:
+                cloud = Cloud(name=data.get("name")).save()
+            elif not cloud and not force:
+                return ["Cloud %s not found. Try with --force to define a new cloud." % data.get("name")], {}
+            data["cloud"] = cloud
+            data.pop("name")
 
         if not fields:
-            fields = ["name", "description", "owner"]
+            fields = ["description", "owner", "ticket"]
 
-        fields = list(fields)
         if "qinq" in fields:
             fields.remove("qinq")
         if "wipe" in fields:
             fields.remove("wipe")
 
+        for flag in ["provisioned", "validated", "last_redefined", "force"]:
+            if flag in data:
+                data.pop(flag)
+
         result, data = param_check(data, fields)
 
         return result, data
-
-
-class Notification(Document):
-    cloud = ReferenceField(Cloud)
-    ticket = StringField()
-    fail = BooleanField(default=False)
-    success = BooleanField(default=False)
-    initial = BooleanField(default=False)
-    pre_initial = BooleanField(default=False)
-    pre = BooleanField(default=False)
-    one_day = BooleanField(default=False)
-    three_days = BooleanField(default=False)
-    five_days = BooleanField(default=False)
-    seven_days = BooleanField(default=False)
 
 
 class Disk(EmbeddedDocument):
@@ -193,11 +185,10 @@ class Interface(EmbeddedDocument):
 class Host(Document):
     name = StringField(unique=True)
     model = StringField()
-    default_cloud = ReferenceField(Cloud)
     cloud = ReferenceField(Cloud)
+    default_cloud = ReferenceField(Cloud)
     host_type = StringField()
     interfaces = ListField(EmbeddedDocumentField(Interface))
-    nullos = BooleanField(default=True)
     build = BooleanField(default=False)
     validated = BooleanField(default=False)
     last_build = DateTimeField()
@@ -209,18 +200,10 @@ class Host(Document):
 
     @staticmethod
     def prep_data(data, fields=None):
-        if "cloud" in data:
-            _cloud_obj = Cloud.objects(name=data["cloud"]).first()
-            if _cloud_obj:
-                data["cloud"] = _cloud_obj
-            else:
-                return ["Cloud %s does not exist." % data["cloud"]], {}
         if "default_cloud" in data:
             _default_cloud_obj = Cloud.objects(name=data["default_cloud"]).first()
             if _default_cloud_obj:
                 data["default_cloud"] = _default_cloud_obj
-                if "cloud" not in data:
-                    data["cloud"] = _default_cloud_obj
             else:
                 return ["Cloud %s does not exist." % data["default_cloud"]], {}
         if not fields:
@@ -237,7 +220,7 @@ class Counters(Document):
 
 
 class Schedule(Document):
-    cloud = ReferenceField(Cloud, required=True)
+    assignment = ReferenceField(Assignment, required=True)
     host = ReferenceField(Host, required=True)
     start = DateTimeField()
     end = DateTimeField()
@@ -257,15 +240,10 @@ class Schedule(Document):
         Counters.objects(_id=name).update_one(upsert=True, inc__seq=1)
         return Counters.objects(_id=name).first()["seq"]
 
-    def insert_schedule(self, cloud, host, start, end):
-        if host:
-            self.index = self.get_next_sequence(host)
-            self.host = Host.objects(name=host).first()
-        if cloud:
-            if type(cloud) == Cloud:
-                self.cloud = cloud
-            else:
-                self.cloud = Cloud.objects(name=cloud).first()
+    def insert_schedule(self, host, assignment, start, end):
+        self.index = self.get_next_sequence(host)
+        self.host = Host.objects(name=host).first()
+        self.assignment = assignment
         self.start = start
         self.end = end
         return self.save()
@@ -290,21 +268,27 @@ class Schedule(Document):
 
     @queryset_manager
     def future_schedules(self, queryset, host=None, cloud=None):
-        now = datetime.datetime.now()
+        now = datetime.now()
         _query = Q(end__gte=now)
         if host:
             _query = _query & Q(host=host)
         if cloud:
-            _query = _query & Q(cloud=cloud)
+            # TODO: check assignment group search
+            assignment = Assignment.objects(cloud=cloud).first()
+            _query = _query & Q(assignment=assignment)
         return queryset.filter(_query)
 
     @queryset_manager
-    def current_schedule(self, queryset, date=None, host=None, cloud=None):
+    def current_schedule(self, queryset, date=None, host=None, cloud=None, assignment=None):
         if not date:
-            date = datetime.datetime.now()
+            date = datetime.now()
         _query = Q(start__lte=date) & Q(end__gte=date)
         if host:
             _query = _query & Q(host=host)
         if cloud:
-            _query = _query & Q(cloud=cloud)
+            # TODO: check assignment group search
+            assignment_obj = Assignment.objects(cloud=cloud).first()
+            _query = _query & Q(assignment=assignment_obj)
+        if assignment:
+            _query = _query & Q(assignment=assignment)
         return queryset.no_cache().filter(_query)
