@@ -123,7 +123,10 @@ class Validator(object):
                 for host in pending:
                     logger.info(host)
                     nc = Netcat(host)
-                    healthy = await nc.health_check()
+                    try:
+                        healthy = await nc.health_check()
+                    except OSError:
+                        healthy = False
                     if not healthy:
                         logger.warning(
                             "Host %s didn't pass the health check. "

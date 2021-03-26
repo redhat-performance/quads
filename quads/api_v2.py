@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+import sys
 import cherrypy
 import datetime
 import json
 import logging
 
-from quads.model import Schedule, Host, Cloud, Notification, CloudHistory, Interface
+import quads.model
+from quads.model import Schedule, Host, Cloud, Notification, Interface, Assignment
 from mongoengine.errors import DoesNotExist
 from quads.config import conf, QUADSVERSION, QUADSCODENAME
 
@@ -20,7 +22,6 @@ class MethodHandlerBase(object):
 
     def _get_obj(self, obj):
         """
-
         :rtype: object
         """
         q = {"name": obj}
@@ -141,10 +142,10 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             for host in all_hosts:
                 if (
-                    Schedule.is_host_available(
-                        host=host["name"], start=_start, end=_end
-                    )
-                    and host not in broken_hosts
+                        Schedule.is_host_available(
+                            host=host["name"], start=_start, end=_end
+                        )
+                        and host not in broken_hosts
                 ):
                     available.append(host.name)
             return json.dumps(available)
@@ -221,7 +222,10 @@ class DocumentMethodHandler(MethodHandlerBase):
             del data["force"]
 
         # make sure post data passed in is ready to pass to mongo engine
-        result, obj_data = self.model.prep_data(data)
+        model = self.model
+        if self.name == "cloud":
+            model = quads.model.Assignment
+        result, obj_data = model.prep_data(data)
 
         # Check if there were data validation errors
         if result:
@@ -255,19 +259,20 @@ class DocumentMethodHandler(MethodHandlerBase):
                                     hours = time_left.total_seconds() // 3600
                                     minutes = (time_left.total_seconds() % 3600) // 60
                                     cloud_string = (
-                                        "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
-                                        % (obj.name, hours, minutes,)
+                                            "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
+                                            % (obj.name, hours, minutes,)
                                     )
                                     result.append(cloud_string)
                                     cherrypy.response.status = "400 Bad Request"
                                     return json.dumps({"result": result})
 
                             schedule_count = Schedule.objects(
-                                cloud=obj, start__gte=datetime.datetime.now()
+                                assignment=obj.active_assignment, start__gte=datetime.datetime.now()
                             ).count()
-                            notification_obj = Notification.objects(
-                                cloud=obj, ticket=data["ticket"]
-                            ).first()
+                            notification_obj = None
+                            if not assignment.notification:
+                                notification_obj = obj.notification
+
                             if not notification_obj:
                                 Notification(cloud=obj, ticket=data["ticket"]).save()
 
@@ -282,7 +287,8 @@ class DocumentMethodHandler(MethodHandlerBase):
                                 )
                                 cherrypy.response.status = "400 Bad Request"
                             else:
-                                CloudHistory(**history_data).save()
+                                cloud_history = CloudHistory(**history_data)
+                                cloud_history.save()
 
                             current_schedule = Schedule.current_schedule(
                                 cloud=obj
@@ -300,7 +306,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                             result.append("Updated %s %s" % (self.name, obj_name))
                     # otherwise create it
                     else:
-                        self.model(**obj_data).save()
+                        model(**obj_data).save()
                         obj = self._get_obj(obj_name)
                         if self.name == "cloud":
                             notification_obj = Notification.objects(
@@ -362,6 +368,7 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 return json.dumps({"result": ["No results."]})
         return self.model.objects(**_args).to_json()
 
+    # TODO: DONE
     # post data comes in **data
     def POST(self, **data):
         # make sure post data passed in is ready to pass to mongo engine
@@ -396,7 +403,13 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 result.append("Provided cloud does not exist")
                 cherrypy.response.status = "400 Bad Request"
                 return json.dumps({"result": result})
+            assignment_obj = Assignment.objects(cloud=cloud_obj, active=True).first()
+            if not assignment_obj:
+                result.append("No active assignment for that cloud")
+                cherrypy.response.status = "400 Bad Request"
+                return json.dumps({"result": result})
 
+        # If index is there then we are trying to mod-schedule
         if "index" in data:
             data["host"] = _host_obj
             schedule = self.model.objects(
@@ -407,22 +420,17 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     _start = schedule.start
                 if not _end:
                     _end = schedule.end
-                if not cloud_obj:
-                    cloud_obj = schedule.cloud
+                if not assignment_obj:
+                    assignment_obj = schedule.assignment
                 if Schedule.is_host_available(
-                    host=_host, start=_start, end=_end, exclude=schedule.index
+                        host=_host, start=_start, end=_end, exclude=schedule.index
                 ):
-                    data["cloud"] = cloud_obj
-                    notification_obj = Notification.objects(
-                        cloud=cloud_obj, ticket=cloud_obj.ticket
-                    ).first()
-                    if notification_obj:
-                        notification_obj.update(
-                            one_day=False,
-                            three_days=False,
-                            five_days=False,
-                            seven_days=False,
-                        )
+                    data["assignment"] = assignment_obj
+
+                    assignment_obj.update(set__notification__S__one_day=False)
+                    assignment_obj.update(set__notification__S__three_day=False)
+                    assignment_obj.update(set__notification__S__five_day=False)
+                    assignment_obj.update(set__notification__S__seven_day=False)
                     schedule.update(**data)
                     result.append("Updated %s %s" % (self.name, schedule.index))
                 else:
@@ -432,19 +440,17 @@ class ScheduleMethodHandler(MethodHandlerBase):
                 if Schedule.is_host_available(host=_host, start=_start, end=_end):
 
                     if (
-                        self.model.current_schedule(cloud=cloud_obj)
-                        and cloud_obj.validated
+                            self.model.current_schedule(cloud=cloud_obj)
+                            and assignment_obj.validated
                     ):
-                        if not cloud_obj.wipe:
+                        if not assignment_obj.wipe:
                             _host_obj.update(validated=True)
-                        notification_obj = Notification.objects(
-                            cloud=cloud_obj, ticket=cloud_obj.ticket
-                        ).first()
-                        if notification_obj:
-                            notification_obj.update(success=False)
+
+                        # TODO: verify this
+                        assignment_obj.update(set__notification__S__success=False)
 
                     schedule = Schedule()
-                    data["cloud"] = cloud_obj
+                    data["assignment"] = assignment_obj
                     schedule.insert_schedule(**data)
                     cherrypy.response.status = "201 Resource Created"
                     result.append(
@@ -454,9 +460,6 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     result.append("Host is not available during that time frame")
 
             except Exception as e:
-                # TODO: make sure when this is thrown the output
-                #       points back to here and gives the end user
-                #       enough information to fix the issue
                 cherrypy.response.status = "500 Internal Server Error"
                 result.append("Error: %s" % e)
         return json.dumps({"result": result})
@@ -467,7 +470,6 @@ class ScheduleMethodHandler(MethodHandlerBase):
         return self.POST(**data)
 
     def DELETE(self, **data):
-        result = []
         _host = Host.objects(name=data["host"]).first()
         if _host:
             schedule = self.model.objects(host=_host, index=data["index"]).first()
@@ -478,6 +480,9 @@ class ScheduleMethodHandler(MethodHandlerBase):
             else:
                 cherrypy.response.status = "404 Not Found"
                 result = ["%s Not Found" % self.name]
+        else:
+            cherrypy.response.status = "404 Not Found"
+            result = ["Host Not Found"]
         return json.dumps({"result": result})
 
 
@@ -540,9 +545,6 @@ class InterfaceMethodHandler(MethodHandlerBase):
                             cherrypy.response.status = "400 Bad Request"
                             result.append("Host %s not found." % _host_name)
                 except Exception as e:
-                    # TODO: make sure when this is thrown the output
-                    #       points back to here and gives the end user
-                    #       enough information to fix the issue
                     cherrypy.response.status = "500 Internal Server Error"
                     result.append("Error: %s" % e)
         return json.dumps({"result": result})
