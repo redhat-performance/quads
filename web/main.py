@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from datetime import datetime, time
 from mongoengine import Q
@@ -59,5 +59,7 @@ def available(search):
 
 
 if __name__ == "__main__":
-    app.debug = False
+    # Gunicorn imports this file so this is ignored
+    # Though one can run this file directly for debugging
+    app.debug = True
     app.run(host="0.0.0.0", port=5001)

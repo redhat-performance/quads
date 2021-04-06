@@ -21,7 +21,7 @@ Summary: Automated future scheduling, documentation, end-to-end provisioning and
 Name: %{name}
 Version: %{version}
 Release: %{build_timestamp}
-Source0: https://github.com/redhat-performance/quads/archive/master.tar.gz#/%{name}-%{version}-%{release}.tar.gz
+Source0: quads-test.tar.gz 
 License: GPLv3
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: /opt/quads
@@ -29,6 +29,7 @@ BuildArch: noarch
 Vendor: QUADS Project
 Packager: QUADS Project
 Requires: httpd >= 2.4
+Requires: python3-gunicorn >= 20.0.4 
 Requires: python3-mongoengine >= 0.8
 Requires: python3-cherrypy >= 8.9
 Requires: python3-jinja2 >= 2.0
@@ -80,10 +81,12 @@ mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
+mkdir %{buildroot}/etc/nginx/conf.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/templates/static/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
+cp -rf web/nginx/quads-web.conf %{buildroot}/etc/nginx/conf.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
@@ -103,6 +106,7 @@ rm -rf %{buildroot}
 /opt/quads/quads/templates/*
 /opt/quads/quads/templates/static/*
 /opt/quads/conf/logrotate_quads.conf
+/etc/nginx/conf.d/quads-web.conf
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
 %config(noreplace) /opt/quads/conf/hosts_metadata.yml
@@ -115,6 +119,7 @@ rm -rf %{buildroot}
 /usr/bin/systemctl enable mongod
 /usr/bin/systemctl enable httpd
 /usr/bin/systemctl enable haveged
+/usr/bin/systemctl enable nginx
 source /etc/profile.d/quads.sh
 
 %preun
@@ -123,6 +128,7 @@ if [ "$1" -eq 0 ]; then
   /usr/bin/systemctl disable quads-server
   /usr/bin/systemctl stop quads-web
   /usr/bin/systemctl disable quads-web
+  /usr/bin/systemctl stop nginx
 fi;
 :;
 
