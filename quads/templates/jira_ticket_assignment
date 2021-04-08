@@ -35,8 +35,11 @@ Gateway: {{ vlan.gateway }}
 
 You can find the list of active VLANs here and docs, your VLAN will become active and available along with your assignment once it passes automated validation and release phases.
 
-http://wiki.example.com/vlans/
-http://wiki.example.com/public-vlans/
+{% if jira_vlans_docs_links %}
+{% for link in jira_vlans_docs_links %}
+{{ link }}
+{% endfor %}
+{% endif %}
 
 You will receive an 'all clear' email letting you know when this occurs.
 {% endif %}
