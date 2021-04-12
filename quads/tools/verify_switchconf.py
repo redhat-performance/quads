@@ -35,7 +35,7 @@ def verify(_cloud_name, change=False):
                     if old_vlan.startswith("QinQ"):
                         old_vlan = old_vlan[7:]
                 except IndexError:
-                    old_vlan = None
+                    old_vlan = 0
 
                 try:
                     _, vlan_member_out = ssh_helper.run_cmd(
@@ -53,38 +53,22 @@ def verify(_cloud_name, change=False):
                                 interface.switch_port,
                             )
                         )
-                    vlan_member = None
+                    vlan_member = 0
 
                 ssh_helper.disconnect()
-
-                if not old_vlan:
-                    if not _cloud_obj.vlan and not last_nic:
-                        logger.warning(
-                            "Could not determine the previous VLAN for %s, switch %s, switchport %s"
-                            % (
-                                interface.name,
-                                interface.ip_address,
-                                interface.switch_port,
-                            )
-                        )
-                    old_vlan = get_vlan(_cloud_obj, i, last_nic)
 
                 if int(old_vlan) != int(vlan):
                     logger.warning(
                         "Interface %s not using QinQ_vl%s", interface.switch_port, vlan
                     )
 
-                if _cloud_obj.vlan and i == len(_host_obj.interfaces) - 1:
-                    vlan = _cloud_obj.vlan.vlan_id
-
-                if not vlan_member or int(vlan_member) != int(vlan):
-                    if not _cloud_obj.vlan and not last_nic:
-                        logger.warning(
-                            "Interface %s appears to be a member of VLAN %s, should be %s",
-                            interface.switch_port,
-                            vlan_member,
-                            vlan,
-                        )
+                if int(vlan_member) != int(vlan):
+                    logger.warning(
+                        "Interface %s appears to be a member of VLAN %s, should be %s",
+                        interface.switch_port,
+                        vlan_member,
+                        vlan,
+                    )
 
                     if change:
                         if _cloud_obj.vlan and last_nic:
