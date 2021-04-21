@@ -66,6 +66,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Find Available Web Preview](#find-available-web-preview)
             * [Find a System by MAC Address](#find-a-system-by-mac-address)
       * [Interacting with MongoDB](#interacting-with-mongodb)
+      * [Using JIRA with QUADS](#using-jira-with-quads)
       * [Backing up QUADS](#backing-up-quads)
       * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
       * [Troubleshooting Validation Failures](#troubleshooting-validation-failures)
@@ -130,7 +131,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
 | Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
 | Host Metadata Model and Search | [docs](/docs/quads-host-metadata-search.md) | Host metadata info and filtering |
-
+| Using JIRA with QUADS | [docs](/docs/using-jira-with-quads.md) | Optional JIRA tools and library for QUADS |
 ## QUADS Workflow
 
 You can read about QUADS architecture, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
@@ -942,8 +943,14 @@ quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 
 ## Interacting with MongoDB
 * In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
-  
+
    - For more information see [Interacting with MongoDB](/docs/interact-mongodb.md)
+
+## Using JIRA with QUADS
+* We utilize the JIRA ticketing system internally for R&D infrastructure requests managed by QUADS.
+* We do provide some best-effort tooling and a JIRA library to bridge automation gaps.
+
+   - For more information see [Using JIRA with QUADS](/docs/using-jira-with-quads.md)
 
 ## Backing up QUADS
 
