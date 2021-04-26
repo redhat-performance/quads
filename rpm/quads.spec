@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.4.1
+%define version 1.1.5
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -127,6 +127,13 @@ fi;
 :;
 
 %changelog
+
+* Mon Apr 26 2021
+- 1.1.5 release
+- added JIRA integration/tools
+- added --host-list for --add-schedule
+- color coding and priority for --ls-available
+- bug fixes
 
 * Thu Dec 17 2020 Will Foster <wfoster@redhat.com>
 - 1.1.4.1 release
