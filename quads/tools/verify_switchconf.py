@@ -62,7 +62,7 @@ def verify(_cloud_name, change=False):
                         "Interface %s not using QinQ_vl%s", interface.switch_port, vlan
                     )
 
-                if int(vlan_member) != int(vlan):
+                if int(vlan_member) != int(vlan) and not last_nic:
                     logger.warning(
                         "Interface %s appears to be a member of VLAN %s, should be %s",
                         interface.switch_port,
