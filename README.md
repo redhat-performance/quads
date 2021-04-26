@@ -42,8 +42,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Optional QUADS Public VLAN](#optional-quads-public-vlan)
             * [Defining a New Cloud](#defining-a-new-cloud)
             * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
+            * [Adding New Hosts to your Cloud with JIRA Integration](#adding-new-hosts-to-your-cloud-with-jira-integration)
          * [Managing Faulty Hosts](#managing-faulty-hosts)
             * [Migrating to QUADS-managed Host Health](#migrating-to-quads-managed-host-health)
+         * [Managing Retired Hosts](#managing-retired-hosts)
          * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of a Specific Host](#extending-the-schedule-of-a-specific-host)
          * [Shrinking the <strong>Schedule</strong> of an Existing Cloud](#shrinking-the-schedule-of-an-existing-cloud)
@@ -602,6 +604,14 @@ quads-cli --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
 for h in $(cat /tmp/RT423624) ; do quads-cli --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
 ```
 
+#### Adding New Hosts to your Cloud with JIRA Integration
+
+   - **NOTE** If you are using [JIRA integration features](/docs/using-jira-with-quads.md) with QUADS 1.1.5 and higher you can utilize `--host-list` along with a list of hosts and it will take care of updating your `--cloud-ticket` in JIRA for you in one swoop.
+
+```
+quads-cli --add-schedule --host-list /tmp/hosts --schedule-start "2021-04-20 22:00" --schedule-end "2021-05-02 22:00" --schedule-cloud cloud20 --cloud-ticket 12345
+```
+
 That's it.  At this point your hosts will be queued for provision and move operations, we check once a minute if there are any pending provisioning tasks.  To check manually:
 
 ```
@@ -646,6 +656,24 @@ Host f18-h23-000-r620.example.com is now marked as repaired.
 
 ```
 for h in $(hammer host list --per-page 1000 --search params.broken_state=true | grep $(egrep ^domain /opt/quads/conf/quads.yml | awk '{ print $NF }') | awk '{ print $3 }') ; do quads-cli --mark-broken --host $h ; done
+```
+
+### Managing Retired Hosts
+
+* With QUADS `1.1.5` and higher we now have the `--retire`, `--unretire` and `--ls-retire` features to manage decomissioning or reviving hosts.
+* Hosts marked as retired will still retain their scheduling history and data, but will not show as available unless filtered.
+   - To list retired hosts:
+
+```
+quads-cli --ls-retire
+```
+* To retire a host:
+```
+quads-cli --retire --host host01.example.com
+```
+* To unretire a host:
+```
+quads-cli --unretire --host host01.example.com
 ```
 
 ### Extending the __Schedule__ of an Existing Cloud
@@ -920,7 +948,7 @@ cloud18
 
 ### Find Available Hosts
 
-* The `--find-available` functionality lets you search for available hosts in the future based on a date range or other criteria.
+* The `--ls-available` functionality lets you search for available hosts in the future based on a date range or other criteria.
 
   - Find based on a date range:
 
@@ -943,6 +971,10 @@ quads --ls-available --schedule-end "2019-06-02 22:00"
 ```
 quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "2020-08-16 22:00" --filter "model==1029U-TRTP"
 ```
+
+* Listing retired hosts can now use the `--filter` feature:
+```
+quads-cli --ls-hosts --filter "retired==True"
 
 #### Find Available Web Preview
 
