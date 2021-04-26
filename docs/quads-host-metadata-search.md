@@ -12,7 +12,8 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
   * [How to Export Host Metadata](#how-to-export-host-metadata)
   * [Querying Host Information](#querying-host-information)
     * [Example Filter Searches](#example-filter-searches)
-
+  * [Querying Host Status](#querying-host-status)
+    * [Example Filter Searches](#example-status-filter-searches)
 ## How to Import Host Metadata
 ### Modify YAML Host Data
   * Host metadata uses a standard YAML key/value pair format, here's a [reference example](../conf/hosts_metadata.yml)
@@ -93,4 +94,16 @@ quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 
 ```
 quads-cli --ls-hosts --filter "model==FC640,interfaces__size==5"
+```
+
+## Querying Host Status
+* We will be adding features to query host status in addition to hardware metadata/details.
+* Functionality here may include retirement/decomission status and other useful attributes.
+
+### Example Status Filter Searches
+
+  * List all systems by retirement (decomission) status.
+
+```
+quads-cli --ls-hosts --filter "retired==True"
 ```
