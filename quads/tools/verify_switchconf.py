@@ -63,12 +63,13 @@ def verify(_cloud_name, change=False):
                     )
 
                 if int(vlan_member) != int(vlan):
-                    logger.warning(
-                        "Interface %s appears to be a member of VLAN %s, should be %s",
-                        interface.switch_port,
-                        vlan_member,
-                        vlan,
-                    )
+                    if not last_nic:
+                        logger.warning(
+                            "Interface %s appears to be a member of VLAN %s, should be %s",
+                            interface.switch_port,
+                            vlan_member,
+                            vlan,
+                        )
 
                     if change:
                         if _cloud_obj.vlan and last_nic:
