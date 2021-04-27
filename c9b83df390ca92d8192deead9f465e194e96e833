@@ -16,6 +16,23 @@
       "message": "retrigger",
       "revId": "c9b83df390ca92d8192deead9f465e194e96e833",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5663adc0_b3e275f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-04-27T10:51:05Z",
+      "side": 1,
+      "message": "looks good to me:\n\n-\u003d\u003e\u003e/opt/quads/quads/tools/verify_switchconf.py --cloud cloud42\nINFO - Host: f19-h01-000-r640.example.com\nWARNING - Interface et-0/0/5:0 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h02-000-r640.example.com\nWARNING - Interface et-0/0/5:1 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h03-000-r640.example.com\nWARNING - Interface et-0/0/5:2 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h06-000-r640.example.com\nWARNING - Interface et-0/0/11:0 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h07-000-r640.example.com\nWARNING - Interface et-0/0/11:1 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h09-000-r640.example.com\nWARNING - Interface et-0/0/11:2 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h14-000-r640.example.com\nWARNING - Interface et-0/0/17:2 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h15-000-r640.example.com\nWARNING - Interface et-0/0/17:3 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h17-000-r640.example.com\nWARNING - Interface et-0/0/23:0 appears to be a member of VLAN 0, should be 618\nINFO - Host: f19-h19-000-r640.example.com\nWARNING - Interface et-0/0/23:1 appears to be a member of VLAN 0, should be 618\n\n\n-\u003d\u003e\u003e/tmp/fix_verify_switchconf.py --cloud cloud42\nINFO - Host: f19-h01-000-r640.example.com\nINFO - Host: f19-h02-000-r640.example.com\nINFO - Host: f19-h03-000-r640.example.com\nINFO - Host: f19-h06-000-r640.example.com\nINFO - Host: f19-h07-000-r640.example.com\nINFO - Host: f19-h09-000-r640.example.com\nINFO - Host: f19-h14-000-r640.example.com\nINFO - Host: f19-h15-000-r640.example.com\nINFO - Host: f19-h17-000-r640.example.com\nINFO - Host: f19-h19-000-r640.example.com",
+      "revId": "c9b83df390ca92d8192deead9f465e194e96e833",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
