@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13b9f406_85d9f07a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-04-27T10:45:13Z",
+      "side": 1,
+      "message": "lgtm, nice RFE:\n\n-\u003d\u003e\u003e/root/new_verify_switchconf.py --cloud cloud01\nINFO - Host: f18-h22-000-r620.stage.example.com\nINFO - Host: f18-h23-000-r620.stage.example.com\nINFO - Host: f18-h25-000-r620.stage.example.com\nINFO - Host: f18-h26-000-r620.stage.example.com\nINFO - Host: f18-h27-000-r620.stage.example.com\nINFO - Host: f18-h29-000-1029p.stage.example.com\nINFO - Host: f18-h30-000-1029p.stage.example.com\nINFO - Host: f18-h31-000-1029p.stage.example.com\n(root@quads) - (10:43) - (~)\n\n-\u003d\u003e\u003e/root/new_verify_switchconf.py --host f18-h22-000-r620.stage.example.com\nINFO - No cloud specified.\nINFO - Host: f18-h22-000-r620.stage.example.com",
+      "revId": "78e2ed7092c1bfd7e913d4f6b19ed64b2e249491",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
