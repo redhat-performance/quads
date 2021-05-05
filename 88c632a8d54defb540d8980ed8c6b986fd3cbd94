@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1204b88c_358052b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1018871
+      },
+      "writtenOn": "2021-05-05T12:34:59Z",
+      "side": 1,
+      "message": "- systemd/timers folder now contains our cron timers converted to systemd units and timers\n- Rpm spec extended to install the new files\n- Extended README with notes and documentation how to use and control these new timers\n- Added snippet systemd/validate_units.sh for testing validity of systemd unit files\n\n",
+      "revId": "88c632a8d54defb540d8980ed8c6b986fd3cbd94",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
