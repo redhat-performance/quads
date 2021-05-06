@@ -1378,13 +1378,13 @@ def main(_args):
 
             _cloud = Cloud.objects(name=_args.schedcloud).first()
             jira_docs_links = conf["jira_docs_links"].split(",")
-            jira_vlans_docs_links = conf["jira_vlans_docs_links "].split(",")
+            jira_vlans_docs_links = conf["jira_vlans_docs_links"].split(",")
             comment = template.render(
                 schedule_start=_args.schedstart,
                 schedule_end=_args.schedend,
                 cloud=_args.schedcloud,
                 jira_docs_links=jira_docs_links,
-                jira_vlans_docs_links=jira_vlans_docs_links, 
+                jira_vlans_docs_links=jira_vlans_docs_links,
                 host_list=host_list_stream,
                 vlan=_cloud.vlan,
             )
