@@ -40,8 +40,6 @@ def available(search):
     else:
         hosts = Host.objects().all()
 
-    broken_hosts = Host.objects(broken=True)
-
     available_hosts = []
     start = datetime.combine(search.data["start"], time(hour=22))
     end = datetime.combine(search.data["end"], time(hour=22))
@@ -50,7 +48,6 @@ def available(search):
         for host in hosts:
             if (
                 Schedule.is_host_available(host=host["name"], start=start, end=end)
-                and host not in broken_hosts
             ):
                 host_dict = {"name": host.name, "model": host.model}
                 available_hosts.append(host_dict)
