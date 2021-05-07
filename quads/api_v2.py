@@ -137,15 +137,9 @@ class DocumentMethodHandler(MethodHandlerBase):
 
             available = []
             all_hosts = Host.objects().all()
-            broken_hosts = Host.objects(broken=True)
 
             for host in all_hosts:
-                if (
-                    Schedule.is_host_available(
-                        host=host["name"], start=_start, end=_end
-                    )
-                    and host not in broken_hosts
-                ):
+                if Schedule.is_host_available(host=host["name"], start=_start, end=_end):
                     available.append(host.name)
             return json.dumps(available)
 
@@ -205,6 +199,10 @@ class DocumentMethodHandler(MethodHandlerBase):
                 broken.append(host.name)
 
             return json.dumps(broken)
+
+        if self.name == "retired":
+            hosts = [host.name for host in self.model.objects(retired=True)]
+            return json.dumps(hosts)
 
         objs = self.model.objects(**args)
         if objs:
@@ -589,6 +587,7 @@ class QuadsServerApiV2(object):
         self.wipe = DocumentMethodHandler(Cloud, "wipe")
         self.host = DocumentMethodHandler(Host, "host")
         self.broken = DocumentMethodHandler(Host, "broken")
+        self.retired = DocumentMethodHandler(Host, "retired")
         self.schedule = ScheduleMethodHandler(Schedule, "schedule")
         self.current_schedule = ScheduleMethodHandler(Schedule, "current_schedule")
         self.available = DocumentMethodHandler(Schedule, "available")

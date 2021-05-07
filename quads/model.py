@@ -204,6 +204,7 @@ class Host(Document):
     disks = ListField(EmbeddedDocumentField(Disk))
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
+    retired = BooleanField(default=False)
     meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
@@ -272,6 +273,8 @@ class Schedule(Document):
     @queryset_manager
     def is_host_available(self, queryset, host, start, end, exclude=None):
         _host = Host.objects(name=host).first()
+        if _host.broken or _host.retired:
+            return False
         _query = Q(host=_host)
         if exclude:
             _query = _query & Q(index__ne=exclude)
