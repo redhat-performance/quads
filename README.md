@@ -676,6 +676,19 @@ quads-cli --retire --host host01.example.com
 quads-cli --unretire --host host01.example.com
 ```
 
+* **NOTE** If upgrading from `1.1.4.1` or earlier QUADS you will need the following settings applied before using `--retire`.
+* This can be referenced in the [changelog/release notes](https://github.com/redhat-performance/quads/releases/tag/v1.1.5) as well.
+
+```
+$ cd /opt/quads
+$ python
+>>> from quads.model import Host
+>>> hosts = Host.objects()
+>>> for host in hosts:
+...	if not host.retired:
+...		host.update(retired=False)
+```
+
 ### Extending the __Schedule__ of an Existing Cloud
 
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
@@ -973,8 +986,10 @@ quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "202
 ```
 
 * Listing retired hosts can now use the `--filter` feature:
+
 ```
 quads-cli --ls-hosts --filter "retired==True"
+```
 
 #### Find Available Web Preview
 
@@ -1042,7 +1057,6 @@ sync_git
 
 ```
 [root@host-04 rdu2-quads-backup-mongo]# ls
-
 admin  mongodump  mongodump-quads.sh  quads  README.md
 ```
 
