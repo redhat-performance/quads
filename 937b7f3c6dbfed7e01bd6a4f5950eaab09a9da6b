@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ea36487_aaea1c11",
+        "filename": "README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-05-11T09:46:59Z",
+      "side": 1,
+      "message": "IMO it doesn\u0027t make much sense to have this here.\nRather have it under find-available-hosts section.",
+      "range": {
+        "startLine": 677,
+        "startChar": 0,
+        "endLine": 682,
+        "endChar": 51
+      },
+      "revId": "937b7f3c6dbfed7e01bd6a4f5950eaab09a9da6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49bf78e9_3e8515e4",
+        "filename": "README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-05-11T09:46:59Z",
+      "side": 1,
+      "message": "Rather have the filtering by booleans in this section",
+      "revId": "937b7f3c6dbfed7e01bd6a4f5950eaab09a9da6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49235eaf_04dd1a49",
+        "filename": "README.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-05-11T09:46:59Z",
+      "side": 1,
+      "message": "--ls-available",
+      "range": {
+        "startLine": 954,
+        "startChar": 9,
+        "endLine": 954,
+        "endChar": 13
+      },
+      "revId": "937b7f3c6dbfed7e01bd6a4f5950eaab09a9da6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
