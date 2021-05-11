@@ -58,6 +58,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Remove a Host Interface](#remove-a-host-interface)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
       * [Additional Tools and Commands](#additional-tools-and-commands)
+         * [Verify or Correct Cloud and Host Network Switch Settings](#verify-or-correct-cloud-and-host-network-switch-settings)
          * [Modifying Cloud-level Attributes](#modifying-cloud-level-attributes)
          * [Looking into the Future](#looking-into-the-future)
          * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
@@ -830,6 +831,28 @@ Resource properly removed
 * This is an optional local systemd service you can start and interact with and listens on localhost ```TCP/8080```
 
 ## Additional Tools and Commands
+
+### Verify or Correct Cloud and Host Network Switch Settings
+* The tool `/opt/quads/quads/verify_switchconf.py` can be used to both validate and correct network switch configs.
+* This can be run at a cloud level (and with 1.1.5+ also at the per-host level).
+* It's advised to run it first without `--change` to see if it would fix something.
+* This will also check/correct optional routable VLANs if those are in use.
+* To validate a clouds network config:
+
+```
+/opt/quads/quads/tools/verify_switchconf.py --cloud cloud10
+```
+
+* To validate and fix a clouds network config use `--change`
+
+```
+/opt/quads/quads/tools/verify_switchconf.py --cloud cloud10 --change
+```
+
+* To validate a singular hosts network switch configuration:
+```
+/opt/quads/quads/tools/verify_switchconf.py --host host01.example.com
+```
 
 ### Modifying Cloud-level Attributes
 * You can re-define or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.

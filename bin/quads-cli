@@ -100,6 +100,12 @@ def filter_kwargs(filter_args):
                 except ValueError:
                     value = v
 
+                if type(value) == str:
+                    if value.lower() == "false":
+                        value = False
+                    elif value.lower() == "true":
+                        value = True
+
                 if keys[0].strip().lower() in ["disks", "interfaces"]:
 
                     key = f"{keys[0].strip()}__match"
@@ -176,6 +182,13 @@ def main(_args):
 
         if _args.action == "broken":
             _hosts = Host.objects(broken=True)
+            for host in _hosts:
+                logger.info(host.name)
+
+            exit(0)
+
+        if _args.action == "retired":
+            _hosts = Host.objects(retired=True)
             for host in _hosts:
                 logger.info(host.name)
 
@@ -334,7 +347,7 @@ def main(_args):
             exit(0)
 
         elif _args.action == "host":
-            kwargs = {}
+            kwargs = {"retired": False}
             if _args.filter:
                 filter_args = filter_kwargs(_args.filter)
                 kwargs.update(filter_args)
@@ -380,14 +393,11 @@ def main(_args):
                     "There was something wrong constructing the parameters for the query."
                 )
 
-            broken_hosts = Host.objects(broken=True)
-
             for host in all_hosts:
                 if (
                     Schedule.is_host_available(
                         host=host["name"], start=_start, end=_end
                     )
-                    and host not in broken_hosts
                 ):
                     if Schedule.current_schedule(host=host):
                         current.append(host["name"])
@@ -1378,13 +1388,13 @@ def main(_args):
 
             _cloud = Cloud.objects(name=_args.schedcloud).first()
             jira_docs_links = conf["jira_docs_links"].split(",")
-            jira_vlans_docs_links = conf["jira_vlans_docs_links "].split(",")
+            jira_vlans_docs_links = conf["jira_vlans_docs_links"].split(",")
             comment = template.render(
                 schedule_start=_args.schedstart,
                 schedule_end=_args.schedend,
                 cloud=_args.schedcloud,
                 jira_docs_links=jira_docs_links,
-                jira_vlans_docs_links=jira_vlans_docs_links, 
+                jira_vlans_docs_links=jira_vlans_docs_links,
                 host_list=host_list_stream,
                 vlan=_cloud.vlan,
             )
@@ -1620,11 +1630,11 @@ def main(_args):
             if host:
                 if not host.broken:
                     logger.warning(
-                        "Host %s has already been marked repaired" % (host.name)
+                        f"Host {host.name} has already been marked repaired"
                     )
                 else:
                     host.update(broken=False)
-                    logger.info("Host %s is now marked as repaired" % (host.name))
+                    logger.info(f"Host {host.name} is now marked as repaired")
             else:
                 logger.error("Host not found")
                 exit(1)
@@ -1632,6 +1642,46 @@ def main(_args):
             exit(0)
         else:
             logger.error("Missing option. Need --host when using --mark-repaired")
+            exit(1)
+
+    elif _args.retire:
+        if _args.host:
+            host = Host.objects(name=_args.host).first()
+            if host:
+                if host.retired:
+                    logger.warning(
+                        f"Host {host.name} has already been marked as retired"
+                    )
+                else:
+                    host.update(retired=True)
+                    logger.info(f"Host {host.name} is now marked as retired")
+            else:
+                logger.error(f"Host {_args.host} not found")
+                exit(1)
+
+            exit(0)
+        else:
+            logger.error("Missing option. Need --host when using --retire")
+            exit(1)
+
+    elif _args.unretire:
+        if _args.host:
+            host = Host.objects(name=_args.host).first()
+            if host:
+                if not host.retired:
+                    logger.warning(
+                        f"Host {host.name} has already been marked unretired"
+                    )
+                else:
+                    host.update(retired=False)
+                    logger.info(f"Host {host.name} is now marked as unretired")
+            else:
+                logger.error("Host not found")
+                exit(1)
+
+            exit(0)
+        else:
+            logger.error("Missing option. Need --host when using --unretire")
             exit(1)
 
     elif _args.host:
@@ -1989,6 +2039,13 @@ if __name__ == "__main__":
         const="broken",
         help="List all hosts marked as broken",
     )
+    group.add_argument(
+        "--ls-retired",
+        dest="action",
+        action="store_const",
+        const="retired",
+        help="List all hosts marked as retired",
+    )
 
     time_args = parser.add_mutually_exclusive_group()
     time_args.add_argument(
@@ -2312,6 +2369,18 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Mark broken host as repaired",
+    )
+    parser.add_argument(
+        "--retire",
+        action="store_true",
+        default=False,
+        help="Mark host as retired",
+    )
+    parser.add_argument(
+        "--unretire",
+        action="store_true",
+        default=False,
+        help="Mark broken host as back in business",
     )
     parser.add_argument(
         "--debug",
