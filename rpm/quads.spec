@@ -128,7 +128,7 @@ fi;
 
 %changelog
 
-* Mon May 11 2021
+* Tue May 11 2021
 - 1.1.5 release
 - added JIRA integration/tools
 - added --host-list for --add-schedule
