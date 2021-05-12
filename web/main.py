@@ -49,7 +49,10 @@ def available(search):
             if (
                 Schedule.is_host_available(host=host["name"], start=start, end=end)
             ):
-                host_dict = {"name": host.name, "model": host.model}
+                current = False
+                if Schedule.current_schedule(host=host):
+                    current = True
+                host_dict = {"name": host.name, "model": host.model, "current": current}
                 available_hosts.append(host_dict)
 
     return jsonify(available_hosts)

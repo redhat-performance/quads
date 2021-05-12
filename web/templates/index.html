@@ -80,7 +80,11 @@
                         </thead>
                         <tbody>
                             {% for host in available_hosts.json %}
+                            {% if host["current"] %}
+                            <tr class="warning">
+                            {% else %}
                             <tr>
+                            {% endif %}
                                 <th scope="row">{{ loop.index }}</th>
                                 <td>{{ host["name"] }}</td>
                                 <td>{{ host["model"] }}</td>
