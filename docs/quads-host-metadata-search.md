@@ -48,12 +48,24 @@ quads-cli --export-host-details /tmp/my_host_data.yml
 ## Querying Host Information
   * A new sub-command of `--filter` has been added to the `--ls-available` and `--ls-hosts` commands.
 
-| Component        | Field Type | Syntax          | Operators       |
-|------------------|------------|-----------------|-----------------|
-| model            |  string    | exact match     | ==,!=           |
-| disks.size_gb    |  integer   | disk size in GB | ==,!=,<,<=,>,>= |
-| disks.disks_type |  string    | nvme,sata,ssd   | ==,!=           |
-| disks.count      |  integer   | number of disks | ==,!=,<,<=,>,>= |
+| Component              | Field Type | Syntax                       | Operators       |
+|------------------------|------------|------------------------------|-----------------|
+| model                  |  string    | exact match                  | ==,!=           |
+| disks.size_gb          |  integer   | disk size in GB              | ==,!=,<,<=,>,>= |
+| disks.disks_type       |  string    | nvme,sata,ssd                | ==,!=           |
+| disks.count            |  integer   | number of disks              | ==,!=,<,<=,>,>= |
+| interfaces__size       |  integer   | number of interfaces         | ==,!=,<,<=,>,>= |
+| interfaces.name        |  string    | name of interface            | ==,!=           |
+| interfaces.mac_address |  string    | mac address                  | ==,!=           |
+| interfaces.switch_port |  string    | switch port                  | ==,!=           |
+| interfaces.speed       |  integer   | link speed                   | ==,!=,<,<=,>,>= |
+| interfaces.vendor      |  integer   | link speed                   | ==,!=           |
+| interfaces.maintenance |  boolean   | interface maintenance status | ==,!=           |
+| build                  |  boolean   | build status                 | ==,!=           |
+| validated              |  boolean   | validated status             | ==,!=           |
+| broken                 |  boolean   | broken status                | ==,!=           |
+| retired                |  boolean   | retired status               | ==,!=           |
+| switch_config_applied  |  boolean   | switch configuration status  | ==,!=           |
 
 
 ### Example Filter Searches
