@@ -886,6 +886,30 @@ Resource properly removed
 /opt/quads/quads/tools/verify_switchconf.py --host host01.example.com
 ```
 
+* To validate and fix a single hosts network config use `--change`
+
+```
+/opt/quads/quads/tools/verify_switchconf.py --host host01.example.com --change
+```
+
+* To straddle clouds and place a single host into a cloud it does not belong in (rare use case):
+```
+/opt/quads/quads/tools/verify_switchconf.py --host host01.example.com --cloud cloud10
+```
+
+Note, if host01.example.com is not in cloud10, but rather cloud20, you will see the following output:
+```
+WARNING - Both --cloud and --host have been specified.
+WARNING -
+WARNING - Host: host01.example.com
+WARNING - Cloud: cloud10
+WARNING -
+WARNING - However, host01.example.com is a member of cloud20
+WARNING -
+WARNING - !!!!! Be certain this is what you want to do. !!!!!
+WARNING -
+```
+
 ### Modifying Cloud-level Attributes
 * You can re-define or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
 * This can be done a per-parameter or combined basis:
