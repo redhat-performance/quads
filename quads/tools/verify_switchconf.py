@@ -15,12 +15,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(_cloud_name, _host_name, change=False):
-    if _host_name:
-        _host_obj = Host.objects(name=_host_name).first()
     _cloud_obj = Cloud.objects(name=_cloud_name).first()
-
-    if _host_obj:
-        hosts = [_host_obj]
+    if _host_name:
+        hosts = Host.objects(name=_host_name)
     else:
         hosts = Host.objects(cloud=_cloud_obj)
 
