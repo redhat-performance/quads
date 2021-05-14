@@ -887,6 +887,30 @@ Resource properly removed
 /opt/quads/quads/tools/verify_switchconf.py --host host01.example.com
 ```
 
+* To validate and fix a single hosts network config use `--change`
+
+```
+/opt/quads/quads/tools/verify_switchconf.py --host host01.example.com --change
+```
+
+* To straddle clouds and place a single host into a cloud it does not belong in (rare use case):
+```
+/opt/quads/quads/tools/verify_switchconf.py --host host01.example.com --cloud cloud10
+```
+
+Note, if host01.example.com is not in cloud10, but rather cloud20, you will see the following output:
+```
+WARNING - Both --cloud and --host have been specified.
+WARNING -
+WARNING - Host: host01.example.com
+WARNING - Cloud: cloud10
+WARNING -
+WARNING - However, host01.example.com is a member of cloud20
+WARNING -
+WARNING - !!!!! Be certain this is what you want to do. !!!!!
+WARNING -
+```
+
 ### Modify or check a specific Host Network Switch Settings
 * With the `modify_switch_conf.py` tool you can set up each individual network interface to a specific vlan id.
 * Passing the `--change` argument will make the changes effective in the switch. Not passing this will only verify the configuration is set to the desired.
