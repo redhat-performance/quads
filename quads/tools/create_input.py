@@ -68,12 +68,12 @@ def render_row(_host, _properties):
     row = [
         u_loc,
         node.split(".")[0],
-        _properties["svctag"],
-        _properties["host_mac"],
-        _properties["host_ip"],
-        _properties["ip"],
+        str(_properties["svctag"]),
+        str(_properties["host_mac"]),
+        str(_properties["host_ip"]),
+        str(_properties["ip"]),
         "<a href=http://mgmt-%s/ target=_blank>console</a>" % _host,
-        _properties["mac"],
+        str(_properties["mac"]),
         cloud,
         owner,
     ]
