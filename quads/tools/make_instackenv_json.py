@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import asyncio
 import json
@@ -53,13 +53,20 @@ def make_env_json(filename):
                 overcloud = loop.run_until_complete(
                     foreman.get_host_param(host.name, "overcloud")
                 )
+
             if not overcloud:
                 overcloud = {"result": "true"}
 
+
             if type(overcloud["result"]) != bool:
-                _overcloud_result = strtobool(overcloud["result"])
+                try:
+                    _overcloud_result = strtobool(overcloud["result"])
+                except ValueError:
+                    print(f"WARN: {host.name} overcloud value is not set correctly.")
+                    _overcloud_result = 1
             else:
                 _overcloud_result = overcloud["result"]
+
 
             if "result" in overcloud and _overcloud_result:
                 mac = []
