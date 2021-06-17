@@ -5,8 +5,8 @@ RUN apt-get update && \
     ipmitool \
     git
 
-RUN pip install --upgrade pip
-RUN pip install \
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir \
     cherrypy \
     pyyaml \
     mongoengine \
