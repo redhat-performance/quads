@@ -413,7 +413,8 @@ def main(_args):
 
         elif _args.action == "free_cloud":
             _clouds = Cloud.objects(name__ne="cloud01")
-            for cloud in _clouds:
+            sorted_clouds = sorted(_clouds, key=lambda x: int(x.name[5:]))
+            for cloud in sorted_clouds:
                 if Schedule.future_schedules(cloud=cloud).count():
                     continue
                 else:
