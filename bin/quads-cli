@@ -937,16 +937,17 @@ def main(_args):
             data["wipe"] = True
         cloud_reservation_lock = int(conf["cloud_reservation_lock"])
         cloud = Cloud.objects(name=data["name"]).first()
-        lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
-        cloud_string = f"{cloud.name}"
-        if lock_release > datetime.now():
-            time_left = lock_release - datetime.now()
-            hours = time_left.total_seconds() // 3600
-            minutes = (time_left.total_seconds() % 3600) // 60
-            cloud_string += " (reserved: %dhr %dmin remaining)" % (hours, minutes)
-            logger.warning("Can't redefine cloud:")
-            logger.warning(cloud_string)
-            exit(1)
+        if cloud:
+            lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
+            cloud_string = f"{cloud.name}"
+            if lock_release > datetime.now():
+                time_left = lock_release - datetime.now()
+                hours = time_left.total_seconds() // 3600
+                minutes = (time_left.total_seconds() % 3600) // 60
+                cloud_string += " (reserved: %dhr %dmin remaining)" % (hours, minutes)
+                logger.warning("Can't redefine cloud:")
+                logger.warning(cloud_string)
+                exit(1)
         try:
             logger.info(quads.insert_cloud(data)["result"])
         except ConnectionError:
