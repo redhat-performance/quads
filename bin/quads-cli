@@ -976,6 +976,12 @@ def main(_args):
             clean_data["qinq"] = _args.qinq
 
         cloud = Cloud.objects(name=data["name"]).first()
+
+        if _args.cloudticket:
+            notification = Notification.objects(cloud=cloud, ticket=cloud.ticket).first()
+            if notification:
+                notification.update(ticket=_args.cloudticket)
+
         results, prep_data = Cloud.prep_data(
             clean_data, fields=clean_data.keys(), mod=True
         )
