@@ -1,13 +1,18 @@
 #! /usr/bin/env python
 import asyncio
-from datetime import timedelta
+import logging
 
+from datetime import timedelta
 from quads.config import conf
 from quads.model import Cloud, Schedule
 from quads.tools.jira import Jira
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 async def main(_loop):
+    no_extend_label = "CANNOT_EXTEND"
+    extend_label = "CAN_EXTEND"
     jira = Jira(
         conf["jira_url"],
         conf["jira_username"],
@@ -19,7 +24,13 @@ async def main(_loop):
         ticket_key = ticket.get("key").split("-")[-1]
         fields = ticket.get("fields")
         if fields:
-            cloud = fields.get("description").split()[-1]
+            description = fields.get("description") 
+            try:
+                cloud_field = description.split("\n")[1]
+                cloud = cloud_field.split()[-1]
+            except IndexError:
+                logger.warning(f"Could not retrieve cloud name from ticket {ticket_key}")
+                
             cloud_obj = Cloud.objects(name=cloud).first()
             schedules = Schedule.current_schedule(cloud=cloud_obj)
             conflict=False
@@ -30,11 +41,17 @@ async def main(_loop):
                                                        end=end_date)
                 if not available:
                     conflict = True
-                    await jira.add_label(ticket_key, "CANNOT_EXTEND")
+                    await jira.add_label(ticket_key, no_extend_label)
+                    logger.info(
+                        f"{cloud} labeled {no_extend_label}"
+                    )
                     break
 
             if not conflict:
-                await jira.add_label(ticket_key, "CAN_EXTEND")
+                await jira.add_label(ticket_key, extend_label)
+                logger.info(
+                    f"{cloud} labeled {extend_label}"
+                )
 
             parent = fields.get("parent")
             if parent:
