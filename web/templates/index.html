@@ -11,7 +11,10 @@
     <script>
     $(document).ready( function () {
         var table = $('#results').DataTable({
-            dom: 'Bfrtip',
+            dom: 'Blfrtip',
+            lengthChange: true,
+            lengthMenu: [ 10, 25, 50, 75, 100 ],
+            pageLength: 25,
             buttons: [
                 'selectAll',
                 'selectNone',
