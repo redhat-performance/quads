@@ -61,6 +61,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [Additional Tools and Commands](#additional-tools-and-commands)
          * [Verify or Correct Cloud and Host Network Switch Settings](#verify-or-correct-cloud-and-host-network-switch-settings)
          * [Modify or check a specific Host Network Switch Settings](#modify-or-check-a-specific-host-network-switch-settings)
+            * [Mapping Interface to VLAN ID](#mapping-interface-to-vlan-id)
          * [Modifying Cloud-level Attributes](#modifying-cloud-level-attributes)
          * [Looking into the Future](#looking-into-the-future)
          * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
@@ -920,8 +921,36 @@ WARNING -
 ```
 * All `--nic*` arguments are optional so this can be also done individually for all nics.
 
+#### Mapping Interface to VLAN ID
+* An easy way to figure out what VLAN corresponds to what generic `em` interface in the QUADS `--ls-interfaces` information we now include the following tool:
+```
+./opt/quads/quads/tools/ls_switch_conf.py --cloud cloud32
+INFO - Cloud qinq: 1
+INFO - Interface em1 appears to be a member of VLAN 1410
+INFO - Interface em2 appears to be a member of VLAN 1410
+```
+
+This tool also accepts the `--all` argument which will list a detail for all hosts in the cloud.
+
+Additional you can achieve the same with the following shell one-liner, setting `cloud=XX` for the cloud and adjusting `$(seq 1 4)` for your interface ranges available on the host.
+
+```
+cloud=32 ; origin=1100 ; offset=$(expr $(expr $cloud - 1) \* 10); vl=$(expr $origin + $offset) ;for i in $(seq 1 4) ; do vlan=$(expr $vl + $i - 1) ; echo "em$i is interface VLAN $vlan in cloud$cloud" ; done
+```
+
+```
+em1 is interface VLAN 1400 in cloud32
+em2 is interface VLAN 1401 in cloud32
+em3 is interface VLAN 1402 in cloud32
+em4 is interface VLAN 1403 in cloud32
+```
+
+* You can then use this information to map specific interfaces into other VLAN/clouds as required for more one-off or ad-hoc requirements beyond the standard VLAN modes that QUADS currently supports.
+* **Note** that this would be an example for the default `Q-in-Q 0 (isolated)` VLAN configuration.  The `Q-in-Q 1 (combined)` configuration would simple be `VLAN1400` for all interfaces above respectively.
+
+
 ### Modifying Cloud-level Attributes
-* You can re-define or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
+* You can redefine or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
 * This can be done a per-parameter or combined basis:
 
 ```
