@@ -919,9 +919,24 @@ WARNING -
 /opt/quads/quads/tools/modify_switch_conf.py --host host01.example.com --nic1 1400 --nic2 1401 --nic3 1400 --nic4 1402 --nic5 1400
 ```
 * All `--nic*` arguments are optional so this can be also done individually for all nics.
+* An easy way to figure out what VLAN corresponds to what generic `em` interface in the QUADS `--ls-interfaces` information is the following shell one-liner, setting `cloud=XX` for the cloud and adjusting `$(seq 1 4)` for your interface ranges available on the host.
+
+```
+cloud=32 ; origin=1100 ; offset=$(expr $(expr $cloud - 1) \* 10); vl=$(expr $origin + $offset) ;for i in $(seq 1 4) ; do vlan=$(expr $vl + $i - 1) ; echo "em$i is interface VLAN $vlan" ; done
+```
+
+```
+em1 is interface VLAN 1400
+em2 is interface VLAN 1401
+em3 is interface VLAN 1402
+em4 is interface VLAN 1403
+```
+
+* Note that this would be an example for the default `Q-in-Q 0 (isolated)` VLAN configuration.  The `Q-in-Q 1 (combined)` configuration would simple be `VLAN1400` for all interfaces above respectively.
+
 
 ### Modifying Cloud-level Attributes
-* You can re-define or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
+* You can redefine or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
 * This can be done a per-parameter or combined basis:
 
 ```
