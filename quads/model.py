@@ -185,6 +185,14 @@ class Interface(EmbeddedDocument):
         if data.get("vendor"):
             data["vendor"] = data.get("vendor").upper()
 
+        if data.get("pxe_boot"):
+            pxe_boot = data.get("pxe_boot")
+            if type(pxe_boot) == str:
+                if pxe_boot.upper() == "TRUE":
+                    data["pxe_boot"] = True
+                else:
+                    data["pxe_boot"] = False
+
         result, data = param_check(data, fields)
 
         return result, data
