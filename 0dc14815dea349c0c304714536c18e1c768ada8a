@@ -16,6 +16,24 @@
       "message": "Really nice set of refactor improvements Tom.  It may seem cosmetic but if we can still keep bin/quads-cli binary and path it\u0027s so much muscle memory by now and \u0027quads-cli\u0027 just feels more targeted and complete (one can always alias this locally if they want - most people do so via \u0027quads\u0027 but \u0027cli\u0027 is a little too generic 😊 )\n\nSo you won\u0027t have to keep rebasing against master branch you might think about shelving this and working out of your own branch via \u0027git checkout -b $somename\u0027 - might make things easier to merge later.\n\nI really like the targeting of if/elif conditionals with a more Pythonic structure here.",
       "revId": "0dc14815dea349c0c304714536c18e1c768ada8a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9eb0b241_02dbaa79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1018871
+      },
+      "writtenOn": "2021-08-03T10:14:53Z",
+      "side": 1,
+      "message": "Hey Will, I might be missing something there but the path to quads-cli is still the same, the entrypoint of the whole CLI is still `bin/quads-cli` file it\u0027s just that the heavy lifting code was moved into quads module and `bin/quads-cli` imports from it.\n\nAbout the rebasing, I am doing something like that in github and then squashing the commits there to form patches for gerrit, though I missed that I opened the gerrit change against master, will look into it.",
+      "parentUuid": "09038d88_43e5e647",
+      "revId": "0dc14815dea349c0c304714536c18e1c768ada8a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
