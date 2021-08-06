@@ -151,6 +151,36 @@ class Notification(Document):
     seven_days = BooleanField(default=False)
 
 
+class Processor(EmbeddedDocument):
+    vendor = StringField()
+    product = StringField()
+    size = LongField()
+    capacity = LongField()
+    meta = {"strict": False}
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ["size_gb", "count"]
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
+class Memory(EmbeddedDocument):
+    vendor = StringField()
+    product = StringField()
+    size_gb = LongField()
+    count = IntField()
+    meta = {"strict": False}
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ["size_gb", "count"]
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
 class Disk(EmbeddedDocument):
     disk_type = StringField()
     size_gb = LongField()
@@ -171,6 +201,7 @@ class Interface(EmbeddedDocument):
     mac_address = StringField()
     ip_address = StringField()
     switch_port = StringField()
+    logical_name = StringField()
     speed = LongField(default=-1)
     vendor = StringField(default="")
     pxe_boot = BooleanField(default=False)
@@ -201,6 +232,8 @@ class Interface(EmbeddedDocument):
 class Host(Document):
     name = StringField(unique=True)
     model = StringField()
+    vendor = StringField()
+    serial = StringField()
     default_cloud = ReferenceField(Cloud)
     cloud = ReferenceField(Cloud)
     host_type = StringField()
@@ -210,6 +243,8 @@ class Host(Document):
     validated = BooleanField(default=False)
     last_build = DateTimeField()
     disks = ListField(EmbeddedDocumentField(Disk))
+    memory = ListField(EmbeddedDocumentField(Memory))
+    processor = ListField(EmbeddedDocumentField(Processor))
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
     retired = BooleanField(default=False)
