@@ -25,9 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 class Validator(object):
-    def __init__(self, cloud, _loop=None):
+    def __init__(self, cloud, _args, _loop=None):
         self.cloud = cloud
         self.report = ""
+        self.args = _args
         self.hosts = Host.objects(cloud=self.cloud, validated=False)
         self.hosts = [
             host for host in self.hosts if Schedule.current_schedule(host=host)
@@ -267,9 +268,10 @@ class Validator(object):
                 if not result_pst:
                     failed = True
 
-                result_pnt = await self.post_network_test()
-                if not failed and not result_pnt:
-                    failed = True
+                if not self.args.skip_network:
+                    result_pnt = await self.post_network_test()
+                    if not failed and not result_pnt:
+                        failed = True
 
             # TODO: gather ansible-cmdb facts
 
@@ -291,12 +293,12 @@ class Validator(object):
         return
 
 
-def main(_loop):
+def main(_args, _loop):
     clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
     for _cloud in clouds:
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
         if _schedule_count and _cloud.wipe:
-            validator = Validator(_cloud, _loop=_loop)
+            validator = Validator(_cloud, _args, _loop=_loop)
             try:
                 _loop.run_until_complete(validator.validate_env())
             except Exception as ex:
@@ -306,6 +308,12 @@ def main(_loop):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
+    parser.add_argument(
+        "--skip-network",
+        action="store_true",
+        default=False,
+        help="Skip network tests.",
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -323,4 +331,4 @@ if __name__ == "__main__":
     loop_main = asyncio.get_event_loop()
     asyncio.set_event_loop(loop_main)
 
-    main(loop_main)
+    main(args, loop_main)
