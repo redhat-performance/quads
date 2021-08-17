@@ -257,3 +257,8 @@ jira_vlans_docs_links: http://wiki.example.com/vlans/,http://wiki.example.com/pu
 # is passed when used in --add-interface argument.
 # This will be most useful when generating the instack_env json
 default_pxe_interface: em2
+
+# IBMCloud credentials
+# Classic Infra key which requires to be created in IBMCloud
+ibm_cloud_username:
+ibm_cloud_api_key:
