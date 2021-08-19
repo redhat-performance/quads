@@ -18,7 +18,8 @@ RUN pip install \
     paramiko \
     jinja2 \
     aiohttp \
-    pexpect
+    pexpect \
+    argcomplete
 
 RUN mkdir -p /var/www/html/visual
 RUN mkdir -p /var/www/html/cloud

@@ -15,6 +15,7 @@
 # along with QUADs.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import argcomplete
 import json
 import asyncio
 from datetime import datetime, timedelta
@@ -2403,5 +2404,6 @@ if __name__ == "__main__":
         help="Display version of QUADS",
     )
 
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
     main(args)

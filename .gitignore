@@ -2,6 +2,7 @@
 *.swp
 log/
 .idea
+.vscode
 data_db/
 wiki_db/
 wordpress_data/

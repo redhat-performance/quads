@@ -46,6 +46,7 @@ Requires: python3-wtforms >= 2.2.0
 Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
+Requires: python3-argcomplete >= 1.9.5
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 2.0
 Requires: logrotate >= 3.0
@@ -87,7 +88,8 @@ cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
-
+echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
+echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
 %clean
 rm -rf %{buildroot}
 
