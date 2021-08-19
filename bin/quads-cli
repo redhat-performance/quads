@@ -18,32 +18,28 @@ import argparse
 import argcomplete
 import json
 import asyncio
-from datetime import datetime, timedelta
 import functools
 import logging
-from collections import defaultdict
-
-import yaml
-from mongoengine import InvalidQueryError
-from requests.exceptions import ConnectionError
-
 import requests
 import signal
 import subprocess
 import sys
 import os
+import yaml
 
-from json import JSONDecodeError
+from collections import defaultdict
+from datetime import datetime, timedelta
+from mongoengine import InvalidQueryError
+from requests.exceptions import ConnectionError
 from jinja2 import Template
 from quads.config import conf, API_URL, TEMPLATES_PATH
-from quads.helpers import first_day_month, last_day_month
+from quads.helpers import first_day_month, last_day_month, filter_kwargs, output_json_result, exception_handler
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
 from quads.tools.jira import Jira
 from quads.tools.logger import CustomFormatter
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
-from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
-
+from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan, Manager
 
 logger = logging.getLogger(__name__)
 sh = logging.StreamHandler(sys.stdout)
@@ -52,97 +48,6 @@ logger.addHandler(sh)
 logger.propagate = False
 logging.basicConfig(level=logging.INFO)
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-
-
-def output_json_result(request, data):
-    try:
-        if request.status_code == 204:
-            logger.info("Removed: %s" % data)
-        else:
-            js = request.json()
-            logger.debug("%s %s: %s" % (request.status_code, request.reason, data))
-            for result in js["result"]:
-                if type(result) == list:
-                    for line in result:
-                        logger.info(line)
-                else:
-                    logger.info(result)
-    except JSONDecodeError:
-        logger.error("Could not parse json reply.")
-        logger.debug(request.text)
-        exit(1)
-
-
-def exception_handler(loop, context):
-    logger.error(f"Caught exception: {context['message']}")
-
-
-def filter_kwargs(filter_args):
-    kwargs = {}
-    ops = {
-        "==": "",
-        "!=": "__ne",
-        "<": "__lt",
-        "<=": "__lte",
-        ">": "__gt",
-        ">=": "__gte",
-    }
-    conditions = filter_args.split(",")
-    for condition in conditions:
-        op_found = False
-        for op, op_suffix in ops.items():
-            if op in condition:
-                op_found = True
-                k, v = condition.split(op)
-                keys = k.split(".")
-
-                try:
-                    value = int(v)
-                except ValueError:
-                    value = v
-
-                if type(value) == str:
-                    if value.lower() == "false":
-                        value = False
-                    elif value.lower() == "true":
-                        value = True
-
-                if keys[0].strip().lower() in ["disks", "interfaces"]:
-
-                    key = f"{keys[0].strip()}__match"
-                    condition_dict = {
-                        f"{'__'.join(keys[1:])}{op_suffix}".strip(): value
-                    }
-                    if kwargs.get(key, False):
-                        kwargs[key].update(condition_dict)
-                    else:
-                        kwargs[key] = condition_dict
-                else:
-                    if keys[0].strip().lower() == "model":
-                        if str(value).upper() not in conf["models"].split(","):
-                            logger.error("Model type not recognized.")
-                            logger.warning(
-                                f"Accepted model names are: {conf['models']}"
-                            )
-                            exit(1)
-                    if type(value) == str:
-                        value = value.upper()
-                    query = {f"{'__'.join(keys)}{op_suffix}": value}
-                    kwargs.update(query)
-                break
-        if not op_found:
-            logger.error(
-                "A filter was defined but not parsed correctly. Check filter operator."
-            )
-            logger.warning(f"Condition: {condition}")
-            logger.warning(f"Accepted operators: {', '.join(ops.keys())}")
-            exit(1)
-    if not kwargs:
-        logger.error(
-            "A filter was defined but not parsed correctly. Check filter syntax."
-        )
-        exit(1)
-    return kwargs
 
 
 def main(_args):
@@ -350,7 +255,7 @@ def main(_args):
         elif _args.action == "host":
             kwargs = {"retired": False}
             if _args.filter:
-                filter_args = filter_kwargs(_args.filter)
+                filter_args = filter_kwargs(_args.filter, logger)
                 kwargs.update(filter_args)
 
             hosts = Host.objects(**kwargs).all()
@@ -365,7 +270,7 @@ def main(_args):
         elif _args.action == "available":
             kwargs = {}
             if _args.filter:
-                filter_args = filter_kwargs(_args.filter)
+                filter_args = filter_kwargs(_args.filter, logger)
                 kwargs.update(filter_args)
 
             if _args.schedstart and _args.schedend is None:
@@ -1005,7 +910,7 @@ def main(_args):
     elif _args.rmcloud is not None:
         url = os.path.join(API_URL, "cloud", _args.rmcloud)
         _response = requests.delete(url)
-        output_json_result(_response, {"cloud": _args.rmcloud})
+        output_json_result(_response, {"cloud": _args.rmcloud}, logger)
         exit(0)
 
     # Host Add / Modify
@@ -1022,7 +927,7 @@ def main(_args):
             "force": _args.force,
         }
         _response = requests.post(url, data)
-        output_json_result(_response, data)
+        output_json_result(_response, data, logger)
         exit(0)
 
     # Host Add / Modify metadata
@@ -1166,7 +1071,7 @@ def main(_args):
             exit(1)
         url = os.path.join(API_URL, "host", _args.rmhost)
         _response = requests.delete(url)
-        output_json_result(_response, {"host": _args.rmhost})
+        output_json_result(_response, {"host": _args.rmhost}, logger)
         exit(0)
 
     # Add Interface
@@ -1208,7 +1113,7 @@ def main(_args):
             data["maintenance"] = _args.ifmaintenance
 
         _response = requests.post(url, data)
-        output_json_result(_response, data)
+        output_json_result(_response, data, logger)
         exit(0)
 
     elif _args.rminterface is not None:
@@ -1485,6 +1390,56 @@ def main(_args):
             )
             exit(1)
         exit(0)
+
+    # Add Manager
+    elif _args.managerresource is not None:
+        data = {
+            "name": _args.managerresource,
+            "manager": _args.managertype,
+            "url": _args.url,
+            "api_url": _args.apiurl,
+            "username": _args.username,
+            "password": _args.password,
+            "default_os": _args.default_os,
+            "default_ptable": _args.default_ptable,
+            "default_medium": _args.default_medium,
+        }
+        results, prep_data = Manager.prep_data(
+            data, fields=data.keys()
+        )
+        if results:
+            logger.error(f"Failed to validate data for {_args.managerresource}")
+            for result in results:
+                logger.error(result)
+            exit(1)
+
+        manager = Manager(prep_data)
+        manager.save()
+
+    # Add Manager
+    elif _args.modmanager is not None:
+        data = {
+            "name": _args.modmanager,
+            "manager": _args.managertype,
+            "url": _args.url,
+            "api_url": _args.apiurl,
+            "username": _args.username,
+            "password": _args.password,
+            "default_os": _args.default_os,
+            "default_ptable": _args.default_ptable,
+            "default_medium": _args.default_medium,
+        }
+        results, prep_data = Manager.prep_data(
+            data, fields=data.keys()
+        )
+        if results:
+            logger.error(f"Failed to validate data for {_args.managerresource}")
+            for result in results:
+                logger.error(result)
+            exit(1)
+
+        manager = Manager(prep_data)
+        manager.save()
 
     # Move hosts
     elif _args.movehosts:
@@ -1914,6 +1869,13 @@ if __name__ == "__main__":
         help="Define a cloud environment",
     )
     group.add_argument(
+        "--mod-host",
+        dest="modhost",
+        type=str,
+        default=None,
+        help="Modify a host",
+    )
+    group.add_argument(
         "--mod-cloud",
         dest="modcloud",
         type=str,
@@ -1941,6 +1903,13 @@ if __name__ == "__main__":
         help="Define a host interface",
     )
     group.add_argument(
+        "--define-manager",
+        dest="managerresource",
+        type=str,
+        default=None,
+        help="Define a resource manager",
+    )
+    group.add_argument(
         "--rm-schedule",
         dest="rmschedule",
         type=str,
@@ -1955,11 +1924,25 @@ if __name__ == "__main__":
         help="Remove a host interface",
     )
     group.add_argument(
+        "--rm-manager",
+        dest="rmmanager",
+        type=str,
+        default=None,
+        help="Remove a resource manager",
+    )
+    group.add_argument(
         "--mod-interface",
         dest="modinterface",
         type=str,
         default=None,
         help="Modify a host interface",
+    )
+    group.add_argument(
+        "--mod-manager",
+        dest="modmanager",
+        type=str,
+        default=None,
+        help="Modify a manager",
     )
     group.add_argument(
         "--ls-hosts",
@@ -1974,6 +1957,13 @@ if __name__ == "__main__":
         action="store_const",
         const="cloud",
         help="List all clouds",
+    )
+    group.add_argument(
+        "--ls-managers",
+        dest="action",
+        action="store_const",
+        const="manager",
+        help="List all resource managers",
     )
     group.add_argument(
         "--rm-host",
@@ -2236,42 +2226,44 @@ if __name__ == "__main__":
         default=None,
         help="Schedule cloud",
     )
-    parser.add_argument(
+
+    interface_group_args = parser.add_argument_group('interface', 'interface resources')
+    interface_group_args.add_argument(
         "--interface-bios-id",
         dest="ifbiosid",
         type=str,
         default=None,
         help="Interface BIOS ID name",
     )
-    parser.add_argument(
+    interface_group_args.add_argument(
         "--interface-mac",
         dest="ifmac",
         type=str,
         default=None,
         help="Interface MAC address",
     )
-    parser.add_argument(
+    interface_group_args.add_argument(
         "--interface-ip",
         dest="ifip",
         type=str,
         default=None,
         help="Interface IP address",
     )
-    parser.add_argument(
+    interface_group_args.add_argument(
         "--interface-port",
         dest="ifport",
         type=str,
         default=None,
         help="Switch port",
     )
-    parser.add_argument(
+    interface_group_args.add_argument(
         "--interface-speed",
         dest="ifspeed",
         type=str,
         default=None,
         help="Interface speed",
     )
-    parser.add_argument(
+    interface_group_args.add_argument(
         "--interface-vendor",
         dest="ifvendor",
         type=str,
@@ -2311,6 +2303,64 @@ if __name__ == "__main__":
         help="Disable Interface maintenance flag",
     )
 
+    manager_group_args = parser.add_argument_group('manager', 'manager resources')
+    manager_group_args.add_argument(
+        "--manager-type",
+        dest="managertype",
+        type=str,
+        default=None,
+        help="Manager type as registered under the managers directory",
+    )
+    manager_group_args.add_argument(
+        "--url",
+        dest="url",
+        type=str,
+        default=None,
+        help="Manager url",
+    )
+    manager_group_args.add_argument(
+        "--api-url",
+        dest="apiurl",
+        type=str,
+        default=None,
+        help="Manager api-url",
+    )
+    manager_group_args.add_argument(
+        "--username",
+        dest="username",
+        type=str,
+        default=None,
+        help="Manager username",
+    )
+    manager_group_args.add_argument(
+        "--password",
+        dest="password",
+        type=str,
+        default=None,
+        help="Manager password",
+    )
+    manager_group_args.add_argument(
+        "--os",
+        dest="default_os",
+        type=str,
+        default=None,
+        help="Manager default os",
+    )
+    manager_group_args.add_argument(
+        "--ptable",
+        dest="default_ptable",
+        type=str,
+        default=None,
+        help="Manager default partition table",
+    )
+    manager_group_args.add_argument(
+        "--medium",
+        dest="default_medium",
+        type=str,
+        default=None,
+        help="Manager default medium",
+    )
+
     parser.add_argument(
         "--move-hosts",
         dest="movehosts",
@@ -2345,6 +2395,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Open-ended identifier for host: util, baremetal, aws, openstack, libvirt, etc.",
+    )
+    parser.add_argument(
+        "--manager",
+        dest="manager",
+        type=str,
+        default=None,
+        help="Resource manager name",
     )
     parser.add_argument(
         "--vlan",

@@ -15,7 +15,7 @@ from quads.config import conf, TEMPLATES_PATH, INTERFACES
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.tools.helpers import get_running_loop
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman

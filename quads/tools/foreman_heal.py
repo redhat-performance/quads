@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from quads.config import conf
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.model import Schedule, Cloud
 
 import asyncio

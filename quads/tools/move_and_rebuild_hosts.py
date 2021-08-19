@@ -3,13 +3,12 @@ import asyncio
 import logging
 import os
 from datetime import datetime
-from time import sleep
 
 from quads.config import conf
-from quads.helpers import is_supported, get_vlan
+from quads.helpers import is_supported, get_vlan, execute_ipmi, ipmi_reset, ipmi_pxe_persist
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper, SSHHelperException
@@ -99,44 +98,6 @@ def switch_config(host, old_cloud, new_cloud):
 
     if ssh_helper:
         ssh_helper.disconnect()
-
-
-async def execute_ipmi(host, arguments, semaphore):
-    ipmi_cmd = [
-        "/usr/bin/ipmitool",
-        "-I",
-        "lanplus",
-        "-H",
-        "mgmt-%s" % host,
-        "-U",
-        conf["ipmi_username"],
-        "-P",
-        conf["ipmi_password"],
-    ]
-    logger.debug("Executing IPMI with argmuents: %s" % arguments)
-    cmd = ipmi_cmd + arguments
-    async with semaphore:
-        process = await asyncio.create_subprocess_exec(
-            *cmd, stdout=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-        logger.debug(f"{stdout.decode().strip()}")
-
-
-async def ipmi_reset(host, semaphore):
-    ipmi_off = [
-        "chassis",
-        "power",
-        "off",
-    ]
-    await execute_ipmi(host, ipmi_off, semaphore)
-    sleep(conf["ipmi_reset_sleep"])
-    ipmi_on = [
-        "chassis",
-        "power",
-        "on",
-    ]
-    await execute_ipmi(host, ipmi_on, semaphore)
 
 
 async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None):
@@ -270,15 +231,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 logger.warning(f"Could not unmount virtual media for mgmt-{host}.")
 
             try:
-                ipmi_pxe_persistent = [
-                    "chassis",
-                    "bootdev",
-                    "pxe",
-                    "options=persistent",
-                ]
-                await execute_ipmi(
-                    host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore
-                )
+                await ipmi_pxe_persist(host, new_semaphore)
                 await ipmi_reset(host, new_semaphore)
             except Exception as ex:
                 logger.debug(ex)

@@ -1,5 +1,8 @@
+import asyncio
 import calendar
 import struct
+from asyncio import sleep
+from json import JSONDecodeError
 
 from bson.objectid import ObjectId
 from datetime import timedelta
@@ -102,3 +105,142 @@ def date_to_object_id(date):
         int(timestamp)
     ) + b"\x00\x00\x00\x00\x00\x00\x00\x00"
     return ObjectId(oid)
+
+
+async def execute_ipmi(host, arguments, semaphore):
+    ipmi_cmd = [
+        "/usr/bin/ipmitool",
+        "-I",
+        "lanplus",
+        "-H",
+        "mgmt-%s" % host,
+        "-U",
+        conf["ipmi_username"],
+        "-P",
+        conf["ipmi_password"],
+    ]
+    cmd = ipmi_cmd + arguments
+    async with semaphore:
+        process = await asyncio.create_subprocess_exec(
+            *cmd, stdout=asyncio.subprocess.PIPE
+        )
+        await process.communicate()
+
+
+async def ipmi_reset(host, semaphore):
+    ipmi_off = [
+        "chassis",
+        "power",
+        "off",
+    ]
+    await execute_ipmi(host, ipmi_off, semaphore)
+    await sleep(conf["ipmi_reset_sleep"])
+    ipmi_on = [
+        "chassis",
+        "power",
+        "on",
+    ]
+    await execute_ipmi(host, ipmi_on, semaphore)
+
+
+async def ipmi_pxe_persist(host, semaphore):
+    ipmi_pxe_persistent = [
+        "chassis",
+        "bootdev",
+        "pxe",
+        "options=persistent",
+    ]
+    await execute_ipmi(
+        host, arguments=ipmi_pxe_persistent, semaphore=semaphore
+    )
+
+
+def output_json_result(request, data, logger):
+    try:
+        if request.status_code == 204:
+            logger.info("Removed: %s" % data)
+        else:
+            js = request.json()
+            logger.debug("%s %s: %s" % (request.status_code, request.reason, data))
+            for result in js["result"]:
+                if type(result) == list:
+                    for line in result:
+                        logger.info(line)
+                else:
+                    logger.info(result)
+    except JSONDecodeError:
+        logger.error("Could not parse json reply.")
+        logger.debug(request.text)
+        exit(1)
+
+
+def exception_handler(loop, context, logger):
+    logger.error(f"Caught exception: {context['message']}")
+
+
+def filter_kwargs(filter_args, logger):
+    kwargs = {}
+    ops = {
+        "==": "",
+        "!=": "__ne",
+        "<": "__lt",
+        "<=": "__lte",
+        ">": "__gt",
+        ">=": "__gte",
+    }
+    conditions = filter_args.split(",")
+    for condition in conditions:
+        op_found = False
+        for op, op_suffix in ops.items():
+            if op in condition:
+                op_found = True
+                k, v = condition.split(op)
+                keys = k.split(".")
+
+                try:
+                    value = int(v)
+                except ValueError:
+                    value = v
+
+                if type(value) == str:
+                    if value.lower() == "false":
+                        value = False
+                    elif value.lower() == "true":
+                        value = True
+
+                if keys[0].strip().lower() in ["disks", "interfaces"]:
+
+                    key = f"{keys[0].strip()}__match"
+                    condition_dict = {
+                        f"{'__'.join(keys[1:])}{op_suffix}".strip(): value
+                    }
+                    if kwargs.get(key, False):
+                        kwargs[key].update(condition_dict)
+                    else:
+                        kwargs[key] = condition_dict
+                else:
+                    if keys[0].strip().lower() == "model":
+                        if str(value).upper() not in conf["models"].split(","):
+                            logger.error("Model type not recognized.")
+                            logger.warning(
+                                f"Accepted model names are: {conf['models']}"
+                            )
+                            exit(1)
+                    if type(value) == str:
+                        value = value.upper()
+                    query = {f"{'__'.join(keys)}{op_suffix}": value}
+                    kwargs.update(query)
+                break
+        if not op_found:
+            logger.error(
+                "A filter was defined but not parsed correctly. Check filter operator."
+            )
+            logger.warning(f"Condition: {condition}")
+            logger.warning(f"Accepted operators: {', '.join(ops.keys())}")
+            exit(1)
+    if not kwargs:
+        logger.error(
+            "A filter was defined but not parsed correctly. Check filter syntax."
+        )
+        exit(1)
+    return kwargs

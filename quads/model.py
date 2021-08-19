@@ -1,6 +1,7 @@
 import datetime
 import ipaddress
 import os
+import pkgutil
 
 from mongoengine import (
     connect,
@@ -19,6 +20,7 @@ from mongoengine import (
     EmbeddedDocumentField,
 )
 from quads.helpers import param_check
+from quads import managers
 
 
 connect("quads", host=os.environ.get("MONGODB_IP", "127.0.0.1"))
@@ -198,6 +200,38 @@ class Interface(EmbeddedDocument):
         return result, data
 
 
+class Manager(Document):
+    name = StringField(unique=True)
+    manager = StringField()
+    url = StringField()
+    api_url = StringField()
+    username = StringField()
+    password = StringField()
+    default_os = StringField()
+    default_ptable = StringField()
+    default_medium = StringField()
+
+    @staticmethod
+    def prep_data(data, fields=None):
+        if not fields:
+            fields = [
+                "name",
+                "manager",
+                "url",
+                "api_url",
+                "username",
+                "password",
+            ]
+
+        result, data = param_check(data, fields)
+
+        manager_libraries = [submodule.name for submodule in pkgutil.iter_modules(managers.__path__)]
+        if data["manager"] not in manager_libraries:
+            return ["No compatible library found for that manager."], {}
+
+        return result, data
+
+
 class Host(Document):
     name = StringField(unique=True)
     model = StringField()
@@ -213,6 +247,7 @@ class Host(Document):
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
     retired = BooleanField(default=False)
+    manager = ReferenceField(Manager)
     meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod

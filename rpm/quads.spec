@@ -88,7 +88,6 @@ cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 mkdir -p %{buildroot}/var/www/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
-echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
 echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
 %clean
 rm -rf %{buildroot}

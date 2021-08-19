@@ -10,7 +10,7 @@ from distutils.util import strtobool
 from datetime import datetime
 from shutil import copyfile
 from quads.model import Cloud, Host
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.config import conf
 
 
