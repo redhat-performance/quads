@@ -23,6 +23,7 @@ import functools
 import logging
 from collections import defaultdict
 
+import argcomplete as argcomplete
 import yaml
 from mongoengine import InvalidQueryError
 from requests.exceptions import ConnectionError
@@ -1914,6 +1915,13 @@ if __name__ == "__main__":
         help="Define a cloud environment",
     )
     group.add_argument(
+        "--mod-host",
+        dest="modhost",
+        type=str,
+        default=None,
+        help="Modify a host",
+    )
+    group.add_argument(
         "--mod-cloud",
         dest="modcloud",
         type=str,
@@ -1941,6 +1949,13 @@ if __name__ == "__main__":
         help="Define a host interface",
     )
     group.add_argument(
+        "--add-manager",
+        dest="addmanager",
+        type=str,
+        default=None,
+        help="Define a resource manager",
+    )
+    group.add_argument(
         "--rm-schedule",
         dest="rmschedule",
         type=str,
@@ -1962,6 +1977,13 @@ if __name__ == "__main__":
         help="Modify a host interface",
     )
     group.add_argument(
+        "--mod-manager",
+        dest="modmanager",
+        type=str,
+        default=None,
+        help="Modify a manager",
+    )
+    group.add_argument(
         "--ls-hosts",
         dest="action",
         action="store_const",
@@ -1974,6 +1996,13 @@ if __name__ == "__main__":
         action="store_const",
         const="cloud",
         help="List all clouds",
+    )
+    group.add_argument(
+        "--ls-managers",
+        dest="action",
+        action="store_const",
+        const="manager",
+        help="List all resource managers",
     )
     group.add_argument(
         "--rm-host",
@@ -2345,6 +2374,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Open-ended identifier for host: util, baremetal, aws, openstack, libvirt, etc.",
+    )
+    parser.add_argument(
+        "--manager",
+        dest="manager",
+        type=str,
+        default=None,
+        help="Resource manager name",
     )
     parser.add_argument(
         "--vlan",

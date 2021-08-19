@@ -9,7 +9,7 @@ import requests
 
 from quads.config import conf, API_URL
 from quads.model import Host, Schedule, Cloud
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 
 HEADERS = [
     "ServerHostnamePublic",

@@ -9,7 +9,7 @@ from quads.config import conf
 from quads.helpers import is_supported, get_vlan
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public
 from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper, SSHHelperException

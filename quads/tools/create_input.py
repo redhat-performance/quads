@@ -4,7 +4,7 @@ import os
 import pathlib
 import re
 import requests
-from quads.tools.foreman import Foreman
+from quads.managers.foreman import Foreman
 from quads.config import conf, API_URL
 
 HEADERS = [

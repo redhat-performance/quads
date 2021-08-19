@@ -198,6 +198,18 @@ class Interface(EmbeddedDocument):
         return result, data
 
 
+class Manager(Document):
+    name = StringField(unique=True)
+    manager = StringField()
+    url = StringField()
+    api_url = StringField()
+    username = StringField()
+    password = StringField()
+    default_os = StringField()
+    default_ptable = StringField()
+    default_medium = StringField()
+
+
 class Host(Document):
     name = StringField(unique=True)
     model = StringField()
@@ -213,6 +225,7 @@ class Host(Document):
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
     retired = BooleanField(default=False)
+    manager = ReferenceField(Manager)
     meta = {"indexes": [{"fields": ["$name"]}], "strict": False}
 
     @staticmethod
