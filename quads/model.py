@@ -131,6 +131,8 @@ class Cloud(Document):
             fields.remove("qinq")
         if "wipe" in fields:
             fields.remove("wipe")
+        if "vlan" in fields:
+            fields.remove("vlan")
 
         result, data = param_check(data, fields)
 
