@@ -932,6 +932,14 @@ def main(_args):
             "vlan": _args.vlan,
             "force": _args.force,
         }
+        if hasattr(_args, "vlan"):
+            try:
+                data["vlan"] = int(_args.vlan)
+            except (TypeError, ValueError) as ཀʖ̯ཀ:
+                logger.debug(ཀʖ̯ཀ)
+                logger.error("Could not parse vlan id. Only integers accepted.")
+                exit(1)
+
         if hasattr(_args, "wipe"):
             data["wipe"] = _args.wipe
         else:
@@ -970,6 +978,11 @@ def main(_args):
         }
 
         clean_data = {k: v for k, v in data.items() if v and k is not "name"}
+        if hasattr(_args, "vlan"):
+            try:
+                clean_data["vlan"] = int(_args.vlan)
+            except (TypeError, ValueError):
+                clean_data["vlan"] = None
 
         if hasattr(_args, "wipe"):
             clean_data["wipe"] = _args.wipe
@@ -2349,7 +2362,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--vlan",
         dest="vlan",
-        type=int,
+        type=str,
         default=None,
         help="VLAN id number for public routable network",
     )
