@@ -80,6 +80,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Validation using Debug Mode](#validation-using-debug-mode)
          * [Skipping Past Foreman Validation](#skipping-past-foreman-validation)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
+      * [Contact QUADS Developers](#contact-quads-developers)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -1298,6 +1299,10 @@ The _first two octets_ here can be substituted by the _first two octets of your 
 ![validation_2](/image/troubleshoot_validation2.png?raw=true)
 
 This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/master/quads/tools/validate_env.py#L143)
+
+## Contact QUADS Developers
+
+Besides Github we're also on IRC via `irc.libera.chat`.  You can [click here](https://web.libera.chat/?channels=#quads) to join in your browser.
 
 ## QUADS Talks and Media
 [![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
