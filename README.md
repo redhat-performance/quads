@@ -583,7 +583,11 @@ To define your cloud with a public VLAN, use the following syntax:
 quads-cli --define-cloud cloud03 [ other define-cloud options ] --vlan 601
 ```
 
-if you need to clear the vlan association with your cloud, rerun your command and omit the `--vlan` option.  Note that you still want to include all options that you wish to preserve, otherwise you may unnecessarily clear other attributes you wish to have on your cloud definition.
+if you need to clear the vlan association with your cloud, you can pass any string to the `--vlan` argument in `--mod-cloud`
+
+```
+quads-cli --mod-cloud cloud03 --vlan none
+```
 
 #### Defining a New Cloud ####
 

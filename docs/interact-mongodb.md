@@ -10,7 +10,6 @@
      * [Example: Manually moving a Host Cloud in MongoDB](#example-manually-moving-a-host-cloud-in-mongodb)
      * [Example: Toggling Individual Cloud Metadata Settings](#example-toggling-individual-cloud-metadata-settings)
      * [Example: Modifying cc-users](#example-modifying-cc-users)
-     * [Example: Removing Cloud Public VLAN Associations in MongoDB](#example-removing-cloud-public-vlan-associations-in-mongodb)
 
 
 * **NOTE**: For most of the below examples usage of `quads-cli --mod-cloud` supplants the need for making any changes in MongoDB post QUADS version `1.1.4`.  We'll leave these examples below for posterity or in the case they can be modeled to do something else useful otherwise.
@@ -192,13 +191,3 @@ If a future cloud is defined and scheduled with future hosts you will currently 
 ```
 db.cloud.update({name:"cloud07"}, {$set:{ccuser:["kreeves", "gcarlin", "bmurray", "mhedberg"]}})
 ```
-
-### Example: Removing Cloud Public VLAN Associations in MongoDB
-
-If you need to remove a defined VLAN from an existing or newly defined cloud you will need to use MongoDB for now until `--mod-cloud` does this for you.  Note that you can **add** an optional public VLAN association at any time via `--mod-cloud --vlan vlanid` but **removing** this association must for now be done in MongoDB.
-
-```
- db.cloud.update({name:"cloud02"}, {$set:{vlan:null}})
-```
-
-After adding or removing VLAN assocations you should run `/opt/quads/quads/tools/verify_switchconf.py --cloud cloud02` to check/modify any further switchport changes that might be required with the addition or removal of an optional public VLAN.
