@@ -15,7 +15,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             reader = csv.reader(f)
             hosts = list(reader)
     else:
-        hosts = sorted(Host.objects(), key=lambda x: x.name)
+        hosts = sorted(Host.objects(retired=False, broken=False), key=lambda x: x.name)
 
     lines = []
     __days = []

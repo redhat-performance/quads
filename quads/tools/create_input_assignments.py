@@ -146,11 +146,7 @@ def print_summary():
 
         _summary.append("| %s |\n" % " | ".join(_data))
 
-    _host_response = requests.get(os.path.join(API_URL, "host"))
-    _hosts = []
-    if _host_response.status_code == 200:
-        _hosts = _host_response.json()
-
+    _hosts = Host.objects(broken=False, retired=False)
     _host_count = len(_hosts)
     _summary.append("| Total | %s |\n" % _host_count)
     _summary.append("\n")

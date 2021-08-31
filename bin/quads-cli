@@ -1766,7 +1766,7 @@ def main(_args):
                 for host in sorted(available_hosts):
                     logger.info(host)
             else:
-                _hosts = Host.objects(cloud=_cloud)
+                _hosts = Host.objects(cloud=_cloud, retired=False, broken=False)
                 for host in sorted(_hosts, key=lambda k: k["name"]):
                     logger.info(host.name)
 

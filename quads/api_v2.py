@@ -149,7 +149,7 @@ class DocumentMethodHandler(MethodHandlerBase):
             total_count = 0
             for cloud in _clouds:
                 if cloud.name == "cloud01":
-                    count = Host.objects(cloud=cloud).count()
+                    count = Host.objects(cloud=cloud, retired=False, broken=False).count()
                 else:
                     date = datetime.datetime.now()
                     if "date" in data:
@@ -171,7 +171,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                     }
                 )
             if "date" in data:
-                host_count = Host.objects().count()
+                host_count = Host.objects(retired=False, broken=False).count()
                 for cloud in clouds_summary:
                     if cloud["name"] == "cloud01":
                         cloud["count"] = host_count - total_count

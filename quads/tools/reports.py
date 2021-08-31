@@ -17,7 +17,7 @@ def report_available(_logger, _start, _end):
     end = _end.replace(hour=22, minute=0, second=0)
     next_sunday = start + timedelta(days=(6 - start.weekday()))
 
-    hosts = Host.objects()
+    hosts = Host.objects(retired=False, broken=False)
 
     _logger.info(f"QUADS report for {start.date()} to {end.date()}:")
 
