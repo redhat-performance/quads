@@ -932,7 +932,7 @@ def main(_args):
             "vlan": _args.vlan,
             "force": _args.force,
         }
-        if hasattr(_args, "vlan"):
+        if hasattr(_args, "vlan") and _args.vlan:
             try:
                 data["vlan"] = int(_args.vlan)
             except (TypeError, ValueError) as ཀʖ̯ཀ:
