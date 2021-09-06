@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73985af7_233b676e",
+        "filename": "bin/quads-cli",
+        "patchSetId": 1
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-09-06T08:47:15Z",
+      "side": 1,
+      "message": "_args.vlan",
+      "range": {
+        "startLine": 935,
+        "startChar": 38,
+        "endLine": 935,
+        "endChar": 58
+      },
+      "revId": "20d8d79beaae679e481ff7ea8e51935052eccba6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
