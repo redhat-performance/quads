@@ -57,7 +57,9 @@ def generator(_host_file, _days, _month, _year, _gentime):
         line["days"] = __days
         lines.append(line)
 
-    utilization = 100 - (non_allocated_count * 100 // (_days * len(hosts)))
+    total_hosts = len(hosts)
+    total_use = Schedule.current_schedule().count()
+    utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
     with open(os.path.join(TEMPLATES_PATH, "simple_table")) as _file:
         template = Template(_file.read())
     content = template.render(
@@ -65,6 +67,8 @@ def generator(_host_file, _days, _month, _year, _gentime):
         _days=_days,
         lines=lines,
         utilization=utilization,
+        total_use=total_use,
+        total_hosts=total_hosts,
     )
 
     return content
