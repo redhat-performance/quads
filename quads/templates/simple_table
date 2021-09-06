@@ -17,11 +17,20 @@
 .nami {
     background-image: url("static/nami.png");
 }
-.maze {
-    background-image: url("static/maze-black.png");
+.vaio {
+    background-image: url("static/vaio.png");
 }
 .metal {
     background-image: url("static/gun-metal.png");
+}
+.cutcube {
+    background-image: url("static/cutcube.png");
+}
+.dimension {
+    background-image: url("static/dimension.png");
+}
+.cubed {
+    background-image: url("static/merely-cubed.png");
 }
 </style>
 {% if gentime %}
@@ -34,7 +43,13 @@
 {% if gentime %}
     <b>{{ gentime }}<br>(Hover cursor over squares for details on allocation)</b><br>
 {% endif %}
-    <b>Percentage Utilized: {{ utilization }}%</b><br>
+    <br>
+    <b>Percentage Utilized: {{ utilization }}%</b>
+    <br>
+    <b>Total Systems in Use: {{ total_use }}%</b>
+    <br>
+    <b>Total Usable Systems: {{ total_hosts }}%</b>
+    <br>
     <br>
 <table>
 <tr>
@@ -52,10 +67,16 @@
         class="degradient"
         {% elif 19 > day["chosen_color"]|int > 1 :  %}
         class="gradient nami"
-        {% elif 37 > day["chosen_color"]|int > 18 : %}
-        class="gradient maze"
+        {% elif 36 > day["chosen_color"]|int > 18 : %}
+        class="vaio"
+        {% elif 53 > day["chosen_color"]|int > 35 : %}
+        class="gradient cutcube"
+        {% elif 70 > day["chosen_color"]|int > 52 : %}
+        class="dimension"
+        {% elif 87 > day["chosen_color"]|int > 69 : %}
+        class="gradient cubed"
         {% else %}
-        class="gradient metal"
+        class="metal"
         {% endif %}
         bgcolor="{{ day["color"] }}"
         data-toggle="tooltip"
