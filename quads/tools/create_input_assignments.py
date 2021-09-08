@@ -148,7 +148,11 @@ def print_summary():
 
     _hosts = Host.objects(broken=False, retired=False)
     _host_count = len(_hosts)
-    _summary.append("| Total | %s |\n" % _host_count)
+    _schedules = Schedule.current_schedule().count()
+    _daily_percentage = _schedules * 100 // _host_count
+    _summary.append(f"| Total | {_host_count} |\n")
+    _summary.append("\n")
+    _summary.append(f"Daily Utilization: {_daily_percentage}% \n")
     _summary.append("\n")
     _summary.append("[Unmanaged Hosts](#unmanaged)\n")
     _summary.append("\n")
