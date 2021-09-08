@@ -78,6 +78,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Understanding Validation Structure](#understanding-validation-structure)
          * [Troubleshooting Steps](#troubleshooting-steps)
          * [Validation using Debug Mode](#validation-using-debug-mode)
+         * [Skipping Past Network Validation](#skipping-past-network-validation)
          * [Skipping Past Foreman Validation](#skipping-past-foreman-validation)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
       * [Contact QUADS Developers](#contact-quads-developers)
@@ -583,7 +584,7 @@ To define your cloud with a public VLAN, use the following syntax:
 quads-cli --define-cloud cloud03 [ other define-cloud options ] --vlan 601
 ```
 
-if you need to clear the vlan association with your cloud, you can pass any string to the `--vlan` argument in `--mod-cloud`
+If you need to clear the vlan association with your cloud, you can pass any string to the `--vlan` argument in `--mod-cloud`
 
 ```
 quads-cli --mod-cloud cloud03 --vlan none
@@ -974,6 +975,10 @@ quads-cli --mod-cloud cloud06 --vlan 604 --wipe
 quads-cli --mod-cloud cloud50 --no-wipe
 ```
 
+```
+quads-cli --mod-cloud cloud50 --vlan none
+```
+
 ### Looking into the Future
 * Because QUADS knows about all future schedules you can display what your environment will look like at any point in time using the `--date` command.
 
@@ -1275,6 +1280,16 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.rdu2.scalelab.example.com (10.1.38.43)
 ```
 
+### Skipping Past Network Validation
+
+* In `QUADS 1.1.6+` you can skip past network validation via:
+
+```
+/opt/quads/tools/validate_env.py --skip-network
+```
+
+* In older versions of QUADS you will want to consult the documentation for [interacting with MongoDB](/docs/interact-mongodb.md) for how to override this check.
+
 ### Skipping Past Foreman Validation
 
 * If you know your systems are built you can force `validate_env.py` to move into the network portions of the validation by toggling the `provisioned` attribute in MongoDB for your cloud object.
@@ -1282,6 +1297,8 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 ```
 db.cloud.update({"name": "cloud23"}, {$set:{'provisioned':true}}
 ```
+
+* More information on manual intervention and overrides via MongoDB can be [found here](/docs/interact-mongodb.md)
 
 ### Mapping Internal VLAN Interfaces to Problem Hosts
 You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/master/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
