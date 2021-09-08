@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40ff758d_30994cde",
+        "filename": "README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2021-09-08T10:48:59Z",
+      "side": 1,
+      "message": "this looks like a slightly different duplicate of the above.",
+      "range": {
+        "startLine": 593,
+        "startChar": 0,
+        "endLine": 597,
+        "endChar": 3
+      },
+      "revId": "b4573d4a6d803483f7b1f52e7a05992501913668",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
