@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6f724a2_2d219e70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-09-08T16:54:27Z",
+      "side": 1,
+      "message": "\u003e Also including daily percentage utilization.\n\nI think this is still missing?  Should be part of regenerate_wiki\n\nI love the emoji shift, lets us remove config lines also.\n\n",
+      "revId": "a5031046d84906801ef2a9aa756b31295a2afa80",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
