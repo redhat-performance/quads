@@ -4,9 +4,16 @@ import argparse
 import os
 import csv
 from datetime import datetime
+import random
+
 from jinja2 import Template
-from quads.config import conf, TEMPLATES_PATH
+from quads.config import TEMPLATES_PATH
 from quads.model import Schedule, Host, CloudHistory
+
+
+def random_color():
+    rand = lambda: random.randint(100, 255)
+    return '#%02X%02X%02X' % (rand(), rand(), rand())
 
 
 def generator(_host_file, _days, _month, _year, _gentime):
@@ -20,6 +27,11 @@ def generator(_host_file, _days, _month, _year, _gentime):
     lines = []
     __days = []
     non_allocated_count = 0
+    samples = random.sample(range(129296, 129510), 100)
+    exclude = [129401, 129484]
+    emojis = [emoji for emoji in samples if emoji not in exclude]
+    colors = [random_color() for _ in range(100)]
+    colors[0] = "#A9A9A9"
     for i, host in enumerate(hosts):
         line = {"hostname": host.name}
         __days = []
@@ -35,7 +47,8 @@ def generator(_host_file, _days, _month, _year, _gentime):
             _day = {
                 "day": j,
                 "chosen_color": chosen_color,
-                "color": conf["visual_colors"]["cloud%s" % chosen_color],
+                "emoji": "&#%s;" % emojis[int(chosen_color) - 1],
+                "color": colors[int(chosen_color) - 1],
                 "cell_date": cell_date,
                 "cell_time": cell_time
             }
@@ -60,13 +73,15 @@ def generator(_host_file, _days, _month, _year, _gentime):
     total_hosts = len(hosts)
     total_use = Schedule.current_schedule().count()
     utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
-    with open(os.path.join(TEMPLATES_PATH, "simple_table")) as _file:
+    utilization_daily = total_use * 100 // total_hosts
+    with open(os.path.join(TEMPLATES_PATH, "simple_table_emoji")) as _file:
         template = Template(_file.read())
     content = template.render(
         gentime=_gentime,
         _days=_days,
         lines=lines,
         utilization=utilization,
+        utilization_daily=utilization_daily,
         total_use=total_use,
         total_hosts=total_hosts,
     )
