@@ -28,7 +28,10 @@ def generator(_host_file, _days, _month, _year, _gentime):
     lines = []
     __days = []
     non_allocated_count = 0
-    samples = random.sample(range(129296, 129510), 100)
+    all_samples = []
+    all_samples.extend(range(129296, 129510))
+    all_samples.extend(range(128000, 128252))
+    samples = random.sample(all_samples, 100)
     exclude = [129401, 129484]
     emojis = [emoji for emoji in samples if emoji not in exclude]
     colors = [random_color() for _ in range(100)]
