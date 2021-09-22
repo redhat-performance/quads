@@ -1717,6 +1717,12 @@ def main(_args):
             exit(1)
         _host = Host.objects(name=_args.host).first()
         if _host:
+            if _host.retired:
+                logger.warning("retired")
+                exit(0)
+            if _host.broken:
+                logger.error("broken")
+                exit(0)
             _kwargs = {"host": _host}
             if _args.datearg:
                 datetime_obj = datetime.strptime(_args.datearg, "%Y-%m-%d %H:%M")
