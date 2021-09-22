@@ -41,3 +41,5 @@ STDFMT = "- %(levelname)-8s - %(message)s"
 
 API = "v2"
 API_URL = os.path.join(conf['quads_base_url'], 'api', API)
+
+FPING_TIMEOUT = 10000

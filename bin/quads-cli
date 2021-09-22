@@ -39,6 +39,7 @@ from quads.config import conf, API_URL, TEMPLATES_PATH
 from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
+from quads.tools.badfish import BadfishException
 from quads.tools.jira import Jira
 from quads.tools.logger import CustomFormatter
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
@@ -1596,6 +1597,7 @@ def main(_args):
                         SystemExit,
                         Exception,
                         TimeoutError,
+                        BadfishException,
                     ):
                         logger.exception("Move command failed")
                         provisioned = False

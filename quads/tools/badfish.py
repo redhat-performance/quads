@@ -237,7 +237,11 @@ class Badfish:
             raw = await _response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
             if "Attributes" in data:
-                self.boot_devices = data["Attributes"][_boot_seq]
+                try:
+                    self.boot_devices = data["Attributes"][_boot_seq]
+                except KeyError:
+                    logger.error("No boot devices found")
+                    raise BadfishException
             else:
                 logger.debug(data)
                 logger.error("Boot order modification is not supported by this host.")
@@ -329,7 +333,7 @@ class Badfish:
     async def get_host_type(self, _interfaces_path):
         await self.get_boot_devices()
 
-        if _interfaces_path:
+        if _interfaces_path and self.boot_devices:
             host_types = await self.get_host_types_from_yaml(_interfaces_path)
             for host_type in host_types:
                 match = True
@@ -978,14 +982,18 @@ class Badfish:
         logger.debug("Checking device %s." % device)
         await self.get_boot_devices()
         logger.debug(self.boot_devices)
-        boot_devices = [_device["Name"].lower() for _device in self.boot_devices]
-        if device.lower() in boot_devices:
-            return True
+        if self.boot_devices:
+            boot_devices = [_device["Name"].lower() for _device in self.boot_devices]
+            if device.lower() in boot_devices:
+                return True
+            else:
+                logger.error(
+                    "Device %s does not match any of the existing for host %s"
+                    % (device, self.host)
+                )
+                return False
         else:
-            logger.error(
-                "Device %s does not match any of the existing for host %s"
-                % (device, self.host)
-            )
+            logger.error(f"No boot devices found for {self.host}")
             return False
 
     async def polling_host_state(self, state, equals=True):

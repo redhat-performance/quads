@@ -207,7 +207,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
 
-        await badfish.set_power_state("on")
+        try:
+            await badfish.set_power_state("on")
+        except BadfishException:
+            logger.error(f"Failed to power on {host}")
+            return False
         foreman_results = []
         params = [
             {

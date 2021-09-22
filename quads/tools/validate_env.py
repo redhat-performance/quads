@@ -11,7 +11,7 @@ from jinja2 import Template
 from paramiko import SSHException
 from paramiko.ssh_exception import NoValidConnectionsError
 
-from quads.config import conf, TEMPLATES_PATH, INTERFACES
+from quads.config import conf, TEMPLATES_PATH, INTERFACES, FPING_TIMEOUT
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
@@ -212,7 +212,7 @@ class Validator(object):
             return False
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd("fping -u %s" % host_list)
+        result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -u {host_list}")
         if not result:
             return False
 
@@ -237,7 +237,8 @@ class Validator(object):
                     new_ips.append(".".join(ip_apart))
 
             if new_ips:
-                result, output = ssh_helper.run_cmd("fping -u %s" % " ".join(new_ips))
+                all_ips = " ".join(new_ips)
+                result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -u {all_ips}")
                 if not result:
                     pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
                     hosts = []
