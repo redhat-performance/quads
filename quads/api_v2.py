@@ -165,6 +165,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                         "description": cloud.description,
                         "owner": cloud.owner,
                         "ticket": cloud.ticket,
+                        "qinq": cloud.qinq,
                         "ccuser": cloud.ccuser,
                         "provisioned": cloud.provisioned,
                         "validated": cloud.validated,

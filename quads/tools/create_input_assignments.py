@@ -58,6 +58,7 @@ def print_summary():
         desc = "%s (%s)" % (cloud["count"], cloud["description"])
         owner = cloud["owner"]
         ticket = cloud["ticket"]
+        qinq = "Combined" if cloud["qinq"] else "Isolated"
         link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
             conf["ticket_url"], conf["ticket_queue"], ticket, ticket)
         cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
@@ -92,7 +93,7 @@ def print_summary():
                          'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" ' \
                          'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
 
-        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
+        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link, qinq]
 
         if conf["gather_ansible_facts"]:
             factstyle_tag_end = "</span>"
