@@ -37,8 +37,7 @@
         sunday = new Date();
         future = new Date();
         days_till_next_sunday = 7 - now.getDay();
-        now.setDate(now.getDate() + days_till_next_sunday);
-        sunday.setDate(sunday.getDate() + days_till_next_sunday);
+        sunday.setDate(now.getDate() + days_till_next_sunday);
         $("#start").datepicker({
             minDate: 0,
             onSelect: function(selected){
@@ -46,7 +45,10 @@
             }
         });
         $("#start").datepicker("setDate", sunday);
-        future.setDate(sunday.getDate() + 14)
+        future.setDate(sunday.getDate() + 14);
+        if (sunday.getDate() < now.getDate()) {
+            future.setMonth(future.getMonth() + 1);
+        }
         $("#end").datepicker({ minDate: 0 });
         $("#end").datepicker("setDate", future);
     });
