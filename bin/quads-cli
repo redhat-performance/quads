@@ -1735,7 +1735,7 @@ def main(_args):
                     if schedule.end != datetime_obj:
                         logger.info(schedule.cloud.name)
             else:
-                logger.info(_host.default_cloud.name)
+                logger.info(_host.cloud.name)
         else:
             logger.info("Unknown host: %s" % _args.host)
             exit(1)
