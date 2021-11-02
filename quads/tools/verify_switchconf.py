@@ -15,35 +15,29 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(_cloud_name, _host_name, change=False):
-    if _cloud_name == None and _host_name == None:
+    if not _cloud_name and not _host_name:
         logger.warning(f"At least one of --cloud or --host should be specified.")
         return
 
+    _cloud_obj = None
     if _cloud_name:
         _cloud_obj = Cloud.objects(name=_cloud_name).first()
-    else:
-        _cloud_obj = None
 
     if _host_name:
         hosts = Host.objects(name=_host_name)
-        _host_cloud_obj = hosts.first().cloud
     else:
         hosts = Host.objects(cloud=_cloud_obj)
-        _host_cloud_obj = None
+    first_host = hosts.first()
 
-    if _cloud_obj == None:
-        _cloud_obj = _host_cloud_obj
+    if not _cloud_obj:
+        _cloud_obj = first_host.cloud
 
-    if _cloud_obj != _host_cloud_obj:
+    if _cloud_obj != first_host.cloud:
         logger.warning(f"Both --cloud and --host have been specified.")
-        logger.warning(f"")
-        logger.warning(f"Host: {hosts.first().name}")
+        logger.warning(f"Host: {first_host.name}")
         logger.warning(f"Cloud: {_cloud_obj.name}")
-        logger.warning(f"")
-        logger.warning(f"However, {hosts.first().name} is a member of {_host_cloud_obj.name}")
-        logger.warning(f"")
+        logger.warning(f"However, {first_host.name} is a member of {first_host.cloud.name}")
         logger.warning(f"!!!!! Be certain this is what you want to do. !!!!!")
-        logger.warning(f"")
 
     for _host_obj in hosts:
         logger.info(f"Host: {_host_obj.name}")

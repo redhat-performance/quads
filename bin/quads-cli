@@ -1754,7 +1754,7 @@ def main(_args):
             ).isoformat()
         schedules = Schedule.current_schedule(**_kwargs)
         if schedules:
-            for schedule in sorted(schedules, key=lambda k: k["host"]["name"]):
+            for schedule in sorted(schedules, key=lambda _key: _key["host"]["name"]):
                 logger.info(schedule.host.name)
         else:
             if _kwargs.get("date") and _args.cloudonly == "cloud01":
@@ -1775,7 +1775,7 @@ def main(_args):
                     logger.info(host)
             else:
                 _hosts = Host.objects(cloud=_cloud, retired=False, broken=False)
-                for host in sorted(_hosts, key=lambda k: k["name"]):
+                for host in sorted(_hosts, key=lambda _key: _key["name"]):
                     logger.info(host.name)
 
         exit(0)

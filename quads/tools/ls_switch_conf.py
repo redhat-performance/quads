@@ -31,17 +31,6 @@ def verify(cloud):
             interfaces = sorted(host.interfaces, key=lambda k: k["name"])
             for i, interface in enumerate(interfaces):
                 ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
-
-                try:
-                    _, old_vlan_out = ssh_helper.run_cmd(
-                        "show configuration interfaces %s" % interface.switch_port
-                    )
-                    old_vlan = old_vlan_out[0].split(";")[0].split()[1]
-                    if old_vlan.startswith("QinQ"):
-                        old_vlan = old_vlan[7:]
-                except IndexError:
-                    old_vlan = 0
-
                 try:
                     _, vlan_member_out = ssh_helper.run_cmd(
                         "show configuration vlans | display set | match %s.0"
