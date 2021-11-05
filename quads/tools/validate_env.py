@@ -212,7 +212,7 @@ class Validator(object):
             return False
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -u {host_list}")
+        result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {host_list}")
         if not result:
             return False
 
@@ -238,7 +238,7 @@ class Validator(object):
 
             if new_ips:
                 all_ips = " ".join(new_ips)
-                result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -u {all_ips}")
+                result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {all_ips}")
                 if not result:
                     pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
                     hosts = []
