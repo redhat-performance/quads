@@ -4,7 +4,7 @@ import logging
 import smtplib
 
 from email.message import EmailMessage
-from quads.config import conf
+from quads.config import Config as conf
 
 logger = logging.getLogger(__name__)
 

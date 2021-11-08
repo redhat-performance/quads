@@ -3,7 +3,7 @@ import logging
 
 from xmlrpc.client import ProtocolError
 from quads.tools.racks_wiki import update_wiki
-from quads.config import conf as quads_config
+from quads.config import Config as quads_config
 from quads.model import Vlan, Cloud, Schedule
 from tempfile import NamedTemporaryFile
 

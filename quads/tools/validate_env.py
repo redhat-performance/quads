@@ -11,7 +11,7 @@ from jinja2 import Template
 from paramiko import SSHException
 from paramiko.ssh_exception import NoValidConnectionsError
 
-from quads.config import conf, TEMPLATES_PATH, INTERFACES, FPING_TIMEOUT
+from quads.config import Config as conf
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
@@ -37,7 +37,7 @@ class Validator(object):
 
     def notify_failure(self):
         template_file = "validation_failed"
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
             "cloud": self.cloud.name,
@@ -56,7 +56,7 @@ class Validator(object):
 
     def notify_success(self):
         template_file = "validation_succeeded"
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
             "cloud": self.cloud.name,
@@ -212,11 +212,11 @@ class Validator(object):
             return False
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {host_list}")
+        result, output = ssh_helper.run_cmd(f"fping -t {conf.FPING_TIMEOUT} -B 1 -u {host_list}")
         if not result:
             return False
 
-        for i, interface in enumerate(INTERFACES.keys()):
+        for i, interface in enumerate(conf.INTERFACES.keys()):
             new_ips = []
             host_ips = [
                 {"ip": socket.gethostbyname(host.name), "host": host}
@@ -225,7 +225,7 @@ class Validator(object):
             ]
             for host in host_ips:
                 _host_obj = host["host"]
-                _interfaces = INTERFACES[interface]
+                _interfaces = conf.INTERFACES[interface]
                 last_nic = i == len(_host_obj.interfaces) - 1
                 if last_nic and self.cloud.vlan:
                     continue
@@ -238,7 +238,7 @@ class Validator(object):
 
             if new_ips:
                 all_ips = " ".join(new_ips)
-                result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {all_ips}")
+                result, output = ssh_helper.run_cmd(f"fping -t {conf.FPING_TIMEOUT} -B 1 -u {all_ips}")
                 if not result:
                     pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
                     hosts = []

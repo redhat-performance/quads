@@ -3,7 +3,7 @@
 import argparse
 import logging
 
-from quads.config import conf
+from quads.config import Config as conf
 from quads.model import Host
 from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper

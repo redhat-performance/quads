@@ -11,7 +11,7 @@ from datetime import datetime
 from shutil import copyfile
 from quads.model import Cloud, Host
 from quads.tools.foreman import Foreman
-from quads.config import conf
+from quads.config import Config as conf
 
 
 def make_env_json(filename):
