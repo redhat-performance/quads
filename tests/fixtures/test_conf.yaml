@@ -1,0 +1,14 @@
+KEY: "shadowed by class conf attribute"
+
+other_key: "other_value"
+
+array:
+  - 1
+  - "s"
+  - false
+
+dict:
+  key1: "val1"
+  key2: "val2"
+  key3: "val3"
+

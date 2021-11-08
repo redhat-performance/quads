@@ -22,7 +22,7 @@ import os
 import sys
 
 from quads.api_v2 import QuadsServerApiV2
-from quads.config import conf, LOGFMT
+from quads.config import Config as conf
 
 sys.path.append(conf['install_dir'])
 sys.path.append(os.path.dirname(__file__) + "/../")
@@ -30,7 +30,7 @@ sys.path.append(os.path.dirname(__file__) + "/../")
 logger = logging.getLogger()
 os.makedirs(os.path.dirname(conf["log"]), exist_ok=True)
 file_handler = logging.FileHandler(conf["log"])
-file_handler.setFormatter(logging.Formatter(LOGFMT))
+file_handler.setFormatter(logging.Formatter(conf.LOGFMT))
 file_handler.setLevel(logging.DEBUG)
 logger.addHandler(file_handler)
 logger.addHandler(file_handler)

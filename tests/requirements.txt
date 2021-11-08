@@ -1,0 +1,2 @@
+coverage==5.5
+mongomock==3.23.0
