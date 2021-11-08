@@ -8,7 +8,7 @@ from enum import Enum
 
 from jinja2 import Template
 from pathlib import Path
-from quads.config import conf, TEMPLATES_PATH
+from quads.config import Config as conf
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.model import Cloud, Schedule, Notification
@@ -34,7 +34,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     if conf["email_notify"]:
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         content = template.render(
             cloud_info=cloud_info,
@@ -83,7 +83,7 @@ def create_message(
     cc_users = conf["report_cc"].split(",")
     for user in cc:
         cc_users.append("%s@%s" % (user, conf["domain"]))
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+    with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     quads_request_url = conf.get("quads_request_url")
     content = template.render(
@@ -110,7 +110,7 @@ def create_future_initial_message(cloud_obj, cloud_info):
     cc_users = conf["report_cc"].split(",")
     for user in cloud_obj.ccuser:
         cc_users.append("%s@%s" % (user, conf["domain"]))
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+    with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     content = template.render(
         cloud_info=cloud_info,
@@ -134,7 +134,7 @@ def create_future_message(
     for user in cloud_obj.ccuser:
         cc_users.append("%s@%s" % (user, conf["domain"]))
     template_file = "future_message"
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+    with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     content = template.render(
         days_to_report=future_days,

@@ -3,7 +3,7 @@ import argparse
 import asyncio
 import logging
 
-from quads.config import conf
+from quads.config import Config as conf
 from quads.model import Host, Interface
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.helpers import get_running_loop
