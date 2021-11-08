@@ -3,7 +3,7 @@
 import argparse
 import logging
 
-from quads.config import conf
+from quads.config import Config as conf
 from quads.helpers import get_vlan
 from quads.model import Cloud, Host
 from quads.tools.juniper_convert_port_public import juniper_convert_port_public

@@ -5,7 +5,7 @@ import pathlib
 import re
 import requests
 from quads.tools.foreman import Foreman
-from quads.config import conf, API_URL
+from quads.config import Config as conf
 
 HEADERS = [
     "U",
@@ -52,12 +52,12 @@ def render_row(_host, _properties):
     node = _host
     owner = ""
     cloud = ""
-    host_url = os.path.join(API_URL, "host?name=%s" % node)
+    host_url = os.path.join(conf.confAPI_URL, "host?name=%s" % node)
     _response = requests.get(host_url)
     if _response.status_code == 200:
         host_data = _response.json()
         if "cloud" in host_data:
-            cloud_url = os.path.join(API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"])
+            cloud_url = os.path.join(conf.API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"])
             _cloud_response = requests.get(cloud_url)
             if _cloud_response.status_code == 200:
                 cloud_data = _cloud_response.json()

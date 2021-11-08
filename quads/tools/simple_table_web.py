@@ -5,7 +5,7 @@ import os
 
 from datetime import datetime, timedelta
 from quads.tools.simple_table_generator import generator
-from quads.config import conf, TEMPLATES_PATH
+from quads.config import Config as conf
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
 
     _static_web = os.path.join(conf["visual_web_dir"], "static")
     if not os.path.exists(_static_web):
-        _static = os.path.join(TEMPLATES_PATH, "static")
+        _static = os.path.join(conf.TEMPLATES_PATH, "static")
         os.symlink(_static, _static_web)
 
     for _date in dates:

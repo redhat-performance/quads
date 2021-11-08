@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from quads.config import conf
+from quads.config import Config as conf
 from quads.tools.foreman import Foreman
 from quads.model import Schedule, Cloud
 

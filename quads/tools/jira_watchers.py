@@ -3,7 +3,7 @@ import asyncio
 import logging
 
 from datetime import timedelta
-from quads.config import conf
+from quads.config import Config as conf
 from quads.model import Cloud, Schedule
 from quads.tools.jira import Jira
 

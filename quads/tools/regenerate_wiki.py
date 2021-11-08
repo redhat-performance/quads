@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from xmlrpc.client import ProtocolError
 from git import Repo, InvalidGitRepositoryError
-from quads.config import conf
+from quads.config import Config as conf
 from quads.tools import create_input, create_input_assignments, racks_wiki
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
