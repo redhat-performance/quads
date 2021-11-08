@@ -7,7 +7,7 @@ from datetime import datetime
 import random
 
 from jinja2 import Template
-from quads.config import TEMPLATES_PATH
+from quads.config import Config
 from quads.model import Schedule, Host, CloudHistory
 
 
@@ -78,7 +78,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
     total_use = Schedule.current_schedule().count()
     utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
     utilization_daily = total_use * 100 // total_hosts
-    with open(os.path.join(TEMPLATES_PATH, "simple_table_emoji")) as _file:
+    with open(os.path.join(Config.TEMPLATES_PATH, "simple_table_emoji")) as _file:
         template = Template(_file.read())
     content = template.render(
         gentime=_gentime,

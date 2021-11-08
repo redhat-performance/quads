@@ -1,10 +1,9 @@
 import logging
-import sys
 
 
-class CustomFormatter(logging.Formatter):
+class ColorFormatter(logging.Formatter):
     """
-    Logging Formatter to add colors and count warning / errors
+    Logging Formatter with colors
     """
 
     grey = "\x1b[38;21m"
@@ -24,9 +23,5 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        if sys.stdout.isatty():
-            log_fmt = self.FORMATS.get(record.levelno)
-        else:
-            log_fmt = self.format_msg
-        formatter = logging.Formatter(log_fmt)
+        formatter = logging.Formatter(self.FORMATS.get(record.levelno))
         return formatter.format(record)

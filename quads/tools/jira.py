@@ -5,7 +5,7 @@ import logging
 import urllib3
 from aiohttp import BasicAuth
 
-from quads.config import conf
+from quads.config import Config as conf
 
 urllib3.disable_warnings()
 

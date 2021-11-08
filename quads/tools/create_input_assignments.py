@@ -7,7 +7,7 @@ from datetime import datetime
 
 import requests
 
-from quads.config import conf, API_URL
+from quads.config import Config as conf
 from quads.model import Host, Schedule, Cloud
 from quads.tools.foreman import Foreman
 
@@ -48,7 +48,7 @@ def print_summary():
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
-    _cloud_response = requests.get(os.path.join(API_URL, "summary"))
+    _cloud_response = requests.get(os.path.join(conf.API_URL, "summary"))
     _cloud_summary = []
     if _cloud_response.status_code == 200:
         _cloud_summary = _cloud_response.json()
@@ -257,7 +257,7 @@ def main():
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
-    summary_response = requests.get(os.path.join(API_URL, "summary"))
+    summary_response = requests.get(os.path.join(conf.API_URL, "summary"))
     _cloud_summary = []
     if summary_response.status_code == 200:
         _cloud_summary = summary_response.json()

@@ -4,7 +4,7 @@ import struct
 from bson.objectid import ObjectId
 from datetime import timedelta
 from mongoengine import ObjectIdField
-from quads.config import SUPPORTED, OFFSETS, conf
+from quads.config import Config as conf
 
 
 def param_check(data, params, defaults={}):
@@ -29,7 +29,7 @@ def param_check(data, params, defaults={}):
 
 
 def is_supported(_host_name):
-    for host_type in SUPPORTED:
+    for host_type in conf.SUPPORTED:
         if host_type in _host_name:
             return True
     return False
@@ -44,7 +44,7 @@ def get_vlan(cloud_obj, index, last_nic=False):
         base_vlan = vlan_first + cloud_offset
         if cloud_obj.qinq == 1:
             index = 0
-        vlan = base_vlan + list(OFFSETS.values())[index]
+        vlan = base_vlan + list(conf.OFFSETS.values())[index]
         return vlan
 
 

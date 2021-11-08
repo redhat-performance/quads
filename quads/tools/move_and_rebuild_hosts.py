@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from time import sleep
 
-from quads.config import conf
+from quads.config import Config as conf
 from quads.helpers import is_supported, get_vlan
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
