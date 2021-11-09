@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64988504_fb0768c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1018871
+      },
+      "writtenOn": "2021-11-09T16:47:13Z",
+      "side": 1,
+      "message": "Just a note before I leave this one, the rpm/quads.spec really needs to be checked as it was my first time writing rpm specs.",
+      "revId": "fe4ae6237134dfcda99dd9113a9449d1c0e5c426",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
