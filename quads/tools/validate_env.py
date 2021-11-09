@@ -261,6 +261,9 @@ class Validator(object):
         notification_obj = Notification.objects(
             cloud=self.cloud, ticket=self.cloud.ticket
         ).first()
+        if not notification_obj:
+            notification_obj = Notification(cloud=self.cloud, ticket=self.ticket)
+            notification_obj.save()
         failed = False
 
         if self.env_allocation_time_exceeded():
