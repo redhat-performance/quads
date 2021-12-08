@@ -65,8 +65,13 @@ ticket_url: https://projects.engineering.example.com/browse
 ticket_queue: SCALELAB
 # Jira Specific Variables
 jira_url: https://projects.engineering.example.com/rest/api/2
+# takes 2 values only, basicauth or token, defaults to basicauth
+# basicauth will make use of jira_username and jira_password
+# token will make use of jira_token
+jira_auth: basicauth
 jira_username: admin
 jira_password: password
+jira_token:
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com

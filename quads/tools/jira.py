@@ -29,6 +29,19 @@ class Jira(object):
         else:
             self.semaphore = semaphore
 
+        jira_auth = conf["jira_auth"]
+        if jira_auth == "basicauth":
+            payload = BasicAuth(self.username, self.password)
+        else:
+            token = conf["jira_token"]
+            if not token:
+                logger.error(
+                    "Jira authentication is not set to BasicAuth "
+                    "but no token has been defined on the configuration file"
+                )
+            payload = "Bearer: %s" % conf["jira_token"]
+        self.headers = {"Authorization": payload}
+
     def __exit__(self):
         if self.new_loop:
             self.loop.close()
@@ -37,11 +50,11 @@ class Jira(object):
         logger.debug("GET: %s" % endpoint)
         try:
             async with aiohttp.ClientSession(
-                loop=self.loop
+                headers=self.headers,
+                loop=self.loop,
             ) as session:
                 async with session.get(
                     self.url + endpoint,
-                    auth=BasicAuth(self.username, self.password),
                     verify_ssl=False,
                 ) as response:
                     result = await response.json(content_type="application/json")
@@ -59,12 +72,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
+                    headers=self.headers,
                     loop=self.loop
                 ) as session:
                     async with session.post(
                         self.url + endpoint,
                         json=payload,
-                        auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
@@ -84,12 +97,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
-                    loop=self.loop
+                        headers=self.headers,
+                        loop=self.loop
                 ) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=payload,
-                        auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
