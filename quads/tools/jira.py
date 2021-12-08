@@ -12,6 +12,10 @@ urllib3.disable_warnings()
 logger = logging.getLogger(__name__)
 
 
+class JiraException(Exception):
+    pass
+
+
 class Jira(object):
     def __init__(self, url, username, password, semaphore=None, loop=None):
         logger.debug(":Initializing Jira object:")
@@ -29,6 +33,20 @@ class Jira(object):
         else:
             self.semaphore = semaphore
 
+        jira_auth = conf.get("jira_auth")
+        if jira_auth and jira_auth == "bearer":
+            token = conf.get("jira_token")
+            if not token:
+                logger.error(
+                    "Jira authentication is set to BearerAuth but no "
+                    "token has been defined on the configuration file"
+                )
+                raise JiraException
+            payload = "Bearer: %s" % token
+        else:
+            payload = BasicAuth(self.username, self.password)
+        self.headers = {"Authorization": payload}
+
     def __exit__(self):
         if self.new_loop:
             self.loop.close()
@@ -37,11 +55,11 @@ class Jira(object):
         logger.debug("GET: %s" % endpoint)
         try:
             async with aiohttp.ClientSession(
-                loop=self.loop
+                headers=self.headers,
+                loop=self.loop,
             ) as session:
                 async with session.get(
                     self.url + endpoint,
-                    auth=BasicAuth(self.username, self.password),
                     verify_ssl=False,
                 ) as response:
                     result = await response.json(content_type="application/json")
@@ -59,12 +77,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
+                    headers=self.headers,
                     loop=self.loop
                 ) as session:
                     async with session.post(
                         self.url + endpoint,
                         json=payload,
-                        auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
@@ -84,12 +102,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
+                    headers=self.headers,
                     loop=self.loop
                 ) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=payload,
-                        auth=BasicAuth(self.username, self.password),
                         verify_ssl=False,
                     ) as response:
                         await response.json(content_type="application/json")
