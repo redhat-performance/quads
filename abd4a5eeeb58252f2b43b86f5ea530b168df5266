@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ee31e3e_7e71e19b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2021-12-09T14:50:18Z",
+      "side": 1,
+      "message": "Nice RFE and very timely for us.",
+      "revId": "abd4a5eeeb58252f2b43b86f5ea530b168df5266",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
