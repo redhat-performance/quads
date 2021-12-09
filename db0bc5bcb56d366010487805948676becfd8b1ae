@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60095b19_ea498a35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2021-12-09T13:32:15Z",
+      "side": 1,
+      "message": "see comment on config file and new variables.",
+      "revId": "db0bc5bcb56d366010487805948676becfd8b1ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad44b3e8_3873eaf3",
+        "filename": "conf/quads.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2021-12-09T13:32:15Z",
+      "side": 1,
+      "message": "can jira_token be omitted in a configuration for quads, if jira_auth is set to basic?  Furthermore, can jira_auth be omitted and assume that it takes on the default value of basic?  A lot of configs have the \"default\" value for variables shown, but the entire line is a comment, for e.g.:\n\n##defaults to \"basic\", but can be changed as needed to \"bearer\"\n#jira_auth: basic",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 11
+      },
+      "revId": "db0bc5bcb56d366010487805948676becfd8b1ae",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
