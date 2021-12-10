@@ -8,13 +8,16 @@ providing some tools and libraries within QUADS with the hope it's useful to
 others.
 
 ![jira](../image/jira.jpg?raw=true)
-  * [Requirements for JIRA QUADS Automation](#requirements-for-jira-quads-automation)
-  * [Perfoming API Activities with jira.py](#API-activities-with-jira.py)
-  * [Applying Labels and Adding Watchers](#applying-labels-and-adding-watchers)
-  * [Common JIRA Labels](#common-jira-labels)
-## Requirement for JIRA QUADS automation
-  * JIRA API user with admin capability for your JIRA project.
-  * Placing JIRA credentials in `/opt/quads/conf/quads.yml`
+   * [Requirements for JIRA QUADS Automation](#requirements-for-jira-quads-automation)
+      * [JIRA Basic Authentication](#jira-basic-authentication)
+      * [JIRA Token Authentication](#jira-token-authentication)
+   * [Perfoming API Activities with jira.py](#API-activities-with-jira.py)
+   * [Applying Labels and Adding Watchers](#applying-labels-and-adding-watchers)
+   * [Common JIRA Labels](#common-jira-labels)
+
+## Requirements for JIRA QUADS Automation
+The default `quads.yml` configuration file will have generic values for all JIRA settings, please adapt this to your environment.
+
 ```
 ticket_url: https://projects.engineering.example.com/browse
 # (optional ticket queue name) this is typically the ticket queue
@@ -22,8 +25,24 @@ ticket_url: https://projects.engineering.example.com/browse
 ticket_queue: SCALELAB
 # Jira Specific Variables
 jira_url: https://projects.engineering.example.com/rest/api/2
+```
+
+### JIRA Basic Authentication
+By default we support BasicAuth for JIRA (username/password), you just need to enter in the credentials like below in `/opt/quads/conf/quads.yml`.
+
+```
+jira_auth: basic
 jira_username: admin
 jira_password: password
+```
+
+### JIRA Token Authentication
+We also support token/bearer auth for API token access as well, to utilize this you'll need to change the `jira_auth` value to `token`.
+These authentication methods are mutually exclusive.
+
+```
+jira_auth: token
+jira_token: 7h1515@v3ryl0n6@ndcr1p71c70k3n
 ```
 
 ## API activities with jira.py
