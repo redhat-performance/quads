@@ -24,7 +24,7 @@ HEADERS = [
 def print_header():
     lines = [
         "| %s |\n" % " | ".join(HEADERS),
-        "| %s |\n" % " | ".join(["---" for _ in range(len(HEADERS))])
+        "| %s |\n" % " | ".join(["---" for _ in range(len(HEADERS))]),
     ]
     return lines
 
@@ -32,11 +32,11 @@ def print_header():
 def print_summary():
     _summary = []
     _headers = [
-        '**NAME**',
-        '**SUMMARY**',
-        '**OWNER**',
-        '**REQUEST**',
-        '<span id="status">**STATUS**</span>'
+        "**NAME**",
+        "**SUMMARY**",
+        "**OWNER**",
+        "**REQUEST**",
+        '<span id="status">**STATUS**</span>',
     ]
     if conf["openstack_management"]:
         _headers.append("**OSPENV**")
@@ -59,18 +59,28 @@ def print_summary():
         owner = cloud["owner"]
         ticket = cloud["ticket"]
         link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
-            conf["ticket_url"], conf["ticket_queue"], ticket, ticket)
+            conf["ticket_url"],
+            conf["ticket_queue"],
+            ticket,
+            ticket,
+        )
         cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
 
         style_tag_end = "</span>"
         if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
+            instack_link = os.path.join(
+                conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
+            )
             instack_text = "download"
-            ocpinv_link = os.path.join(conf["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
+            ocpinv_link = os.path.join(
+                conf["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
+            )
             ocpinv_text = "download"
-            status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" ' \
-                     'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
+            status = (
+                '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" '
+                'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
+            )
         else:
             cloud_obj = Cloud.objects(name=cloud_name).first()
             scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
@@ -82,30 +92,58 @@ def print_summary():
             ocpinv_link = "#"
             ocpinv_text = "validating"
             if percent < 15:
-                classes = ["progress-bar", "progress-bar-striped", "progress-bar-danger", "active"]
-                status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" ' \
-                         'aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%%" ' \
-                         'class="%s">%.0f%%</span></span>' % (" ".join(classes), percent)
+                classes = [
+                    "progress-bar",
+                    "progress-bar-striped",
+                    "progress-bar-danger",
+                    "active",
+                ]
+                status = (
+                    '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
+                    'aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%%" '
+                    'class="%s">%.0f%%</span></span>' % (" ".join(classes), percent)
+                )
             else:
-                classes = ["progress-bar", "progress-bar-striped", "progress-bar-warning", "active"]
-                status = '<span class="progress" style="margin-bottom:0px"><span role="progressbar" ' \
-                         'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" ' \
-                         'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
+                classes = [
+                    "progress-bar",
+                    "progress-bar-striped",
+                    "progress-bar-warning",
+                    "active",
+                ]
+                status = (
+                    '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
+                    'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
+                    'class="%s">%.0f%%</span></span>'
+                    % (percent, percent, " ".join(classes), percent)
+                )
 
-        _data = ["[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name), desc, owner, link]
+        _data = [
+            "[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name),
+            desc,
+            owner,
+            link,
+        ]
 
         if conf["gather_ansible_facts"]:
             factstyle_tag_end = "</span>"
             if os.path.exists(
-                os.path.join(conf["ansible_facts_web_path"], "ansible_facts", "%s_overview.html" % cloud_specific_tag)
+                os.path.join(
+                    conf["ansible_facts_web_path"],
+                    "ansible_facts",
+                    "%s_overview.html" % cloud_specific_tag,
+                )
             ):
                 factstyle_tag_start = '<span style="color:green">'
                 ansible_facts_link = os.path.join(
-                    conf["quads_url"], "ansible_facts", "%s_overview.html" % cloud_specific_tag
+                    conf["quads_url"],
+                    "ansible_facts",
+                    "%s_overview.html" % cloud_specific_tag,
                 )
             else:
                 factstyle_tag_start = '<span style="color:red">'
-                ansible_facts_link = os.path.join(conf["quads_url"], "underconstruction")
+                ansible_facts_link = os.path.join(
+                    conf["quads_url"], "underconstruction"
+                )
             if cloud_name == "cloud01":
                 _data.append("")
                 _data.append("")
@@ -172,7 +210,8 @@ def print_unmanaged(hosts):
         if not host_obj:
             short_host = real_host.split(".")[0]
             lines.append(
-                "| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host)
+                "| %s | <a href=http://%s/ target=_blank>console</a> |\n"
+                % (short_host, host)
             )
     return lines
 
@@ -184,7 +223,10 @@ def print_faulty(broken_hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host in broken_hosts:
         short_host = host.name.split(".")[0]
-        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host.name))
+        lines.append(
+            "| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n"
+            % (short_host, host.name)
+        )
     return lines
 
 
@@ -237,7 +279,9 @@ def main():
 
     lines = []
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
-    blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
+    blacklist = re.compile(
+        "|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")])
+    )
 
     broken_hosts = Host.objects(broken=True)
     domain_broken_hosts = [host for host in broken_hosts if conf["domain"] in host.name]
@@ -265,10 +309,16 @@ def main():
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
+        lines.append(
+            "### **%s : %s (%s) -- %s**\n\n"
+            % (name.strip(), cloud["count"], cloud["description"], owner)
+        )
         lines.extend(print_header())
         _cloud_obj = Cloud.objects(name=name).first()
-        _hosts = sorted(Host.objects(cloud=_cloud_obj, retired=False, broken=False), key=lambda x: x.name)
+        _hosts = sorted(
+            Host.objects(cloud=_cloud_obj, retired=False, broken=False),
+            key=lambda x: x.name,
+        )
         for host in _hosts:
             lines.extend(add_row(host))
         lines.append("\n")

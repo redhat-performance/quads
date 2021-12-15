@@ -89,7 +89,10 @@ class Validator(object):
     async def post_system_test(self):
         password = f"{conf['infra_location']}@{self.cloud.ticket}"
         foreman = Foreman(
-            conf["foreman_api_url"], self.cloud.name, password, loop=self.loop,
+            conf["foreman_api_url"],
+            self.cloud.name,
+            password,
+            loop=self.loop,
         )
 
         valid_creds = await foreman.verify_credentials()
@@ -123,15 +126,17 @@ class Validator(object):
                 )
                 for host in pending:
                     logger.info(host)
-                    nc = Netcat(host)
-                    healthy = await nc.health_check()
+                    try:
+                        async with Netcat(host) as nc:
+                            healthy = await nc.health_check()
+                    except OSError:
+                        healthy = False
                     if not healthy:
                         logger.warning(
                             "Host %s didn't pass the health check. "
                             "Potential provisioning in process. SKIPPING." % host
                         )
                         continue
-                    await nc.close()
                     badfish = None
                     try:
                         badfish = await badfish_factory(
@@ -169,7 +174,9 @@ class Validator(object):
         for host in self.hosts:
             try:
                 badfish = await badfish_factory(
-                    "mgmt-" + host.name, str(conf["ipmi_cloud_username"]), password,
+                    "mgmt-" + host.name,
+                    str(conf["ipmi_cloud_username"]),
+                    password,
                 )
                 await badfish.validate_credentials()
             except BadfishException:
@@ -182,11 +189,13 @@ class Validator(object):
         test_host = self.hosts[0]
         hosts_down = []
         for host in self.hosts:
-            nc = Netcat(host.name)
-            healthy = await nc.health_check()
+            try:
+                async with Netcat(host.name) as nc:
+                    healthy = await nc.health_check()
+            except OSError:
+                healthy = False
             if not healthy:
                 hosts_down.append(host.name)
-            await nc.close()
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 
@@ -212,7 +221,9 @@ class Validator(object):
             return False
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {host_list}")
+        result, output = ssh_helper.run_cmd(
+            f"fping -t {FPING_TIMEOUT} -B 1 -u {host_list}"
+        )
         if not result:
             return False
 
@@ -238,9 +249,11 @@ class Validator(object):
 
             if new_ips:
                 all_ips = " ".join(new_ips)
-                result, output = ssh_helper.run_cmd(f"fping -t {FPING_TIMEOUT} -B 1 -u {all_ips}")
+                result, output = ssh_helper.run_cmd(
+                    f"fping -t {FPING_TIMEOUT} -B 1 -u {all_ips}"
+                )
                 if not result:
-                    pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
+                    pattern = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
                     hosts = []
                     for error in output:
                         ip = pattern.search(error.split()[-1])[0]

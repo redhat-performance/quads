@@ -5,14 +5,16 @@ import logging
 
 from quads.config import conf
 from quads.model import Host
-from quads.tools.juniper_set_port import juniper_set_port
+from quads.tools.juniper import Juniper, JuniperException
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
-def verify(_host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None, nic5=None):
+def verify(
+    _host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None, nic5=None
+):
     _nics = {"em1": nic1, "em2": nic2, "em3": nic3, "em4": nic4, "em5": nic5}
     _host_obj = Host.objects(name=_host_name).first()
     if not _host_obj:
@@ -71,12 +73,13 @@ def verify(_host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None,
 
                     if change:
                         logger.info(f"Change requested for {interface.name}")
-                        success = juniper_set_port(
+                        juniper = Juniper(
                             interface.ip_address,
                             interface.switch_port,
                             vlan_member,
                             vlan,
                         )
+                        success = juniper.set_port()
 
                         if success:
                             logger.info("Successfully updated switch settings.")
@@ -85,15 +88,17 @@ def verify(_host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None,
                                 f"There was something wrong updating switch for {interface.name}"
                             )
                 else:
-                    logger.info(f"Interface {interface.name} is already configured for vlan{vlan}")
+                    logger.info(
+                        f"Interface {interface.name} is already configured for vlan{vlan}"
+                    )
     else:
-        logger.error(
-            f"The host has no interfaces defined"
-        )
+        logger.error(f"The host has no interfaces defined")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Verify switch configs for a cloud or host")
+    parser = argparse.ArgumentParser(
+        description="Verify switch configs for a cloud or host"
+    )
     parser.add_argument(
         "--host",
         dest="host",
@@ -142,4 +147,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    verify(args.host, args.change, args.nic1, args.nic2, args.nic3, args.nic4, args.nic5)
+    verify(
+        args.host, args.change, args.nic1, args.nic2, args.nic3, args.nic4, args.nic5
+    )
