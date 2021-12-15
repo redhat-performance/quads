@@ -46,9 +46,7 @@ def available(search):
 
     if hosts:
         for host in hosts:
-            if (
-                Schedule.is_host_available(host=host["name"], start=start, end=end)
-            ):
+            if Schedule.is_host_available(host=host["name"], start=start, end=end):
                 current = False
                 if Schedule.current_schedule(host=host):
                     current = True

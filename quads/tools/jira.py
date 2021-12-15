@@ -17,7 +17,7 @@ class JiraException(Exception):
 
 
 class Jira(object):
-    def __init__(self, url, username, password, semaphore=None, loop=None):
+    def __init__(self, url, username=None, password=None, semaphore=None, loop=None):
         logger.debug(":Initializing Jira object:")
         self.url = url
         self.username = username
@@ -37,14 +37,19 @@ class Jira(object):
         if jira_auth and jira_auth == "token":
             token = conf.get("jira_token")
             if not token:
-                logger.error(
+                raise JiraException(
                     "Jira authentication is set to BearerAuth but no "
                     "token has been defined on the configuration file"
                 )
-                raise JiraException
             payload = "Bearer: %s" % token
         else:
-            payload = BasicAuth(self.username, self.password)
+            if self.username and self.password:
+                payload = BasicAuth(self.username, self.password)
+            else:
+                raise JiraException(
+                    "Jira authentication is set to BasicAuth but no "
+                    "username or password have been defined"
+                )
         self.headers = {"Authorization": payload}
 
     def __exit__(self):
@@ -77,8 +82,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
+<<<<<<< HEAD
                     headers=self.headers,
                     loop=self.loop
+=======
+                    headers=self.headers, loop=self.loop
+>>>>>>> 5f83082 (feat: Added token auth to jira library)
                 ) as session:
                     async with session.post(
                         self.url + endpoint,
@@ -102,8 +111,12 @@ class Jira(object):
         try:
             async with self.semaphore:
                 async with aiohttp.ClientSession(
+<<<<<<< HEAD
                     headers=self.headers,
                     loop=self.loop
+=======
+                    headers=self.headers, loop=self.loop
+>>>>>>> 5f83082 (feat: Added token auth to jira library)
                 ) as session:
                     async with session.put(
                         self.url + endpoint,
