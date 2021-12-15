@@ -46,10 +46,12 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             foreman_url=conf["foreman_url"],
         )
 
-        postman = Postman("New QUADS Assignment Allocated - %s %s" % (
-            cloud,
-            ticket
-        ), real_owner, cc_users, content)
+        postman = Postman(
+            "New QUADS Assignment Allocated - %s %s" % (cloud, ticket),
+            real_owner,
+            cc_users,
+            content,
+        )
         postman.send_email()
     if conf["irc_notify"]:
         try:
@@ -69,10 +71,10 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
 
 def create_message(
-        cloud_obj,
-        day,
-        cloud_info,
-        host_list_expire,
+    cloud_obj,
+    day,
+    cloud_info,
+    host_list_expire,
 ):
     template_file = "message"
     cloud = cloud_obj.name
@@ -96,10 +98,12 @@ def create_message(
         cloud=cloud,
         hosts=host_list_expire,
     )
-    postman = Postman("QUADS upcoming expiration for %s - %s" % (
-        cloud,
-        ticket
-    ), real_owner, cc_users, content)
+    postman = Postman(
+        "QUADS upcoming expiration for %s - %s" % (cloud, ticket),
+        real_owner,
+        cc_users,
+        content,
+    )
     postman.send_email()
 
 
@@ -116,18 +120,20 @@ def create_future_initial_message(cloud_obj, cloud_info):
         cloud_info=cloud_info,
         wp_wiki=conf["wp_wiki"],
     )
-    postman = Postman("New QUADS Assignment Defined for the Future: %s - %s" % (
-        cloud,
-        ticket
-    ), cloud_obj.owner, cc_users, content)
+    postman = Postman(
+        "New QUADS Assignment Defined for the Future: %s - %s" % (cloud, ticket),
+        cloud_obj.owner,
+        cc_users,
+        content,
+    )
     postman.send_email()
 
 
 def create_future_message(
-        cloud_obj,
-        future_days,
-        cloud_info,
-        host_list_expire,
+    cloud_obj,
+    future_days,
+    cloud_info,
+    host_list_expire,
 ):
     cc_users = conf["report_cc"].split(",")
     ticket = cloud_obj.ticket
@@ -143,10 +149,12 @@ def create_future_message(
         cloud=cloud_obj.name,
         hosts=host_list_expire,
     )
-    postman = Postman("QUADS upcoming assignment notification - %s - %s" % (
-        cloud_obj.name,
-        ticket
-    ), cloud_obj.owner, cc_users, content)
+    postman = Postman(
+        "QUADS upcoming assignment notification - %s - %s" % (cloud_obj.name, ticket),
+        cloud_obj.owner,
+        cc_users,
+        content,
+    )
     postman.send_email()
 
 
@@ -157,27 +165,29 @@ def main():
 
     _all_clouds = Cloud.objects()
     _active_clouds = [
-        _cloud for _cloud in _all_clouds
+        _cloud
+        for _cloud in _all_clouds
         if Schedule.current_schedule(cloud=_cloud).count() > 0
     ]
     _validated_clouds = [_cloud for _cloud in _active_clouds if _cloud.validated]
 
     if not os.path.exists(os.path.join(conf["data_dir"], "report")):
-        Path(os.path.join(conf["data_dir"], "report")).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(conf["data_dir"], "report")).mkdir(
+            parents=True, exist_ok=True
+        )
 
     for cloud in _validated_clouds:
         notification_obj = Notification.objects(
-            cloud=cloud,
-            ticket=cloud.ticket
+            cloud=cloud, ticket=cloud.ticket
         ).first()
         current_hosts = Schedule.current_schedule(cloud=cloud)
         cloud_info = "%s: %s (%s)" % (
             cloud.name,
             current_hosts.count(),
-            cloud.description
+            cloud.description,
         )
         if not notification_obj.initial:
-            logger.info('=============== Initial Message')
+            logger.info("=============== Initial Message")
             loop.run_until_complete(
                 create_initial_message(
                     cloud.owner,
@@ -191,13 +201,17 @@ def main():
 
         for day in Days:
             future = datetime.now() + timedelta(days=day.value)
-            future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
+            future_date = "%4d-%.2d-%.2d 22:00" % (
+                future.year,
+                future.month,
+                future.day,
+            )
             future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future > current_hosts[0].end:
                 if not notification_obj[day.name.lower()] and conf["email_notify"]:
-                    logger.info('=============== Additional Message')
+                    logger.info("=============== Additional Message")
                     host_list = [schedule.host.name for schedule in diff]
                     create_message(
                         cloud,
@@ -211,19 +225,18 @@ def main():
 
     for cloud in _all_clouds:
         notification_obj = Notification.objects(
-            cloud=cloud,
-            ticket=cloud.ticket
+            cloud=cloud, ticket=cloud.ticket
         ).first()
         if cloud.name != "cloud01" and cloud.owner not in ["quads", None]:
             current_hosts = Schedule.current_schedule(cloud=cloud)
             cloud_info = "%s: %s (%s)" % (
                 cloud.name,
                 current_hosts.count(),
-                cloud.description
+                cloud.description,
             )
 
             if not notification_obj.pre_initial and conf["email_notify"]:
-                logger.info('=============== Future Initial Message')
+                logger.info("=============== Future Initial Message")
                 create_future_initial_message(
                     cloud,
                     cloud_info,
@@ -233,14 +246,20 @@ def main():
             for day in range(1, future_days + 1):
                 if not notification_obj.pre and cloud.validated:
                     future = datetime.now() + timedelta(days=day)
-                    future_date = "%4d-%.2d-%.2d 22:00" % (future.year, future.month, future.day)
-                    future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
+                    future_date = "%4d-%.2d-%.2d 22:00" % (
+                        future.year,
+                        future.month,
+                        future.day,
+                    )
+                    future_hosts = Schedule.current_schedule(
+                        cloud=cloud, date=future_date
+                    )
 
                     if future_hosts.count() > 0:
                         diff = set(current_hosts) - set(future_hosts)
                         host_list = [schedule.host.name for schedule in diff]
                         if diff:
-                            logger.info('=============== Additional Message')
+                            logger.info("=============== Additional Message")
                             create_future_message(
                                 cloud,
                                 day,

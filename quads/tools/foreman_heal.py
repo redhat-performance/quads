@@ -66,9 +66,13 @@ def main():
                         if schedule.host.name == host
                     ]
                     if not match:
-                        _host_id = loop.run_until_complete(foreman_admin.get_host_id(host))
+                        _host_id = loop.run_until_complete(
+                            foreman_admin.get_host_id(host)
+                        )
                         loop.run_until_complete(
-                            foreman_admin.put_element("hosts", _host_id, "owner_id", admin_id)
+                            foreman_admin.put_element(
+                                "hosts", _host_id, "owner_id", admin_id
+                            )
                         )
                         logger.info(f"* Removed permission {host}")
 
@@ -80,18 +84,26 @@ def main():
                     ]
                     if not match:
                         # want to run these separately to avoid ServerDisconnect
-                        _host_id = loop.run_until_complete(foreman_admin.get_host_id(schedule.host.name))
+                        _host_id = loop.run_until_complete(
+                            foreman_admin.get_host_id(schedule.host.name)
+                        )
                         loop.run_until_complete(
-                            foreman_admin.put_element("hosts", _host_id, "owner_id", user_id)
+                            foreman_admin.put_element(
+                                "hosts", _host_id, "owner_id", user_id
+                            )
                         )
                         logger.info(f"* Added permission {schedule.host.name}")
             else:
                 if cloud_hosts:
                     logger.info("  No active schedule, removing pre-existing roles.")
                     for host, properties in cloud_hosts.items():
-                        _host_id = loop.run_until_complete(foreman_admin.get_host_id(host))
+                        _host_id = loop.run_until_complete(
+                            foreman_admin.get_host_id(host)
+                        )
                         loop.run_until_complete(
-                            foreman_admin.put_element("hosts", _host_id, "owner_id", admin_id)
+                            foreman_admin.put_element(
+                                "hosts", _host_id, "owner_id", admin_id
+                            )
                         )
                         logger.info(f"* Removed permission {host}")
                 else:

@@ -139,7 +139,9 @@ class DocumentMethodHandler(MethodHandlerBase):
             all_hosts = Host.objects().all()
 
             for host in all_hosts:
-                if Schedule.is_host_available(host=host["name"], start=_start, end=_end):
+                if Schedule.is_host_available(
+                    host=host["name"], start=_start, end=_end
+                ):
                     available.append(host.name)
             return json.dumps(available)
 
@@ -149,7 +151,9 @@ class DocumentMethodHandler(MethodHandlerBase):
             total_count = 0
             for cloud in _clouds:
                 if cloud.name == "cloud01":
-                    count = Host.objects(cloud=cloud, retired=False, broken=False).count()
+                    count = Host.objects(
+                        cloud=cloud, retired=False, broken=False
+                    ).count()
                 else:
                     date = datetime.datetime.now()
                     if "date" in data:
@@ -186,9 +190,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                 if cloud.qinq == 1:
                     _type = "Combined"
                 qinq_value = f"{cloud.qinq} ({_type})"
-                clouds_qinq.append(
-                    {"name": cloud.name, "qinq": qinq_value}
-                )
+                clouds_qinq.append({"name": cloud.name, "qinq": qinq_value})
 
             return json.dumps(clouds_qinq)
 
@@ -252,9 +254,10 @@ class DocumentMethodHandler(MethodHandlerBase):
                                     time_left = lock_release - datetime.datetime.now()
                                     hours = time_left.total_seconds() // 3600
                                     minutes = (time_left.total_seconds() % 3600) // 60
-                                    cloud_string = (
-                                        "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
-                                        % (obj.name, hours, minutes,)
+                                    cloud_string = "%s still has %dhr %dmin remaining on a pre-schedule reservation lock" % (
+                                        obj.name,
+                                        hours,
+                                        minutes,
                                     )
                                     result.append(cloud_string)
                                     cherrypy.response.status = "400 Bad Request"
