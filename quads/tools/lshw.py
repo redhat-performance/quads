@@ -42,5 +42,5 @@ def main() -> None:
             run_lshw(host.name, file_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

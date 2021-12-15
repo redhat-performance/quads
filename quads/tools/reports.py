@@ -1,7 +1,13 @@
 import logging
 import sys
 
-from quads.helpers import date_span, first_day_month, last_day_month, month_delta_past, date_to_object_id
+from quads.helpers import (
+    date_span,
+    first_day_month,
+    last_day_month,
+    month_delta_past,
+    date_to_object_id,
+)
 from quads.model import Schedule, Host, CloudHistory, Cloud, Q
 from datetime import datetime, timedelta
 
@@ -64,17 +70,13 @@ def report_available(_logger, _start, _end):
                 scheduled_count += 1
 
             two_weeks_availability = Schedule.is_host_available(
-                host=host.name,
-                start=next_sunday,
-                end=next_sunday + timedelta(weeks=2)
+                host=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=2)
             )
             if two_weeks_availability:
                 two_weeks_availability_count += 1
 
             four_weeks_availability = Schedule.is_host_available(
-                host=host.name,
-                start=next_sunday,
-                end=next_sunday + timedelta(weeks=4)
+                host=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=4)
             )
             if four_weeks_availability:
                 four_weeks_availability_count += 1
@@ -117,14 +119,18 @@ def process_scheduled(_logger, month, now):
     start_id = date_to_object_id(start)
     end = last_day_month(_date)
     end_id = date_to_object_id(end)
-    scheduled = CloudHistory.objects(
-        __raw__={
-            "_id": {
-                "$lt": end_id,
-                "$gt": start_id,
-            },
-        }
-    ).order_by("-_id").count()
+    scheduled = (
+        CloudHistory.objects(
+            __raw__={
+                "_id": {
+                    "$lt": end_id,
+                    "$gt": start_id,
+                },
+            }
+        )
+        .order_by("-_id")
+        .count()
+    )
     hosts = Host.objects(
         __raw__={
             "_id": {
@@ -164,7 +170,15 @@ def report_detailed(_logger, _start, _end):
         }
     ).order_by("-_id")
 
-    headers = ["Owner", "Ticket", "Cloud", "Description", "Systems", "Scheduled", "Duration"]
+    headers = [
+        "Owner",
+        "Ticket",
+        "Cloud",
+        "Description",
+        "Systems",
+        "Scheduled",
+        "Duration",
+    ]
     _logger.info(
         f"{headers[0]:<9}| "
         f"{headers[1]:>9}| "
@@ -182,7 +196,7 @@ def report_detailed(_logger, _start, _end):
         ).order_by("-_id")
         if schedule:
             delta = schedule[0].end - schedule[0].start
-            description = cloud.description[:len(headers[3])]
+            description = cloud.description[: len(headers[3])]
             _logger.info(
                 f"{cloud.owner:<9}| "
                 f"{cloud.ticket:>9}| "

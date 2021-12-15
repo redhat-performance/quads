@@ -5,7 +5,6 @@ import logging
 
 from quads.config import conf
 from quads.model import Host, Cloud
-from quads.tools.juniper_set_port import juniper_set_port
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
