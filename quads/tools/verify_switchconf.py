@@ -6,8 +6,7 @@ import logging
 from quads.config import conf
 from quads.helpers import get_vlan
 from quads.model import Cloud, Host
-from quads.tools.juniper_convert_port_public import juniper_convert_port_public
-from quads.tools.juniper_set_port import juniper_set_port
+from quads.tools.juniper import Juniper
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,9 @@ def verify(_cloud_name, _host_name, change=False):
         logger.warning(f"Both --cloud and --host have been specified.")
         logger.warning(f"Host: {first_host.name}")
         logger.warning(f"Cloud: {_cloud_obj.name}")
-        logger.warning(f"However, {first_host.name} is a member of {first_host.cloud.name}")
+        logger.warning(
+            f"However, {first_host.name} is a member of {first_host.cloud.name}"
+        )
         logger.warning(f"!!!!! Be certain this is what you want to do. !!!!!")
 
     for _host_obj in hosts:
@@ -102,23 +103,25 @@ def verify(_cloud_name, _host_name, change=False):
                                     % _cloud_obj.vlan.vlan_id
                                 )
 
-                                success = juniper_convert_port_public(
+                                juniper = Juniper(
                                     interface.ip_address,
                                     interface.switch_port,
                                     old_vlan,
                                     vlan,
                                 )
+                                success = juniper.convert_port_public()
                             else:
                                 logger.info(f"No changes required for {interface.name}")
                                 continue
                         else:
                             logger.info(f"Change requested for {interface.name}")
-                            success = juniper_set_port(
+                            juniper = Juniper(
                                 interface.ip_address,
                                 interface.switch_port,
                                 vlan_member,
                                 vlan,
                             )
+                            success = juniper.set_port()
 
                         if success:
                             logger.info("Successfully updated switch settings.")
@@ -129,7 +132,9 @@ def verify(_cloud_name, _host_name, change=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Verify switch configs for a cloud or host")
+    parser = argparse.ArgumentParser(
+        description="Verify switch configs for a cloud or host"
+    )
     parser.add_argument(
         "--cloud",
         dest="cloud",

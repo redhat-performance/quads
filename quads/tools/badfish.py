@@ -304,7 +304,9 @@ class Badfish:
             else:
                 manager_reset = data["Actions"].get("#Manager.Reset")
                 if manager_reset:
-                    reset_types = manager_reset.get("ResetType@Redfish.AllowableValues", [])
+                    reset_types = manager_reset.get(
+                        "ResetType@Redfish.AllowableValues", []
+                    )
                     if not reset_types:
                         logger.warning("Could not get allowable reset types")
         return reset_types
@@ -337,7 +339,9 @@ class Badfish:
             host_types = await self.get_host_types_from_yaml(_interfaces_path)
             for host_type in host_types:
                 match = True
-                interfaces = await self.get_interfaces_by_type(host_type, _interfaces_path)
+                interfaces = await self.get_interfaces_by_type(
+                    host_type, _interfaces_path
+                )
                 for device in sorted(
                     self.boot_devices[: len(interfaces)], key=lambda x: x["Index"]
                 ):
@@ -373,9 +377,7 @@ class Badfish:
 
         if _response.status == 404:
             logger.debug(raw)
-            logger.error(
-                "EthernetInterfaces entry point not supported by this host."
-            )
+            logger.error("EthernetInterfaces entry point not supported by this host.")
             raise BadfishException
 
         endpoints = []
@@ -398,9 +400,7 @@ class Badfish:
 
         if _response.status == 404:
             logger.debug(raw)
-            logger.error(
-                "EthernetInterface entry point not supported by this host."
-            )
+            logger.error("EthernetInterface entry point not supported by this host.")
             raise BadfishException
 
         data = json.loads(raw.strip())

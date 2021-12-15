@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 def quads_load_config(quads_config):
     try:
-        with open(quads_config, 'r') as config_file:
+        with open(quads_config, "r") as config_file:
             try:
                 quads_config_yaml = yaml.safe_load(config_file)
             except yaml.YAMLError as ex:
@@ -26,7 +26,24 @@ conf = quads_load_config(quads_config_file)
 
 QUADSVERSION = "1.1.5"
 QUADSCODENAME = "gaúcho"
-SUPPORTED = ["fc640", "r620", "r630", "r640", "640", "r650", "650", "r720", "r730xd", "r930", "r730", "r740xd", "740xd", "r720xd", "7425", "7525" ]
+SUPPORTED = [
+    "fc640",
+    "r620",
+    "r630",
+    "r640",
+    "640",
+    "r650",
+    "650",
+    "r720",
+    "r730xd",
+    "r930",
+    "r730",
+    "r740xd",
+    "740xd",
+    "r720xd",
+    "7425",
+    "7525",
+]
 
 OFFSETS = {"em1": 0, "em2": 1, "em3": 2, "em4": 3, "em5": 4}
 TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "templates")
@@ -41,6 +58,6 @@ LOGFMT = "%(asctime)-12s : %(levelname)-8s - %(message)s"
 STDFMT = "- %(levelname)-8s - %(message)s"
 
 API = "v2"
-API_URL = os.path.join(conf['quads_base_url'], 'api', API)
+API_URL = os.path.join(conf["quads_base_url"], "api", API)
 
 FPING_TIMEOUT = 10000
