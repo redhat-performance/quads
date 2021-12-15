@@ -17,7 +17,7 @@ HEADERS = [
     "IPMIURL",
     "IPMIMAC",
     "Workload",
-    "Owner"
+    "Owner",
 ]
 
 
@@ -57,13 +57,18 @@ def render_row(_host, _properties):
     if _response.status_code == 200:
         host_data = _response.json()
         if "cloud" in host_data:
-            cloud_url = os.path.join(API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"])
+            cloud_url = os.path.join(
+                API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"]
+            )
             _cloud_response = requests.get(cloud_url)
             if _cloud_response.status_code == 200:
                 cloud_data = _cloud_response.json()
                 if "owner" in cloud_data:
                     owner = cloud_data["owner"]
-                cloud = "[%s](/assignments/#%s)" % (cloud_data["name"], cloud_data["name"])
+                cloud = "[%s](/assignments/#%s)" % (
+                    cloud_data["name"],
+                    cloud_data["name"],
+                )
 
     row = [
         u_loc,
@@ -98,7 +103,9 @@ def main():
     )
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
 
-    blacklist = re.compile("|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")]))
+    blacklist = re.compile(
+        "|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")])
+    )
     hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):

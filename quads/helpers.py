@@ -20,7 +20,7 @@ def param_check(data, params, defaults={}):
                 result.append("Missing required parameter: %s" % param)
             elif not data[param]:
                 result.append("Could not parse %s parameter" % param)
-            elif data[param] == 'None':
+            elif data[param] == "None":
                 data[param] = None
             if param == "_id":
                 data["_id"] = ObjectIdField(data[param])
@@ -80,7 +80,7 @@ def last_day_month(date):
 
 
 def first_day_month(date):
-    return date - timedelta(days=date.day-1)
+    return date - timedelta(days=date.day - 1)
 
 
 def date_to_object_id(date):
@@ -97,8 +97,5 @@ def date_to_object_id(date):
            should be used exclusively in queries.
     """
     timestamp = calendar.timegm(date.timetuple())
-    oid = struct.pack(
-        ">I",
-        int(timestamp)
-    ) + b"\x00\x00\x00\x00\x00\x00\x00\x00"
+    oid = struct.pack(">I", int(timestamp)) + b"\x00\x00\x00\x00\x00\x00\x00\x00"
     return ObjectId(oid)

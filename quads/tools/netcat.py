@@ -6,7 +6,7 @@ from quads.tools.helpers import get_running_loop
 
 
 class Netcat:
-    """ Python 'netcat like' module """
+    """Python 'netcat like' module"""
 
     def __init__(self, ip, port=22, loop=None):
         self.ip = ip
@@ -36,12 +36,12 @@ class Netcat:
         return True
 
     async def read(self, length=1024):
-        """ Read 1024 bytes off the socket """
+        """Read 1024 bytes off the socket"""
         sock_recv = await self.loop.sock_recv(self.socket, length)
         return sock_recv
 
     async def read_until(self, data):
-        """ Read data into the buffer until we have data """
+        """Read data into the buffer until we have data"""
         while data not in self.buff:
             self.buff += await self.loop.sock_recv(self.socket, 1024)
 

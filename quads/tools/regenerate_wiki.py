@@ -33,7 +33,9 @@ if __name__ == "__main__":
                 repo = Repo.init(wp_wiki_git_repo_path)
             if repo.git.diff():
                 repo.index.add(main_md)
-                repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
+                repo.index.commit(
+                    "%s content update" % datetime.now().strftime("%a %b %d %T %Y")
+                )
                 repo.remotes.origin.push()
 
     try:
@@ -59,7 +61,9 @@ if __name__ == "__main__":
 
             if repo.git.diff():
                 repo.index.add(assignments_md)
-                repo.index.commit("%s content update" % datetime.now().strftime("%a %b %d %T %Y"))
+                repo.index.commit(
+                    "%s content update" % datetime.now().strftime("%a %b %d %T %Y")
+                )
                 repo.remotes.origin.push()
 
     try:

@@ -20,55 +20,63 @@ def update_wiki(url, username, password, _page_title, _page_id, _markdown):
     page.id = _page_id
 
     # set local content file to read handle info into a string
-    with open(_markdown, 'r') as _file:
+    with open(_markdown, "r") as _file:
         page.content = _file.read()
 
     # post new content to the page
     wp.call(EditPost(page.id, page))
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate WordPress WIKI page from Markdown')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Generate WordPress WIKI page from Markdown"
+    )
     parser.add_argument(
-        '--markdown',
-        dest='markdown',
+        "--markdown",
+        dest="markdown",
         type=str,
         default=None,
-        help='Specify markdown input file',
-        required=True)
+        help="Specify markdown input file",
+        required=True,
+    )
     parser.add_argument(
-        '--page-id',
-        dest='pageid',
+        "--page-id",
+        dest="pageid",
         type=int,
         default=4,
-        help='Specify wordpress page id. default = 4')
+        help="Specify wordpress page id. default = 4",
+    )
     parser.add_argument(
-        '--wp-url',
-        dest='wpurl',
+        "--wp-url",
+        dest="wpurl",
         type=str,
         default=None,
-        help='Specify wordpress URL. e.g. http://wiki.example.com/xmlrpc.php',
-        required=True)
+        help="Specify wordpress URL. e.g. http://wiki.example.com/xmlrpc.php",
+        required=True,
+    )
     parser.add_argument(
-        '--wp-username',
-        dest='wpusername',
+        "--wp-username",
+        dest="wpusername",
         type=str,
         default=None,
-        help='Specify wordpress username.',
-        required=True)
+        help="Specify wordpress username.",
+        required=True,
+    )
     parser.add_argument(
-        '--wp-password',
-        dest='wppassword',
+        "--wp-password",
+        dest="wppassword",
         type=str,
         default=None,
-        help='Specify wordpress password.',
-        required=True)
+        help="Specify wordpress password.",
+        required=True,
+    )
     parser.add_argument(
-        '--page-title',
-        dest='pagetitle',
+        "--page-title",
+        dest="pagetitle",
         type=str,
-        default='Example Wiki Page',
-        help='Specify the wiki post title.')
+        default="Example Wiki Page",
+        help="Specify the wiki post title.",
+    )
 
     args = parser.parse_args()
 
