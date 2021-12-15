@@ -10,6 +10,10 @@ class ModelSearchForm(FlaskForm):
     models_choices = []
     for model in models_list:
         models_choices.append((model, model))
-    model = SelectMultipleField('Models:', choices=models_choices)
-    start = DateField('Start at', format="%m/%d/%Y", validators=[validators.data_required()])
-    end = DateField('End at', format="%m/%d/%Y", validators=[validators.data_required()])
+    model = SelectMultipleField("Models:", choices=models_choices)
+    start = DateField(
+        "Start at", format="%m/%d/%Y", validators=[validators.data_required()]
+    )
+    end = DateField(
+        "End at", format="%m/%d/%Y", validators=[validators.data_required()]
+    )

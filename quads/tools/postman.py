@@ -19,7 +19,10 @@ class Postman(object):
     def send_email(self):
         msg = EmailMessage()
         msg["Subject"] = self.subject
-        msg["From"] = "%s <%s>" % (conf["mail_display_name"], "@".join(["quads", conf["domain"]]))
+        msg["From"] = "%s <%s>" % (
+            conf["mail_display_name"],
+            "@".join(["quads", conf["domain"]]),
+        )
         msg["To"] = "@".join([self.to, conf["domain"]])
         msg["Cc"] = ",".join(self.cc)
         msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])

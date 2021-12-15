@@ -10,8 +10,7 @@ from quads.helpers import is_supported, get_vlan
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
 from quads.tools.foreman import Foreman
-from quads.tools.juniper_convert_port_public import juniper_convert_port_public
-from quads.tools.juniper_set_port import juniper_set_port
+from quads.tools.juniper import Juniper, JuniperException
 from quads.tools.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
@@ -69,12 +68,15 @@ def switch_config(host, old_cloud, new_cloud):
         if _new_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
                 logger.info("Setting last interface to public vlan %s." % new_vlan)
-                success = juniper_convert_port_public(
+
+                juniper = Juniper(
                     interface.ip_address,
                     interface.switch_port,
                     old_vlan,
                     _new_cloud_obj.vlan.vlan_id,
                 )
+                success = juniper.convert_port_public()
+
                 if success:
                     logger.info("Successfully updated switch settings.")
                 else:
@@ -85,9 +87,11 @@ def switch_config(host, old_cloud, new_cloud):
                     return False
         else:
             if int(old_vlan) != int(new_vlan):
-                success = juniper_set_port(
+                juniper = Juniper(
                     interface.ip_address, interface.switch_port, old_vlan, new_vlan
                 )
+                success = juniper.set_port()
+
                 if success:
                     logger.info("Successfully updated switch settings.")
                 else:
@@ -268,7 +272,8 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         else:
             try:
                 asyncio.run_coroutine_threadsafe(
-                    badfish.unmount_virtual_media(), loop,
+                    badfish.unmount_virtual_media(),
+                    loop,
                 )
             except BadfishException:
                 logger.warning(f"Could not unmount virtual media for mgmt-{host}.")

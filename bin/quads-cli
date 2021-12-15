@@ -40,7 +40,7 @@ from quads.helpers import first_day_month, last_day_month
 from quads.quads import Api as QuadsApi
 from quads.tools import reports
 from quads.tools.badfish import BadfishException
-from quads.tools.jira import Jira
+from quads.tools.jira import Jira, JiraException
 from quads.tools.logger import CustomFormatter
 from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
 from quads.model import Cloud, Schedule, Host, Disk, Interface, Notification, Vlan
@@ -1423,12 +1423,16 @@ def main(_args):
             )
 
             loop = asyncio.get_event_loop()
-            jira = Jira(
-                conf["jira_url"],
-                conf["jira_username"],
-                conf["jira_password"],
-                loop=loop,
-            )
+
+            try:
+                jira = Jira(
+                    conf["jira_url"],
+                    loop=loop,
+                )
+            except JiraException as ex:
+                logger.error(ex)
+                exit(1)
+
             result = loop.run_until_complete(jira.post_comment(_cloud.ticket, comment))
             if not result:
                 logger.warning("Failed to update Jira ticket")
