@@ -34,9 +34,7 @@ class Foreman(object):
     async def get(self, endpoint):
         logger.debug("GET: %s" % endpoint)
         try:
-            async with aiohttp.ClientSession(
-                loop=self.loop
-            ) as session:
+            async with aiohttp.ClientSession(loop=self.loop) as session:
                 async with session.get(
                     self.url + endpoint,
                     auth=BasicAuth(self.username, self.password),
@@ -54,8 +52,7 @@ class Foreman(object):
         objects = {}
         if "results" in response_json:
             objects = {
-                _object[identifier]: _object
-                for _object in response_json["results"]
+                _object[identifier]: _object for _object in response_json["results"]
             }
         return objects
 
@@ -70,12 +67,10 @@ class Foreman(object):
     async def put_host_parameter(self, host_id, parameter_id, value):
         logger.debug("PUT param: {%s:%s}" % (parameter_id, value))
         endpoint = "/hosts/%s/parameters/%s" % (host_id, parameter_id)
-        data = {'parameter': {"value": value}}
+        data = {"parameter": {"value": value}}
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=data,
@@ -98,9 +93,7 @@ class Foreman(object):
         data = {"parameter": {"name": name, "value": value}}
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.post(
                         self.url + endpoint,
                         json=data,
@@ -124,9 +117,7 @@ class Foreman(object):
         data = {"user": {"login": login, "password": password}}
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=data,
@@ -144,23 +135,17 @@ class Foreman(object):
         return False
 
     async def put_element(self, element_name, element_id, param_name, param_value):
-        params = {
-            param_name: param_value
-        }
+        params = {param_name: param_value}
         results = await self.put_elements(element_name, element_id, params)
         return results
 
     async def put_elements(self, element_name, element_id, params):
         logger.debug("PUT param: %s" % params)
         endpoint = "/%s/%s" % (element_name, element_id)
-        data = {
-            element_name[:-1]: params
-        }
+        data = {element_name[:-1]: params}
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(loop=self.loop) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=data,
@@ -232,7 +217,9 @@ class Foreman(object):
                 break
         if param_id:
             success = await self.put_parameter(host, "%s_id" % put_name, param_id)
-            success = await self.put_parameter(host, "%s_name" % put_name, value) and success
+            success = (
+                await self.put_parameter(host, "%s_name" % put_name, value) and success
+            )
             return success
         return False
 
@@ -240,9 +227,7 @@ class Foreman(object):
         endpoint = "/status"
         logger.debug("GET: %s" % endpoint)
         try:
-            async with aiohttp.ClientSession(
-                loop=self.loop
-            ) as session:
+            async with aiohttp.ClientSession(loop=self.loop) as session:
                 async with session.get(
                     self.url + endpoint,
                     auth=BasicAuth(self.username, self.password),
@@ -343,7 +328,11 @@ class Foreman(object):
     async def get_host_extraneous_interfaces(self, host_id):
         endpoint = "/hosts/%s/interfaces" % host_id
         response_json = await self.get(endpoint)
-        extraneous_interfaces = [i for i in response_json["results"] if i["identifier"] != "mgmt" and not i["primary"]]
+        extraneous_interfaces = [
+            i
+            for i in response_json["results"]
+            if i["identifier"] != "mgmt" and not i["primary"]
+        ]
         return extraneous_interfaces
 
     async def remove_extraneous_interfaces(self, host):
@@ -351,12 +340,13 @@ class Foreman(object):
         success = True
         extraneous_interfaces = await self.get_host_extraneous_interfaces(_host_id)
         for interface in extraneous_interfaces:
-            endpoint = self.url + "/hosts/%s/interfaces/%s" % (_host_id, interface["id"])
+            endpoint = self.url + "/hosts/%s/interfaces/%s" % (
+                _host_id,
+                interface["id"],
+            )
             try:
                 async with self.semaphore:
-                    async with aiohttp.ClientSession(
-                        loop=self.loop
-                    ) as session:
+                    async with aiohttp.ClientSession(loop=self.loop) as session:
                         async with session.delete(
                             endpoint,
                             auth=BasicAuth(self.username, self.password),
