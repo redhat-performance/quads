@@ -1,15 +1,30 @@
 #!/usr/bin/python3
-# Update an existing wordpress page with generated markdown
-# Assumes you have a markdown file with content you want published
-# to an existing wordpress page.
-# requires: python-wordpress-xmlrpc or python3-wordpress-xmlrpc
 
 from wordpress_xmlrpc import Client, WordPressPage
 from wordpress_xmlrpc.methods.posts import EditPost
+from urllib.parse import urlparse
+
 import argparse
+import ssl
 
 
 def update_wiki(url, username, password, _page_title, _page_id, _markdown):
+    """
+    Update an existing wordpress page with generated markdown.
+    Assumes you have a markdown file with content you want published
+    to an existing wordpress page.
+    requires: python-wordpress-xmlrpc or python3-wordpress-xmlrpc
+    :param url: wordpress xmlrpc endpoint
+    :param username: wordpress username
+    :param password: wordpress password
+    :param _page_title: post page title
+    :param _page_id: post page id
+    :param _markdown: path to markdown file for upload
+    """
+    scheme = urlparse(url)[0]
+    if scheme == "https":
+        ssl._create_default_https_context = ssl._create_unverified_context
+
     wp = Client(url, username, password)
 
     # define pages variable

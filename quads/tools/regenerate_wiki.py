@@ -19,6 +19,7 @@ wp_wiki_assignments_page_id = conf["wp_wiki_assignments_page_id"]
 wp_wiki_git_manage = conf["wp_wiki_git_manage"]
 wp_wiki_git_repo_path = conf["wp_wiki_git_repo_path"]
 
+
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 
     try:
         racks_wiki.update_wiki(
-            url="http://%s/xmlrpc.php" % wp_wiki,
+            url=wp_wiki,
             username=wp_username,
             password=wp_password,
             _page_title=wp_wiki_main_title,
@@ -68,7 +69,7 @@ if __name__ == "__main__":
 
     try:
         racks_wiki.update_wiki(
-            url="http://%s/xmlrpc.php" % wp_wiki,
+            url=wp_wiki,
             username=wp_username,
             password=wp_password,
             _page_title=wp_wiki_assignments_title,
