@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import logging
 import os
+import ssl
 
 from datetime import datetime
 from xmlrpc.client import ProtocolError
@@ -18,6 +19,13 @@ wp_wiki_assignments_title = conf["wp_wiki_assignments_title"]
 wp_wiki_assignments_page_id = conf["wp_wiki_assignments_page_id"]
 wp_wiki_git_manage = conf["wp_wiki_git_manage"]
 wp_wiki_git_repo_path = conf["wp_wiki_git_repo_path"]
+wp_wiki_ssl = conf["wp_wiki_ssl"]
+
+if wp_wiki_ssl:
+    ssl._create_default_https_context = ssl._create_unverified_context
+    wp_proto = "https://"
+else:
+    wp_proto = "http://"
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +48,7 @@ if __name__ == "__main__":
 
     try:
         racks_wiki.update_wiki(
-            url="http://%s/xmlrpc.php" % wp_wiki,
+            url="%s%s/xmlrpc.php" % (wp_proto, wp_wiki),
             username=wp_username,
             password=wp_password,
             _page_title=wp_wiki_main_title,
@@ -52,6 +60,7 @@ if __name__ == "__main__":
 
     create_input_assignments.main()
     assignments_md = os.path.join(wp_wiki_git_repo_path, "assignments.md")
+
     if wp_wiki_git_manage:
         if os.path.exists(wp_wiki_git_repo_path):
             try:
@@ -68,7 +77,7 @@ if __name__ == "__main__":
 
     try:
         racks_wiki.update_wiki(
-            url="http://%s/xmlrpc.php" % wp_wiki,
+            url="%s%s/xmlrpc.php" % (wp_proto, wp_wiki),
             username=wp_username,
             password=wp_password,
             _page_title=wp_wiki_assignments_title,
