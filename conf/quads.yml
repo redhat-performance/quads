@@ -41,10 +41,9 @@ ircbot_port: 5050
 ircbot_channel: #yourchannel
 
 # wordpress wiki
-wp_wiki: http://wiki.example.com/xmlrpc.php
+wp_wiki: https://wiki.example.com/xmlrpc.php
 wp_username: wikiadmin
 wp_password: wikipassword
-
 # you will have to know your wordpress page ID for the main and assignment pages
 wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
