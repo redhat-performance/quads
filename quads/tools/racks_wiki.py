@@ -7,9 +7,15 @@
 from wordpress_xmlrpc import Client, WordPressPage
 from wordpress_xmlrpc.methods.posts import EditPost
 import argparse
+import urllib3
 
 
 def update_wiki(url, username, password, _page_title, _page_id, _markdown):
+
+    scheme = urllib3.util.parse(url)[0]
+    if scheme=="https":
+        ssl._create_default_https_context = ssl._create_unverified_context
+
     wp = Client(url, username, password)
 
     # define pages variable
