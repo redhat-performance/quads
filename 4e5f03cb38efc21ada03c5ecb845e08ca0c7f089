@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f684e76_eb0e6a1f",
+        "filename": "conf/quads.yml",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-02-01T11:44:03Z",
+      "side": 1,
+      "message": "remove `/xmlrpc.php` as this is already included on the racks_wiki.py.\nOtherwise remove the suffix from the hardcode and just rely on having it here.",
+      "range": {
+        "startLine": 44,
+        "startChar": 32,
+        "endLine": 44,
+        "endChar": 43
+      },
+      "revId": "4e5f03cb38efc21ada03c5ecb845e08ca0c7f089",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
