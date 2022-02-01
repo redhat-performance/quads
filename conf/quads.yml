@@ -44,7 +44,9 @@ ircbot_channel: #yourchannel
 wp_wiki: http://wiki.example.com/xmlrpc.php
 wp_username: wikiadmin
 wp_password: wikipassword
-
+# optionally enable SSL/TLS for Wordpress
+# You'd need to configure this yourself in nginx
+wp_wiki_ssl:
 # you will have to know your wordpress page ID for the main and assignment pages
 wp_wiki_main_title: Lab Dashboard
 wp_wiki_main_page_id: 4
