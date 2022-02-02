@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8148438_5f819e86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2022-02-02T21:51:24Z",
+      "side": 1,
+      "message": "More refactoring!  Should we bang on this before 1.1.6?",
+      "revId": "941d4ed01fe0202eb85fcf5d2a6d0bccc8a2b740",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
