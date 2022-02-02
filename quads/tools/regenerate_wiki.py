@@ -5,19 +5,19 @@ import os
 from datetime import datetime
 from xmlrpc.client import ProtocolError
 from git import Repo, InvalidGitRepositoryError
-from quads.config import conf
+from quads.config import Config
 from quads.tools import create_input, create_input_assignments, racks_wiki
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
-wp_wiki = conf["wp_wiki"]
-wp_username = conf["wp_username"]
-wp_password = conf["wp_password"]
-wp_wiki_main_title = conf["wp_wiki_main_title"]
-wp_wiki_main_page_id = conf["wp_wiki_main_page_id"]
-wp_wiki_assignments_title = conf["wp_wiki_assignments_title"]
-wp_wiki_assignments_page_id = conf["wp_wiki_assignments_page_id"]
-wp_wiki_git_manage = conf["wp_wiki_git_manage"]
-wp_wiki_git_repo_path = conf["wp_wiki_git_repo_path"]
+wp_wiki = Config["wp_wiki"]
+wp_username = Config["wp_username"]
+wp_password = Config["wp_password"]
+wp_wiki_main_title = Config["wp_wiki_main_title"]
+wp_wiki_main_page_id = Config["wp_wiki_main_page_id"]
+wp_wiki_assignments_title = Config["wp_wiki_assignments_title"]
+wp_wiki_assignments_page_id = Config["wp_wiki_assignments_page_id"]
+wp_wiki_git_manage = Config["wp_wiki_git_manage"]
+wp_wiki_git_repo_path = Config["wp_wiki_git_repo_path"]
 
 
 logger = logging.getLogger(__name__)

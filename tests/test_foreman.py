@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
 
-from quads.config import conf
+from quads.config import Config
 from quads.tools.foreman import Foreman
 
 
@@ -13,9 +13,9 @@ class TestForeman(object):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         self.foreman = Foreman(
-            conf["foreman_api_url"],
-            conf["ipmi_username"],
-            conf["ipmi_password"],
+            Config["foreman_api_url"],
+            Config["ipmi_username"],
+            Config["ipmi_password"],
             loop=loop,
         )
 

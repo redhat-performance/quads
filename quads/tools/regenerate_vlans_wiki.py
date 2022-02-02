@@ -3,7 +3,7 @@ import logging
 
 from xmlrpc.client import ProtocolError
 from quads.tools.racks_wiki import update_wiki
-from quads.config import conf as quads_config
+from quads.config import Config
 from quads.model import Vlan, Cloud, Schedule
 from tempfile import NamedTemporaryFile
 
@@ -68,11 +68,11 @@ def render_vlans(markdown):
 
 
 def regenerate_vlans_wiki():
-    wp_url = "http://%s/xmlrpc.php" % quads_config["wp_wiki"]
-    wp_username = quads_config["wp_username"]
-    wp_password = quads_config["wp_password"]
-    page_title = quads_config["wp_wiki_vlans_title"]
-    page_id = quads_config["wp_wiki_vlans_page_id"]
+    wp_url = Config["wp_wiki"]
+    wp_username = Config["wp_username"]
+    wp_password = Config["wp_password"]
+    page_title = Config["wp_wiki_vlans_title"]
+    page_id = Config["wp_wiki_vlans_page_id"]
     with NamedTemporaryFile(mode="w+t") as _markdown:
         render_header(_markdown)
         render_vlans(_markdown)

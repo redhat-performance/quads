@@ -7,7 +7,7 @@ import logging
 
 from quads.model import Schedule, Host, Cloud, Notification, CloudHistory, Interface
 from mongoengine.errors import DoesNotExist
-from quads.config import conf, QUADSVERSION, QUADSCODENAME
+from quads.config import Config
 
 logger = logging.getLogger()
 
@@ -245,7 +245,7 @@ class DocumentMethodHandler(MethodHandlerBase):
                         if self.name == "cloud":
                             if obj.last_redefined:
                                 cloud_reservation_lock = int(
-                                    conf["cloud_reservation_lock"]
+                                    Config["cloud_reservation_lock"]
                                 )
                                 lock_release = obj.last_redefined + datetime.timedelta(
                                     hours=cloud_reservation_lock
@@ -574,7 +574,7 @@ class InterfaceMethodHandler(MethodHandlerBase):
 class VersionMethodHandler(object):
     def GET(self):
         return json.dumps(
-            {"result": "QUADS version %s %s" % (QUADSVERSION, QUADSCODENAME)}
+            {"result": "QUADS version %s %s" % (Config.QUADSVERSION, Config.QUADSCODENAME)}
         )
 
 
