@@ -4,7 +4,7 @@ import logging
 import smtplib
 
 from email.message import EmailMessage
-from quads.config import conf
+from quads.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -20,15 +20,15 @@ class Postman(object):
         msg = EmailMessage()
         msg["Subject"] = self.subject
         msg["From"] = "%s <%s>" % (
-            conf["mail_display_name"],
-            "@".join(["quads", conf["domain"]]),
+            Config["mail_display_name"],
+            "@".join(["quads", Config["domain"]]),
         )
-        msg["To"] = "@".join([self.to, conf["domain"]])
+        msg["To"] = "@".join([self.to, Config["domain"]])
         msg["Cc"] = ",".join(self.cc)
-        msg.add_header("Reply-To", "dev-null@%s" % conf["domain"])
-        msg.add_header("User-Agent", conf["mail_user_agent"])
+        msg.add_header("Reply-To", "dev-null@%s" % Config["domain"])
+        msg.add_header("User-Agent", Config["mail_user_agent"])
         msg.set_content(self.content)
-        email_host = conf["email_host"]
+        email_host = Config["email_host"]
         with smtplib.SMTP(email_host) as s:
             try:
                 logger.debug(msg)

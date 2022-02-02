@@ -1,7 +1,7 @@
 import logging
 import pexpect
 
-from quads.config import conf
+from quads.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class Juniper(object):
         try:
             self.child = pexpect.spawn(
                 "ssh -o StrictHostKeyChecking=no %s@%s"
-                % (conf["junos_username"], self.ip_address)
+                % (Config["junos_username"], self.ip_address)
             )
             self.child.expect(">")
         except pexpect.exceptions.TIMEOUT:

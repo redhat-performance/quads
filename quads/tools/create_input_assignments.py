@@ -7,7 +7,7 @@ from datetime import datetime
 
 import requests
 
-from quads.config import conf, API_URL
+from quads.config import Config
 from quads.model import Host, Schedule, Cloud
 from quads.tools.foreman import Foreman
 
@@ -38,11 +38,11 @@ def print_summary():
         "**REQUEST**",
         '<span id="status">**STATUS**</span>',
     ]
-    if conf["openstack_management"]:
+    if Config["openstack_management"]:
         _headers.append("**OSPENV**")
-    if conf["openshift_management"]:
+    if Config["openshift_management"]:
         _headers.append("**OCPINV**")
-    if conf["gather_ansible_facts"]:
+    if Config["gather_ansible_facts"]:
         _headers.append("**HWFACTS**")
 
     _summary.append("| %s |\n" % " | ".join(_headers))
@@ -59,8 +59,8 @@ def print_summary():
         owner = cloud["owner"]
         ticket = cloud["ticket"]
         link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
-            conf["ticket_url"],
-            conf["ticket_queue"],
+            Config["ticket_url"],
+            Config["ticket_queue"],
             ticket,
             ticket,
         )
@@ -70,11 +70,11 @@ def print_summary():
         if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
             instack_link = os.path.join(
-                conf["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
+                Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
             )
             instack_text = "download"
             ocpinv_link = os.path.join(
-                conf["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
+                Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
             )
             ocpinv_text = "download"
             status = (
@@ -124,25 +124,25 @@ def print_summary():
             link,
         ]
 
-        if conf["gather_ansible_facts"]:
+        if Config["gather_ansible_facts"]:
             factstyle_tag_end = "</span>"
             if os.path.exists(
                 os.path.join(
-                    conf["ansible_facts_web_path"],
+                    Config["ansible_facts_web_path"],
                     "ansible_facts",
                     "%s_overview.html" % cloud_specific_tag,
                 )
             ):
                 factstyle_tag_start = '<span style="color:green">'
                 ansible_facts_link = os.path.join(
-                    conf["quads_url"],
+                    Config["quads_url"],
                     "ansible_facts",
                     "%s_overview.html" % cloud_specific_tag,
                 )
             else:
                 factstyle_tag_start = '<span style="color:red">'
                 ansible_facts_link = os.path.join(
-                    conf["quads_url"], "underconstruction"
+                    Config["quads_url"], "underconstruction"
                 )
             if cloud_name == "cloud01":
                 _data.append("")
@@ -166,17 +166,17 @@ def print_summary():
         else:
             _data.append(status)
             if cloud_name == "cloud01":
-                if conf["openstack_management"]:
+                if Config["openstack_management"]:
                     _data.append("")
-                if conf["openshift_management"]:
+                if Config["openshift_management"]:
                     _data.append("")
             else:
-                if conf["openstack_management"]:
+                if Config["openstack_management"]:
                     _data.append(
                         "<a href=%s target=_blank>%s%s%s</a>"
                         % (instack_link, style_tag_start, instack_text, style_tag_end)
                     )
-                if conf["openshift_management"]:
+                if Config["openshift_management"]:
                     _data.append(
                         "<a href=%s target=_blank>%s%s%s</a>"
                         % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
@@ -271,20 +271,20 @@ def main():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     foreman = Foreman(
-        conf["foreman_api_url"],
-        conf["foreman_username"],
-        conf["foreman_password"],
+        Config["foreman_api_url"],
+        Config["foreman_username"],
+        Config["foreman_password"],
         loop=loop,
     )
 
     lines = []
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile(
-        "|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")])
+        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
     )
 
     broken_hosts = Host.objects(broken=True)
-    domain_broken_hosts = [host for host in broken_hosts if conf["domain"] in host.name]
+    domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -301,7 +301,7 @@ def main():
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
-    summary_response = requests.get(os.path.join(API_URL, "summary"))
+    summary_response = requests.get(os.path.join(Config.API_URL, "summary"))
     _cloud_summary = []
     if summary_response.status_code == 200:
         _cloud_summary = summary_response.json()
@@ -326,10 +326,10 @@ def main():
     lines.extend(print_unmanaged(mgmt_hosts))
     lines.extend(print_faulty(domain_broken_hosts))
 
-    _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "assignments.md")
+    _full_path = os.path.join(Config["wp_wiki_git_repo_path"], "assignments.md")
 
-    if not os.path.exists(conf["wp_wiki_git_repo_path"]):
-        pathlib.Path(conf["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
+    if not os.path.exists(Config["wp_wiki_git_repo_path"]):
+        pathlib.Path(Config["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
 
     with open(_full_path, "w+") as _f:
         _f.seek(0)
