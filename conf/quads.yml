@@ -58,12 +58,12 @@ wp_wiki_git_manage: false
 wp_wiki_git_repo_path: /opt/quads/git/wiki
 
 # (optional ticket system URL) in this case we're using JIRA
-ticket_url: https://projects.engineering.example.com/browse
+ticket_url: https://issues.example.com/browse
 # (optional ticket queue name) this is typically the ticket queue
 # name or abbreviation in the case of JIRA
 ticket_queue: SCALELAB
 # Jira Specific Variables
-jira_url: https://projects.engineering.example.com/rest/api/2
+jira_url: https://issues.example.com/rest/api/2
 
 # takes 2 values only, basic or token, defaults to basic
 # basic will make use of jira_username and jira_password

@@ -3,7 +3,7 @@ import argparse
 import asyncio
 import logging
 
-from quads.config import conf
+from quads.config import Config
 from quads.model import Host, Interface
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.helpers import get_running_loop
@@ -41,8 +41,8 @@ class Populator(object):
         try:
             badfish = await badfish_factory(
                 "mgmt-" + host.name,
-                str(conf["ipmi_username"]),
-                str(conf["ipmi_password"]),
+                str(Config["ipmi_username"]),
+                str(Config["ipmi_password"]),
                 loop=self.loop,
             )
             interfaces = await self.list_interfaces(badfish)

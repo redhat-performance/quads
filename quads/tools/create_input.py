@@ -5,7 +5,7 @@ import pathlib
 import re
 import requests
 from quads.tools.foreman import Foreman
-from quads.config import conf, API_URL
+from quads.config import Config
 
 HEADERS = [
     "U",
@@ -22,7 +22,7 @@ HEADERS = [
 
 
 def consolidate_ipmi_data(_host, _path, _value):
-    ipmi_path = os.path.join(conf["data_dir"], "ipmi")
+    ipmi_path = os.path.join(Config["data_dir"], "ipmi")
     host_path = os.path.join(ipmi_path, _host)
     _file_path = os.path.join(host_path, _path)
     try:
@@ -52,13 +52,13 @@ def render_row(_host, _properties):
     node = _host
     owner = ""
     cloud = ""
-    host_url = os.path.join(API_URL, "host?name=%s" % node)
+    host_url = os.path.join(Config.API_URL, "host?name=%s" % node)
     _response = requests.get(host_url)
     if _response.status_code == 200:
         host_data = _response.json()
         if "cloud" in host_data:
             cloud_url = os.path.join(
-                API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"]
+                Config.API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"]
             )
             _cloud_response = requests.get(cloud_url)
             if _cloud_response.status_code == 200:
@@ -96,15 +96,15 @@ def main():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     foreman = Foreman(
-        conf["foreman_api_url"],
-        conf["foreman_username"],
-        conf["foreman_password"],
+        Config["foreman_api_url"],
+        Config["foreman_username"],
+        Config["foreman_password"],
         loop=loop,
     )
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
 
     blacklist = re.compile(
-        "|".join([re.escape(word) for word in conf["exclude_hosts"].split("|")])
+        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
     )
     hosts = {}
     for host, properties in all_hosts.items():
@@ -116,7 +116,7 @@ def main():
                 properties["mac"] = properties.get("sp_mac")
                 consolidate_ipmi_data(host, "macaddr", properties["host_mac"])
                 consolidate_ipmi_data(host, "oobmacaddr", properties.get("sp_mac"))
-                svctag_file = os.path.join(conf["data_dir"], "ipmi", host, "svctag")
+                svctag_file = os.path.join(Config["data_dir"], "ipmi", host, "svctag")
                 svctag = ""
                 if os.path.exists(svctag_file):
                     with open(svctag_file) as _file:
@@ -124,14 +124,14 @@ def main():
                 properties["svctag"] = svctag.strip()
                 hosts[host] = properties
 
-    _full_path = os.path.join(conf["wp_wiki_git_repo_path"], "main.md")
+    _full_path = os.path.join(Config["wp_wiki_git_repo_path"], "main.md")
 
-    if not os.path.exists(conf["wp_wiki_git_repo_path"]):
-        pathlib.Path(conf["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
+    if not os.path.exists(Config["wp_wiki_git_repo_path"]):
+        pathlib.Path(Config["wp_wiki_git_repo_path"]).mkdir(parents=True, exist_ok=True)
 
     with open(_full_path, "w") as _f:
         _f.seek(0)
-        for rack in conf["racks"].split():
+        for rack in Config["racks"].split():
             if rack_has_hosts(rack, hosts):
                 _f.write(render_header(rack))
 

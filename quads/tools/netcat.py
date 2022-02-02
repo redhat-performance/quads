@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import asyncio
 import socket
 
 from quads.tools.helpers import get_running_loop

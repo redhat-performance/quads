@@ -3,7 +3,7 @@
 import argparse
 import logging
 
-from quads.config import conf
+from quads.config import Config
 from quads.model import Host, Cloud
 from quads.tools.ssh_helper import SSHHelper
 
@@ -29,7 +29,7 @@ def verify(cloud):
         if host and host.interfaces:
             interfaces = sorted(host.interfaces, key=lambda k: k["name"])
             for i, interface in enumerate(interfaces):
-                ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
+                ssh_helper = SSHHelper(interface.ip_address, Config["junos_username"])
                 try:
                     _, vlan_member_out = ssh_helper.run_cmd(
                         "show configuration vlans | display set | match %s.0"
