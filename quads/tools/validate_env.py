@@ -11,7 +11,7 @@ from jinja2 import Template
 from paramiko import SSHException
 from paramiko.ssh_exception import NoValidConnectionsError
 
-from quads.config import conf, TEMPLATES_PATH, INTERFACES, FPING_TIMEOUT
+from quads.config import Config
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
@@ -37,7 +37,7 @@ class Validator(object):
 
     def notify_failure(self):
         template_file = "validation_failed"
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
             "cloud": self.cloud.name,
@@ -50,13 +50,13 @@ class Validator(object):
         subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(
             **parameters
         )
-        _cc_users = conf["report_cc"].split(",")
+        _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
 
     def notify_success(self):
         template_file = "validation_succeeded"
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
             "cloud": self.cloud.name,
@@ -68,7 +68,7 @@ class Validator(object):
         subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(
             **parameters
         )
-        _cc_users = conf["report_cc"].split(",")
+        _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
 
@@ -78,7 +78,7 @@ class Validator(object):
             cloud=self.cloud, start__lt=now, end__gt=now
         ).first()
         time_delta = now - schedule.start
-        if time_delta.seconds // 60 > conf["validation_grace_period"]:
+        if time_delta.seconds // 60 > Config["validation_grace_period"]:
             return True
         logger.warning(
             "You're still within the configurable validation grace period. Skipping validation for %s."
@@ -87,9 +87,9 @@ class Validator(object):
         return False
 
     async def post_system_test(self):
-        password = f"{conf['infra_location']}@{self.cloud.ticket}"
+        password = f"{Config['infra_location']}@{self.cloud.ticket}"
         foreman = Foreman(
-            conf["foreman_api_url"],
+            Config["foreman_api_url"],
             self.cloud.name,
             password,
             loop=self.loop,
@@ -141,8 +141,8 @@ class Validator(object):
                     try:
                         badfish = await badfish_factory(
                             "mgmt-" + host,
-                            str(conf["ipmi_username"]),
-                            str(conf["ipmi_password"]),
+                            str(Config["ipmi_username"]),
+                            str(Config["ipmi_password"]),
                         )
                         if is_supported(host):
                             await badfish.boot_to_type(
@@ -175,7 +175,7 @@ class Validator(object):
             try:
                 badfish = await badfish_factory(
                     "mgmt-" + host.name,
-                    str(conf["ipmi_cloud_username"]),
+                    str(Config["ipmi_cloud_username"]),
                     password,
                 )
                 await badfish.validate_credentials()
@@ -222,12 +222,12 @@ class Validator(object):
         host_list = " ".join([host.name for host in self.hosts])
 
         result, output = ssh_helper.run_cmd(
-            f"fping -t {FPING_TIMEOUT} -B 1 -u {host_list}"
+            f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {host_list}"
         )
         if not result:
             return False
 
-        for i, interface in enumerate(INTERFACES.keys()):
+        for i, interface in enumerate(Config.INTERFACES.keys()):
             new_ips = []
             host_ips = [
                 {"ip": socket.gethostbyname(host.name), "host": host}
@@ -236,7 +236,7 @@ class Validator(object):
             ]
             for host in host_ips:
                 _host_obj = host["host"]
-                _interfaces = INTERFACES[interface]
+                _interfaces = Config.INTERFACES[interface]
                 last_nic = i == len(_host_obj.interfaces) - 1
                 if last_nic and self.cloud.vlan:
                     continue
@@ -250,7 +250,7 @@ class Validator(object):
             if new_ips:
                 all_ips = " ".join(new_ips)
                 result, output = ssh_helper.run_cmd(
-                    f"fping -t {FPING_TIMEOUT} -B 1 -u {all_ips}"
+                    f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {all_ips}"
                 )
                 if not result:
                     pattern = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")

@@ -3,7 +3,7 @@
 import argparse
 import logging
 
-from quads.config import conf
+from quads.config import Config
 from quads.helpers import get_vlan
 from quads.model import Cloud, Host
 from quads.tools.juniper import Juniper
@@ -45,7 +45,7 @@ def verify(_cloud_name, _host_name, change=False):
         if _host_obj.interfaces:
             interfaces = sorted(_host_obj.interfaces, key=lambda k: k["name"])
             for i, interface in enumerate(interfaces):
-                ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
+                ssh_helper = SSHHelper(interface.ip_address, Config["junos_username"])
                 last_nic = i == len(_host_obj.interfaces) - 1
                 vlan = get_vlan(_cloud_obj, i, last_nic)
 

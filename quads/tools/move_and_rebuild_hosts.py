@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from time import sleep
 
-from quads.config import conf
+from quads.config import Config
 from quads.helpers import is_supported, get_vlan
 from quads.model import Host, Cloud, Schedule
 from quads.tools.badfish import badfish_factory, BadfishException
@@ -35,7 +35,7 @@ def switch_config(host, old_cloud, new_cloud):
         if not switch_ip:
             switch_ip = interface.ip_address
             try:
-                ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+                ssh_helper = SSHHelper(switch_ip, Config["junos_username"])
             except SSHHelperException:
                 logger.error(f"Failed to connect to switch: {switch_ip}")
                 return False
@@ -43,7 +43,7 @@ def switch_config(host, old_cloud, new_cloud):
             if switch_ip != interface.ip_address:
                 ssh_helper.disconnect()
                 switch_ip = interface.ip_address
-                ssh_helper = SSHHelper(switch_ip, conf["junos_username"])
+                ssh_helper = SSHHelper(switch_ip, Config["junos_username"])
         result, old_vlan_out = ssh_helper.run_cmd(
             "show configuration interfaces %s" % interface.switch_port
         )
@@ -115,9 +115,9 @@ async def execute_ipmi(host, arguments, semaphore):
         "-H",
         "mgmt-%s" % host,
         "-U",
-        conf["ipmi_username"],
+        Config["ipmi_username"],
         "-P",
-        conf["ipmi_password"],
+        Config["ipmi_password"],
     ]
     logger.debug("Executing IPMI with argmuents: %s" % arguments)
     cmd = ipmi_cmd + arguments
@@ -136,7 +136,7 @@ async def ipmi_reset(host, semaphore):
         "off",
     ]
     await execute_ipmi(host, ipmi_off, semaphore)
-    sleep(conf["ipmi_reset_sleep"])
+    sleep(Config["ipmi_reset_sleep"])
     ipmi_on = [
         "chassis",
         "power",
@@ -149,7 +149,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     build_start = datetime.now()
     logger.debug("Moving and rebuilding host: %s" % host)
 
-    untouchable_hosts = conf["untouchable_hosts"]
+    untouchable_hosts = Config["untouchable_hosts"]
     logger.debug("Untouchable hosts: %s" % untouchable_hosts)
     _host_obj = Host.objects(name=host).first()
 
@@ -160,36 +160,36 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     _new_cloud_obj = Cloud.objects(name=new_cloud).first()
 
     ipmi_new_pass = (
-        f"{conf['infra_location']}@{_new_cloud_obj.ticket}"
+        f"{Config['infra_location']}@{_new_cloud_obj.ticket}"
         if _new_cloud_obj.ticket
-        else conf["ipmi_password"]
+        else Config["ipmi_password"]
     )
 
     ipmi_set_pass = [
         "user",
         "set",
         "password",
-        str(conf["ipmi_cloud_username_id"]),
+        str(Config["ipmi_cloud_username_id"]),
         ipmi_new_pass,
     ]
 
     new_semaphore = asyncio.Semaphore(20)
     await execute_ipmi(host, arguments=ipmi_set_pass, semaphore=new_semaphore)
 
-    ipmi_set_operator = ["user", "priv", str(conf["ipmi_cloud_username_id"]), "0x4"]
+    ipmi_set_operator = ["user", "priv", str(Config["ipmi_cloud_username_id"]), "0x4"]
     await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=new_semaphore)
 
     badfish = None
     if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
-        if "pdu_management" in conf and conf["pdu_management"]:
+        if "pdu_management" in Config and Config["pdu_management"]:
             # TODO: pdu management
             pass
 
         try:
             badfish = await badfish_factory(
                 "mgmt-%s" % host,
-                conf["ipmi_username"],
-                conf["ipmi_password"],
+                Config["ipmi_username"],
+                Config["ipmi_password"],
                 propagate=True,
             )
         except BadfishException:
@@ -222,17 +222,17 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         params = [
             {
                 "name": "operatingsystems",
-                "value": conf["foreman_default_os"],
+                "value": Config["foreman_default_os"],
                 "identifier": "title",
             },
-            {"name": "ptables", "value": conf["foreman_default_ptable"]},
-            {"name": "media", "value": conf["foreman_default_medium"]},
+            {"name": "ptables", "value": Config["foreman_default_ptable"]},
+            {"name": "media", "value": Config["foreman_default_medium"]},
         ]
 
         foreman = Foreman(
-            conf["foreman_api_url"],
-            conf["foreman_username"],
-            conf["foreman_password"],
+            Config["foreman_api_url"],
+            Config["foreman_username"],
+            Config["foreman_password"],
             semaphore=semaphore,
             loop=loop,
         )
@@ -302,8 +302,8 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
             try:
                 badfish = await badfish_factory(
                     "mgmt-%s" % host,
-                    conf["ipmi_username"],
-                    conf["ipmi_password"],
+                    Config["ipmi_username"],
+                    Config["ipmi_password"],
                     propagate=True,
                 )
             except BadfishException:

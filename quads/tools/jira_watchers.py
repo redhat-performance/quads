@@ -4,7 +4,7 @@ import logging
 import sys
 
 from datetime import timedelta
-from quads.config import conf
+from quads.config import Config
 from quads.model import Cloud, Schedule
 from quads.tools.jira import Jira, JiraException
 
@@ -18,7 +18,7 @@ async def main(_loop):
 
     try:
         jira = Jira(
-            conf["jira_url"],
+            Config["jira_url"],
             loop=_loop,
         )
     except JiraException as ex:

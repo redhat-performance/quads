@@ -3,9 +3,9 @@
 import argparse
 import logging
 
-from quads.config import conf
+from quads.config import Config
 from quads.model import Host
-from quads.tools.juniper import Juniper, JuniperException
+from quads.tools.juniper import Juniper
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def verify(
         for i, interface in enumerate(interfaces):
             vlan = _nics.get(interface.name)
             if vlan:
-                ssh_helper = SSHHelper(interface.ip_address, conf["junos_username"])
+                ssh_helper = SSHHelper(interface.ip_address, Config["junos_username"])
 
                 try:
                     _, old_vlan_out = ssh_helper.run_cmd(

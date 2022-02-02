@@ -5,7 +5,7 @@ import logging
 import urllib3
 from aiohttp import BasicAuth
 
-from quads.config import conf
+from quads.config import Config
 
 urllib3.disable_warnings()
 
@@ -33,9 +33,9 @@ class Jira(object):
         else:
             self.semaphore = semaphore
 
-        jira_auth = conf.get("jira_auth")
+        jira_auth = Config.get("jira_auth")
         if jira_auth and jira_auth == "token":
-            token = conf.get("jira_token")
+            token = Config.get("jira_token")
             if not token:
                 raise JiraException(
                     "Jira authentication is set to BearerAuth but no "
@@ -126,7 +126,7 @@ class Jira(object):
         return False
 
     async def add_watcher(self, ticket, watcher):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/watchers" % issue_id
         logger.debug("POST transition: {%s:%s}" % (issue_id, watcher))
         data = watcher
@@ -134,28 +134,28 @@ class Jira(object):
         return response
 
     async def add_label(self, ticket, label):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s" % issue_id
         data = {"update": {"labels": [{"add": label}]}}
         response = await self.put_request(endpoint, data)
         return response
 
     async def post_comment(self, ticket, comment):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/comment" % issue_id
         payload = {"body": comment}
         response = await self.post_request(endpoint, payload)
         return response
 
     async def post_transition(self, ticket, transition):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/transitions" % issue_id
         payload = {"transition": {"id": transition}}
         response = await self.post_request(endpoint, payload)
         return response
 
     async def get_transitions(self, ticket):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/transitions" % issue_id
         result = await self.get_request(endpoint)
         if not result:
@@ -170,7 +170,7 @@ class Jira(object):
             return []
 
     async def get_ticket(self, ticket):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s" % issue_id
         result = await self.get_request(endpoint)
         if not result:
@@ -179,7 +179,7 @@ class Jira(object):
         return result
 
     async def get_watchers(self, ticket):
-        issue_id = "%s-%s" % (conf["ticket_queue"], ticket)
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/watchers" % issue_id
         logger.debug("GET watchers: %s" % endpoint)
         result = await self.get_request(endpoint)
@@ -198,7 +198,7 @@ class Jira(object):
         return result
 
     async def search_tickets(self, query=None):
-        project = {"project": conf["ticket_queue"]}
+        project = {"project": Config["ticket_queue"]}
         prefix = "/search?jql="
         query_items = []
 

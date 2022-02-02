@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from quads.config import conf
+from quads.config import Config
 from quads.tools.foreman import Foreman
 from quads.model import Schedule, Cloud
 
@@ -18,26 +18,26 @@ def main():
     loop = asyncio.get_event_loop()
 
     foreman_admin = Foreman(
-        conf["foreman_api_url"],
-        conf["foreman_username"],
-        conf["foreman_password"],
+        Config["foreman_api_url"],
+        Config["foreman_username"],
+        Config["foreman_password"],
         loop=loop,
     )
 
     ignore = ["cloud01"]
-    foreman_rbac_exclude = conf.get("foreman_rbac_exclude")
+    foreman_rbac_exclude = Config.get("foreman_rbac_exclude")
     if foreman_rbac_exclude:
         ignore.extend(foreman_rbac_exclude.split("|"))
     clouds = Cloud.objects()
     for cloud in clouds:
 
-        infra_pass = f"{conf['infra_location']}@{cloud.ticket}"
+        infra_pass = f"{Config['infra_location']}@{cloud.ticket}"
         loop.run_until_complete(
             foreman_admin.update_user_password(cloud.name, infra_pass)
         )
 
         foreman_cloud_user = Foreman(
-            conf["foreman_api_url"],
+            Config["foreman_api_url"],
             cloud.name,
             infra_pass,
             loop=loop,
@@ -50,7 +50,7 @@ def main():
 
             user_id = loop.run_until_complete(foreman_admin.get_user_id(cloud.name))
             admin_id = loop.run_until_complete(
-                foreman_admin.get_user_id(conf["foreman_username"])
+                foreman_admin.get_user_id(Config["foreman_username"])
             )
 
             current_schedule = Schedule.current_schedule(cloud=cloud)

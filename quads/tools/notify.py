@@ -8,7 +8,7 @@ from enum import Enum
 
 from jinja2 import Template
 from pathlib import Path
-from quads.config import conf, TEMPLATES_PATH
+from quads.config import Config
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.model import Cloud, Schedule, Notification
@@ -26,24 +26,24 @@ class Days(Enum):
 
 async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     template_file = "initial_message"
-    irc_bot_ip = conf["ircbot_ipaddr"]
-    irc_bot_port = conf["ircbot_port"]
-    irc_bot_channel = conf["ircbot_channel"]
-    infra_location = conf["infra_location"]
-    cc_users = conf["report_cc"].split(",")
+    irc_bot_ip = Config["ircbot_ipaddr"]
+    irc_bot_port = Config["ircbot_port"]
+    irc_bot_channel = Config["ircbot_channel"]
+    infra_location = Config["infra_location"]
+    cc_users = Config["report_cc"].split(",")
     for user in cc:
-        cc_users.append("%s@%s" % (user, conf["domain"]))
-    if conf["email_notify"]:
-        with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        cc_users.append("%s@%s" % (user, Config["domain"]))
+    if Config["email_notify"]:
+        with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         content = template.render(
             cloud_info=cloud_info,
-            wp_wiki=conf["wp_wiki"],
+            wp_wiki=Config["wp_wiki"],
             cloud=cloud,
-            quads_url=conf["quads_url"],
+            quads_url=Config["quads_url"],
             real_owner=real_owner,
             password=f"{infra_location}@{ticket}",
-            foreman_url=conf["foreman_url"],
+            foreman_url=Config["foreman_url"],
         )
 
         postman = Postman(
@@ -53,16 +53,16 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             content,
         )
         postman.send_email()
-    if conf["irc_notify"]:
+    if Config["irc_notify"]:
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
                 message = "%s QUADS: %s is now active, choo choo! - http://%s/assignments/#%s -  %s %s" % (
                     irc_bot_channel,
                     cloud_info,
-                    conf["wp_wiki"],
+                    Config["wp_wiki"],
                     cloud,
                     real_owner,
-                    conf["report_cc"],
+                    Config["report_cc"],
                 )
                 await nc.write(bytes(message.encode("utf-8")))
         except (TypeError, BrokenPipeError) as ex:
@@ -82,19 +82,19 @@ def create_message(
     ticket = cloud_obj.ticket
     cc = cloud_obj.ccuser
 
-    cc_users = conf["report_cc"].split(",")
+    cc_users = Config["report_cc"].split(",")
     for user in cc:
-        cc_users.append("%s@%s" % (user, conf["domain"]))
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        cc_users.append("%s@%s" % (user, Config["domain"]))
+    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
-    quads_request_url = conf.get("quads_request_url")
+    quads_request_url = Config.get("quads_request_url")
     content = template.render(
         days_to_report=day,
         cloud_info=cloud_info,
-        wp_wiki=conf["wp_wiki"],
+        wp_wiki=Config["wp_wiki"],
         quads_request_url=quads_request_url,
-        quads_request_deadline_day=conf["quads_request_deadline_day"],
-        quads_notify_until_extended=conf["quads_notify_until_extended"],
+        quads_request_deadline_day=Config["quads_request_deadline_day"],
+        quads_notify_until_extended=Config["quads_notify_until_extended"],
         cloud=cloud,
         hosts=host_list_expire,
     )
@@ -111,14 +111,14 @@ def create_future_initial_message(cloud_obj, cloud_info):
     template_file = "future_initial_message"
     cloud = cloud_obj.name
     ticket = cloud_obj.ticket
-    cc_users = conf["report_cc"].split(",")
+    cc_users = Config["report_cc"].split(",")
     for user in cloud_obj.ccuser:
-        cc_users.append("%s@%s" % (user, conf["domain"]))
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+        cc_users.append("%s@%s" % (user, Config["domain"]))
+    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     content = template.render(
         cloud_info=cloud_info,
-        wp_wiki=conf["wp_wiki"],
+        wp_wiki=Config["wp_wiki"],
     )
     postman = Postman(
         "New QUADS Assignment Defined for the Future: %s - %s" % (cloud, ticket),
@@ -135,17 +135,17 @@ def create_future_message(
     cloud_info,
     host_list_expire,
 ):
-    cc_users = conf["report_cc"].split(",")
+    cc_users = Config["report_cc"].split(",")
     ticket = cloud_obj.ticket
     for user in cloud_obj.ccuser:
-        cc_users.append("%s@%s" % (user, conf["domain"]))
+        cc_users.append("%s@%s" % (user, Config["domain"]))
     template_file = "future_message"
-    with open(os.path.join(TEMPLATES_PATH, template_file)) as _file:
+    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
     content = template.render(
         days_to_report=future_days,
         cloud_info=cloud_info,
-        wp_wiki=conf["wp_wiki"],
+        wp_wiki=Config["wp_wiki"],
         cloud=cloud_obj.name,
         hosts=host_list_expire,
     )
@@ -171,8 +171,8 @@ def main():
     ]
     _validated_clouds = [_cloud for _cloud in _active_clouds if _cloud.validated]
 
-    if not os.path.exists(os.path.join(conf["data_dir"], "report")):
-        Path(os.path.join(conf["data_dir"], "report")).mkdir(
+    if not os.path.exists(os.path.join(Config["data_dir"], "report")):
+        Path(os.path.join(Config["data_dir"], "report")).mkdir(
             parents=True, exist_ok=True
         )
 
@@ -210,7 +210,7 @@ def main():
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future > current_hosts[0].end:
-                if not notification_obj[day.name.lower()] and conf["email_notify"]:
+                if not notification_obj[day.name.lower()] and Config["email_notify"]:
                     logger.info("=============== Additional Message")
                     host_list = [schedule.host.name for schedule in diff]
                     create_message(
@@ -235,7 +235,7 @@ def main():
                 cloud.description,
             )
 
-            if not notification_obj.pre_initial and conf["email_notify"]:
+            if not notification_obj.pre_initial and Config["email_notify"]:
                 logger.info("=============== Future Initial Message")
                 create_future_initial_message(
                     cloud,

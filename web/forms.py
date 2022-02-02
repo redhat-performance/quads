@@ -2,11 +2,11 @@
 
 from wtforms import DateField, validators, SelectMultipleField
 from flask_wtf import FlaskForm
-from quads.config import conf
+from quads.config import Config
 
 
 class ModelSearchForm(FlaskForm):
-    models_list = conf.get("models").split(",")
+    models_list = Config.get("models").split(",")
     models_choices = []
     for model in models_list:
         models_choices.append((model, model))
