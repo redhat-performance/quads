@@ -16,6 +16,23 @@
       "message": "More refactoring!  Should we bang on this before 1.1.6?",
       "revId": "941d4ed01fe0202eb85fcf5d2a6d0bccc8a2b740",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6babadd1_b6040482",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-02-03T09:47:04Z",
+      "side": 1,
+      "message": "retrigger",
+      "revId": "941d4ed01fe0202eb85fcf5d2a6d0bccc8a2b740",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
