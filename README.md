@@ -34,6 +34,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
       * [QUADS Reporting](#quads-reporting)
+        * [Future Assignment Reporting](#future-assignment-reporting)
         * [Server Availability Overview Report](#server-availability-overview-report)
         * [Scheduled Assignments Report](#scheduled-assignments-report)
       * [Common Administration Tasks](#common-administration-tasks)
@@ -499,6 +500,21 @@ quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 * You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script as an example.  It's useful to note that with `quads/tools/             move_and_rebuild_hosts.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
 ## QUADS Reporting
+
+### Future Assignment Reporting
+
+As of QUADS `1.1.6` we now have the `--report-detailed` command which will list all upcoming future assignments that are scheduled.
+
+```
+quads-cli --report-detailed
+```
+Owner    |    Ticket|    Cloud| Description| Systems|  Scheduled| Duration|
+tcruise  |      1034|  cloud20|   Openshift|       6| 2022-02-06|       14|
+cwalken  |      1031|  cloud19|   Openstack|       6| 2022-02-06|       14|
+bhicks   |      1029|  cloud18| Openstack-B|       4| 2022-02-06|       14|
+nreeves  |      1028|  cloud11| Openshift-P|       2| 2022-02-06|       14|
+gcarlin  |      1026|  cloud08|        Ceph|       4| 2022-02-06|       14|
+```
 
 ### Server Availability Overview Report
 
