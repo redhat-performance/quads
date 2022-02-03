@@ -70,7 +70,7 @@ class _Config(_ConfigBase):
 
     FPING_TIMEOUT = 10000
 
-    QUADSVERSION = "1.1.5"
+    QUADSVERSION = "1.1.6"
     QUADSCODENAME = "gaúcho"
 
     SUPPORTED = [
@@ -87,6 +87,9 @@ class _Config(_ConfigBase):
         "r730",
         "r740xd",
         "740xd",
+        "r750xd",
+        "r750",
+        "750",
         "r720xd",
         "7425",
         "7525",

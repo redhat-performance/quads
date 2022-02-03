@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.5
+%define version 1.1.6
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -128,6 +128,16 @@ fi;
 :;
 
 %changelog
+
+* Thu Feb 03 2022 Will Foster <wfoster@redhat.com>
+- 1.1.6 release
+- added jira token auth
+- added --skip-network to validate_env.py
+- added ls_switch_conf.py tool
+- added lshw.py tool
+- autocomplete for via python3-argcomplete
+- bug fixes
+- refactoring
 
 * Tue May 11 2021 Will Foster <wfoster@redhat.com>
 - 1.1.5 release
