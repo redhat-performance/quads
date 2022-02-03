@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f6ebeb6_79e092e7",
+        "filename": "quads/config.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2022-02-03T12:58:35Z",
+      "side": 1,
+      "message": "Let\u0027s add in R750, R750XD, 750XD as well",
+      "revId": "6ab7392aece3e262fcb679b77f9b3db21c0c5550",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
