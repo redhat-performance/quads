@@ -2,7 +2,7 @@ import logging
 import sys
 
 
-class CustomFormatter(logging.Formatter):
+class ColorFormatter(logging.Formatter):
     """
     Logging Formatter to add colors and count warning / errors
     """
