@@ -21,11 +21,6 @@ def main():
     if not os.path.exists(Config["visual_web_dir"]):
         os.makedirs(Config["visual_web_dir"])
 
-    _static_web = os.path.join(Config["visual_web_dir"], "static")
-    if not os.path.exists(_static_web):
-        _static = os.path.join(Config.TEMPLATES_PATH, "static")
-        os.symlink(_static, _static_web)
-
     for _date in dates:
         gen_time = "Allocation Map for %s-%.2d" % (_date.year, _date.month)
         content = generator(
