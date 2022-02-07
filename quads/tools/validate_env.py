@@ -127,8 +127,8 @@ class Validator(object):
                 for host in pending:
                     logger.info(host)
                     try:
-                        async with Netcat(host) as nc:
-                            healthy = await nc.health_check()
+                        nc = Netcat(host)
+                        healthy = await nc.health_check()
                     except OSError:
                         healthy = False
                     if not healthy:
@@ -190,8 +190,8 @@ class Validator(object):
         hosts_down = []
         for host in self.hosts:
             try:
-                async with Netcat(host.name) as nc:
-                    healthy = await nc.health_check()
+                nc = Netcat(host.name)
+                healthy = await nc.health_check()
             except OSError:
                 healthy = False
             if not healthy:

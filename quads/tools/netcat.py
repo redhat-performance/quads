@@ -15,6 +15,7 @@ class Netcat:
         self.loop = loop if loop else get_running_loop()
 
     async def __aenter__(self):
+        await self.connect()
         return self
 
     async def __aexit__(self, *args):
