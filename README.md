@@ -36,7 +36,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [QUADS Reporting](#quads-reporting)
         * [Future Assignment Reporting](#future-assignment-reporting)
         * [Server Availability Overview Report](#server-availability-overview-report)
-        * [Scheduled Assignments Report](#scheduled-assignments-report)
+        * [Assignment Scheduling Statistics](#assignment-scheduling-statistics)
+        * [Upcoming Scheduled Assignments Report](#upcoming-scheduled-assignments-report)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
             * [QUADS VLAN Options](#quads-vlan-options)
@@ -508,6 +509,8 @@ As of QUADS `1.1.6` we now have the `--report-detailed` command which will list 
 ```
 quads-cli --report-detailed
 ```
+Example Output
+```
 Owner    |    Ticket|    Cloud| Description| Systems|  Scheduled| Duration|
 tcruise  |      1034|  cloud20|   Openshift|       6| 2022-02-06|       14|
 cwalken  |      1031|  cloud19|   Openstack|       6| 2022-02-06|       14|
@@ -535,7 +538,25 @@ r620        |     5|     0|      100%|       0|       0
 
 Additionally, you can pass `--schedule-start` and `--schedule-end` dates for reports in the past. 2 weeks and 4 weeks free calculate starting days from the first Sunday following when the command was run, or return current day at 22:01 if run on Sunday.
 
-### Scheduled Assignments Report
+### Assignment Scheduling Statistics
+
+Generate a report detailing systems and scheduling utilization over the course of months or years.
+
+```
+quads-cli --report-scheduled --months 6
+```
+Example Output
+```
+Month   | Scheduled|  Systems|  % Utilized|
+2022-02 |         1|     1268|         42%|
+2022-01 |         9|     1268|         66%|
+2022-02 |         1|     1268|         42%|
+2021-09 |        10|     1226|         83%|
+2021-08 |        14|     1215|         77%|
+2021-07 |         3|     1215|         87%|
+```
+
+### Upcoming Scheduled Assignments Report
 
 Generate statistics on the number of assigned clouds in quads over a period of months in the past starting today or on a specific year.
 
