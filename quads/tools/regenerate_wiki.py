@@ -6,7 +6,8 @@ from datetime import datetime
 from xmlrpc.client import ProtocolError
 from git import Repo, InvalidGitRepositoryError
 from quads.config import Config
-from quads.tools import create_input, create_input_assignments, racks_wiki
+from quads.tools import create_input, create_input_assignments
+from quads.tools.wiki import Wiki
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 wp_wiki = Config["wp_wiki"]
@@ -18,7 +19,6 @@ wp_wiki_assignments_title = Config["wp_wiki_assignments_title"]
 wp_wiki_assignments_page_id = Config["wp_wiki_assignments_page_id"]
 wp_wiki_git_manage = Config["wp_wiki_git_manage"]
 wp_wiki_git_repo_path = Config["wp_wiki_git_repo_path"]
-
 
 logger = logging.getLogger(__name__)
 
@@ -40,10 +40,12 @@ if __name__ == "__main__":
                 repo.remotes.origin.push()
 
     try:
-        racks_wiki.update_wiki(
+        wiki = Wiki(
             url=wp_wiki,
             username=wp_username,
             password=wp_password,
+        )
+        wiki.update(
             _page_title=wp_wiki_main_title,
             _page_id=wp_wiki_main_page_id,
             _markdown=main_md,
@@ -68,10 +70,8 @@ if __name__ == "__main__":
                 repo.remotes.origin.push()
 
     try:
-        racks_wiki.update_wiki(
-            url=wp_wiki,
-            username=wp_username,
-            password=wp_password,
+        wiki = Wiki(url=wp_wiki, username=wp_username, password=wp_password)
+        wiki.update(
             _page_title=wp_wiki_assignments_title,
             _page_id=wp_wiki_assignments_page_id,
             _markdown=assignments_md,
