@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 
 from wordpress_xmlrpc import Client, WordPressPage
 from wordpress_xmlrpc.methods.posts import EditPost
@@ -25,7 +26,8 @@ def update_wiki(url, username, password, _page_title, _page_id, _markdown):
     if scheme == "https":
         ssl._create_default_https_context = ssl._create_unverified_context
 
-    wp = Client(url, username, password)
+    endpoint = os.path.join(url, "xmlrpc.php")
+    wp = Client(endpoint, username, password)
 
     # define pages variable
     page = WordPressPage()
@@ -66,7 +68,7 @@ if __name__ == "__main__":
         dest="wpurl",
         type=str,
         default=None,
-        help="Specify wordpress URL. e.g. http://wiki.example.com/xmlrpc.php",
+        help="Specify wordpress URL. e.g. http://wiki.example.com",
         required=True,
     )
     parser.add_argument(
