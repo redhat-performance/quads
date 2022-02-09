@@ -1,18 +1,40 @@
 import os
+
+import mongoengine
 import requests
 
+from quads.config import Config
+from quads.helpers import param_check
 
-class Api(object):
+
+class Quads:
     """
     A python interface into the Quads API
+
+    NOTE: Eventually the relationship of this class and API should be reversed.
+        Considering both logic of API and the rest of quads is already written here in code
+        there shouldn't be a need to have a http proxy for a part of it.
+    TODO: Separate heavy-lifting logic of API endpoints into it's own functions (or methods on this class)
+        and have CLI and API depend on that
     """
 
-    def __init__(self, base_url):
-        """
-        Initialize a quads object.
-        """
-        self.base_url = base_url
+    def __init__(self, config: Config):
+        self.config = config
+        self.base_url = config.API_URL
         self.session = requests.Session()
+
+    @staticmethod
+    def _param_check(*args, **kwargs):
+        return param_check(*args, **kwargs)
+
+    @staticmethod
+    def connect_mongo():
+        """
+        Small wrapper for setting up mongo connection
+        Mainly used by CLI, API/Flask has it's own way to connect (see flask-mongoengine)
+        """
+        ip = os.environ.get("MONGODB_IP", "127.0.0.1")
+        mongoengine.connect("quads", ip)
 
     @staticmethod
     def _parse_and_check_quads(json_data):
@@ -30,7 +52,8 @@ class Api(object):
         params = []
         if _args:
             for param in _args.items():
-                params.append("=".join(param))
+                if param[1] is not None:
+                    params.append("=".join([str(prm) for prm in param]))
             params_uri = "&".join(params)
             _base_uri = "?".join([_base_uri, params_uri])
         return _base_uri
@@ -41,9 +64,7 @@ class Api(object):
         return self._parse_and_check_quads(_response)
 
     def post(self, endpoint, data):
-        _response = self.session.post(
-            os.path.join(self.base_url, endpoint), data, verify=False
-        )
+        _response = self.session.post(os.path.join(self.base_url, endpoint), data, verify=False)
         return self._parse_and_check_quads(_response)
 
     def delete(self, endpoint, **kwargs):
