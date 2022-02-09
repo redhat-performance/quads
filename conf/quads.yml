@@ -199,6 +199,8 @@ quads_notify_until_extended: True
 
 # Comma separated docs links for jira ticket template
 jira_docs_links: http://wiki.example.com/faq/,http://wiki.example.com/usage/,http://docs.example.com/wiki/ScaleLabTipsAndTricks
+# If you're not using the routable VLAN functionality, leave the example entries
+# intact below
 jira_vlans_docs_links: http://wiki.example.com/vlans/,http://wiki.example.com/public-vlans/
 
 # This following variable will determine the default PXE boot interface
