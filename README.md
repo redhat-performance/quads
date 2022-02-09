@@ -505,6 +505,7 @@ quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 ### Future Assignment Reporting
 
 As of QUADS `1.1.6` we now have the `--report-detailed` command which will list all upcoming future assignments that are scheduled.
+You can also specify custom start and end dates via `--schedule-start YYYY-MM-DD` and `--schedule-stop YYYY-MM-DD`
 
 ```
 quads-cli --report-detailed
