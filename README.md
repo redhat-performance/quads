@@ -505,6 +505,7 @@ quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 ### Future Assignment Reporting
 
 As of QUADS `1.1.6` we now have the `--report-detailed` command which will list all upcoming future assignments that are scheduled.
+You can also specify custom start and end dates via `--schedule-start YYYY-MM-DD HH:MM` and `--schedule-stop YYYY-MM-DD HH:MM`
 
 ```
 quads-cli --report-detailed
@@ -654,7 +655,7 @@ for h in $(cat /tmp/RT423624) ; do quads-cli --host $h --add-schedule --schedule
    - **NOTE** If you are using [JIRA integration features](/docs/using-jira-with-quads.md) with QUADS 1.1.5 and higher you can utilize `--host-list` along with a list of hosts and it will take care of updating your `--cloud-ticket` in JIRA for you in one swoop.
 
 ```
-quads-cli --add-schedule --host-list /tmp/hosts --schedule-start "2021-04-20 22:00" --schedule-end "2021-05-02 22:00" --schedule-cloud cloud20 --cloud-ticket 12345
+quads-cli --add-schedule --host-list /tmp/hosts --schedule-start "2021-04-20 22:00" --schedule-end "2021-05-02 22:00" --schedule-cloud cloud20
 ```
 
 That's it.  At this point your hosts will be queued for provision and move operations, we check once a minute if there are any pending provisioning tasks.  To check manually:
