@@ -16,6 +16,7 @@ General guidelines of how to setup your network switches, servers and DNS for QU
         * [Integration into Foreman or a Provisioning System](#integration-into-foreman-or-a-provisioning-system)
           * [Foreman Tuning](#foreman-tuning)
           * [Create Foreman Roles and Filters](#create-foreman-roles-and-filters)
+          * [Add Optional Foreman Host Parameters](#add-optional-foreman-host-parameters)
           * [Adding New QUADS Host IPMI](#adding-new-quads-host-ipmi)
           * [Add Optional SSH Keys](#add-optional-ssh-keys)
           * [Create QUADS IPMI Credentials](#create-quads-ipmi-credentials)
@@ -251,6 +252,22 @@ for clouduser in $(seq 10 32); do hammer user-group add-user --name cloudusers -
    * In order for non-admin environment users (e.g. cloud02, cloud03) to see only their hosts the hosts simply need to have their ownership changed to that respective cloud user. [foreman_heal.py](https://github.com/redhat-performance/quads/blob/master/quads/tools/foreman_heal.py) will take care of this for you, we typically run this every 3 hours outside of [cron](https://github.com/redhat-performance/quads/blob/master/cron/quads#L45).  This will both setup system ownership as well as fix inconsistencies if they exist when run.
 
    * If you'd prefer to manage this yourself with `hammer cli` then we're just running the equivalent of `hammer host update --name host01.example.com --owner newcloudusername`
+
+#### Add Optional Foreman Host Parameters
+
+If you'll be using OpenStack or OpenShift integration features like auto-generating `instackenv.json` and `ospenv.json` metadata files then you'll want the following host parameters defined for each managed host in Foreman.
+
+* `overcloud: true`
+
+To set this easily across all quads-managed hosts:
+
+```
+for host in $(quads-cli --ls-hosts); do hammer host set-parameter --host $host --name overcloud --value true; done
+```
+
+The operative working parameter in `/opt/quads/conf/quads.yml` would be `openstack_management: true` and/or `openshift_management: true`
+
+* When tenants consume the subsequently generated JSON files, changing the host parameter to `overcloud: false` in the Foreman UI or Hammer CLI subsequently omits that host from the metadata (in the case of setting aside an undercloud host for example).  In the course of provisioning this key/value pair gets reset back to `true` per host in scope.
 
 ### Adding New QUADS Host IPMI
 
