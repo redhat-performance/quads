@@ -379,10 +379,12 @@ class ScheduleMethodHandler(MethodHandlerBase):
 
         _host = data["host"]
         _host_obj = Host.objects(name=_host).first()
+        if not _host_obj:
+            result.append(f"Host {_host} is not defined")
 
         broken_hosts = Host.objects(broken=True)
         if _host_obj in broken_hosts:
-            result.append(f"Host {_host_obj.name} is in broken state")
+            result.append(f"Host {_host_obj.name} does not exist")
 
         # Check if there were data validation errors
         if result:

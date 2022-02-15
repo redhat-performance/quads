@@ -283,6 +283,8 @@ class Schedule(Document):
     @queryset_manager
     def is_host_available(self, queryset, host, start, end, exclude=None):
         _host = Host.objects(name=host).first()
+        if not _host:
+            return False
         if _host.broken or _host.retired:
             return False
         _query = Q(host=_host)
