@@ -5,7 +5,7 @@ your allocated environment:
 {{ cloud_info }}
 
 (Details)
-http://{{ wp_wiki }}/assignments/#{{ cloud }}
+{{ wp_wiki }}/assignments/#{{ cloud }}
 
 will have some or all of the hosts expire.  The following
 hosts will automatically be reprovisioned and returned to
