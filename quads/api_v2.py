@@ -412,6 +412,10 @@ class ScheduleMethodHandler(MethodHandlerBase):
                     _end = schedule.end
                 if not cloud_obj:
                     cloud_obj = schedule.cloud
+                if _start > _end:
+                    result.append("Start date cannot be past the end date")
+                    cherrypy.response.status = "400 Bad Request"
+                    return json.dumps({"result": result})
                 if Schedule.is_host_available(
                     host=_host, start=_start, end=_end, exclude=schedule.index
                 ):
