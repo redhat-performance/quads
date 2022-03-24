@@ -263,7 +263,7 @@ class Foreman(object):
         return None
 
     async def get_all_hosts(self):
-        endpoint = "/hosts"
+        endpoint = "/hosts?per_page=9999"
         return await self.get_obj_dict(endpoint)
 
     async def get_broken_hosts(self):
