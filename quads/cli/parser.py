@@ -39,8 +39,8 @@ action_group.add_argument(
     "--unretire",
     dest="action",
     action="store_const",
-    const="retire",
-    help="Mark broken host as back in business",
+    const="unretire",
+    help="Mark retired host as back in business",
 )
 
 # ---- Generic args

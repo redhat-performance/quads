@@ -3,9 +3,10 @@ import asyncio
 import os
 import pathlib
 import re
-import requests
+
 from quads.tools.foreman import Foreman
 from quads.config import Config
+from quads.model import Host
 
 HEADERS = [
     "U",
@@ -47,40 +48,24 @@ def render_header(_rack):
     return "\n".join([h, "", h1, h2])
 
 
-def render_row(_host, _properties):
-    u_loc = _host.split("-")[1][1:]
-    node = _host
-    owner = ""
-    cloud = ""
-    host_url = os.path.join(Config.API_URL, "host?name=%s" % node)
-    _response = requests.get(host_url)
-    if _response.status_code == 200:
-        host_data = _response.json()
-        if "cloud" in host_data:
-            cloud_url = os.path.join(
-                Config.API_URL, "cloud?id=%s" % host_data["cloud"]["$oid"]
-            )
-            _cloud_response = requests.get(cloud_url)
-            if _cloud_response.status_code == 200:
-                cloud_data = _cloud_response.json()
-                if "owner" in cloud_data:
-                    owner = cloud_data["owner"]
-                cloud = "[%s](/assignments/#%s)" % (
-                    cloud_data["name"],
-                    cloud_data["name"],
-                )
+def render_row(host_obj, _properties):
+    u_loc = host_obj.name.split("-")[1][1:]
+    cloud = "[%s](/assignments/#%s)" % (
+        host_obj.cloud.name,
+        host_obj.cloud.name,
+    )
 
     row = [
         u_loc,
-        node.split(".")[0],
+        host_obj.name.split(".")[0],
         str(_properties["svctag"]),
         str(_properties["host_mac"]),
         str(_properties["host_ip"]),
         str(_properties["ip"]),
-        "<a href=http://mgmt-%s/ target=_blank>console</a>" % _host,
+        "<a href=http://mgmt-%s/ target=_blank>console</a>" % host_obj.name,
         str(_properties["mac"]),
         cloud,
-        owner,
+        host_obj.cloud.owner,
     ]
     return "| %s |\n" % " | ".join(row)
 
@@ -137,7 +122,9 @@ def main():
 
                 for host, properties in hosts.items():
                     if rack in host:
-                        _f.write(render_row(host, properties))
+                        host_obj = Host.objects(name=host).first()
+                        if host_obj and not host_obj.retired:
+                            _f.write(render_row(host_obj, properties))
                 _f.write("\n")
 
         _f.truncate()
