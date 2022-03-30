@@ -3,10 +3,9 @@ import asyncio
 import os
 import pathlib
 import re
-from datetime import datetime
-
 import requests
 
+from datetime import datetime
 from quads.config import Config
 from quads.model import Host, Schedule, Cloud
 from quads.tools.foreman import Foreman
