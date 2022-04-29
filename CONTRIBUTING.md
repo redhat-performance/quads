@@ -6,7 +6,7 @@ The QUADS project welcomes contributions from everyone!  Please read the below s
 
 ## Contribution Basics
   * We use [Gerrit](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) for code review
-  * You can also find us on IRC at **#quads** on ```irc.freenode.net```
+  * You can also find us on IRC at **#quads** on ```irc.libera.chat``` [webchat](https://web.libera.chat/?channels=#quads)
 
 ### QUADS Development Setup
   - Clone `master` branch for latest, or a specific release branch e.g. `1.1`
