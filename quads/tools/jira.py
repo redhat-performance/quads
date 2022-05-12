@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import aiohttp
 import asyncio
+import json
 import logging
 import urllib3
 from aiohttp import BasicAuth
@@ -86,20 +87,20 @@ class Jira(object):
                 ) as session:
                     async with session.post(
                         self.url + endpoint,
-                        json=payload,
+                        json=json.loads(payload),
                         verify_ssl=False,
-                    ) as response:
-                        await response.json(content_type="application/json")
+                    ) as request:
+                        response = await request.json(content_type="application/json")
         except Exception as ex:
             logger.debug(ex)
             logger.error("There was something wrong with your request.")
-            return False
-        if response.status in [200, 201, 204]:
+            return [False, None]
+        if request.status in [200, 201, 204]:
             logger.info("Post successful.")
-            return True
-        if response.status == 404:
+            return [True, response]
+        if request.status == 404:
             logger.error("Resource not found: %s" % self.url + endpoint)
-        return False
+        return [False, None]
 
     async def put_request(self, endpoint, payload):
         logger.debug("POST: {%s:%s}" % (endpoint, payload))
@@ -130,7 +131,7 @@ class Jira(object):
         endpoint = "/issue/%s/watchers" % issue_id
         logger.debug("POST transition: {%s:%s}" % (issue_id, watcher))
         data = watcher
-        response = await self.post_request(endpoint, data)
+        status, response = await self.post_request(endpoint, data)
         return response
 
     async def add_label(self, ticket, label):
@@ -144,14 +145,14 @@ class Jira(object):
         issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/comment" % issue_id
         payload = {"body": comment}
-        response = await self.post_request(endpoint, payload)
+        status, response = await self.post_request(endpoint, payload)
         return response
 
     async def post_transition(self, ticket, transition):
         issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/transitions" % issue_id
         payload = {"transition": {"id": transition}}
-        response = await self.post_request(endpoint, payload)
+        status, response = await self.post_request(endpoint, payload)
         return response
 
     async def get_transitions(self, ticket):
@@ -177,6 +178,19 @@ class Jira(object):
             logger.error("Failed to get ticket")
             return None
         return result
+
+    async def get_pending_child_extensions(self, ticket):
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
+        endpoint = "/search"
+        payload = f'{{"jql":' \
+                  f'"labels=EXTENSION AND ' \
+                  f'parent={issue_id} AND ' \
+                  f'statusCategory!=3",' \
+                  f'"fields":["id","key","labels","parent"]}}'
+        status, result = await self.post_request(endpoint, payload)
+        if status:
+            return [status, result.get("issues")]
+        return [status, None]
 
     async def get_watchers(self, ticket):
         issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
