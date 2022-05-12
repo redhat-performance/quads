@@ -308,6 +308,13 @@ action_group.add_argument(
     help="List the host reservations",
 )
 action_group.add_argument(
+    "--ls-expirations",
+    dest="action",
+    action="store_const",
+    const="expirations",
+    help="List the active clouds about to expire",
+)
+action_group.add_argument(
     "--ls-interface",
     dest="action",
     action="store_const",
