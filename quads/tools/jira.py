@@ -178,6 +178,17 @@ class Jira(object):
             return None
         return result
 
+    async def get_pending_child_extensions(self, ticket):
+        issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
+        endpoint = "/search"
+        payload = f'{{"jql":' \
+                  f'"labels=EXTENSION AND ' \
+                  f'parent={issue_id} AND ' \
+                  f'statusCategory!=3",' \
+                  f'"fields":["id","key","labels","parent"]}}'
+        result = await self.post_request(endpoint, payload)
+        return result.get("issues")
+
     async def get_watchers(self, ticket):
         issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s/watchers" % issue_id

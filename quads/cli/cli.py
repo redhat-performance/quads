@@ -112,6 +112,9 @@ class QuadsCli:
         if self.cli_args.get("summary"):
             return self.action_summary()
 
+        if self.cli_args.get("expirations"):
+            return self.action_expirations()
+
         # default action
         clouds = Cloud.objects()
         hosts = Host.objects()
@@ -1616,3 +1619,31 @@ class QuadsCli:
                         "%s: %s (%s)"
                         % (cloud["name"], cloud["count"], cloud["description"])
                     )
+
+    def action_expirations(self):
+        clouds = Cloud.objects(name__ne="cloud01")
+        today = datetime.now()
+        next_sunday = today + timedelta(days=(6 - today.weekday()))
+        last_sunday = next_sunday - timedelta(days=7)
+
+        loop = asyncio.get_event_loop()
+        try:
+            jira = Jira(
+                conf["jira_url"],
+                loop=loop,
+            )
+        except JiraException as ex:
+            self.logger.error(ex)
+            exit(1)
+
+        for cloud in clouds:
+            ticket = cloud.ticket
+            schedules = Schedule.objects(cloud=cloud, end__ge=last_sunday, end__le=next_sunday)
+            extension = "None"
+            if schedules:
+                results = loop.run_until_complete(jira.get_pending_child_extensions(ticket))
+                if results:
+                    extension = results[0].key
+                end = schedules[0].end
+                days_left = end.weekday() - today.weekday()
+                self.logger.info(f"{cloud.name}: {days_left} day[s], expires: {end}, Extension: {extension}")
