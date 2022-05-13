@@ -80,6 +80,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Hostname</th>
+                                <th scope="col">Cloud</th>
                                 <th scope="col">Model</th>
                             </tr>
                         </thead>
@@ -92,6 +93,7 @@
                             {% endif %}
                                 <th scope="row">{{ loop.index }}</th>
                                 <td>{{ host["name"] }}</td>
+                                <td>{{ host["cloud"] }}</td>
                                 <td>{{ host["model"] }}</td>
                             </tr>
                             {% endfor %}
