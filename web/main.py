@@ -50,7 +50,7 @@ def available(search):
                 current = False
                 if Schedule.current_schedule(host=host):
                     current = True
-                host_dict = {"name": host.name, "model": host.model, "current": current}
+                host_dict = {"name": host.name, "cloud": host.cloud.name, "model": host.model, "current": current}
                 available_hosts.append(host_dict)
 
     return jsonify(available_hosts)
