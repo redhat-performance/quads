@@ -6,14 +6,17 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
 ![quads](../image/quads.jpg?raw=true)
 
   * [How to Import Host Metadata](#how-to-import-host-metadata)
-    * [Modify YAML Host Data](#modify-yaml-host-data)
-    * [Add any Supporting Model Type](#add-any-supporting-model-type)
-    * [Importing Host Metadata](#importing-host-metadata)
+     * [Modify YAML Host Data](#modify-yaml-host-data)
+     * [Add any Supporting Model Type](#add-any-supporting-model-type)
+     * [Importing Host Metadata](#importing-host-metadata)
   * [How to Export Host Metadata](#how-to-export-host-metadata)
   * [Querying Host Information](#querying-host-information)
-    * [Example Filter Searches](#example-filter-searches)
-  * [Querying Host Status](#querying-host-status)
-    * [Example Filter Searches](#example-status-filter-searches)
+     * [Example Filter Searches](#example-filter-searches)
+        * [Example Hardware Filter Searches](#example-hardware-filter-searches)
+        * [Example Network Filter Searches](#example-network-filter-searches)
+           * [Combined Network Search Example](#combined-network-search-example)
+   * [Querying Host Status](#querying-host-status)
+     * [Example Filter Searches](#example-status-filter-searches)
 ## How to Import Host Metadata
 ### Modify YAML Host Data
   * Host metadata uses a standard YAML key/value pair format, here's a [reference example](../conf/hosts_metadata.yml)
@@ -71,6 +74,8 @@ quads-cli --export-host-details /tmp/my_host_data.yml
 ### Example Filter Searches
   * Accepted operators are `==, !=, <, <=, >, >=`
 
+#### Example Hardware Filter Searches
+
   * Search for systems with disk type NVMe, with a size of 2TB or more and available between `2020-07-20 17:00` and `2020-07-22 13:00`
 
 ```
@@ -95,17 +100,42 @@ quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "202
 quads-cli --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "disks.disk_type==nvme,disks.count>2, disks.size_gb<2000"
 ```
 
-  * Search all systems by MAC Address.
+  * Search all systems by model and number of interfaces.
+
+```
+quads-cli --ls-hosts --filter "model==FC640,interfaces__size==5"
+```
+
+#### Example Network Filter Searches
+
+  * Find a host by MAC Address.
   * This is useful for finding what host has what MAC Address.
 
 ```
 quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 ```
 
-  * Search all systems by model and number of interfaces.
+  * Find hosts by switch IP address.
+  * Shows all hosts connected to a particular switch
 
 ```
-quads-cli --ls-hosts --filter "model==FC640,interfaces__size==5"
+quads-cli --ls-host --filter "interfaces.ip_address==10.1.34.216"
+```
+
+  * Find hosts by physical switchport
+  * Shows all hosts that have a specific physical switchport name
+
+```
+quads-cli --ls-host --filter "interfaces.switch_port==et-0/0/7:1"
+```
+
+##### Combined Network Search Example
+
+  * Like other filter strings you can combine elements together.
+  * Example: Search for a host by physical switchport **and** switch IP address.
+
+```
+quads-cli --ls-hosts --filter "interfaces.ip_address==10.1.34.216,interfaces.switch_port==et-0/0/7:1"
 ```
 
 ## Querying Host Status
