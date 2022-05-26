@@ -6,25 +6,25 @@
   interfaces:
   - name: em1
     mac_address: 00:25:90:5e:84:90
-    ip_address: 10.1.34.248
+    switch_ip: 10.1.34.248
     switch_port: et-0/0/4:2
     speed: 1000
     maintenance: false
   - name: em2
     mac_address: 00:25:90:5e:84:91
-    ip_address: 10.1.34.248
+    switch_ip: 10.1.34.248
     switch_port: et-0/0/4:3
     speed: 1000
     maintenance: false
   - name: em3
     mac_address: 00:25:90:5e:84:16
-    ip_address: 10.1.34.249
+    switch_ip: 10.1.34.249
     switch_port: et-0/0/4:2
     speed: 1000
     maintenance: false
   - name: em4
     mac_address: 00:25:90:5e:84:17
-    ip_address: 10.1.34.249
+    switch_ip: 10.1.34.249
     switch_port: et-0/0/4:3
     speed: 1000
     maintenance: false
@@ -53,25 +53,25 @@
   interfaces:
   - name: em1
     mac_address: 00:25:90:5e:85:90
-    ip_address: 10.1.34.248
+    switch_ip: 10.1.34.248
     switch_port: et-0/0/5:2
     speed: 1000
     maintenance: false
   - name: em2
     mac_address: 00:25:90:5e:85:91
-    ip_address: 10.1.34.248
+    switch_ip: 10.1.34.248
     switch_port: et-0/0/5:3
     speed: 1000
     maintenance: false
   - name: em3
     mac_address: 00:25:90:5e:85:16
-    ip_address: 10.1.34.249
+    switch_ip: 10.1.34.249
     switch_port: et-0/0/5:2
     speed: 1000
     maintenance: false
   - name: em4
     mac_address: 00:25:90:5e:85:17
-    ip_address: 10.1.34.249
+    switch_ip: 10.1.34.249
     switch_port: et-0/0/5:3
     speed: 1000
     maintenance: false
