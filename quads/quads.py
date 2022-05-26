@@ -120,7 +120,7 @@ class Quads:
         uri = self._uri_constructor("summary", kwargs)
         return self.get(uri)
 
-    def get_interfaces(self, **kwargs):
+    def get_interfaces(self, kwargs):
         uri = self._uri_constructor("interfaces", kwargs)
         return self.get(uri)
 

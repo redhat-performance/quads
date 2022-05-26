@@ -26,23 +26,23 @@ def switch_config(host, old_cloud, new_cloud):
     if not _host_obj.interfaces:
         logger.error("Host has no interfaces defined.")
         return False
-    logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].ip_address)
+    logger.debug("Connecting to switch on: %s" % _host_obj.interfaces[0].switch_ip)
     switch_ip = None
     ssh_helper = None
     interfaces = sorted(_host_obj.interfaces, key=lambda k: k["name"])
     for i, interface in enumerate(interfaces):
         last_nic = i == len(_host_obj.interfaces) - 1
         if not switch_ip:
-            switch_ip = interface.ip_address
+            switch_ip = interface.switch_ip
             try:
                 ssh_helper = SSHHelper(switch_ip, Config["junos_username"])
             except SSHHelperException:
                 logger.error(f"Failed to connect to switch: {switch_ip}")
                 return False
         else:
-            if switch_ip != interface.ip_address:
+            if switch_ip != interface.switch_ip:
                 ssh_helper.disconnect()
-                switch_ip = interface.ip_address
+                switch_ip = interface.switch_ip
                 ssh_helper = SSHHelper(switch_ip, Config["junos_username"])
         result, old_vlan_out = ssh_helper.run_cmd(
             "show configuration interfaces %s" % interface.switch_port
@@ -57,7 +57,7 @@ def switch_config(host, old_cloud, new_cloud):
                     % (
                         host,
                         interface.name,
-                        interface.ip_address,
+                        interface.switch_ip,
                         interface.switch_port,
                     )
                 )
@@ -70,7 +70,7 @@ def switch_config(host, old_cloud, new_cloud):
                 logger.info("Setting last interface to public vlan %s." % new_vlan)
 
                 juniper = Juniper(
-                    interface.ip_address,
+                    interface.switch_ip,
                     interface.switch_port,
                     old_vlan,
                     _new_cloud_obj.vlan.vlan_id,
@@ -88,7 +88,7 @@ def switch_config(host, old_cloud, new_cloud):
         else:
             if int(old_vlan) != int(new_vlan):
                 juniper = Juniper(
-                    interface.ip_address, interface.switch_port, old_vlan, new_vlan
+                    interface.switch_ip, interface.switch_port, old_vlan, new_vlan
                 )
                 success = juniper.set_port()
 

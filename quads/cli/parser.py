@@ -492,7 +492,7 @@ parser.add_argument(
     help="Interface MAC address",
 )
 parser.add_argument(
-    "--interface-ip",
+    "--interface-switch-ip",
     dest="ifip",
     type=str,
     default=None,
