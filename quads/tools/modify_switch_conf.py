@@ -27,7 +27,7 @@ def verify(
         for i, interface in enumerate(interfaces):
             vlan = _nics.get(interface.name)
             if vlan:
-                ssh_helper = SSHHelper(interface.ip_address, Config["junos_username"])
+                ssh_helper = SSHHelper(interface.switch_ip, Config["junos_username"])
 
                 try:
                     _, old_vlan_out = ssh_helper.run_cmd(
@@ -50,7 +50,7 @@ def verify(
                         "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
                         % (
                             interface.name,
-                            interface.ip_address,
+                            interface.switch_ip,
                             interface.switch_port,
                         )
                     )
@@ -74,7 +74,7 @@ def verify(
                     if change:
                         logger.info(f"Change requested for {interface.name}")
                         juniper = Juniper(
-                            interface.ip_address,
+                            interface.switch_ip,
                             interface.switch_port,
                             vlan_member,
                             vlan,

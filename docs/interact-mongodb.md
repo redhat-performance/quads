@@ -40,7 +40,7 @@ switched to db quads
    - Query for all hosts which have interfaces to a specific switch port and switch ip
 
 ```
-> db.host.find({"interfaces":{$elemMatch:{"switch_port":"xe-0/0/10:2", "ip_address":"10.1.1.10"}}})
+> db.host.find({"interfaces":{$elemMatch:{"switch_port":"xe-0/0/10:2", "switch_ip":"10.1.1.10"}}})
 { "_id" : ObjectId("5c82b3660f767d000692acf7"), "name" : "host01.example.com", "cloud" : ObjectId("...
 ```
 
@@ -157,7 +157,7 @@ Above, we will move those two hosts manually inside MongoDB.
 
 ```
 db.host.find({name: "f20-h01-000-r620.rdu2.example.com"})
-{ "_id" : ObjectId("5ce1e7e7913706568065a109"), "name" : "f20-h01-000-r620.rdu2.scalelab.example.com", "cloud" : ObjectId("5c82b3660f767d000692acf5"), "host_type" : "vendor", "interfaces" : [ { "name" : "em1", "mac_address" : "0c:c4:7a:eb:8b:a2", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:0" }, { "name" : "em2", "mac_address" : "0c:c4:7a:eb:8b:a3", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/0:1" }, { "name" : "em3", "mac_address" : "b8:ca:3a:61:41:68", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:0" }, { "name" : "em4", "mac_address" : "b8:ca:3a:61:41:6a", "ip_address" : "10.1.34.233", "switch_port" : "xe-0/0/8:1" } ], "nullos" : true, "build" : false
+{ "_id" : ObjectId("5ce1e7e7913706568065a109"), "name" : "f20-h01-000-r620.rdu2.scalelab.example.com", "cloud" : ObjectId("5c82b3660f767d000692acf5"), "host_type" : "vendor", "interfaces" : [ { "name" : "em1", "mac_address" : "0c:c4:7a:eb:8b:a2", "switch_ip" : "10.1.34.233", "switch_port" : "xe-0/0/0:0" }, { "name" : "em2", "mac_address" : "0c:c4:7a:eb:8b:a3", "switch_ip" : "10.1.34.233", "switch_port" : "xe-0/0/0:1" }, { "name" : "em3", "mac_address" : "b8:ca:3a:61:41:68", "switch_ip" : "10.1.34.233", "switch_port" : "xe-0/0/8:0" }, { "name" : "em4", "mac_address" : "b8:ca:3a:61:41:6a", "switch_ip" : "10.1.34.233", "switch_port" : "xe-0/0/8:1" } ], "nullos" : true, "build" : false
 ```
 
    - We see that the current Cloud ObjectID is `5c82b3660f767d000692acf5` for cloud01, we need it to be `5c82b3660f767d000692acf7`

@@ -376,15 +376,14 @@ quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
 #### Define Host Interfaces in QUADS
 
    - Define the host interfaces, these are the internal interfaces you want QUADS to manage for VLAN automation
-   - Note that `--interface-ip` corresponds to the IP of the switch that hosts interface is connected to.
    - Do this for every interface you want QUADS to manage per host (we are working on auto-discovery of this step).
    - The variable `default_pxe_interface` on the quads.yml will set the default value of `pxe_boot=True` for that interface while any other interface will have a default value of `False` unless specified via `--pxe-boot` or `--no-pxe-boot`. This can be later modified via `--mod-interface`.
 
 ```
-quads-cli --add-interface em1 --interface-mac 52:54:00:d9:5d:df --interface-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface em2 --interface-mac 52:54:00:d9:5d:dg --interface-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
-quads-cli --add-interface em3 --interface-mac 52:54:00:d9:5d:dh --interface-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface em4 --interface-mac 52:54:00:d9:5d:d1 --interface-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface em1 --interface-mac 52:54:00:d9:5d:df --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface em2 --interface-mac 52:54:00:d9:5d:dg --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
+quads-cli --add-interface em3 --interface-mac 52:54:00:d9:5d:dh --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface em4 --interface-mac 52:54:00:d9:5d:d1 --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
 ```
 
    - To list the hosts:
@@ -414,10 +413,10 @@ c09-h03-r630.example.com
 ```
 quads --ls-interface --host c08-h21-r630.example.com
 
-{"name": "em1", "mac_address": "52:54:00:d9:5d:df", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:0"}
-{"name": "em2", "mac_address": "52:54:00:d9:5d:dg", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:1"}
-{"name": "em3", "mac_address": "52:54:00:d9:5d:dh", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:2"}
-{"name": "em4", "mac_address": "52:54:00:d9:5d:d1", "ip_address": "10.12.22.201", "switch_port": "xe-0/0/1:3"}
+{"name": "em1", "mac_address": "52:54:00:d9:5d:df", "switch_ip": "10.12.22.201", "switch_port": "xe-0/0/1:0"}
+{"name": "em2", "mac_address": "52:54:00:d9:5d:dg", "switch_ip": "10.12.22.201", "switch_port": "xe-0/0/1:1"}
+{"name": "em3", "mac_address": "52:54:00:d9:5d:dh", "switch_ip": "10.12.22.201", "switch_port": "xe-0/0/1:2"}
+{"name": "em4", "mac_address": "52:54:00:d9:5d:d1", "switch_ip": "10.12.22.201", "switch_port": "xe-0/0/1:3"}
 ```
 
    - To see the current system allocations:
