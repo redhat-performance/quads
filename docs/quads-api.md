@@ -27,7 +27,7 @@ curl -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080/api/v2/hos
 
 You'll then see a JSON response back.
 ```
-[{"_id":{"$oid":"5c82b3a90f767d000692ad48"},"name":"host01.example.com","cloud":{"$oid":"5c82b3660f767d000692acf7"},"host_type":"vendor","interfaces":[{"name":"em1","mac_address":"00:00:00:5e:84:90","ip_address":"10.1.34.248","switch_port":"et-0/0/2:0"},{"name":"em2","mac_address":"00:00:00:5e:84:91","ip_address":"10.1.34.248","switch_port":"et-0/0/2:1"}],"nullos":true,"build":false,"last_build":{"$date":1552923007391}},{"_id":{"$oid":"5c82b3a90f767d000692ad49"},"name":"host02.example.com","cloud":{"$oid":"5c82b3660f767d000692acf7"},"host_type":"vendor","interfaces":[{"name":"em1","mac_address":"00:00:00:5e:84:92","ip_address":"10.1.34.248","switch_port":"et-0/0/2:0"},{"name":"em2","mac_address":"00:00:00:5e:84:93","ip_address":"10.1.34.248","switch_port":"et-0/0/2:1"}],"nullos":true,"build":false,"last_build":{"$date":1552923007391}}]
+[{"_id":{"$oid":"5c82b3a90f767d000692ad48"},"name":"host01.example.com","cloud":{"$oid":"5c82b3660f767d000692acf7"},"host_type":"vendor","interfaces":[{"name":"em1","mac_address":"00:00:00:5e:84:90","switch_ip":"10.1.34.248","switch_port":"et-0/0/2:0"},{"name":"em2","mac_address":"00:00:00:5e:84:91","switch_ip":"10.1.34.248","switch_port":"et-0/0/2:1"}],"nullos":true,"build":false,"last_build":{"$date":1552923007391}},{"_id":{"$oid":"5c82b3a90f767d000692ad49"},"name":"host02.example.com","cloud":{"$oid":"5c82b3660f767d000692acf7"},"host_type":"vendor","interfaces":[{"name":"em1","mac_address":"00:00:00:5e:84:92","switch_ip":"10.1.34.248","switch_port":"et-0/0/2:0"},{"name":"em2","mac_address":"00:00:00:5e:84:93","switch_ip":"10.1.34.248","switch_port":"et-0/0/2:1"}],"nullos":true,"build":false,"last_build":{"$date":1552923007391}}]
 ```
 
 You'll probably want to jsonify this to make it more readable:
@@ -51,13 +51,13 @@ curl -qs -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080/api/v2
             {
                 "name": "em1",
                 "mac_address": "00:00:00:5e:84:90",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:0"
             },
             {
                 "name": "em2",
                 "mac_address": "00:00:00:5e:84:91",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:1"
             }
         ],
@@ -79,13 +79,13 @@ curl -qs -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080/api/v2
             {
                 "name": "em1",
                 "mac_address": "00:00:00:5e:84:92",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:0"
             },
             {
                 "name": "em2",
                 "mac_address": "00:00:00:5e:84:93",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:1"
             }
         ],
@@ -138,7 +138,7 @@ curl -qs -X GET -H 'Content-Type: application/json' http://127.0.0.1:8080/api/v2
     - ```-d 'force=true'```
     - ```-d 'name=em1'```
     - ```-d 'mac_address=00:00:00:00:00:00'```
-    - ```-d 'ip_address=192.168.35.35'```
+    - ```-d 'switch_ip=192.168.35.35'```
     - ```-d 'switch_port=et-0/0/2:1'```
     - ```-d 'description=some other cloud'```
     - ```-d 'owner=nobody'```
@@ -178,13 +178,13 @@ curl http://127.0.0.1:8080/api/v2/host?cloud=cloud09 | python3 -m json.tool
             {
                 "name": "em1",
                 "mac_address": "00:00:00:5e:84:90",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:0"
             },
             {
                 "name": "em2",
                 "mac_address": "00:00:00:5e:84:91",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:1"
             }
         ],
@@ -206,13 +206,13 @@ curl http://127.0.0.1:8080/api/v2/host?cloud=cloud09 | python3 -m json.tool
             {
                 "name": "em1",
                 "mac_address": "00:00:00:5e:84:92",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:0"
             },
             {
                 "name": "em2",
                 "mac_address": "00:00:00:5e:84:93",
-                "ip_address": "10.1.34.248",
+                "switch_ip": "10.1.34.248",
                 "switch_port": "et-0/0/2:1"
             }
         ],

@@ -18,7 +18,7 @@ from requests import ConnectionError
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
-from quads.model import Host, Vlan, Cloud, Schedule, Notification, Interface, Disk
+from quads.model import Host, Vlan, Cloud, Schedule, Notification, Interface, Disk, Memory, Processor
 from quads.quads import Quads
 from quads.tools import reports
 from quads.tools.jira import Jira, JiraException
@@ -169,7 +169,7 @@ class QuadsCli:
                         elif value.lower() == "true":
                             value = True
 
-                    if keys[0].strip().lower() in ["disks", "interfaces"]:
+                    if keys[0].strip().lower() in ["disks", "interfaces", "processors", "memory"]:
 
                         key = f"{keys[0].strip()}__match"
                         condition_dict = {
@@ -274,7 +274,7 @@ class QuadsCli:
                 "Missing option. --host option is required for --ls-interface:"
             )
 
-        host = Host.objects(name=self.cli_args["host"]).first()
+        host = Host.objects(name=hostname).first()
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
@@ -286,12 +286,62 @@ class QuadsCli:
                 self.logger.info(f"interface: {interface.get('name')}")
                 self.logger.info(f"  bios id: {interface.get('bios_id')}")
                 self.logger.info(f"  mac address: {interface.get('mac_address')}")
-                self.logger.info(f"  switch IP: {interface.get('ip_address')}")
+                self.logger.info(f"  switch ip: {interface.get('switch_ip')}")
                 self.logger.info(f"  port: {interface.get('switch_port')}")
                 self.logger.info(f"  speed: {interface.get('speed')}")
                 self.logger.info(f"  vendor: {interface.get('vendor')}")
                 self.logger.info(f"  pxe_boot: {interface.get('pxe_boot')}")
                 self.logger.info(f"  maintenance: {interface.get('maintenance')}")
+
+    def action_memory(self):
+        hostname = self.cli_args["host"]
+        if hostname is None:
+            raise CliException(
+                "Missing option. --host option is required for --ls-memory:"
+            )
+
+        host = Host.objects(name=hostname).first()
+        if not host:
+            raise CliException(f"Host {hostname} does not exist")
+
+        for i, memory in enumerate(host.memory):
+            self.logger.info(f"memory: {memory.handle}")
+            self.logger.info(f"  size: {memory.size_gb}")
+
+    def action_disks(self):
+        hostname = self.cli_args["host"]
+        if hostname is None:
+            raise CliException(
+                "Missing option. --host option is required for --ls-disks:"
+            )
+
+        host = Host.objects(name=hostname).first()
+        if not host:
+            raise CliException(f"Host {hostname} does not exist")
+
+        for i, disk in enumerate(host.disks):
+            self.logger.info(f"disk{i}:")
+            self.logger.info(f"  type: {disk.disk_type}")
+            self.logger.info(f"  size: {disk.size_gb}")
+            self.logger.info(f"  count: {disk.count}")
+
+    def action_processors(self):
+        hostname = self.cli_args["host"]
+        if hostname is None:
+            raise CliException(
+                "Missing option. --host option is required for --ls-processors:"
+            )
+
+        host = Host.objects(name=hostname).first()
+        if not host:
+            raise CliException(f"Host {hostname} does not exist")
+
+        for i, processor in enumerate(host.processors):
+            self.logger.info(f"processor: {processor.handle}")
+            self.logger.info(f"  vendor: {processor.vendor}")
+            self.logger.info(f"  product: {processor.size_gb}")
+            self.logger.info(f"  cores: {processor.cores}")
+            self.logger.info(f"  threads: {processor.threads}")
 
     def action_ls_vlan(self):
         _vlans = Vlan.objects().all()
@@ -1045,7 +1095,7 @@ class QuadsCli:
                     if not self.cli_args["force"]:
                         continue
                     if type(value) == list:
-                        dispatch = {"disks": Disk, "interfaces": Interface}
+                        dispatch = {"disks": Disk, "interfaces": Interface, "memory": Memory, "processors": Processor}
                         if host[key]:
                             param_key = f"unset__{key}"
                             kwargs = {param_key: 1}
@@ -1108,7 +1158,7 @@ class QuadsCli:
                 interface_dict = {
                     "name": interface.name,
                     "mac_address": interface.mac_address,
-                    "ip_address": interface.ip_address,
+                    "switch_ip": interface.switch_ip,
                     "switch_port": interface.switch_port,
                     "speed": interface.speed,
                     "vendor": interface.vendor,

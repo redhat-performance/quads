@@ -315,6 +315,27 @@ action_group.add_argument(
     help="List the host interfaces",
 )
 action_group.add_argument(
+    "--ls-memory",
+    dest="action",
+    action="store_const",
+    const="memory",
+    help="List the host memory",
+)
+action_group.add_argument(
+    "--ls-disks",
+    dest="action",
+    action="store_const",
+    const="disks",
+    help="List the host disk",
+)
+action_group.add_argument(
+    "--ls-processors",
+    dest="action",
+    action="store_const",
+    const="processors",
+    help="List the host processor",
+)
+action_group.add_argument(
     "--ls-vlan",
     dest="action",
     action="store_const",
@@ -492,7 +513,7 @@ parser.add_argument(
     help="Interface MAC address",
 )
 parser.add_argument(
-    "--interface-ip",
+    "--interface-switch-ip",
     dest="ifip",
     type=str,
     default=None,

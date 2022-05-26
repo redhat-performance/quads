@@ -62,7 +62,7 @@ docker exec quads bin/quads-cli --rm-schedule 0 --host host01.example.com
 docker exec quads bin/quads-cli --rm-schedule 0 --host host01.example.com
 
 echo '------- Add interfaces'
-docker exec quads bin/quads-cli --add-interface em1 --interface-mac 00:00:00:00:00:00  --interface-ip 10.12.67.247 --interface-port xe-0/0/0 --host host01.example.com
+docker exec quads bin/quads-cli --add-interface em1 --interface-mac 00:00:00:00:00:00  --interface-switch-ip 10.12.67.247 --interface-port xe-0/0/0 --host host01.example.com
 
 echo '------- List interfaces'
 docker exec quads bin/quads-cli --ls-interface --host host01.example.com
