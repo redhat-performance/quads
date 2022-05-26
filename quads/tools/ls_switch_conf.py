@@ -29,7 +29,7 @@ def verify(cloud):
         if host and host.interfaces:
             interfaces = sorted(host.interfaces, key=lambda k: k["name"])
             for i, interface in enumerate(interfaces):
-                ssh_helper = SSHHelper(interface.ip_address, Config["junos_username"])
+                ssh_helper = SSHHelper(interface.switch_ip, Config["junos_username"])
                 try:
                     _, vlan_member_out = ssh_helper.run_cmd(
                         "show configuration vlans | display set | match %s.0"
@@ -41,7 +41,7 @@ def verify(cloud):
                         "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
                         % (
                             interface.name,
-                            interface.ip_address,
+                            interface.switch_ip,
                             interface.switch_port,
                         )
                     )

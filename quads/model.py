@@ -155,6 +155,7 @@ class Notification(Document):
 
 class Disk(EmbeddedDocument):
     disk_type = StringField()
+    logical_name = StringField()
     size_gb = LongField()
     count = IntField()
     meta = {"strict": False}
@@ -167,11 +168,41 @@ class Disk(EmbeddedDocument):
         return result, data
 
 
+class Memory(EmbeddedDocument):
+    handle = StringField()
+    size_gb = LongField()
+    meta = {"strict": False}
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ["handle", "size_gb"]
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
+class Processor(EmbeddedDocument):
+    handle = StringField()
+    vendor = StringField()
+    product = StringField()
+    cores = IntField()
+    threads = IntField()
+    meta = {"strict": False}
+
+    @staticmethod
+    def prep_data(data):
+        _fields = ["handle", "cores", "threads"]
+        result, data = param_check(data, _fields)
+
+        return result, data
+
+
 class Interface(EmbeddedDocument):
     name = StringField()
+    logical_name = StringField()
     bios_id = StringField()
     mac_address = StringField()
-    ip_address = StringField()
+    switch_ip = StringField()
     switch_port = StringField()
     speed = LongField(default=-1)
     vendor = StringField(default="")
@@ -182,7 +213,7 @@ class Interface(EmbeddedDocument):
     @staticmethod
     def prep_data(data, fields=None):
         if not fields:
-            fields = ["name", "mac_address", "ip_address", "switch_port"]
+            fields = ["name", "mac_address", "switch_ip", "switch_port"]
 
         if data.get("vendor"):
             data["vendor"] = data.get("vendor").upper()
@@ -212,6 +243,8 @@ class Host(Document):
     validated = BooleanField(default=False)
     last_build = DateTimeField()
     disks = ListField(EmbeddedDocumentField(Disk))
+    memory = ListField(EmbeddedDocumentField(Memory))
+    processors = ListField(EmbeddedDocumentField(Processor))
     switch_config_applied = BooleanField(default=False)
     broken = BooleanField(default=False)
     retired = BooleanField(default=False)

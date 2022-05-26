@@ -286,7 +286,7 @@ class QuadsCli:
                 self.logger.info(f"interface: {interface.get('name')}")
                 self.logger.info(f"  bios id: {interface.get('bios_id')}")
                 self.logger.info(f"  mac address: {interface.get('mac_address')}")
-                self.logger.info(f"  switch IP: {interface.get('ip_address')}")
+                self.logger.info(f"  switch IP: {interface.get('switch_ip')}")
                 self.logger.info(f"  port: {interface.get('switch_port')}")
                 self.logger.info(f"  speed: {interface.get('speed')}")
                 self.logger.info(f"  vendor: {interface.get('vendor')}")
@@ -1108,7 +1108,7 @@ class QuadsCli:
                 interface_dict = {
                     "name": interface.name,
                     "mac_address": interface.mac_address,
-                    "ip_address": interface.ip_address,
+                    "switch_ip": interface.switch_ip,
                     "switch_port": interface.switch_port,
                     "speed": interface.speed,
                     "vendor": interface.vendor,
