@@ -16,6 +16,40 @@
       "message": "Visual looks good in staging - nice man!",
       "revId": "a392ef3fb8d150be617021158499e14be2d72e1c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a6efbda_68a2f90a",
+        "filename": "quads/tools/create_input_assignments.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-05-31T08:25:21Z",
+      "side": 1,
+      "message": "\u0027**QINQ**\u0027,",
+      "revId": "a392ef3fb8d150be617021158499e14be2d72e1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "baeb187f_8e6f2b83",
+        "filename": "quads/tools/create_input_assignments.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-05-31T08:25:21Z",
+      "side": 1,
+      "message": "You need to add the header for the additional column to be displayed correctly ^",
+      "revId": "a392ef3fb8d150be617021158499e14be2d72e1c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
