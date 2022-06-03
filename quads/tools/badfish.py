@@ -565,7 +565,7 @@ class Badfish:
             )
         return True
 
-    async def change_boot_order(self, _interfaces_path, _host_type):
+    async def change_boot_order(self, _host_type, _interfaces_path):
         interfaces = await self.get_interfaces_by_type(_host_type, _interfaces_path)
 
         await self.get_boot_devices()

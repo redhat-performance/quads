@@ -200,15 +200,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
         if is_supported(host):
             try:
-                asyncio.run_coroutine_threadsafe(
-                    badfish.change_boot(
-                        "director",
-                        os.path.join(
-                            os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"
-                        ),
-                    ),
-                    loop,
-                )
+                interfaces_path = os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml")
+                await badfish.change_boot("director", interfaces_path)
+
+                # wait 10 minutes for the boot order job to complete
+                await asyncio.sleep(600)
             except BadfishException:
                 logger.error(f"Could not set boot order via Badfish for mgmt-{host}.")
                 return False
@@ -257,7 +253,6 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     "There was something wrong setting Foreman host parameters."
                 )
                 return False
-
         if is_supported(host):
             try:
                 await badfish.boot_to_type(
