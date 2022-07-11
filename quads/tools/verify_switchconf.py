@@ -23,9 +23,9 @@ def verify(_cloud_name, _host_name, change=False):
         _cloud_obj = Cloud.objects(name=_cloud_name).first()
 
     if _host_name:
-        hosts = Host.objects(name=_host_name)
+        hosts = Host.objects(name=_host_name, retired=False)
     else:
-        hosts = Host.objects(cloud=_cloud_obj)
+        hosts = Host.objects(cloud=_cloud_obj, retired=False)
     first_host = hosts.first()
 
     if not _cloud_obj:
