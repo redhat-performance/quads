@@ -157,11 +157,11 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
         logger.error("No way...")
         return False
 
-    _new_cloud_obj = Cloud.objects(name=new_cloud).first()
+    _target_cloud = Cloud.objects(name=new_cloud).first()
 
     ipmi_new_pass = (
-        f"{Config['infra_location']}@{_new_cloud_obj.ticket}"
-        if _new_cloud_obj.ticket
+        f"{Config['infra_location']}@{_target_cloud.ticket}"
+        if _target_cloud.ticket
         else Config["ipmi_password"]
     )
 
@@ -180,7 +180,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     await execute_ipmi(host, arguments=ipmi_set_operator, semaphore=new_semaphore)
 
     badfish = None
-    if rebuild and _new_cloud_obj.name != _host_obj.default_cloud.name:
+    if rebuild and _target_cloud.name != _host_obj.default_cloud.name:
         if Config.pdu_management:
             # TODO: pdu management
             pass
@@ -292,7 +292,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     f"There was something wrong setting PXE flag or resetting IPMI on {host}."
                 )
 
-    if _new_cloud_obj.name == _host_obj.default_cloud.name:
+    if _target_cloud.name == _host_obj.default_cloud.name:
         if not badfish:
             try:
                 badfish = await badfish_factory(
@@ -308,14 +308,18 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 return False
 
         await badfish.set_power_state("off")
+        source_cloud_schedule = Schedule.current_schedule(cloud=_host_obj.cloud.name)
+        if not source_cloud_schedule:
+            _old_cloud_obj = Cloud.objects(name=_host_obj.cloud.name).first()
+            _old_cloud_obj.update(vlan=None)
 
-    schedule = Schedule.current_schedule(cloud=_new_cloud_obj, host=_host_obj).first()
+    schedule = Schedule.current_schedule(cloud=_target_cloud, host=_host_obj).first()
     if schedule:
         schedule.update(build_start=build_start, build_end=datetime.now())
         schedule.save()
 
     logger.debug("Updating host: %s")
     _host_obj.update(
-        cloud=_new_cloud_obj, build=False, last_build=datetime.now(), validated=False
+        cloud=_target_cloud, build=False, last_build=datetime.now(), validated=False
     )
     return True
