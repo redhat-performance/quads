@@ -49,6 +49,10 @@ Requires: python3-ipdb >= 0.10
 Requires: python3-argcomplete >= 1.9.5
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 2.0
+Requires: python3-flask-sqlalchemy >= 2.5.1
+Requires: python3-sqlalchemy >= 1.4.39
+Requires: python3-sqlalchemy-utils >= 0.38.3
+Requires: python3-psycopg2 >= 2.7.5
 Requires: logrotate >= 3.0
 
 Url: https://quads.dev
