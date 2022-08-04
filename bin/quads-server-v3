@@ -1,0 +1,262 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import uuid
+
+from flask import Flask, jsonify, request
+from flask_httpauth import HTTPBasicAuth
+from flask_security import Security, SQLAlchemySessionUserDatastore
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash
+
+from quads.database import db_session, init_db
+from quads.models import Base, User, Role, Host, Cloud
+
+db = SQLAlchemy(model_class=Base)
+app = Flask(__name__)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+auth = HTTPBasicAuth()
+
+# Setup Flask-Security
+user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
+security = Security(app, user_datastore)
+
+migrate = Migrate(app, db)
+db.init_app(app)
+
+
+@app.before_first_request
+def create_user():
+    init_db()
+    user = user_datastore.get_user("grafuls@gmail.com")
+
+    if not user:
+        user_datastore.create_user(email="grafuls@gmail.com", password="password")
+
+    db_session.commit()
+
+
+@auth.verify_password
+def verify_password(email, password):
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.verify_password(password):
+        return False
+    return True
+
+
+@app.route("/register", methods=["POST"])
+def signup_user():
+    data = request.get_json()
+    user_datastore.create_user(email=data["email"], password=data["password"])
+    db.session.commit()
+
+    return jsonify({"message": "registered successfully"})
+
+
+@app.route("/hosts/")
+def get_hosts():
+    _hosts = db.session.query(Host).all()
+    return jsonify([_host.as_dict() for _host in _hosts])
+
+
+@app.route("/init/")
+def init():
+    admin_role = Role(name="admin", description="Administrative role")
+    user_role = Role(name="user", description="Regular user role")
+    db.session.add(admin_role)
+    db.session.add(user_role)
+    db.commit()
+    return jsonify({"message": "Initialization successful"})
+
+
+@app.route("/hosts/<hostname>/")
+@auth.login_required
+def get_host(hostname):
+    _host = db.session.query(Host).filter(Host.name == hostname).first()
+    return jsonify(_host.as_dict())
+
+
+@app.route("/clouds/")
+def get_clouds():
+    _clouds = db.session.query(Cloud).all()
+    return jsonify([_cloud.as_dict() for _cloud in _clouds])
+
+
+@app.route("/clouds/<cloud>/")
+def get_cloud(cloud):
+    _cloud = db.session.query(Cloud).filter(Cloud.name == cloud).first()
+    return jsonify(_cloud.as_dict())
+
+
+@app.route("/hosts/", methods=["POST"])
+def create_host():
+    data = request.get_json()
+    cloud_name = data.get("cloud")
+    hostname = data.get("name")
+    default_cloud = data.get("default_cloud")
+    host_type = data.get("host_type")
+
+    if not hostname:
+        return (
+            jsonify({"error": "Bad Request", "message": "Missing argument: name"}),
+            400,
+        )
+
+    _host = db.session.query(Host).filter(Host.name == hostname).first()
+    if _host:
+        return (
+            jsonify(
+                {"error": "Bad Request", "message": f"Host {hostname} already exists"}
+            ),
+            400,
+        )
+
+    if not host_type:
+        return (
+            jsonify({"error": "Bad Request", "message": "Missing argument: host_type"}),
+            400,
+        )
+
+    if default_cloud:
+        _default_cloud = (
+            db.session.query(Cloud).filter(Cloud.name == default_cloud).first()
+        )
+        if not _default_cloud:
+            return (
+                jsonify(
+                    {
+                        "error": "Bad Request",
+                        "message": f"Default Cloud not found: {default_cloud}",
+                    }
+                ),
+                400,
+            )
+    else:
+        return (
+            jsonify(
+                {"error": "Bad Request", "message": "Missing argument: default_cloud"}
+            ),
+            400,
+        )
+
+    _cloud = _default_cloud
+
+    if cloud_name:
+        _cloud = db.session.query(Cloud).filter(Cloud.name == cloud_name).first()
+        if not _cloud:
+            return (
+                jsonify(
+                    {
+                        "error": "Bad Request",
+                        "message": f"Cloud not found: {cloud_name}",
+                    }
+                ),
+                400,
+            )
+
+    _host_obj = Host(
+        name=hostname, host_type=host_type, cloud=_cloud, default_cloud=_default_cloud
+    )
+    db.session.add(_host_obj)
+    db.session.commit()
+    return jsonify(_host_obj.as_dict()), 201
+
+
+@app.route("/clouds/", methods=["POST"])
+def create_cloud():
+    data = request.get_json()
+    cloud_name = data.get("name")
+
+    if not cloud_name:
+        return (
+            jsonify({"error": "Bad Request", "message": "Missing argument: name"}),
+            400,
+        )
+
+    _cloud = db.session.query(Cloud).filter(Cloud.name == cloud_name).first()
+    if _cloud:
+        return (
+            jsonify(
+                {
+                    "error": "Bad Request",
+                    "message": f"Cloud {cloud_name} already exists",
+                }
+            ),
+            400,
+        )
+
+    _cloud_obj = Cloud(name=cloud_name)
+    db.session.add(_cloud_obj)
+    db.session.commit()
+    return jsonify(_cloud_obj.as_dict()), 201
+
+
+@app.route("/hosts/", methods=["PUT"])
+def update_host():
+    data = request.get_json()
+    cloud_name = data.get("cloud")
+    hostname = data.get("name")
+    default_cloud = data.get("default_cloud")
+    host_type = data.get("host_type")
+
+    if not hostname:
+        return (
+            jsonify({"error": "Bad Request", "message": "Missing argument: name"}),
+            400,
+        )
+
+    _host = db.session.query(Host).filter(Host.name == hostname).first()
+    if not _host:
+        return (
+            jsonify({"error": "Bad Request", "message": f"Host {hostname} not found"}),
+            400,
+        )
+
+    if default_cloud:
+        _default_cloud = (
+            db.session.query(Cloud).filter(Cloud.name == default_cloud).first()
+        )
+        if not _default_cloud:
+            return (
+                jsonify(
+                    {
+                        "error": "Bad Request",
+                        "message": f"Default Cloud not found: {default_cloud}",
+                    }
+                ),
+                400,
+            )
+        else:
+            _host.default_cloud = _default_cloud
+    else:
+        return (
+            jsonify(
+                {"error": "Bad Request", "message": "Missing argument: default_cloud"}
+            ),
+            400,
+        )
+
+    if cloud_name:
+        _cloud = db.session.query(Cloud).filter(Cloud.name == cloud_name).first()
+        if not _cloud:
+            return (
+                jsonify(
+                    {
+                        "error": "Bad Request",
+                        "message": f"Cloud not found: {cloud_name}",
+                    }
+                ),
+                400,
+            )
+        else:
+            _host.cloud = _cloud
+
+    if host_type:
+        _host.host_type = host_type
+
+    db.session.commit()
+
+    return jsonify(_host.as_dict()), 200
+
+
+app.run()
