@@ -254,10 +254,13 @@ class DocumentMethodHandler(MethodHandlerBase):
                                     time_left = lock_release - datetime.datetime.now()
                                     hours = time_left.total_seconds() // 3600
                                     minutes = (time_left.total_seconds() % 3600) // 60
-                                    cloud_string = "%s still has %dhr %dmin remaining on a pre-schedule reservation lock" % (
-                                        obj.name,
-                                        hours,
-                                        minutes,
+                                    cloud_string = (
+                                        "%s still has %dhr %dmin remaining on a pre-schedule reservation lock"
+                                        % (
+                                            obj.name,
+                                            hours,
+                                            minutes,
+                                        )
                                     )
                                     result.append(cloud_string)
                                     cherrypy.response.status = "400 Bad Request"
@@ -580,7 +583,10 @@ class InterfaceMethodHandler(MethodHandlerBase):
 class VersionMethodHandler(object):
     def GET(self):
         return json.dumps(
-            {"result": "QUADS version %s %s" % (Config.QUADSVERSION, Config.QUADSCODENAME)}
+            {
+                "result": "QUADS version %s %s"
+                % (Config.QUADSVERSION, Config.QUADSCODENAME)
+            }
         )
 
 
