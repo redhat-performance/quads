@@ -24,7 +24,9 @@ class _ConfigBase:
 
             for key, value in conf.items():
                 if hasattr(self, key):
-                    logger.debug(f"Key '{key}' is already defined on config class, not overriding")
+                    logger.debug(
+                        f"Key '{key}' is already defined on config class, not overriding"
+                    )
                     continue
                 setattr(self, key, value)
 
@@ -72,7 +74,7 @@ class _Config(_ConfigBase):
     LOGFMT = "%(asctime)-12s : %(levelname)-8s - %(message)s"
     STDFMT = "- %(levelname)-8s - %(message)s"
 
-    API = "v2"
+    API = "v3"
 
     @property
     def API_URL(self):
