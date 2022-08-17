@@ -18,7 +18,17 @@ from requests import ConnectionError
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
-from quads.model import Host, Vlan, Cloud, Schedule, Notification, Interface, Disk, Memory, Processor
+from quads.model import (
+    Host,
+    Vlan,
+    Cloud,
+    Schedule,
+    Notification,
+    Interface,
+    Disk,
+    Memory,
+    Processor,
+)
 from quads.quads import Quads
 from quads.tools import reports
 from quads.tools.jira import Jira, JiraException
@@ -169,7 +179,12 @@ class QuadsCli:
                         elif value.lower() == "true":
                             value = True
 
-                    if keys[0].strip().lower() in ["disks", "interfaces", "processors", "memory"]:
+                    if keys[0].strip().lower() in [
+                        "disks",
+                        "interfaces",
+                        "processors",
+                        "memory",
+                    ]:
 
                         key = f"{keys[0].strip()}__match"
                         condition_dict = {
@@ -210,7 +225,9 @@ class QuadsCli:
                 self.logger.info("Removed: %s" % data)
             else:
                 js = request.json()
-                self.logger.debug("%s %s: %s" % (request.status_code, request.reason, data))
+                self.logger.debug(
+                    "%s %s: %s" % (request.status_code, request.reason, data)
+                )
                 for result in js["result"]:
                     if type(result) == list:
                         for line in result:
@@ -245,9 +262,7 @@ class QuadsCli:
         if data:
             for k in data:
                 if isinstance(k[action], list):
-                    self.logger.info(
-                        str(k["name"]) + ": " + str(", ".join(k[action]))
-                    )
+                    self.logger.info(str(k["name"]) + ": " + str(", ".join(k[action])))
                 else:
                     self.logger.info(str(k["name"]) + ": " + str(k[action]))
         return 0
@@ -982,7 +997,9 @@ class QuadsCli:
         cloud_reservation_lock = int(conf["cloud_reservation_lock"])
         cloud = Cloud.objects(name=data["name"]).first()
         if cloud:
-            lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
+            lock_release = cloud.last_redefined + timedelta(
+                hours=cloud_reservation_lock
+            )
             cloud_string = f"{cloud.name}"
             if lock_release > datetime.now():
                 time_left = lock_release - datetime.now()
@@ -1024,7 +1041,9 @@ class QuadsCli:
         cloud = Cloud.objects(name=data["name"]).first()
 
         if self.cli_args.get("cloudticket"):
-            notification = Notification.objects(cloud=cloud, ticket=cloud.ticket).first()
+            notification = Notification.objects(
+                cloud=cloud, ticket=cloud.ticket
+            ).first()
             if notification:
                 notification.update(ticket=self.cli_args["cloudticket"])
 
@@ -1095,7 +1114,12 @@ class QuadsCli:
                     if not self.cli_args["force"]:
                         continue
                     if type(value) == list:
-                        dispatch = {"disks": Disk, "interfaces": Interface, "memory": Memory, "processors": Processor}
+                        dispatch = {
+                            "disks": Disk,
+                            "interfaces": Interface,
+                            "memory": Memory,
+                            "processors": Processor,
+                        }
                         if host[key]:
                             param_key = f"unset__{key}"
                             kwargs = {param_key: 1}
@@ -1426,6 +1450,7 @@ class QuadsCli:
                                     move_and_rebuild, host, new, semaphore, cloud.wipe
                                 )
                                 tasks.append(fn)
+
                                 switch_tasks.append(
                                     functools.partial(switch_config, host, current, new)
                                 )
