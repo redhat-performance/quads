@@ -287,11 +287,7 @@ action_group.add_argument(
     help="Remove a host",
 )
 action_group.add_argument(
-    "--rm-cloud",
-    dest="rmcloud",
-    type=str,
-    default=None,
-    help="Remove a cloud"
+    "--rm-cloud", dest="rmcloud", type=str, default=None, help="Remove a cloud"
 )
 action_group.add_argument(
     "--ls-available",
@@ -625,6 +621,6 @@ parser.add_argument(
 )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # debugging helper
     parser.print_help()
