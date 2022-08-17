@@ -14,7 +14,7 @@ mail_display_name: "QUADS Scheduler"
 mail_user_agent: "Rufus Postman 1.1.6"
 domain: example.com
 log: /opt/quads/log/quads.log
-quads_base_url: http://127.0.0.1:8080/
+quads_base_url: http://127.0.0.1:5000/
 
 # used for reporting
 # add your email here to receive copies of notification emails
