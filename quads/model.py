@@ -202,7 +202,9 @@ class Interface(EmbeddedDocument):
     bios_id = StringField()
     mac_address = StringField()
     switch_ip = StringField()
-    ip_address = StringField()  # Legacy field kept for data relocation # TODO: remove after data relocation
+    ip_address = (
+        StringField()
+    )  # Legacy field kept for data relocation # TODO: remove after data relocation
     switch_port = StringField()
     speed = LongField(default=-1)
     vendor = StringField(default="")
