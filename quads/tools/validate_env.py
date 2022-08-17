@@ -14,6 +14,7 @@ from paramiko.ssh_exception import NoValidConnectionsError
 from quads.config import Config
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Host, Notification
+from quads.quads_api import QuadsApi
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
 from quads.tools.helpers import get_running_loop
@@ -23,6 +24,7 @@ from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
+quads = QuadsApi(Config)
 
 
 class Validator(object):
@@ -31,8 +33,9 @@ class Validator(object):
         self.report = ""
         self.args = _args
         self.hosts = Host.objects(cloud=self.cloud, validated=False)
+        self.hosts = quads.filter_hosts({"cloud":self.cloud.name,"validated":False})
         self.hosts = [
-            host for host in self.hosts if Schedule.current_schedule(host=host)
+            host for host in self.hosts if quads.get_current_schedules({"host":host.name})
         ]
         self.loop = _loop if _loop else get_running_loop()
 
@@ -78,13 +81,19 @@ class Validator(object):
         schedule = Schedule.objects(
             cloud=self.cloud, start__lt=now, end__gt=now
         ).first()
-        time_delta = now - schedule.start
-        if time_delta.seconds // 60 > Config["validation_grace_period"]:
-            return True
-        logger.warning(
-            "You're still within the configurable validation grace period. Skipping validation for %s."
-            % self.cloud.name
-        )
+        data = {
+            "cloud": self.cloud.name,
+        }
+        # TODO: Check return from get below
+        schedules = quads.get_current_schedules(data)
+        if schedules:
+            time_delta = now - schedule[0].start
+            if time_delta.seconds // 60 > Config["validation_grace_period"]:
+                return True
+            logger.warning(
+                "You're still within the configurable validation grace period. Skipping validation for %s."
+                % self.cloud.name
+            )
         return False
 
     async def post_system_test(self):
@@ -112,7 +121,8 @@ class Validator(object):
         build_hosts = await foreman.get_build_hosts()
 
         pending = []
-        schedules = Schedule.current_schedule(cloud=self.cloud)
+        data = {"cloud": self.cloud.name}
+        schedules = quads.get_current_schedules(data)
         if schedules:
             for schedule in schedules:
                 if schedule.host and schedule.host.name in build_hosts:
@@ -373,4 +383,4 @@ if __name__ == "__main__":
     loop_main = asyncio.get_event_loop()
     asyncio.set_event_loop(loop_main)
 
-    main(args, loop_main)
+    main(args, loop_
