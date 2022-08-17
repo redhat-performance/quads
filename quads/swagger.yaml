@@ -1,0 +1,739 @@
+openapi: 3.0.0
+info:
+  version: '3.0.0'
+  title: 'QUADS'
+  description: 'QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.'
+  license:
+    name: GPLv3
+servers:
+  - url: 'https://quads.rdu2.scalelab.redhat.com/api/v3/'
+paths:
+  /cloud:
+    get:
+      summary: 'Returns a list with all the defined clouds'
+#      operationId: listCloud
+      tags:
+        - cloud
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Pagination'
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Cloud'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new cloud
+      tags:
+        - cloud
+      requestBody:
+        description: Body request with *cloud* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cloud'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Cloud'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Created
+
+  /cloud/{cloudName}:
+    get:
+      summary: 'Returns a cloud by name'
+      tags:
+        - cloud
+      parameters:
+        - name: cloudName
+          in: path
+          description: Cloud name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Cloud name'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cloud'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete cloud by cloud name
+      tags:
+        - cloud
+      parameters:
+        - name: cloudName
+          in: path
+          description: Cloud name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted Cloud'
+  /host:
+    get:
+      summary: 'Returns a list with all the defined hosts'
+      tags:
+        - host
+      responses:
+        '200':
+          description: 'Host name'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new host
+      tags:
+        - host
+      requestBody:
+        description: Body request with *host* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Host'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Host'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Created
+
+  /host/{hostName}:
+    get:
+      summary: 'Returns a host by name'
+      tags:
+        - host
+      parameters:
+        - name: hostName
+          in: path
+          description: Cloud name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Host name'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete host by host name
+      tags:
+        - host
+      parameters:
+        - name: hostName
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted Host'
+  /schedule:
+    get:
+      summary: 'Returns a list with all the defined schedules'
+      tags:
+        - schedule
+      responses:
+        '200':
+          description: 'Schedule'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new schedule
+      tags:
+        - schedule
+      requestBody:
+        description: Body request with *schedule* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Created
+
+  /schedule/{schedule_id}:
+    get:
+      summary: 'Returns a schedule by id'
+      tags:
+        - schedule
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Schedule'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete schedule by id
+      tags:
+        - schedule
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted Schedule'
+  /assignment:
+    get:
+      summary: 'Returns a list with all the defined assignments'
+      tags:
+        - assignment
+      responses:
+        '200':
+          description: 'Assignment'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new assignment
+      tags:
+        - assignment
+      requestBody:
+        description: Body request with *assignment* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Created
+
+  /assignment/{assignment_id}:
+    get:
+      summary: 'Returns an assignment by id'
+      tags:
+        - assignment
+      parameters:
+        - name: assignment_id
+          in: path
+          description: Assignment ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Assignment'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: Delete assignment by id
+      tags:
+        - assignment
+      parameters:
+        - name: assignment_id
+          in: path
+          description: Assignment ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted assignment'
+
+  /user:
+    get:
+      summary: 'Sample endpoint: Returns details about a particular user'
+      operationId: listUser
+      tags:
+        - user
+      parameters:
+        - name: id
+          in: query
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: 'Sample response: Details about a user by ID'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Cloud:
+      type: object
+#      required:
+#        - name
+      properties:
+        name:
+          type: string
+          example: cloud12
+        last_redefined:
+          type: string
+          example: 1984-02-02
+    Disk:
+      type: object
+#      required:
+#        - name
+      properties:
+        disk_type:
+          type: string
+          example: nvme
+        size_gb:
+          type: integer
+          example: 2000
+        count:
+          type: integer
+          example: 10
+        host_id:
+          type: integer
+          example: 10
+    Memory:
+      type: object
+      required:
+        - size_gb
+        - handle
+        - host_id
+      properties:
+        id:
+          type: integer
+          example: 12
+        size_gb:
+          type: integer
+          example: 2000
+        handle:
+          type: string
+          example: MMD
+        host_id:
+          type: integer
+          example: 10
+    Processor:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12
+        handle:
+          type: string
+          example: CoreI7
+        vendor:
+          type: string
+          example: Intel
+        product:
+          type: string
+          example: i7
+        cores:
+          type: integer
+          example: 20
+        threads:
+          type: integer
+          example: 20
+        host_id:
+          type: integer
+          example: 10
+    Interface:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: em1
+        bios_id:
+          type: string
+          example: nic1
+        mac_address:
+          type: string
+          example: aa:00:bb:11:cc:22
+        switch_ip:
+          type: string
+          example: 10.1.1.18
+        switch_port:
+          type: string
+          example: xt-0-0/1
+        speed:
+          type: integer
+          example: 1000
+        vendor:
+          type: string
+          example: Intel
+        pxe_boot:
+          type: boolean
+          example: true
+        maintenance:
+          type: boolean
+          example: false
+        host_id:
+          type: integer
+          example: 10
+    Host:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: host.example.com
+        model:
+          type: string
+          example: r640
+        host_type:
+          type: string
+          example: vendor
+        build:
+          type: boolean
+          example: true
+        validated:
+          type: boolean
+          example: true
+        switch_config_applied:
+          type: boolean
+          example: true
+        broken:
+          type: boolean
+          example: true
+        retired:
+          type: boolean
+          example: true
+        last_build:
+          type: string
+          example: 2022-02-02
+        cloud_id:
+          type: integer
+          example: 12
+        default_cloud_id:
+          type: integer
+          example: 1
+        interfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Interface'
+        disks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Disk'
+        memory:
+          type: array
+          items:
+            $ref: '#/components/schemas/Memory'
+        processors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Processor'
+    Assignment:
+      type: object
+      properties:
+        active:
+          type: boolean
+          example: true
+        provisioned:
+          type: boolean
+          example: true
+        validated:
+          type: boolean
+          example: true
+        description:
+          type: string
+          example: Short description here
+        owner:
+          type: string
+          example: jsbach
+        ticket:
+          type: string
+          example: 2122
+        qinq:
+          type: integer
+          example: 1
+        wipe:
+          type: boolean
+          example: true
+        ccuser:
+          type: array
+          items:
+            type: string
+          example: [edroste, kgodel]
+        cloud_id:
+          type: integer
+          example: 12
+        vlan_id:
+          type: integer
+          example: 12
+    Schedule:
+      type: object
+      properties:
+        start:
+          type: string
+          example: 2022-02-02
+        end:
+          type: string
+          example: 2022-04-02
+        build_start:
+          type: string
+          example: 2022-02-02
+        build_end:
+          type: string
+          example: 2022-04-02
+        assignment_id:
+          type: integer
+          example: 12
+        host_id:
+          type: integer
+          example: 1
+    Notification:
+      type: object
+      properties:
+        fail:
+          type: boolean
+          example: false
+        success:
+          type: boolean
+          example: false
+        initial:
+          type: boolean
+          example: false
+        pre_initial:
+          type: boolean
+          example: false
+        pre:
+          type: boolean
+          example: false
+        one_day:
+          type: boolean
+          example: false
+        three_days:
+          type: boolean
+          example: false
+        five_days:
+          type: boolean
+          example: false
+        seven_days:
+          type: boolean
+          example: false
+        assignment:
+          type: integer
+          example: 12
+
+    Vlan:
+      type: object
+      properties:
+        gateway:
+          type: string
+          example: 10.1.18.8
+        ip_free:
+          type: integer
+          example: 256
+        ip_range:
+          type: string
+        netmask:
+          type: string
+          example: 255.255.255.255
+        vlan_id:
+          type: integer
+          example: 601
+    Role:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: admin
+        description:
+          type: string
+          example: All access granted
+    User:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          example: quads@example.com
+        password:
+          type: string
+          example: Cr1p71kP@55
+        active:
+          type: boolean
+          example: true
+        confirmed_at:
+          type: string
+          example: 1984-02-02
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: number
+        page:
+          type: number
+        per_page:
+          type: number
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+        results:
+          type: array
+          items: {}
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+security:
+  - BasicAuth: []
