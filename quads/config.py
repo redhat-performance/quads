@@ -24,7 +24,9 @@ class _ConfigBase:
 
             for key, value in conf.items():
                 if hasattr(self, key):
-                    logger.debug(f"Key '{key}' is already defined on config class, not overriding")
+                    logger.debug(
+                        f"Key '{key}' is already defined on config class, not overriding"
+                    )
                     continue
                 setattr(self, key, value)
 
