@@ -46,6 +46,16 @@ class _ConfigBase:
         except AttributeError as attr_exc:
             raise KeyError() from attr_exc
 
+    def get(self, key: str, default=None):
+        """
+        Args:
+            key: Key that we want the value for.
+            default: Value that is returned in case the key is not present. (Optional, it defaults to None)
+
+        Returns: Value for key from the config, if key isn't present value specified in "default" argument is returned.
+        """
+        return getattr(self, key, default)
+
 
 class _Config(_ConfigBase):
     """
