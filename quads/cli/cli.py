@@ -1426,9 +1426,18 @@ class QuadsCli:
                                     move_and_rebuild, host, new, semaphore, cloud.wipe
                                 )
                                 tasks.append(fn)
-                                switch_tasks.append(
-                                    functools.partial(switch_config, host, current, new)
-                                )
+                                omits = conf["omit_network_move"].split(",")
+                                is_omitted = False
+                                for omit in omits:
+                                    if omit in host or omit == new:
+                                        is_omitted = True
+                                        break
+                                if not is_omitted:
+                                    switch_tasks.append(
+                                        functools.partial(
+                                            switch_config, host, current, new
+                                        )
+                                    )
                             else:
                                 if cloud.wipe:
                                     subprocess.check_call(

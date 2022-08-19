@@ -208,3 +208,10 @@ jira_vlans_docs_links: http://wiki.example.com/vlans/,http://wiki.example.com/pu
 # is passed when used in --add-interface argument.
 # This will be most useful when generating the instack_env json
 default_pxe_interface: em2
+
+# This following variable specifies an omission list of certain destination
+# clouds, partial hostnames or domain names of hosts on which the --move-hosts
+# command will not perform the network automation portions of a QUADS move.
+# Other parts like provisioning, update of host/cloud object fields, IPMI RBAC,
+# Foreman RBAC, etc., will still be performed.
+omit_network_move: cloud14, f02-h01-000-r650.example.com, tng.example.com
