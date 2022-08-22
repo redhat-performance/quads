@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ac2dafd_9ba8b459",
+        "filename": "conf/quads.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T12:28:17Z",
+      "side": 1,
+      "message": "Leave this key empty and include the example values in the comment above.\nAfraid some people might overlook these values and have cloud14 being omitted by default.",
+      "revId": "607c40baffd842611c7133f1c61845f87d9e4213",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "687f2919_4df575e6",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T12:28:17Z",
+      "side": 1,
+      "message": "use conf.get(\"omit_network_move\") to avoid an exception when the key is not present in the conf. Note that if the key is not found the result for the .get() will be the boolean `False` which will not have the .split() function available.",
+      "revId": "607c40baffd842611c7133f1c61845f87d9e4213",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28f0bbe4_d6bf2dab",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T12:28:17Z",
+      "side": 1,
+      "message": "omit \u003d [omit for omit in omits if omit in host or omit \u003d\u003d new]\n if not omit:\n     switch_tasks.append(...",
+      "revId": "607c40baffd842611c7133f1c61845f87d9e4213",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
