@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "562a848b_137aa765",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T14:49:56Z",
+      "side": 1,
+      "message": "__getitem__() function returns a KeyError if the key is not defined on the yaml.\n.get(\"omit_network_move\") would return `False` if it is not declared instead of throwing an exception.",
+      "revId": "7b835409ddb5a1eb6140f05909c27994a11d2282",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56ce5d3b_c0871e70",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1432,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T14:49:56Z",
+      "side": 1,
+      "message": "I would remove the last if on this one-liner ` if omits else False` and include the list comprehension inside the `if omits:`.\nDefine `omit \u003d False` before that `if`.",
+      "revId": "7b835409ddb5a1eb6140f05909c27994a11d2282",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8d7f716_760a3282",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1438,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-08-22T14:49:56Z",
+      "side": 1,
+      "message": "omits \u003d conf.get(\"omit_network_move\")\n                                omit \u003d False\n                                if omits:\n                                    omits \u003d omits.split(\",\")\n                                    omit \u003d [omit for omit in omits if omit in host or omit \u003d\u003d new]\n                                if not omit:\n                                    switch_tasks.append(\n                                        functools.partial(\n                                            switch_config, host, current, new\n                                        )\n                                    )",
+      "revId": "7b835409ddb5a1eb6140f05909c27994a11d2282",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
