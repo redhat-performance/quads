@@ -1504,14 +1504,12 @@ class QuadsCli:
                                     self.logger.exception(
                                         "There was something wrong configuring the switch."
                                     )
-                                    provisioned = False
 
                         except Exception as exc:
                             self.logger.exception(
                                 "There was something wrong configuring the switch.",
                                 exc_info=exc,
                             )
-                            provisioned = False
 
                     if done:
                         for future in done:

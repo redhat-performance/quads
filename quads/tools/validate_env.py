@@ -17,6 +17,7 @@ from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
 from quads.tools.helpers import get_running_loop
+from quads.tools.move_and_rebuild_hosts import switch_config
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
@@ -188,7 +189,23 @@ class Validator(object):
     async def post_network_test(self):
         test_host = self.hosts[0]
         hosts_down = []
+        switch_config_missing = []
         for host in self.hosts:
+            if not host.switch_config_applied:
+                current_schedule = Schedule.current_schedule(
+                    host=host, cloud=host.cloud.name
+                ).first()
+                previous_cloud = host.default_cloud.name
+                previous_schedule = Schedule.objects(
+                    host=host.name, end=current_schedule.start
+                ).first()
+                if previous_schedule:
+                    previous_cloud = previous_schedule.cloud.name
+                result = switch_config(host, previous_cloud, host.cloud.name)
+                if result:
+                    host.update(switch_config_applied=True)
+                else:
+                    switch_config_missing.append(host.name)
             try:
                 nc = Netcat(host.name)
                 healthy = await nc.health_check()
@@ -199,12 +216,20 @@ class Validator(object):
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 
+        error = False
         if hosts_down:
             logger.error(
                 "The following hosts appear to be down or with no ssh connection:"
             )
             for i in hosts_down:
                 logger.error(i)
+            error = True
+        if switch_config_missing:
+            logger.error("The following hosts are missing switch configuration:")
+            for i in switch_config_missing:
+                logger.error(i)
+            error = True
+        if error:
             return False
 
         try:
