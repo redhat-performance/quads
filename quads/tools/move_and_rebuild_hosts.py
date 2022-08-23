@@ -84,6 +84,8 @@ def switch_config(host, old_cloud, new_cloud):
                         "There was something wrong updating switch for %s:%s"
                         % (host, interface.name)
                     )
+                    if ssh_helper:
+                        ssh_helper.disconnect()
                     return False
         else:
             if int(old_vlan) != int(new_vlan):
@@ -99,6 +101,8 @@ def switch_config(host, old_cloud, new_cloud):
                         "There was something wrong updating switch for %s:%s"
                         % (host, interface.name)
                     )
+                    if ssh_helper:
+                        ssh_helper.disconnect()
                     return False
 
     if ssh_helper:
@@ -200,7 +204,9 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
         if is_supported(host):
             try:
-                interfaces_path = os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml")
+                interfaces_path = os.path.join(
+                    os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"
+                )
                 await badfish.change_boot("director", interfaces_path)
 
                 # wait 10 minutes for the boot order job to complete

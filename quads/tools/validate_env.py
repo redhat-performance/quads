@@ -17,6 +17,7 @@ from quads.model import Cloud, Schedule, Host, Notification
 from quads.tools.badfish import BadfishException, badfish_factory
 from quads.tools.foreman import Foreman
 from quads.tools.helpers import get_running_loop
+from quads.tools.move_and_rebuild_hosts import switch_config
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
 from quads.tools.ssh_helper import SSHHelper
@@ -189,6 +190,17 @@ class Validator(object):
         test_host = self.hosts[0]
         hosts_down = []
         for host in self.hosts:
+            if not host.switch_config_applied:
+                current_schedule = Schedule.current_schedule(
+                    host=host, cloud=host.cloud.name
+                ).first()
+                previous_cloud = host.default_cloud.name
+                previous_schedule = Schedule.objects(
+                    host=host.name, end=current_schedule.start
+                ).first()
+                if previous_schedule:
+                    previous_cloud = previous_schedule.cloud.name
+                switch_config(host, previous_cloud, host.cloud.name)
             try:
                 nc = Netcat(host.name)
                 healthy = await nc.health_check()
