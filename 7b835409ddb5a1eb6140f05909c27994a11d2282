@@ -121,6 +121,24 @@
       "message": "uh oh! how is it that it\u0027s working here then?",
       "revId": "7b835409ddb5a1eb6140f05909c27994a11d2282",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71ae4ba2_ac38514b",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1470,
+      "author": {
+        "id": 1019947
+      },
+      "writtenOn": "2022-08-23T13:29:16Z",
+      "side": 1,
+      "message": "Resolved on IRC, added the get() function to quads config.py",
+      "parentUuid": "86b1efbe_5ffd5a70",
+      "revId": "7b835409ddb5a1eb6140f05909c27994a11d2282",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
