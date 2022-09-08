@@ -312,6 +312,10 @@ class Validator(object):
 
 def main(_args, _loop):
     clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
+    if _args.cloud:
+        clouds = [cloud for cloud in clouds if cloud.name == _args.cloud]
+        if len(clouds) == 0:
+            logger.error("No cloud with this name.")
     for _cloud in clouds:
         _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
         if _schedule_count and _cloud.wipe:
@@ -336,6 +340,12 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Show debugging information.",
+    )
+    parser.add_argument(
+        "--cloud",
+        nargs=1,
+        default="",
+        help="Run validation only on specified cloud."
     )
     args = parser.parse_args()
 
