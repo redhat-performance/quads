@@ -82,6 +82,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Validation using Debug Mode](#validation-using-debug-mode)
          * [Skipping Past Network Validation](#skipping-past-network-validation)
          * [Skipping Past Foreman Validation](#skipping-past-foreman-validation)
+         * [Validate Only a Specific Cloud](#validate-only-a-specific-cloud)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
       * [Contact QUADS Developers](#contact-quads-developers)
       * [QUADS Talks and Media](#quads-talks-and-media)
@@ -1336,6 +1337,13 @@ db.cloud.update({"name": "cloud23"}, {$set:{'provisioned':true}}
 ```
 
 * More information on manual intervention and overrides via MongoDB can be [found here](/docs/interact-mongodb.md)
+
+### Validate Only a Specific Cloud
+
+* If you want to validate only a certain cloud you can do so by specifying the cloud's name with the `--cloud` flag.
+```bash
+/opt/quads/tools/validate_env.py --cloud cloud01
+```
 
 ### Mapping Internal VLAN Interfaces to Problem Hosts
 You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/master/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
