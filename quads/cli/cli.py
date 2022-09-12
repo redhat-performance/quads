@@ -519,12 +519,20 @@ class QuadsCli:
                 "There was something wrong constructing the parameters for the query."
             )
 
+        clouds = json.loads(Cloud.objects().all().to_json())
+        default_cloud = [c for c in clouds if c.get("name") == "cloud01"]
+        if len(default_cloud) == 0:
+            self.logger.warning("No cloud named cloud01 found.")
+            return
+        default_cloud_id = default_cloud[0].get("_id").get("$oid")
         for host in all_hosts:
             if Schedule.is_host_available(host=host["name"], start=_start, end=_end):
                 if Schedule.current_schedule(host=host):
                     current.append(host["name"])
                 else:
-                    available.append(host["name"])
+                    data = json.loads(host.to_json())
+                    if data.get("default_cloud").get("$oid") == default_cloud_id:
+                        available.append(host["name"])
 
         for host in available:
             self.logger.info(host)
