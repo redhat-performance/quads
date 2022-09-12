@@ -524,7 +524,8 @@ class QuadsCli:
                 if Schedule.current_schedule(host=host):
                     current.append(host["name"])
                 else:
-                    available.append(host["name"])
+                    if host.default_cloud.name == conf["spare_pool_name"]:
+                        available.append(host["name"])
 
         for host in available:
             self.logger.info(host)
