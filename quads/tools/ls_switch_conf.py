@@ -31,11 +31,19 @@ def verify(cloud):
             for i, interface in enumerate(interfaces):
                 ssh_helper = SSHHelper(interface.switch_ip, Config["junos_username"])
                 try:
-                    _, vlan_member_out = ssh_helper.run_cmd(
-                        "show configuration vlans | display set | match %s.0"
-                        % interface.switch_port
-                    )
-                    vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
+                    if interface == interfaces[-1]:
+                        _, vlan_member_out = ssh_helper.run_cmd(
+                            "show configuration interfaces %s" % interface.switch_port
+                        )
+                        vlan_member = vlan_member_out[0].split(";")[0].split()[1]
+                        if vlan_member.startswith("QinQ"):
+                            vlan_member = vlan_member[7:]
+                    else:
+                        _, vlan_member_out = ssh_helper.run_cmd(
+                            "show configuration vlans | display set | match %s.0"
+                            % interface.switch_port
+                        )
+                        vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
                     logger.warning(
                         "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
