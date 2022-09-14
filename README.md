@@ -1102,6 +1102,12 @@ quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "202
 quads-cli --ls-hosts --filter "retired==True"
 ```
 
+* Listing specific hosts from a certain cloud:
+
+```
+quads-cli --cloud-only cloud13 --filter "model==FC640"
+```
+
 #### Find Available Web Preview
 
 * We now have a Flask-based `--ls-available` web interface available on `quadshost:5001` if your firewall rules are open for `TCP/5001`.

@@ -1619,8 +1619,14 @@ class QuadsCli:
             ).isoformat()
         schedules = Schedule.current_schedule(**_kwargs)
         if schedules:
+            _kwargs = {}
+            if self.cli_args["filter"]:
+                filter_args = self._filter_kwargs(self.cli_args["filter"])
+                _kwargs.update(filter_args)
+            _hosts = Host.objects(**_kwargs).all()
             for schedule in sorted(schedules, key=lambda k: k["host"]["name"]):
-                self.logger.info(schedule.host.name)
+                if schedule.host in _hosts:
+                    self.logger.info(schedule.host.name)
         else:
             if _kwargs.get("date") and self.cli_args["cloudonly"] == "cloud01":
                 data = {
@@ -1635,10 +1641,22 @@ class QuadsCli:
                         "Could not connect to the quads-server, verify service is up and running."
                     )
 
+                _kwargs = {}
+                if self.cli_args["filter"]:
+                    filter_args = self._filter_kwargs(self.cli_args["filter"])
+                    _kwargs.update(filter_args)
+                _hosts = []
+                for host in sorted(Host.objects(**_kwargs).all(), key=lambda k: k["name"]):
+                    _hosts.append(host.name)
                 for host in sorted(available_hosts):
-                    self.logger.info(host)
+                    if host in _hosts:
+                        self.logger.info(host)
             else:
-                _hosts = Host.objects(cloud=_cloud)
+                _kwargs = {"cloud": _cloud}
+                if self.cli_args["filter"]:
+                    filter_args = self._filter_kwargs(self.cli_args["filter"])
+                    _kwargs.update(filter_args)
+                _hosts = Host.objects(**_kwargs).all()
                 for host in sorted(_hosts, key=lambda k: k["name"]):
                     self.logger.info(host.name)
 
