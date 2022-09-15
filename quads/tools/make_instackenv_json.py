@@ -76,6 +76,7 @@ def make_env_json(filename):
                     mac = [interface.mac_address for interface in host.interfaces]
                 data["nodes"].append(
                     {
+                        "name": host.name,
                         "pm_password": foreman_password,
                         "pm_type": "pxe_ipmitool",
                         "mac": mac,
