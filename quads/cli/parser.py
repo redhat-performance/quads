@@ -485,6 +485,13 @@ parser.add_argument(
     help="Schedule end date/time",
 )
 parser.add_argument(
+    "--omit-cloud",
+    dest="omitcloud",
+    type=str,
+    default="",
+    help="Specify a cloud from which hosts should be omitted when adding schedule or when listing available.",
+)
+parser.add_argument(
     "--check",
     dest="check",
     action="store_true",

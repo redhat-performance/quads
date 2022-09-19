@@ -521,17 +521,28 @@ class QuadsCli:
 
         clouds = json.loads(Cloud.objects().all().to_json())
         default_cloud = [c for c in clouds if c.get("name") == "cloud01"]
+        omit_cloud_id = "omit_id"
+        if self.cli_args["omitcloud"]:
+            omit_cloud = [c for c in clouds if c.get("name") == self.cli_args["omitcloud"]]
+            omit_cloud_id = omit_cloud[0].get("_id").get("$oid")
         if len(default_cloud) == 0:
             self.logger.warning("No cloud named cloud01 found.")
             return
         default_cloud_id = default_cloud[0].get("_id").get("$oid")
         for host in all_hosts:
             if Schedule.is_host_available(host=host["name"], start=_start, end=_end):
-                if Schedule.current_schedule(host=host):
-                    current.append(host["name"])
+                current_schedule = Schedule.current_schedule(host=host)
+                if current_schedule:
+                    host_data = json.loads(host.to_json())
+                    host_default_cloud_id = host_data.get("default_cloud").get("$oid")
+                    schedule_data = json.loads(current_schedule.to_json())
+                    host_current_cloud_id = schedule_data[0].get("cloud").get("$oid")
+                    if host_default_cloud_id == default_cloud_id and host_current_cloud_id != omit_cloud_id:
+                        current.append(host["name"])
                 else:
-                    data = json.loads(host.to_json())
-                    if data.get("default_cloud").get("$oid") == default_cloud_id:
+                    host_data = json.loads(host.to_json())
+                    host_default_cloud_id = host_data.get("default_cloud").get("$oid")
+                    if host_default_cloud_id == default_cloud_id:
                         available.append(host["name"])
 
         for host in available:
@@ -1222,19 +1233,33 @@ class QuadsCli:
         if self.cli_args["host"] is None and self.cli_args["host_list"] is None:
             raise CliException("Missing option. --host or --host-list required.")
 
+        omitted_cloud_id = None
+        if self.cli_args["omitcloud"]:
+            clouds = json.loads(Cloud.objects().all().to_json())
+            omitted_cloud = [c for c in clouds if c.get("name") == self.cli_args["omitcloud"]]
+            if len(omitted_cloud) == 0:
+                self.logger.warning(f"No cloud named {self.cli_args['omitcloud']} found.")
+            omitted_cloud_id = omitted_cloud[0].get("_id").get("$oid")
+
         if self.cli_args["host"]:
-            data = {
-                "cloud": self.cli_args["schedcloud"],
-                "host": self.cli_args["host"],
-                "start": self.cli_args["schedstart"],
-                "end": self.cli_args["schedend"],
-            }
-            try:
-                self.logger.info(self.quads.insert_schedule(data)["result"][0])
-            except ConnectionError:
-                raise CliException(
-                    "Could not connect to the quads-server, verify service is up and running."
-                )
+            if self.cli_args["omitcloud"] and omitted_cloud_id:
+                host_obj = Host.objects(name=self.cli_args["host"]).first()
+                host_json = json.loads(host_obj.to_json())
+                if host_json.get("cloud").get("$oid") == omitted_cloud_id:
+                    self.logger.info("Host is in part of the cloud specified with --omit-cloud. Nothing has been done.")
+            else:
+                data = {
+                    "cloud": self.cli_args["schedcloud"],
+                    "host": self.cli_args["host"],
+                    "start": self.cli_args["schedstart"],
+                    "end": self.cli_args["schedend"],
+                }
+                try:
+                    self.logger.info(self.quads.insert_schedule(data)["result"][0])
+                except ConnectionError:
+                    raise CliException(
+                        "Could not connect to the quads-server, verify service is up and running."
+                    )
 
         elif self.cli_args["host_list"]:
             try:
@@ -1249,6 +1274,18 @@ class QuadsCli:
                 self.cli_args["schedstart"], "%Y-%m-%d %H:%M"
             )
             _sched_end = datetime.strptime(self.cli_args["schedend"], "%Y-%m-%d %H:%M")
+
+            if self.cli_args["omitcloud"] and omitted_cloud_id:
+                self.logger.info(f"INFO - All hosts from {self.cli_args['omitcloud']} will be omitted.")
+                omitted = []
+                for host in host_list:
+                    host_obj = Host.objects(name=host).first()
+                    host_json = json.loads(host_obj.to_json())
+                    if host_json.get("cloud").get("$oid") == omitted_cloud_id:
+                        omitted.append(host)
+                for host in omitted:
+                    host_list.remove(host)
+                    self.logger.info(f"{host} will be omitted.")
 
             for host in host_list:
                 is_available = Schedule.is_host_available(
