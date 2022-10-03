@@ -192,6 +192,9 @@ class Jira(object):
         query = {"statusCategory": 4, "labels": "EXTENSION"}
         logger.debug("GET pending tickets")
         result = await self.search_tickets(query)
+        query_expand = {"statusCategory": 4, "labels": "EXPANSION"}
+        result_expand = await self.search_tickets(query_expand)
+        result["issues"] += result_expand["issues"]
         if not result:
             logger.error("Failed to get pending tickets")
             return None

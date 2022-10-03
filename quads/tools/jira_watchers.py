@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import asyncio
 import logging
+import os
 import sys
 
 from datetime import timedelta
+from jinja2 import Template
 from quads.config import Config
 from quads.model import Cloud, Schedule
 from quads.tools.jira import Jira, JiraException
+from quads.tools.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -39,23 +42,24 @@ async def main(_loop):
                     f"Could not retrieve cloud name from ticket {ticket_key}"
                 )
 
-            cloud_obj = Cloud.objects(name=cloud).first()
-            schedules = Schedule.current_schedule(cloud=cloud_obj)
-            conflict = False
-            for schedule in schedules:
-                end_date = schedule.end + timedelta(weeks=2)
-                available = Schedule.is_host_available(
-                    host=schedule.host.name, start=schedule.end, end=end_date
-                )
-                if not available:
-                    conflict = True
-                    await jira.add_label(ticket_key, no_extend_label)
-                    logger.info(f"{cloud} labeled {no_extend_label}")
-                    break
+            if "EXTENSION" in fields.get("labels"):
+                cloud_obj = Cloud.objects(name=cloud).first()
+                schedules = Schedule.current_schedule(cloud=cloud_obj)
+                conflict = False
+                for schedule in schedules:
+                    end_date = schedule.end + timedelta(weeks=2)
+                    available = Schedule.is_host_available(
+                        host=schedule.host.name, start=schedule.end, end=end_date
+                    )
+                    if not available:
+                        conflict = True
+                        await jira.add_label(ticket_key, no_extend_label)
+                        logger.info(f"{cloud} labeled {no_extend_label}")
+                        break
 
-            if not conflict:
-                await jira.add_label(ticket_key, extend_label)
-                logger.info(f"{cloud} labeled {extend_label}")
+                if not conflict:
+                    await jira.add_label(ticket_key, extend_label)
+                    logger.info(f"{cloud} labeled {extend_label}")
 
             parent = fields.get("parent")
             if parent:
@@ -63,6 +67,22 @@ async def main(_loop):
                 watchers = await jira.get_watchers(p_ticket_key)
                 for watcher in watchers["watchers"]:
                     await jira.add_watcher(ticket_key, watcher["key"])
+                ticket_watchers = await jira.get_watchers(ticket_key)
+                filtered_watchers = [w for w in ticket_watchers["watchers"] if w.name != "perfscale-api"]
+                if len(filtered_watchers) == 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
+                    await jira.add_label(ticket_key, "WATCHERS_FAIL_NOTIFIED")
+                    template_file = "watchers_fail"
+                    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
+                        template = Template(_file.read())
+                    submitter = description.split("\n")[0].split()[-1]
+                    parameters = {
+                        "ticket": ticket_key,
+                    }
+                    content = template.render(**parameters)
+                    subject = "Failed to add watchers from parent ticket ticket to the sub-task."
+                    postman = Postman(subject, submitter, "", content)
+                    postman.send_email()
+
     return 0
 
 
