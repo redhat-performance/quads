@@ -188,6 +188,15 @@ class Jira(object):
             return None
         return result
 
+    async def get_all_pending_tickets(self):
+        query = {"statusCategory": 4}
+        logger.debug("GET cloud access active tickets")
+        result = await self.search_tickets(query)
+        if not result:
+            logger.error("Failed to get cloud access active tickets")
+            return None
+        return result
+
     async def get_pending_tickets(self):
         query = {"statusCategory": 4, "labels": "EXTENSION"}
         logger.debug("GET pending tickets")
