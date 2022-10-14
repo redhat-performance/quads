@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "719d890a_be68d3df",
+        "filename": "quads/tools/jira_watchers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:36:15Z",
+      "side": 1,
+      "message": "would be better to maybe inspect the response from add_watcher to check for success or failure and add to watcher username to a list of failed_watchers then if not len\u003d\u003d0 add the WATCHERS_MAP_FAIL_NOTIFIED label and send the message",
+      "revId": "8c36a43779df8bb19ca17062d2d0818bf155bd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08fa31ed_d38ff9f0",
+        "filename": "quads/tools/jira_watchers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:36:15Z",
+      "side": 1,
+      "message": "label does not match the above\nWATCHERS_MAP_FAIL_NOTIFIED",
+      "revId": "8c36a43779df8bb19ca17062d2d0818bf155bd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
