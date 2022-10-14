@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3802af90_bd00bce4",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T11:55:37Z",
+      "side": 1,
+      "message": "Change this for a direct cloud lookup on the db:\n    omit_cloud \u003d Cloud.objects(name\u003dself.cli_args[\"omitcloud\"]).first()\n    if not omit_cloud:\n        raise CliException(\"Omit cloud not found\")",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b40eb818_bee22365",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T11:55:37Z",
+      "side": 1,
+      "message": "remove all these lines above after the `if`",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79165c37_66239905",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T11:55:37Z",
+      "side": 1,
+      "message": "if host.default_cloud \u003d\u003d default_cloud and current_schedule.cloud !\u003d omit_cloud:",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7b1c021_8fa35f54",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T11:55:37Z",
+      "side": 1,
+      "message": "if host.default_cloud \u003d\u003d default_cloud",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8178283_03a9c68b",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T11:55:37Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
