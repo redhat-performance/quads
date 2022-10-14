@@ -33,6 +33,24 @@
       "message": "label does not match the above\nWATCHERS_MAP_FAIL_NOTIFIED",
       "revId": "8c36a43779df8bb19ca17062d2d0818bf155bd21",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e066f4d_7411c895",
+        "filename": "quads/tools/jira_watchers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T19:54:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08fa31ed_d38ff9f0",
+      "revId": "8c36a43779df8bb19ca17062d2d0818bf155bd21",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
