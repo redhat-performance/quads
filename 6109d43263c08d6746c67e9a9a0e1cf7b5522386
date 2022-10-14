@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c5f9c8e_52c04b30",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3802af90_bd00bce4",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b40eb818_bee22365",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-10-14T11:55:37Z",
       "side": 1,
       "message": "remove all these lines above after the `if`",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c40c0d14_0cedfeaf",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b40eb818_bee22365",
       "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -52,6 +88,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4da8332c_50c088b8",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79165c37_66239905",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7b1c021_8fa35f54",
@@ -69,6 +123,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bed6ac7f_dd5f6456",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7b1c021_8fa35f54",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8178283_03a9c68b",
@@ -82,6 +154,24 @@
       "writtenOn": "2022-10-14T11:55:37Z",
       "side": 1,
       "message": "same as above",
+      "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e09f03bb_8237963f",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2022-10-14T13:27:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8178283_03a9c68b",
       "revId": "6109d43263c08d6746c67e9a9a0e1cf7b5522386",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
