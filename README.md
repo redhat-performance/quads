@@ -72,6 +72,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Find Available Hosts based on Hardware or Model](#find-available-hosts-based-on-hardware-or-model)
             * [Find Available Web Preview](#find-available-web-preview)
             * [Find a System by MAC Address](#find-a-system-by-mac-address)
+            * [Find Systems by Switch IP Address](#find-systems-by-switch-ip-address)
       * [Interacting with MongoDB](#interacting-with-mongodb)
       * [Using JIRA with QUADS](#using-jira-with-quads)
       * [Backing up QUADS](#backing-up-quads)
@@ -1126,6 +1127,13 @@ quads-cli --cloud-only cloud13 --filter "model==FC640"
 
 ```
 quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
+```
+
+#### Find Systems by Switch IP Address
+* You can list what systems are connected to a switch by querying the `ip_address` (soon to be `switch_ip` in 1.1.7) information from the interfaces datasource.
+
+```
+quads-cli --ls-hosts --filter "interfaces.ip_address==10.1.34.210"
 ```
 
 ## Interacting with MongoDB
