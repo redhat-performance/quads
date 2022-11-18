@@ -18,7 +18,17 @@ from requests import ConnectionError
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
-from quads.model import Host, Vlan, Cloud, Schedule, Notification, Interface, Disk, Memory, Processor
+from quads.model import (
+    Host,
+    Vlan,
+    Cloud,
+    Schedule,
+    Notification,
+    Interface,
+    Disk,
+    Memory,
+    Processor,
+)
 from quads.quads import Quads
 from quads.tools import reports
 from quads.tools.jira import Jira, JiraException
@@ -169,7 +179,12 @@ class QuadsCli:
                         elif value.lower() == "true":
                             value = True
 
-                    if keys[0].strip().lower() in ["disks", "interfaces", "processors", "memory"]:
+                    if keys[0].strip().lower() in [
+                        "disks",
+                        "interfaces",
+                        "processors",
+                        "memory",
+                    ]:
 
                         key = f"{keys[0].strip()}__match"
                         condition_dict = {
@@ -210,7 +225,9 @@ class QuadsCli:
                 self.logger.info("Removed: %s" % data)
             else:
                 js = request.json()
-                self.logger.debug("%s %s: %s" % (request.status_code, request.reason, data))
+                self.logger.debug(
+                    "%s %s: %s" % (request.status_code, request.reason, data)
+                )
                 for result in js["result"]:
                     if type(result) == list:
                         for line in result:
@@ -245,9 +262,7 @@ class QuadsCli:
         if data:
             for k in data:
                 if isinstance(k[action], list):
-                    self.logger.info(
-                        str(k["name"]) + ": " + str(", ".join(k[action]))
-                    )
+                    self.logger.info(str(k["name"]) + ": " + str(", ".join(k[action])))
                 else:
                     self.logger.info(str(k["name"]) + ": " + str(k[action]))
         return 0
@@ -528,7 +543,10 @@ class QuadsCli:
             if Schedule.is_host_available(host=host["name"], start=_start, end=_end):
                 current_schedule = Schedule.current_schedule(host=host)
                 if current_schedule:
-                    if host.default_cloud.name == conf["spare_pool_name"] and current_schedule[0].cloud != omit_cloud:
+                    if (
+                        host.default_cloud.name == conf["spare_pool_name"]
+                        and current_schedule[0].cloud != omit_cloud
+                    ):
                         current.append(host["name"])
                 else:
                     if host.default_cloud.name == conf["spare_pool_name"]:
@@ -830,17 +848,6 @@ class QuadsCli:
                 return 1
 
             if not self.cli_args["check"]:
-                notification_obj = Notification.objects(
-                    cloud=cloud, ticket=cloud.ticket
-                ).first()
-                if notification_obj:
-                    notification_obj.update(
-                        one_day=True,
-                        three_days=True,
-                        five_days=True,
-                        seven_days=True,
-                    )
-
                 confirm_msg = (
                     f"for {self.cli_args['weeks']} week[s]? (y/N): "
                     if weeks
@@ -920,17 +927,6 @@ class QuadsCli:
                 )
 
             if not self.cli_args["check"]:
-                notification_obj = Notification.objects(
-                    cloud=schedule.cloud, ticket=schedule.cloud.ticket
-                ).first()
-                if notification_obj:
-                    notification_obj.update(
-                        one_day=True,
-                        three_days=True,
-                        five_days=True,
-                        seven_days=True,
-                    )
-
                 if self._confirmation_dialog(
                     "Are you sure you want to shrink"
                     f"{host.name} to {str(end_date)[:16]}? (y/N): "
@@ -990,7 +986,9 @@ class QuadsCli:
         cloud_reservation_lock = int(conf["cloud_reservation_lock"])
         cloud = Cloud.objects(name=data["name"]).first()
         if cloud:
-            lock_release = cloud.last_redefined + timedelta(hours=cloud_reservation_lock)
+            lock_release = cloud.last_redefined + timedelta(
+                hours=cloud_reservation_lock
+            )
             cloud_string = f"{cloud.name}"
             if lock_release > datetime.now():
                 time_left = lock_release - datetime.now()
@@ -1032,7 +1030,9 @@ class QuadsCli:
         cloud = Cloud.objects(name=data["name"]).first()
 
         if self.cli_args.get("cloudticket"):
-            notification = Notification.objects(cloud=cloud, ticket=cloud.ticket).first()
+            notification = Notification.objects(
+                cloud=cloud, ticket=cloud.ticket
+            ).first()
             if notification:
                 notification.update(ticket=self.cli_args["cloudticket"])
 
@@ -1103,7 +1103,12 @@ class QuadsCli:
                     if not self.cli_args["force"]:
                         continue
                     if type(value) == list:
-                        dispatch = {"disks": Disk, "interfaces": Interface, "memory": Memory, "processors": Processor}
+                        dispatch = {
+                            "disks": Disk,
+                            "interfaces": Interface,
+                            "memory": Memory,
+                            "processors": Processor,
+                        }
                         if host[key]:
                             param_key = f"unset__{key}"
                             kwargs = {param_key: 1}
@@ -1225,9 +1230,13 @@ class QuadsCli:
         omitted_cloud_id = None
         if self.cli_args["omitcloud"]:
             clouds = json.loads(Cloud.objects().all().to_json())
-            omitted_cloud = [c for c in clouds if c.get("name") == self.cli_args["omitcloud"]]
+            omitted_cloud = [
+                c for c in clouds if c.get("name") == self.cli_args["omitcloud"]
+            ]
             if len(omitted_cloud) == 0:
-                self.logger.warning(f"No cloud named {self.cli_args['omitcloud']} found.")
+                self.logger.warning(
+                    f"No cloud named {self.cli_args['omitcloud']} found."
+                )
             omitted_cloud_id = omitted_cloud[0].get("_id").get("$oid")
 
         if self.cli_args["host"]:
@@ -1235,7 +1244,9 @@ class QuadsCli:
                 host_obj = Host.objects(name=self.cli_args["host"]).first()
                 host_json = json.loads(host_obj.to_json())
                 if host_json.get("cloud").get("$oid") == omitted_cloud_id:
-                    self.logger.info("Host is in part of the cloud specified with --omit-cloud. Nothing has been done.")
+                    self.logger.info(
+                        "Host is in part of the cloud specified with --omit-cloud. Nothing has been done."
+                    )
             else:
                 data = {
                     "cloud": self.cli_args["schedcloud"],
@@ -1265,7 +1276,9 @@ class QuadsCli:
             _sched_end = datetime.strptime(self.cli_args["schedend"], "%Y-%m-%d %H:%M")
 
             if self.cli_args["omitcloud"] and omitted_cloud_id:
-                self.logger.info(f"INFO - All hosts from {self.cli_args['omitcloud']} will be omitted.")
+                self.logger.info(
+                    f"INFO - All hosts from {self.cli_args['omitcloud']} will be omitted."
+                )
                 omitted = []
                 for host in host_list:
                     host_obj = Host.objects(name=host).first()
@@ -1464,7 +1477,11 @@ class QuadsCli:
                                 omit = False
                                 if omits:
                                     omits = omits.split(",")
-                                    omit = [omit for omit in omits if omit in host or omit == new]
+                                    omit = [
+                                        omit
+                                        for omit in omits
+                                        if omit in host or omit == new
+                                    ]
                                 if not omit:
                                     switch_tasks.append(
                                         functools.partial(
@@ -1679,7 +1696,9 @@ class QuadsCli:
                     filter_args = self._filter_kwargs(self.cli_args["filter"])
                     _kwargs.update(filter_args)
                 _hosts = []
-                for host in sorted(Host.objects(**_kwargs).all(), key=lambda k: k["name"]):
+                for host in sorted(
+                    Host.objects(**_kwargs).all(), key=lambda k: k["name"]
+                ):
                     _hosts.append(host.name)
                 for host in sorted(available_hosts):
                     if host in _hosts:
