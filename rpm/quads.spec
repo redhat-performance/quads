@@ -101,6 +101,7 @@ rm -rf %{buildroot}
 /opt/quads/web/*
 /opt/quads/web/templates/*
 /opt/quads/quads/*
+/opt/quads/quads/cli/*
 /opt/quads/quads/tools/*
 /opt/quads/quads/templates/*
 /opt/quads/conf/logrotate_quads.conf
