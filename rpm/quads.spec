@@ -81,7 +81,7 @@ mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
-tar cf - bin quads/*.py quads/tools/*.py quads/templates/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+tar cf - bin quads/*.py quads/tools/*.py quads/cli/* quads/templates/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
@@ -179,12 +179,12 @@ fi;
 - 1.1.0 final release
 - asyncio implemented for provisioning
 
-* Thu Mar 23 2019 Will Foster <wfoster@redhat.com>
+* Thu Mar 21 2019 Will Foster <wfoster@redhat.com>
 - 1.1.0 release version bump
 - Remove mongodb and mongodb-server deps due to
   removal from Fedora30
 
-* Fri Mar 09 2019 Will Foster <wfoster@redhat.com>
+* Fri Mar 08 2019 Will Foster <wfoster@redhat.com>
 - Fixes for PYTHONPATH for quads-cli
 - Bump minor release for COPR builds
 - Remove unneeded libs, deprecated tools
