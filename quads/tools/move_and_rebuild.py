@@ -7,7 +7,7 @@ from time import sleep
 
 from quads.config import Config
 from quads.helpers import is_supported, get_vlan
-from quads.model import Host, Cloud, Schedule
+from quads.quads_api import QuadsApi
 from quads.tools.external.badfish import badfish_factory, BadfishException
 from quads.tools.external.foreman import Foreman
 from quads.tools.external.juniper import Juniper
@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+quads = QuadsApi(Config)
 
 
 def switch_config(host, old_cloud, new_cloud):
-    _host_obj = Host.objects(name=host).first()
-    _old_cloud_obj = Cloud.objects(name=old_cloud).first()
-    _new_cloud_obj = Cloud.objects(name=new_cloud).first()
+    _host_obj = quads.get_host(host)
+    _old_cloud_obj = quads.get_cloud(old_cloud)
+    _new_cloud_obj = quads.get_cloud(new_cloud)
     if not _host_obj.interfaces:
         logger.error("Host has no interfaces defined.")
         return False
@@ -67,10 +68,7 @@ def switch_config(host, old_cloud, new_cloud):
 
         if _new_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
-                logger.info(
-                    "Setting last interface to public vlan %s."
-                    % _new_cloud_obj.vlan.vlan_id
-                )
+                logger.info("Setting last interface to public vlan %s." % new_vlan)
 
                 juniper = Juniper(
                     interface.switch_ip,
@@ -158,13 +156,13 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
     untouchable_hosts = Config["untouchable_hosts"]
     logger.debug("Untouchable hosts: %s" % untouchable_hosts)
-    _host_obj = Host.objects(name=host).first()
+    _host_obj = quads.get_host(host)
 
     if host in untouchable_hosts:
         logger.error("No way...")
         return False
 
-    _target_cloud = Cloud.objects(name=new_cloud).first()
+    _target_cloud = quads.get_cloud(new_cloud)
 
     ipmi_new_pass = (
         f"{Config['infra_location']}@{_target_cloud.ticket}"
@@ -310,24 +308,28 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     Config["ipmi_password"],
                     propagate=True,
                 )
-                await badfish.set_power_state("off")
             except BadfishException:
-                logger.warning(
+                logger.error(
                     f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
                 )
+                return False
 
-        source_cloud_schedule = Schedule.current_schedule(cloud=_host_obj.cloud)
-        if not source_cloud_schedule:
-            _old_cloud_obj = Cloud.objects(name=_host_obj.cloud.name).first()
-            _old_cloud_obj.update(vlan=None)
+        await badfish.set_power_state("off")
 
-    schedule = Schedule.current_schedule(cloud=_target_cloud, host=_host_obj).first()
+    data = {"host": _host_obj.name, "cloud": _target_cloud.name}
+    schedule = quads.get_current_schedules(data)
     if schedule:
-        schedule.update(build_start=build_start, build_end=datetime.now())
-        schedule.save()
-
+        data = {
+            "build_start": build_start,
+            "build_end": datetime.now(),
+        }
+        quads.update_schedule(schedule.id, data)
     logger.debug("Updating host: %s")
-    _host_obj.update(
-        cloud=_target_cloud, build=False, last_build=datetime.now(), validated=False
-    )
+    data = {
+        "cloud": _target_cloud.name,
+        "build": False,
+        "last_build": datetime.now(),
+        "validated": False,
+    }
+    quads.update_host(_host_obj.name, data)
     return True

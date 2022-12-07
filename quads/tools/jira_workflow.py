@@ -3,9 +3,9 @@ import asyncio
 import logging
 import sys
 
-from quads.model import Cloud
-from jira import Jira, JiraException
+from quads.tools.external.jira import Jira, JiraException
 from quads.config import Config
+from quads.server.dao.cloud import CloudDao
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -31,7 +31,7 @@ async def main(_loop):
         if parent is None:
             jira_ticket_keys.append(ticket_key)
 
-    clouds = Cloud.objects()
+    clouds = CloudDao.get_clouds()
     cloud_ticket_keys = [cloud.ticket for cloud in clouds]
     expired_keys = [key for key in jira_ticket_keys if key not in cloud_ticket_keys]
 
