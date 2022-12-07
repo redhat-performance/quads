@@ -4,8 +4,8 @@ import argparse
 import logging
 
 from quads.config import Config
-from quads.model import Host
-from quads.tools.juniper import Juniper
+from quads.server.dao.host import HostDao
+from quads.tools.external.juniper import Juniper
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def verify(
     _host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None, nic5=None
 ):
     _nics = {"em1": nic1, "em2": nic2, "em3": nic3, "em4": nic4, "em5": nic5}
-    _host_obj = Host.objects(name=_host_name).first()
+    _host_obj = HostDao.get_host(_host_name)
     if not _host_obj:
         logger.error("Hostname not found.")
         return

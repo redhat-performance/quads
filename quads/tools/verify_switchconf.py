@@ -6,7 +6,7 @@ import logging
 from quads.config import Config
 from quads.helpers import get_vlan
 from quads.model import Cloud, Host
-from quads.tools.juniper import Juniper
+from quads.tools.external.juniper import Juniper
 from quads.tools.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
