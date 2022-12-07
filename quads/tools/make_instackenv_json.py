@@ -9,8 +9,10 @@ from collections import defaultdict
 from distutils.util import strtobool
 from datetime import datetime
 from shutil import copyfile
-from quads.model import Cloud, Host
-from quads.tools.foreman import Foreman
+
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.host import HostDao
+from quads.tools.external.foreman import Foreman
 from quads.config import Config
 
 
@@ -24,7 +26,7 @@ def make_env_json(filename):
         loop=loop,
     )
 
-    cloud_list = Cloud.objects()
+    cloud_list = CloudDao.get_clouds()
 
     if not os.path.exists(Config["json_web_path"]):
         os.makedirs(Config["json_web_path"])
@@ -39,7 +41,7 @@ def make_env_json(filename):
             os.remove(os.path.join(Config["json_web_path"], file))
 
     for cloud in cloud_list:
-        host_list = Host.objects(cloud=cloud).order_by("name")
+        host_list = HostDao.filter_hosts(cloud=cloud)
 
         foreman_password = Config["ipmi_password"]
         if cloud.ticket:

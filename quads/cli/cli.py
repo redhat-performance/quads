@@ -14,24 +14,12 @@ import yaml
 from jinja2 import Template
 from mongoengine import InvalidQueryError
 from requests import ConnectionError
-
-from quads.config import Config as conf
+from quads.config import Config as conf, Config
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
-from quads.model import (
-    Host,
-    Vlan,
-    Cloud,
-    Schedule,
-    Notification,
-    Interface,
-    Disk,
-    Memory,
-    Processor,
-)
 from quads.quads import Quads
 from quads.tools import reports
-from quads.tools.jira import Jira, JiraException
+from quads.tools.external.jira import Jira, JiraException
 from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
 
 default_move_command = "/opt/quads/quads/tools/move_and_rebuild_hosts.py"
@@ -123,8 +111,8 @@ class QuadsCli:
             return self.action_summary()
 
         # default action
-        clouds = Cloud.objects()
-        hosts = Host.objects()
+        clouds = self.quads.get_clouds()
+        hosts = self.quads.get_hosts()
         _date = datetime.now()
         if self.cli_args.get("datearg"):
             _date = datetime.strptime(self.cli_args["datearg"], "%Y-%m-%d %H:%M")
@@ -132,16 +120,16 @@ class QuadsCli:
             if cloud.name == "cloud01":
                 available = []
                 for host in hosts:
-                    if Schedule.is_host_available(
-                        host=host.name, start=_date, end=_date
-                    ):
+                    payload = {"start": _date, "end": _date}
+                    if self.quads.is_available(host.name, payload):
                         available.append(host)
                 if available:
                     self.logger.info(f"{cloud.name}:")
                     for host in available:
                         self.logger.info(f"  - {host.name}")
             else:
-                schedules = Schedule.current_schedule(cloud=cloud, date=_date)
+                payload = {"cloud": cloud, "date": _date}
+                schedules = self.quads.get_current_schedules(payload)
                 if schedules:
                     self.logger.info(f"{cloud.name}:")
                     for schedule in schedules:
@@ -242,12 +230,14 @@ class QuadsCli:
         self.logger.info(self.quads.get_version())
 
     def action_ls_broken(self):
-        _hosts = Host.objects(broken=True)
+        payload = {"broken": True}
+        _hosts = self.quads.filter_hosts(payload)
         for host in _hosts:
             self.logger.info(host.name)
 
     def action_ls_retired(self):
-        _hosts = Host.objects(retired=True)
+        payload = {"retired": True}
+        _hosts = self.quads.filter_hosts(payload)
         for host in _hosts:
             self.logger.info(host.name)
 
@@ -289,7 +279,7 @@ class QuadsCli:
                 "Missing option. --host option is required for --ls-interface:"
             )
 
-        host = Host.objects(name=hostname).first()
+        host = self.quads.get_host(hostname)
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
@@ -315,7 +305,7 @@ class QuadsCli:
                 "Missing option. --host option is required for --ls-memory:"
             )
 
-        host = Host.objects(name=hostname).first()
+        host = self.quads.get_host(hostname)
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
@@ -330,7 +320,7 @@ class QuadsCli:
                 "Missing option. --host option is required for --ls-disks:"
             )
 
-        host = Host.objects(name=hostname).first()
+        host = self.quads.get_host(hostname)
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
@@ -347,7 +337,7 @@ class QuadsCli:
                 "Missing option. --host option is required for --ls-processors:"
             )
 
-        host = Host.objects(name=hostname).first()
+        host = self.quads.get_host(hostname)
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
@@ -359,27 +349,29 @@ class QuadsCli:
             self.logger.info(f"  threads: {processor.threads}")
 
     def action_ls_vlan(self):
-        _vlans = Vlan.objects().all()
+        # TODO: check this
+        _vlans = self.quads.get_vlans()
         if not _vlans:
             raise CliException("No VLANs defined")
 
         for vlan in _vlans:
-            _cloud = Cloud.objects(vlan=vlan).first()
+            payload = {"vlan_id": vlan.vlan_id}
+            assignment = self.quads.get_assignments(**payload)
             cloud_assigned = "Free"
-            if _cloud:
-                cloud_assigned = _cloud.name
+            if assignment:
+                cloud_assigned = assignment.cloud.name
             self.logger.info(f"{vlan.vlan_id}: {cloud_assigned}")
 
     def action_schedule(self):
         _kwargs = {}
         if self.cli_args["host"]:
-            _host = Host.objects(name=self.cli_args["host"]).first()
+            _host = self.quads.get_host(self.cli_args["host"])
             if not _host:
                 raise CliException("Host %s does not exist" % self.cli_args["host"])
 
             _kwargs["host"] = _host
             self.logger.info("Default cloud: %s" % _host.default_cloud.name)
-            _current_schedule = Schedule.current_schedule(**_kwargs)
+            _current_schedule = self.quads.get_current_schedules(**_kwargs)
             if _current_schedule:
                 _current_cloud = _current_schedule[0].cloud.name
                 if _current_cloud != _host.default_cloud.name:
@@ -393,7 +385,7 @@ class QuadsCli:
                 self.logger.info("Current cloud: %s" % _host.default_cloud.name)
             if "date" in _kwargs:
                 _kwargs.pop("date")
-            _host_schedules = Schedule.objects(**_kwargs)
+            _host_schedules = self.quads.get_schedules(**_kwargs)
             if _host_schedules:
                 for schedule in _host_schedules:
                     _cloud_name = schedule.cloud.name
@@ -403,7 +395,7 @@ class QuadsCli:
                         f"{schedule['index']}| start={start}, end={end}, cloud={_cloud_name}"
                     )
         else:
-            _clouds = Cloud.objects()
+            _clouds = self.quads.get_clouds()
             for cloud in _clouds:
                 self.logger.info("%s:" % cloud.name)
                 _kwargs["cloud"] = cloud.name
@@ -423,12 +415,14 @@ class QuadsCli:
                         for host in available_hosts:
                             self.logger.info(host)
                 else:
-                    _hosts = Host.objects(cloud=cloud)
+                    # TODO: check this one
+                    payload = {"cloud": cloud}
+                    _hosts = self.quads.filter_hosts(payload)
                     for host in _hosts:
                         self.logger.info(host.name)
             else:
                 try:
-                    _schedules = self.quads.get_current_schedule(**_kwargs)
+                    _schedules = self.quads.get_current_schedules(**_kwargs)
                 except ConnectionError:
                     raise CliException(
                         "Could not connect to the quads-server, verify service is up and running."
@@ -473,7 +467,7 @@ class QuadsCli:
             filter_args = self._filter_kwargs(self.cli_args["filter"])
             kwargs.update(filter_args)
 
-        hosts = Host.objects(**kwargs).all()
+        hosts = self.quads.filter_hosts(kwargs)
         if hosts:
             for host in sorted(hosts, key=lambda k: k["name"]):
                 self.logger.info(host.name)

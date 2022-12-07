@@ -107,6 +107,9 @@ class QuadsApi:
     def get_available(self, **kwargs):
         return self.get("available")
 
+    def is_available(self, hostname, data):
+        return self.post(os.path.join("available", hostname), data)
+
     def get_summary(self, **kwargs):
         return self.get("summary")
 
