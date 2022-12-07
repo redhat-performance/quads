@@ -4,7 +4,8 @@ import os
 import json
 
 from jsonpath_ng import parse
-from quads.model import Host, Processor, Memory, Interface, Disk
+
+from quads.server.dao.host import HostDao
 
 MD_DIR = "/var/www/html/lshw"
 DISK_TYPES = {"nvme": "nvm", "sata": "ata", "scsi": "scsi"}
@@ -27,7 +28,7 @@ for _d, _, _files in os.walk(MD_DIR):
                     data = json.load(_f)
                     children = parse("$..children[*]").find(data)
                     hostname = parse("$.id").find(data)[0].value
-                    host_obj = Host.objects(name=hostname).first()
+                    host_obj = HostDao.get_host(hostname)
                     if not host_obj:
                         print(f"Host not found: {hostname}")
                         break
