@@ -8,10 +8,10 @@ from time import sleep
 from quads.config import Config
 from quads.helpers import is_supported, get_vlan
 from quads.quads_api import QuadsApi
-from quads.tools.badfish import badfish_factory, BadfishException
-from quads.tools.foreman import Foreman
-from quads.tools.juniper import Juniper
-from quads.tools.ssh_helper import SSHHelper, SSHHelperException
+from quads.tools.external.badfish import badfish_factory, BadfishException
+from quads.tools.external.foreman import Foreman
+from quads.tools.external.juniper import Juniper
+from quads.tools.external.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(

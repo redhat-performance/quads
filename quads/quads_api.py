@@ -21,7 +21,6 @@ class Generic:
 class QuadsApi:
     """
     A python interface into the Quads API
-
     """
 
     def __init__(self, config: Config):
@@ -47,6 +46,12 @@ class QuadsApi:
         )
         return self.serialize(_response)
 
+    def patch(self, endpoint, data):
+        _response = self.session.patch(
+            os.path.join(self.base_url, endpoint), data, verify=False
+        )
+        return self.serialize(_response)
+
     def delete(self, endpoint, **kwargs):
         _response = self.session.delete(
             os.path.join(self.base_url, endpoint), verify=False
@@ -57,7 +62,7 @@ class QuadsApi:
         return self.get("hosts")
 
     def filter_hosts(self, data):
-        return self.post(os.path.join("hosts", "filter"), data)
+        return self.get("hosts", **data)
 
     def get_host(self, hostname):
         return self.get(os.path.join("hosts", hostname))
@@ -65,14 +70,20 @@ class QuadsApi:
     def get_clouds(self):
         return self.get("clouds")
 
+    def filter_clouds(self, data):
+        return self.get("clouds", **data)
+
     def get_cloud(self, cloud_name):
         return self.get(os.path.join("clouds", cloud_name))
 
     def get_schedules(self, data):
-        return self.get("schedules")
+        return self.get("schedules", **data)
 
     def get_current_schedules(self, data):
         return self.post(os.path.join("schedules", "current"), data)
+
+    def get_future_schedules(self, data):
+        return self.post(os.path.join("schedules", "future"), data)
 
     def update_schedule(self, schedule_id, data):
         return self.post(os.path.join("schedules", schedule_id), data)
@@ -81,10 +92,14 @@ class QuadsApi:
         return self.post(os.path.join("hosts", hostname), data)
 
     def update_assignment(self, assignment_id, data):
-        return self.post(os.path.join("assignments", assignment_id), data)
+        return self.patch(os.path.join("assignments", assignment_id), data)
 
     def get_active_cloud_assignment(self, cloud_name):
-        return self.get(os.path.join("assignments", cloud_name))
+        return self.get(os.path.join("assignments/active", cloud_name))
+
+    def get_assignment(self, data):
+        # TODO:fix this
+        return self.get("assignments", **data)
 
     def get_host_interface(self, hostname):
         return self.get(os.path.join("interfaces", hostname))
@@ -104,10 +119,19 @@ class QuadsApi:
     def insert_cloud(self, data):
         return self.post("clouds", data)
 
-    def get_available(self, **kwargs):
+    def get_available(self):
         return self.get("available")
 
-    def get_summary(self, **kwargs):
+    def get_vlans(self):
+        return self.get("vlans")
+
+    def filter_available(self, data):
+        return self.get("available", **data)
+
+    def is_available(self, hostname, data):
+        return self.post(os.path.join("available", hostname), data)
+
+    def get_summary(self):
         return self.get("summary")
 
     def get_version(self):

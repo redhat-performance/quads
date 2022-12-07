@@ -24,3 +24,17 @@ def get_available() -> Response:
         if ScheduleDao.is_host_available(host.name, _start, _end):
             available.append(host.name)
     return jsonify(available)
+
+
+@available_bp.route("/<hostname>", methods=["POST"])
+def is_available(hostname) -> Response:
+    data = request.get_json()
+    _start = _end = datetime.now()
+    if data.get("start"):
+        _start = datetime.strptime(data.get("start"), "%Y-%m-%d %H:%M")
+    if data.get("end"):
+        _end = datetime.strptime(data.get("end"), "%Y-%m-%d %H:%M")
+
+    available = ScheduleDao.is_host_available(hostname, _start, _end)
+
+    return jsonify({hostname: available})

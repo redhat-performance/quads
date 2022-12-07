@@ -11,12 +11,23 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/register/", methods=["POST"])
 def register() -> Response:
     data = request.get_json()
-    user = user_datastore.get_user(data.get("email"))
+
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        response = {
+            "status_code": 401,
+            "status": "fail",
+            "message": "Email or password cannot be left blank.",
+        }
+        return Response(response=json.dumps(response), status=401)
+
+    user = user_datastore.get_user(email)
     role = db.session.query(Role).filter(Role.name == "user").first()
     if not user:
         try:
             user = user_datastore.create_user(
-                email=data["email"], password=data["password"], roles=[role]
+                email=email, password=password, roles=[role]
             )
             db.session.commit()
             auth_token = User.encode_auth_token(user.id)
@@ -70,7 +81,7 @@ def login() -> Response:
         return Response(response=json.dumps(response), status=500)
 
 
-@auth_bp.route("/logout/")
+@auth_bp.route("/logout/", methods=["POST"])
 def logout() -> Response:
     # get auth token
     auth_header = request.headers.get("Authorization")

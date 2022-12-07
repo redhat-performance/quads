@@ -2,8 +2,12 @@ import json
 
 from datetime import datetime
 from flask import Blueprint, jsonify, request, Response
+from sqlalchemy import Boolean
+from sqlalchemy.orm import RelationshipProperty
+
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
+from quads.server.dao.baseDao import OPERATORS, MAP_MODEL
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -12,10 +16,75 @@ from quads.server.models import Schedule, db
 schedule_bp = Blueprint("schedules", __name__)
 
 
+# @schedule_bp.route("/")
+# def get_schedules() -> Response:
+#     _schedules = ScheduleDao.get_schedules()
+#     return jsonify([_schedule.as_dict() for _schedule in _schedules])
+
+
 @schedule_bp.route("/")
 def get_schedules() -> Response:
-    _schedules = ScheduleDao.get_schedules()
-    return jsonify([_schedule.as_dict() for _schedule in _schedules])
+    # TODO: Add filter for child objects
+    filter_tuples = []
+    operator = "=="
+    for k, value in request.args.items():
+        fields = k.split(".")
+        if len(fields) > 2:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Too many arguments: {fields}",
+            }
+            return Response(response=json.dumps(response), status=400)
+
+        first_field = fields[0]
+        field_name = fields[-1]
+        if "__" in k:
+            for op in OPERATORS.keys():
+                if op in field_name:
+                    field_name = field_name[: field_name.index(op)]
+                    operator = OPERATORS[op]
+                    break
+
+        field = Schedule.__mapper__.attrs.get(first_field)
+        if not field:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"{k} is not a valid field.",
+            }
+            return Response(response=json.dumps(response), status=400)
+        if (
+            type(field) != RelationshipProperty
+            and type(field.columns[0].type) == Boolean
+        ):
+            value = value.lower() in ["true", "y", 1, "yes"]
+        else:
+            if first_field in ["cloud", "default_cloud"]:
+                cloud = CloudDao.get_cloud(value)
+                if not cloud:
+                    response = {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": f"Cloud {value} does not exist.",
+                    }
+                    return Response(response=json.dumps(response), status=400)
+                value = cloud
+            if first_field.lower() in MAP_MODEL.keys():
+                if len(fields) > 1:
+                    field_name = f"{first_field.lower()}.{field_name.lower()}"
+        filter_tuples.append(
+            (
+                field_name,
+                operator,
+                value,
+            )
+        )
+    if filter_tuples:
+        _schedules = ScheduleDao.create_query_select(Schedule, filters=filter_tuples)
+    else:
+        _schedules = ScheduleDao.get_schedules()
+    return jsonify([_assignment.as_dict() for _assignment in _schedules])
 
 
 @schedule_bp.route("/<schedule_id>")
@@ -40,6 +109,17 @@ def get_current_schedule() -> Response:
     host = HostDao.get_host(hostname)
     cloud = CloudDao.get_cloud(cloud_name)
     _schedules = ScheduleDao.get_current_schedule(date, host, cloud)
+    return jsonify([_schedule.as_dict() for _schedule in _schedules])
+
+
+@schedule_bp.route("/future", methods=["POST"])
+def get_future_schedule() -> Response:
+    data = request.get_json()
+    hostname = data.get("host")
+    cloud_name = data.get("cloud")
+    host = HostDao.get_host(hostname)
+    cloud = CloudDao.get_cloud(cloud_name)
+    _schedules = ScheduleDao.get_future_schedules(host, cloud)
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 
