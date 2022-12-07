@@ -2,7 +2,7 @@
 import asyncio
 
 from quads.config import Config
-from quads.tools.foreman import Foreman
+from quads.tools.external.foreman import Foreman
 
 
 class TestForeman(object):

@@ -7,7 +7,7 @@ from xmlrpc.client import ProtocolError
 from git import Repo, InvalidGitRepositoryError
 from quads.config import Config
 from quads.tools import create_input, create_input_assignments
-from quads.tools.wiki import Wiki
+from quads.tools.external.wiki import Wiki
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
 
 wp_wiki = Config["wp_wiki"]
