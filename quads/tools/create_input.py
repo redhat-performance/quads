@@ -4,9 +4,9 @@ import os
 import pathlib
 import re
 
-from quads.tools.foreman import Foreman
+from quads.server.dao.host import HostDao
+from quads.tools.external.foreman import Foreman
 from quads.config import Config
-from quads.model import Host
 
 HEADERS = [
     "U",
@@ -122,7 +122,7 @@ def main():
 
                 for host, properties in hosts.items():
                     if rack in host:
-                        host_obj = Host.objects(name=host).first()
+                        host_obj = HostDao.get_host(host)
                         if host_obj and not host_obj.retired:
                             _f.write(render_row(host_obj, properties))
                 _f.write("\n")
