@@ -76,13 +76,24 @@ class Quads:
         uri = self._uri_constructor("host", kwargs)
         return self.get(uri)
 
+    def get_host(self, hostname):
+        return self.get(os.path.join("hosts", hostname))
+
+    def filter_hosts(self, data):
+        return self.post(os.path.join("hosts", "filter"), data)
+
     def get_clouds(self, **kwargs):
-        uri = self._uri_constructor("cloud", kwargs)
+        uri = self._uri_constructor("clouds", kwargs)
+        return self.get(uri)
+
+    def get_assignments(self, **kwargs):
+        uri = self._uri_constructor("assignments", kwargs)
         return self.get(uri)
 
     def get_cloud_hosts(self, cloud_name):
         hosts = []
-        schedules = self.get_current_schedule(cloud=cloud_name)
+        payload = {"cloud": cloud_name}
+        schedules = self.get_current_schedules(payload)
         if "result" not in schedules:
             for schedule in schedules:
                 host = self.get_hosts(id=schedule["host"]["$oid"])
@@ -91,12 +102,11 @@ class Quads:
         return hosts
 
     def get_schedules(self, **kwargs):
-        uri = self._uri_constructor("schedule", kwargs)
+        uri = self._uri_constructor("schedules", kwargs)
         return self.get(uri)
 
-    def get_current_schedule(self, **kwargs):
-        uri = self._uri_constructor("current_schedule", kwargs)
-        return self.get(uri)
+    def get_current_schedules(self, data):
+        return self.post(os.path.join("schedules", "current"), data)
 
     def remove_schedule(self, **kwargs):
         uri = self._uri_constructor("schedule", kwargs)
@@ -116,12 +126,19 @@ class Quads:
         uri = self._uri_constructor("available", kwargs)
         return self.get(uri)
 
+    def is_available(self, hostname, data):
+        return self.post(os.path.join("available", hostname), data)
+
     def get_summary(self, **kwargs):
         uri = self._uri_constructor("summary", kwargs)
         return self.get(uri)
 
-    def get_interfaces(self, kwargs):
+    def get_interfaces(self, **kwargs):
         uri = self._uri_constructor("interfaces", kwargs)
+        return self.get(uri)
+
+    def get_vlans(self, **kwargs):
+        uri = self._uri_constructor("vlans", kwargs)
         return self.get(uri)
 
     def get_version(self):

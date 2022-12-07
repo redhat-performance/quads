@@ -8,7 +8,6 @@ from quads.helpers import (
     month_delta_past,
     date_to_object_id,
 )
-from quads.model import Schedule, Host, CloudHistory, Cloud, Q
 from datetime import datetime, timedelta
 
 

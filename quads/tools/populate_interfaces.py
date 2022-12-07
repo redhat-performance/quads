@@ -5,7 +5,7 @@ import logging
 
 from quads.config import Config
 from quads.model import Host, Interface
-from quads.tools.badfish import BadfishException, badfish_factory
+from quads.tools.external.badfish import BadfishException, badfish_factory
 from quads.tools.helpers import get_running_loop
 
 logger = logging.getLogger(__name__)

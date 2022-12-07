@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 from quads.config import Config
-from quads.tools.foreman import Foreman
-from quads.model import Schedule, Cloud
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.schedule import ScheduleDao
+from quads.tools.external.foreman import Foreman
 
 import asyncio
 import logging
@@ -25,10 +26,9 @@ def main():
     )
 
     ignore = ["cloud01"]
-    foreman_rbac_exclude = Config.foreman_rbac_exclude
-    if foreman_rbac_exclude:
-        ignore.extend(foreman_rbac_exclude.split("|"))
-    clouds = Cloud.objects()
+    if Config.foreman_rbac_exclude:
+        ignore.extend(Config.foreman_rbac_exclude.split("|"))
+    clouds = CloudDao.get_clouds()
     for cloud in clouds:
 
         infra_pass = f"{Config['infra_location']}@{cloud.ticket}"
@@ -53,7 +53,7 @@ def main():
                 foreman_admin.get_user_id(Config["foreman_username"])
             )
 
-            current_schedule = Schedule.current_schedule(cloud=cloud)
+            current_schedule = ScheduleDao.get_current_schedule(cloud=cloud)
             if current_schedule:
 
                 logger.info(f"  Current Host Permissions:")
