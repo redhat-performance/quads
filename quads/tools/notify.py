@@ -2,6 +2,8 @@
 import asyncio
 import logging
 import os
+import requests
+import json
 
 from datetime import datetime, timedelta
 from enum import Enum
@@ -29,6 +31,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     irc_bot_ip = Config["ircbot_ipaddr"]
     irc_bot_port = Config["ircbot_port"]
     irc_bot_channel = Config["ircbot_channel"]
+    webhook_url = Config["webhook_url"]
     infra_location = Config["infra_location"]
     cc_users = Config["report_cc"].split(",")
     for user in cc:
@@ -68,6 +71,21 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         except (TypeError, BrokenPipeError) as ex:
             logger.debug(ex)
             logger.error("Beep boop netcat can't communicate with your IRC.")
+
+    if Config["webhook_notify"]:
+        try:
+            async with requests.post(webhook_url, message) as wh:
+                message = "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
+                    cloud_info,
+                    Config["wp_wiki"],
+                    cloud,
+                    real_owner,
+                    Config["report_cc"],
+                )
+                await wh(data=json.dumps(message), headers={'Content-Type': 'application/json'}(message.encode("utf-8")))
+        except (TypeError, BrokenPipeError) as ex:
+            logger.debug(ex)
+            logger.error("Beep boop we can't communicate with your webhook.")
 
 
 def create_message(
