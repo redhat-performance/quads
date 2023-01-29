@@ -219,3 +219,7 @@ default_pxe_interface: em2
 # This example would omit all hosts containing any of these values in their address/hostname
 # and also omit network automation portion for any hosts moving to cloud14.
 omit_network_move:
+
+# support for sending webhook notifications on assignment release
+webhook_notify: true
+webhook_url: https://chat.example.com/v1/spaces/AAABBBCCC
