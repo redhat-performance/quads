@@ -40,6 +40,10 @@ ircbot_ipaddr: 192.168.0.100
 ircbot_port: 5050
 ircbot_channel: #yourchannel
 
+# support for sending webhook notifications on assignment release
+webhook_notify: true
+webhook_url: https://chat.example.com/v1/spaces/AAABBBCCC
+
 # wordpress wiki
 wp_wiki: https://wiki.example.com
 wp_username: wikiadmin
