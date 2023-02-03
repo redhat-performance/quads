@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "145fabce_5487ebeb",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-02-03T11:26:15Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "3a04a9167fb8527bb1034f8942c46772bddb0bc7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "596a006d_475bbc4d",
+        "filename": "quads/tools/notify.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-02-03T11:26:15Z",
+      "side": 1,
+      "message": "if Config[\"webhook_notify\"]:\n        try:\n            message \u003d \"QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s\" % (\n                      cloud_info,\n                      Config[\"wp_wiki\"],\n                      cloud,\n                      real_owner,\n                      Config[\"report_cc\"],\n            )\n            requests.post(webhook_url, json\u003d{\u0027text\u0027: message}, headers\u003d{\u0027Content-Type\u0027: \u0027application/json\u0027})\n        except Exception as ex:\n            logger.debug(ex)\n            logger.error(\"Beep boop we can\u0027t communicate with your webhook.\")",
+      "revId": "3a04a9167fb8527bb1034f8942c46772bddb0bc7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
