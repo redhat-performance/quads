@@ -227,10 +227,6 @@ mkdir -p /opt/quads/log
 ```
 mkdir -p /var/www/html/visual
 ```
-   - Populate the web visualization images in your webserver directory
-```
-cp -p /opt/quads/images/{button*,texture*}.png /var/www/html/visual/
-```
    - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
 ```
 vi /opt/quads/conf/quads.yml
