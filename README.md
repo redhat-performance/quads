@@ -18,8 +18,6 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [QUADS Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
-         * [Installing QUADS with Docker Compose](#installing-quads-with-docker-compose)
-         * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
@@ -151,6 +149,7 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - To ensure you have setup your network switches and bare-metal hosts properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
+<<<<<<< HEAD
    - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
    - It's recommended to use the Docker method as it requires less setup
 
@@ -240,15 +239,18 @@ systemctl enable quads-server.service
 systemctl start quads-server.service
 ```
    - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar functionality.
+=======
+   - It's recommended to use the RPM package on Fedora Server as that's the most tested and what we actively use in production.
 
 ### Installing QUADS from RPM
-   - We build RPM packages for Fedora and CentOS/RHEL 8
+   - We build RPM packages for Fedora and **recommend that** as your QUADS platform due to much newer and available libraries
+   - We may publish RHEL/CentOS/Rocky etc. EL Linux RPM's but they might have additional dependencies you'd need to solve yourself.
    - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
    - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore
 
 ```
-wget https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
-rpm -ivh --nodeps python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
+wget https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-14.fc36.noarch.rpm
+rpm -ivh --nodeps python3-wordpress-xmlrpc-2.3-14.fc36.noarch.rpm
 ```
 This package is also available via `pip` via `pip install python-wordpress-xmlrpc`
 
