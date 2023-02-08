@@ -18,8 +18,6 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [QUADS Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
-         * [Installing QUADS with Docker Compose](#installing-quads-with-docker-compose)
-         * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
@@ -151,104 +149,19 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - To ensure you have setup your network switches and bare-metal hosts properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
-   - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
-   - It's recommended to use the Docker method as it requires less setup
-
-### Installing QUADS with Docker Compose
-   - Clone the QUADS Github repository
-```
-git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads
-```
-   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
-   - Make a copy of it and place it on the local filesystem of the Docker host outside the git checkout
-```
-mkdir -p /opt/quads/conf
-cp /opt/docker/quads/conf/quads.yml /opt/quads/conf/quads.yml
-```
-   - Make any changes required to your `/opt/quads/conf/quads.yml`
-```
-vi /opt/quads/conf/quads.yml
-```
-   - Run docker-compose to bring up a full QUADS stack
-```
-docker-compose -f /opt/docker/quads/docker/docker-compose-production.yml up -d
-```
-   - Access Quads Wiki via browser at `http://localhost` or `http://quads-container-host` to setup your Wiki environment.
-   - Run commands against containerized quads via docker exec
-
-```
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
-```
-
-   * Container Layout
-
-| Container | Purpose | Source Image | Name |
-|-----------|---------|--------------|----------------------|
-| quads | quads server | Official Python3 Image | python:3 |
-| quads_db  | quads database | Official Mongodb Image | mongo:4.0.4-xenial |
-| nginx | wiki proxy| Official Nginx Image | nginx:1.15.7-alpine |
-| wiki | quads wiki | Official WP Image | wordpress:5.2.2-php7.2-fpm-alpine |
-| wiki_db | wiki database | Official MariaDB Image | mariadb ||
-
-We find it useful to create an alias on your quads container for executing quads-cli commands inside the container.
-
-   - On your docker host:
-```
-echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
-```
-
-   - e.g. creating an environment and adding hosts
-```
-quads --define-cloud cloud01 --description "spare pool"
-quads --add-host host01 --default-cloud cloud01 --host-type general
-```
-
-### Installing QUADS from Github
-This method requires you to satisfy all of your Python3 and library dependencies yourself and isn't recommended, however it probably is the only way to run QUADS on some platforms like FreeBSD.  Substitute package names and methods appropriately.
-
-   - Clone the git repository (substitute paths below as needed)
-
-```
-git clone https://github.com/redhat-performance/quads /opt/quads
-```
-   - Install pre-requisite Python packages
-```
-dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
-```
-   - Install a webserver (Apache, nginx, etc)
-```
-dnf install httpd
-```
-   - Create logging directory (you can edit this in ```conf/quads.yml``` via the ```log:``` parameter).
-```
-mkdir -p /opt/quads/log
-```
-   - Create your visualization web directory (you can configure this in ```conf/quads.yml``` via ```visual_web_dir```)
-```
-mkdir -p /var/www/html/visual
-```
-   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
-```
-vi /opt/quads/conf/quads.yml
-```
-   - Enable and start the QUADS systemd service (daemon)
-   - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
-```
-cp /opt/quads/systemd/quads-server.service /etc/systemd/system/quads-server.service
-systemctl daemon-reload
-systemctl enable quads-server.service
-systemctl start quads-server.service
-```
-   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar functionality.
+   - We offer an RPM package for installing QUADS and the associated components.
+   - QUADS works best in it's own VM or host as it will need to bind to several ports which may conflict with other applications.
+   - There are also Docker compose files but that's mainly used for CI and aren't tested recently for a full functional QUADS stack.
 
 ### Installing QUADS from RPM
-   - We build RPM packages for Fedora and CentOS/RHEL 8
+   - We build RPM packages for Fedora and **recommend that** as your QUADS platform due to much newer and available libraries
+   - We may publish RHEL/CentOS/Rocky etc. EL Linux RPM's but they might have additional dependencies you'd need to solve yourself.
    - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
-   - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore
+   - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore in Fedora since 29.
 
 ```
-wget https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
-rpm -ivh --nodeps python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
+wget https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-14.fc36.noarch.rpm
+rpm -ivh --nodeps python3-wordpress-xmlrpc-2.3-14.fc36.noarch.rpm
 ```
 This package is also available via `pip` via `pip install python-wordpress-xmlrpc`
 
