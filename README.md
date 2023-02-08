@@ -18,11 +18,11 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [QUADS Workflow](#quads-workflow)
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
-         * [Installing QUADS with Docker Compose](#installing-quads-with-docker-compose)
-         * [Installing QUADS from Github](#installing-quads-from-github)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
+               * [Installing Wordpress via Ansible](#installing-wordpress-via-ansible)
+               * [Setup of Wordpress](#setup-of-wordpress)
                * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
@@ -101,7 +101,6 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
      * Total duration and time remaining in system assignments
      * Dynamic provisioning & system/network validation status per assignment
      * Currently allocated/free optional publicly routable VLAN status
-     * ~~Granular Ansible facts inventory per server via [ansible-cmdb](https://github.com/fboender/ansible-cmdb)~~ (to be re-introduced in 1.1+)
    - Query scheduling data to determine future availability
    - Generates a per-month visualization map for per-machine allocations to assignments.
    - RT (or similiar ticketing system) integration.
@@ -151,109 +150,19 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - To ensure you have setup your network switches and bare-metal hosts properly please follow our [Switch and Host Setup Docs](/docs/switch-host-setup.md)
 
 ## Installing QUADS
-   - We offer Docker compose, RPM packages or a Git clone installation (for non RPM-based distributions, BSD UNIX, etc).
-   - It's recommended to use the Docker method as it requires less setup
-
-### Installing QUADS with Docker Compose
-   - Clone the QUADS Github repository
-```
-git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads
-```
-   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
-   - Make a copy of it and place it on the local filesystem of the Docker host outside the git checkout
-```
-mkdir -p /opt/quads/conf
-cp /opt/docker/quads/conf/quads.yml /opt/quads/conf/quads.yml
-```
-   - Make any changes required to your `/opt/quads/conf/quads.yml`
-```
-vi /opt/quads/conf/quads.yml
-```
-   - Run docker-compose to bring up a full QUADS stack
-```
-docker-compose -f /opt/docker/quads/docker/docker-compose-production.yml up -d
-```
-   - Access Quads Wiki via browser at `http://localhost` or `http://quads-container-host` to setup your Wiki environment.
-   - Run commands against containerized quads via docker exec
-
-```
-docker exec quads bin/quads-cli --define-cloud --cloud cloud01 --description cloud01
-```
-
-   * Container Layout
-
-| Container | Purpose | Source Image | Name |
-|-----------|---------|--------------|----------------------|
-| quads | quads server | Official Python3 Image | python:3 |
-| quads_db  | quads database | Official Mongodb Image | mongo:4.0.4-xenial |
-| nginx | wiki proxy| Official Nginx Image | nginx:1.15.7-alpine |
-| wiki | quads wiki | Official WP Image | wordpress:5.2.2-php7.2-fpm-alpine |
-| wiki_db | wiki database | Official MariaDB Image | mariadb ||
-
-We find it useful to create an alias on your quads container for executing quads-cli commands inside the container.
-
-   - On your docker host:
-```
-echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
-```
-
-   - e.g. creating an environment and adding hosts
-```
-quads --define-cloud --cloud cloud01 --description "spare pool"
-quads --add-host --host host01 --default-cloud cloud01 --host-type general
-```
-
-### Installing QUADS from Github
-This method requires you to satisfy all of your Python3 and library dependencies yourself and isn't recommended, however it probably is the only way to run QUADS on some platforms like FreeBSD.  Substitute package names and methods appropriately.
-
-   - Clone the git repository (substitute paths below as needed)
-
-```
-git clone https://github.com/redhat-performance/quads /opt/quads
-```
-   - Install pre-requisite Python packages
-```
-dnf install python3-requests python3-wordpress-xmlrpc python3-pexpect python3-paramiko ipmitool python3-cherrypy python3-mongoengine mongodb mongodb-server python3-jinja2 python3-passlib python3-PyYAML python3-requests python3-GitPython
-```
-   - Install a webserver (Apache, nginx, etc)
-```
-dnf install httpd
-```
-   - Create logging directory (you can edit this in ```conf/quads.yml``` via the ```log:``` parameter).
-```
-mkdir -p /opt/quads/log
-```
-   - Create your visualization web directory (you can configure this in ```conf/quads.yml``` via ```visual_web_dir```)
-```
-mkdir -p /var/www/html/visual
-```
-   - Read through the [QUADS YAML configuration file](/conf/quads.yml) for other settings you way want.
-```
-vi /opt/quads/conf/quads.yml
-```
-   - Enable and start the QUADS systemd service (daemon)
-   - Note: You can change QUADS ```quads_base_url``` listening port in ```conf/quads.yml``` and use the ```--port``` option
-```
-cp /opt/quads/systemd/quads-server.service /etc/systemd/system/quads-server.service
-systemctl daemon-reload
-systemctl enable quads-server.service
-systemctl start quads-server.service
-```
-   - Note: You can use QUADS on non-systemd based Linux or UNIX distributions but you'll need to run ```/opt/quads/bin/quads-server``` via an alternative init process or similiar functionality.
+   - We support modern Fedora OS distributions using RPM packages.
+   - While we will provide Docker/container files this is more for CI testing and isn't recommended or properly maintained for production deployments.
 
 ### Installing QUADS from RPM
-   - We build RPM packages for Fedora and CentOS/RHEL 8
+   - We build RPM packages for the Fedora distribution.
    - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
    - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore
 
 ```
-wget https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
-rpm -ivh --nodeps python3-wordpress-xmlrpc-2.3-13.fc29.noarch.rpm
+rpm -ivh --nodeps https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-14.noarch.rpm
 ```
 This package is also available via `pip` via `pip install python-wordpress-xmlrpc`
 
-   - On RHEL/CentOS 8 you'll need to install MongoDB first via `dnf install mongodb mongodb-server`
-   - On RHEL/CentOS 8 you'll also need to satisfy `python3-paramiko` RPM package from somewhere as it's been removed from EL8 in lieu of `libssh`
 
 * Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 
@@ -303,10 +212,28 @@ echo 'alias quads="quads-cli"' >> /root/.bashrc
 ```
 
 ### Installing other QUADS Components
+
 #### QUADS Wiki
-   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.  Note that the container deployment sets this up for you.
+   - Please use **Red Hat, CentOS Stream or Rocky 8** for the below Wordpress component.
+   - There is also a Wordpress Wiki [VM](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) QUADS component that we use a place to automate documentation via a Markdown to Python RPC API but any Markdown-friendly documentation platform could suffice.
+
+##### Installing Wordpress via Ansible
+   - You can use our Ansible Playbook for installing Wordpress / PHP / PHP-FPM / nginx on a Rocky8, RHEL8 or CentOS8 Stream VM:
+   - First, clone the repository
+```
+git clone https://github.com/redhat-performance/ops-tools
+cd ansible
+```
+  - Second, add the hostname or IP address of your intended Wiki/Wordpress host replacing `wiki.example.com` with your host in the `hosts` file.
+  - Third, run Ansible to deploy.  You might take a look at `group_vars/all` for any configuration settings you want to change first.
+
+```
+ansible-playbook -i hosts site.yml
+```
+##### Setup of Wordpress
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
-   - We also provide the `krusze` theme which does a great job of rendering Markdown-based tables, and the `JP Markdown` plugin which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
+   - We also provide the [krusze theme](/docker/etc/wordpress/themes/krusze.0.9.7.zip) which does a great job of rendering Markdown-based tables, and the [JP Markdown plugin](/docker/etc/wordpress/plugins/jetpack-markdown.3.9.6.zip) which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
+
 ##### Limit Page Revisions in Wordpress
    - It's advised to set the following parameter in your `wp-config.php` file to limit the amount of page revisions that are kept in the database.
      - Before the first reference to `ABSPATH` in `wp-config.php` add:
