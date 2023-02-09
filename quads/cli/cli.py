@@ -242,7 +242,7 @@ class QuadsCli:
         self.logger.info(self.quads.get_version())
 
     def action_ls_broken(self):
-        _hosts = Host.objects(broken=True)
+        _hosts = Host.objects(broken=True, retired=False)
         for host in _hosts:
             self.logger.info(host.name)
 
