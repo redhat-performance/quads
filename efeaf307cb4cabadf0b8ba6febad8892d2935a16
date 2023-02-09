@@ -16,6 +16,24 @@
       "message": "_hosts \u003d Host.objects(broken\u003dTrue, retired\u003dFalse)",
       "revId": "efeaf307cb4cabadf0b8ba6febad8892d2935a16",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3e76499_9a9b6b81",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-02-09T16:00:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c97716f_d5b7f006",
+      "revId": "efeaf307cb4cabadf0b8ba6febad8892d2935a16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
