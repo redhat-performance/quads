@@ -243,8 +243,10 @@ class QuadsCli:
 
     def action_ls_broken(self):
         _hosts = Host.objects(broken=True)
+        _brokens = Host.objects(retired=True)
         for host in _hosts:
-            self.logger.info(host.name)
+            if host not in _brokens:
+                self.logger.info(host.name)
 
     def action_ls_retired(self):
         _hosts = Host.objects(retired=True)
