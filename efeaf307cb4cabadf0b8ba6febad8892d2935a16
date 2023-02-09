@@ -34,6 +34,24 @@
       "parentUuid": "6c97716f_d5b7f006",
       "revId": "efeaf307cb4cabadf0b8ba6febad8892d2935a16",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd253a0a_a9064437",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2023-02-09T16:03:10Z",
+      "side": 1,
+      "message": "Wow ... that\u0027s so much simpler.  Ok... fixing it up.",
+      "parentUuid": "6c97716f_d5b7f006",
+      "revId": "efeaf307cb4cabadf0b8ba6febad8892d2935a16",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

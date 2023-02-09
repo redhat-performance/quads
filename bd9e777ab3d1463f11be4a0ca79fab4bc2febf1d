@@ -34,6 +34,24 @@
       "parentUuid": "2aa4c179_76c28155",
       "revId": "bd9e777ab3d1463f11be4a0ca79fab4bc2febf1d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a44591c1_6eeaf831",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2023-02-09T16:03:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2aa4c179_76c28155",
+      "revId": "bd9e777ab3d1463f11be4a0ca79fab4bc2febf1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
