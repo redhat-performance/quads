@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2aa4c179_76c28155",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-02-09T15:51:03Z",
+      "side": 1,
+      "message": "remove double indent",
+      "revId": "bd9e777ab3d1463f11be4a0ca79fab4bc2febf1d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
