@@ -367,10 +367,7 @@ if __name__ == "__main__":
         help="Show debugging information.",
     )
     parser.add_argument(
-        "--cloud",
-        nargs=1,
-        default="",
-        help="Run validation only on specified cloud."
+        "--cloud", default="", help="Run validation only on specified cloud."
     )
     args = parser.parse_args()
 

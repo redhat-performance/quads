@@ -38,7 +38,8 @@ class Foreman(object):
                 async with session.get(
                     self.url + endpoint,
                     auth=BasicAuth(self.username, self.password),
-                    verify_ssl=False,
+                    ssl=False,
+                    timeout=60,
                 ) as response:
                     result = await response.json(content_type="application/json")
         except Exception as ex:
@@ -75,7 +76,8 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
+                        ssl=False,
+                        timeout=60,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception as ex:
@@ -98,7 +100,8 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
+                        ssl=False,
+                        timeout=60,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception as ex:
@@ -122,7 +125,8 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
+                        ssl=False,
+                        timeout=60,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception as ex:
@@ -150,7 +154,8 @@ class Foreman(object):
                         self.url + endpoint,
                         json=data,
                         auth=BasicAuth(self.username, self.password),
-                        verify_ssl=False,
+                        ssl=False,
+                        timeout=60,
                     ) as response:
                         await response.json(content_type="application/json")
         except Exception as ex:
@@ -231,7 +236,8 @@ class Foreman(object):
                 async with session.get(
                     self.url + endpoint,
                     auth=BasicAuth(self.username, self.password),
-                    verify_ssl=False,
+                    ssl=False,
+                    timeout=60,
                 ) as response:
                     await response.json(content_type="application/json")
         except Exception as ex:
@@ -350,7 +356,8 @@ class Foreman(object):
                         async with session.delete(
                             endpoint,
                             auth=BasicAuth(self.username, self.password),
-                            verify_ssl=False,
+                            ssl=False,
+                            timeout=60,
                         ) as response:
                             await response.json(content_type="application/json")
             except Exception as ex:

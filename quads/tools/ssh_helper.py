@@ -18,7 +18,10 @@ class SSHHelper(object):
         self.host = _host
         self.user = _user
         self.password = _password
-        self.ssh = self.connect()
+        try:
+            self.ssh = self.connect()
+        except SSHHelperException as ex:
+            raise SSHHelperException(f"{self.host}: {ex}")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
@@ -41,8 +44,8 @@ class SSHHelper(object):
                 allow_agent=False,
                 timeout=30,
             )
-        except SSHException:
-            raise SSHHelperException
+        except SSHException as ex:
+            raise SSHHelperException(ex)
 
         transport = ssh.get_transport()
         channel = transport.open_session()
