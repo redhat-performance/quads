@@ -76,52 +76,6 @@ class QuadsCli:
 
             return action_meth()
 
-        # TODO: As these are basically actions too,
-        #       and there should be exactly one action to do per cli invocation,
-        #       then these all should set the `action` const in argparser
-        #       and carry it's arguments in param flags like --host, --cloud, --date etc.
-        #       Which would also allow to remove these ifs and leave just action_* methods.
-        # Cloud Add / Modify
-        if self.cli_args.get("cloudresource") is not None:
-            return self.action_cloudresource()
-
-        # Cloud Modify
-        if self.cli_args.get("modcloud") is not None:
-            return self.action_modcloud()
-
-        # Cloud Remove
-        if self.cli_args.get("rmcloud") is not None:
-            return self.action_rmcloud()
-
-        # Host Add / Modify
-        if self.cli_args.get("hostresource") is not None:
-            return self.action_hostresource()
-
-        # Host Metadata export
-        if self.cli_args.get("host_metadata_export") is not None:
-            return self.action_host_metadata_export()
-
-        # Schedule Remove
-        if self.cli_args.get("rmschedule") is not None:
-            return self.action_rmschedule()
-
-        # Schedule Mod
-        if self.cli_args.get("modschedule") is not None:
-            return self.action_modschedule()
-
-        # Move hosts
-        if self.cli_args.get("movehosts") is not None:
-            return self.action_movehosts()
-
-        if self.cli_args.get("host") is not None:
-            return self.action_host()
-
-        if self.cli_args.get("cloudonly") is not None:
-            return self.action_cloudonly()
-
-        if self.cli_args.get("summary"):
-            return self.action_summary()
-
         # default action
         clouds = Cloud.objects()
         hosts = Host.objects()
@@ -481,6 +435,17 @@ class QuadsCli:
             self.logger.warning("No hosts found.")
 
         return 0
+
+    def action_rmhost(self):
+        _host = Host.objects(name=self.cli_args["rmhost"]).first()
+        future_schedule = Schedule.future_schedules(host=_host)
+        if future_schedule:
+            self.logger.error("Can't remove host with future schedule.")
+            exit(1)
+        url = os.path.join(conf.API_URL, "host", self.cli_args["rmhost"])
+        _response = requests.delete(url)
+        self._output_json_result(_response, {"host": self.cli_args["rmhost"]})
+        exit(0)
 
     def action_free_cloud(self):
         _clouds = Cloud.objects(name__ne="cloud01")
@@ -1420,6 +1385,65 @@ class QuadsCli:
 
         return 0
 
+    def action_addinterface(self):
+        if (
+            self.cli_args["ifmac"] is None
+            or self.cli_args["ifip"] is None
+            or self.cli_args["ifport"] is None
+            or self.cli_args["host"] is None
+        ):
+            self.logger.error(
+                "Missing option. All these options are required for --add-interface:"
+            )
+            self.logger.error("    --host")
+            self.logger.error("    --interface-mac")
+            self.logger.error("    --interface-ip")
+            self.logger.error("    --interface-port")
+        url = os.path.join(conf.API_URL, "interfaces")
+
+        default_interface = conf.get("default_pxe_interface")
+        if default_interface and self.cli_args["addinterface"] == default_interface:
+            pxe_boot = True
+        else:
+            pxe_boot = (
+                self.cli_args["ifpxe"] if hasattr(self.cli_args, "ifpxe") else False
+            )
+
+        data = {
+            "host": self.cli_args["host"],
+            "name": self.cli_args["addinterface"],
+            "bios_id": self.cli_args["ifbiosid"],
+            "mac_address": self.cli_args["ifmac"],
+            "ip_address": self.cli_args["ifip"],
+            "switch_port": self.cli_args["ifport"],
+            "speed": self.cli_args["ifspeed"],
+            "vendor": self.cli_args["ifvendor"],
+            "pxe_boot": pxe_boot,
+            "force": self.cli_args["force"],
+        }
+        if hasattr(self.cli_args, "ifmaintenance"):
+            data["maintenance"] = self.cli_args["ifmaintenance"]
+
+        _response = requests.post(url, data)
+        self._output_json_result(_response, data)
+        exit(0)
+
+    def action_rminterface(self):
+        if self.cli_args["host"] is None:
+            self.logger.error(
+                "Missing option. --host option is required for --rm-interface:"
+            )
+            exit(1)
+        data = {"host": self.cli_args["host"], "name": self.cli_args["rminterface"]}
+        try:
+            self.logger.info(self.quads.remove_interface(**data))
+        except ConnectionError:
+            self.logger.error(
+                "Could not connect to the quads-server, verify service is up and running."
+            )
+            exit(1)
+        exit(0)
+
     def action_movehosts(self):
         if self.cli_args["datearg"] is not None and not self.cli_args["dryrun"]:
             raise CliException(
@@ -1726,7 +1750,7 @@ class QuadsCli:
             )
 
         for cloud in summary:
-            if self.cli_args["fullsummary"] or cloud["count"] > 0:
+            if cloud["count"] > 0:
                 if self.cli_args["detail"]:
                     self.logger.info(
                         "%s (%s): %s (%s) - %s"
