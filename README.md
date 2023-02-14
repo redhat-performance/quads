@@ -177,7 +177,7 @@ docker-compose -f /opt/docker/quads/docker/docker-compose-production.yml up -d
    - Run commands against containerized quads via docker exec
 
 ```
-docker exec quads bin/quads-cli --define-cloud cloud01 --description cloud01
+docker exec quads bin/quads-cli --define-cloud --cloud cloud01 --description cloud01
 ```
 
    * Container Layout
@@ -199,8 +199,8 @@ echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
 
    - e.g. creating an environment and adding hosts
 ```
-quads --define-cloud cloud01 --description "spare pool"
-quads --add-host host01 --default-cloud cloud01 --host-type general
+quads --define-cloud --cloud cloud01 --description "spare pool"
+quads --add-host --host host01 --default-cloud cloud01 --host-type general
 ```
 
 ### Installing QUADS from Github
@@ -349,9 +349,9 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
    - These are the isolated environments QUADS will use and provision into for you.
 
 ```
-quads-cli --define-cloud cloud01 --description "Primary Cloud Environment"
-quads-cli --define-cloud cloud02 --description "02 Cloud Environment"
-quads-cli --define-cloud cloud03 --description "03 Cloud Environment"
+quads-cli --define-cloud --cloud cloud01 --description "Primary Cloud Environment"
+quads-cli --define-cloud --cloud cloud02 --description "02 Cloud Environment"
+quads-cli --define-cloud --cloud cloud03 --description "03 Cloud Environment"
 ```
 
 #### Define Host in QUADS and Foreman
@@ -368,7 +368,7 @@ for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630
    - The command **without Foreman** would be simply:
 
 ```
-quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
+quads-cli --define-host --host <hostname> --default-cloud cloud01 --host-type general
 ```
 
 #### Define Host Interfaces in QUADS
@@ -378,10 +378,10 @@ quads-cli --define-host <hostname> --default-cloud cloud01 --host-type general
    - The variable `default_pxe_interface` on the quads.yml will set the default value of `pxe_boot=True` for that interface while any other interface will have a default value of `False` unless specified via `--pxe-boot` or `--no-pxe-boot`. This can be later modified via `--mod-interface`.
 
 ```
-quads-cli --add-interface em1 --interface-mac 52:54:00:d9:5d:df --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface em2 --interface-mac 52:54:00:d9:5d:dg --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
-quads-cli --add-interface em3 --interface-mac 52:54:00:d9:5d:dh --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface em4 --interface-mac 52:54:00:d9:5d:d1 --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface --interface-name em1 --interface-mac 52:54:00:d9:5d:df --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface --interface-name em2 --interface-mac 52:54:00:d9:5d:dg --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
+quads-cli --add-interface --interface-name em3 --interface-mac 52:54:00:d9:5d:dh --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads-cli --add-interface --interface-name em4 --interface-mac 52:54:00:d9:5d:d1 --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
 ```
 
    - To list the hosts:
@@ -424,8 +424,7 @@ quads-cli --summary
 ```
 ```
 cloud01 : 45 (Primary Cloud Environment)
-cloud02 : 0 (02 Cloud Environment)
-cloud03 : 0 (03 Cloud Environment)
+cloud02 : 22 (02 Cloud Environment)
 ```
    - For a more detailed summary of current system allocations use `--detail`
 
@@ -434,7 +433,16 @@ quads-cli --summary --detail
 ```
 ```
 cloud01 (quads): 45 (Primary Cloud Environment) - 451
-cloud02 (jdoe): 0 (02 Cloud Environment) - 462
+cloud02 (jdoe): 22 (02 Cloud Environment) - 462
+```
+   - For including clouds with no active assignments use `--all`
+
+```
+quads-cli --summary --detail --all
+```
+```
+cloud01 (quads): 45 (Primary Cloud Environment) - 451
+cloud02 (jdoe): 22 (02 Cloud Environment) - 462
 cloud03 (jhoffa): 0 (03 Cloud Environment) - 367
 ```
 **NOTE:**
@@ -616,19 +624,19 @@ If you need to associate a public vlan (routable) with your cloud, quads current
 To define your cloud with a public VLAN, use the following syntax:
 
 ```
-quads-cli --define-cloud cloud03 [ other define-cloud options ] --vlan 601
+quads-cli --define-cloud --cloud cloud03 [ other define-cloud options ] --vlan 601
 ```
 
 If you need to clear the vlan association with your cloud, you can pass any string to the `--vlan` argument in `--mod-cloud`
 
 ```
-quads-cli --mod-cloud cloud03 --vlan none
+quads-cli --mod-cloud --cloud cloud03 --vlan none
 ```
 
 #### Defining a New Cloud ####
 
 ```
-quads-cli --define-cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
+quads-cli --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
 ```
 
    * Note: in QUADS `1.1.4` you can change any of these values selectively via the `--mod-cloud` command [described below](#modifying-cloud-level-attributes).
@@ -856,9 +864,9 @@ You can remove an existing schedule across a set of hosts using the ```--rm-sche
    - Obtain the schedule ID via ```quads-cli --ls-schedule --host```
    - These machines would happen to have the same cloud assignment as schedule id 2.
 ```
-quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
-quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
-quads-cli --rm-schedule 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
 ```
 
 ### Removing a Schedule across a large set of hosts
@@ -870,7 +878,7 @@ You should search for either the start or end dates to select the right schedule
    - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
 
 ```
-for host in $(cat /tmp/452851); do quads-cli --rm-schedule $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
+for host in $(cat /tmp/452851); do quads-cli --rm-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
 ```
 
 ### Removing a Host from QUADS
@@ -887,7 +895,7 @@ Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 To remove a host entirely from QUADS management you can use the `--rm-host` command.
 
 ```
-quads-cli --mod-interface em1 --host f03-h30-000-r720xd.rdu2.example.com --no-pxe-boot
+quads-cli --mod-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com --no-pxe-boot
 Interface successfully updated
 ```
 
@@ -896,7 +904,7 @@ Interface successfully updated
 To remove a host entirely from QUADS management you can use the `--rm-host` command.
 
 ```
-quads-cli --rm-interface em1 --host f03-h30-000-r720xd.rdu2.example.com
+quads-cli --rm-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com
 Resource properly removed
 ```
 
@@ -995,23 +1003,23 @@ em4 is interface VLAN 1403 in cloud32
 * This can be done a per-parameter or combined basis:
 
 ```
-quads-cli --mod-cloud cloud02 --cloud-owner jhoffa
+quads-cli --mod-cloud --cloud cloud02 --cloud-owner jhoffa
 ```
 
 ```
-quads-cli --mod-cloud cloud04 --cc-users "tpetty fmercury"
+quads-cli --mod-cloud --cloud cloud04 --cc-users "tpetty fmercury"
 ```
 
 ```
-quads-cli --mod-cloud cloud06 --vlan 604 --wipe
+quads-cli --mod-cloud --cloud cloud06 --vlan 604 --wipe
 ```
 
 ```
-quads-cli --mod-cloud cloud50 --no-wipe
+quads-cli --mod-cloud --cloud cloud50 --no-wipe
 ```
 
 ```
-quads-cli --mod-cloud cloud50 --vlan none
+quads-cli --mod-cloud --cloud cloud50 --vlan none
 ```
 
 ### Looking into the Future
