@@ -189,9 +189,9 @@ action_group.add_argument(
 )
 action_group.add_argument(
     "--define-host",
-    dest="hostresource",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="hostresource",
     help="Define a host resource",
 )
 action_group.add_argument(
@@ -201,26 +201,25 @@ action_group.add_argument(
     const="define_host_metadata",
     help="Define a host resource details via yaml",
 )
-
 action_group.add_argument(
     "--export-host-details",
-    dest="host_metadata_export",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="host_metadata_export",
     help="Path to QUADS log file",
 )
 action_group.add_argument(
     "--define-cloud",
-    dest="cloudresource",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="cloudresource",
     help="Define a cloud environment",
 )
 action_group.add_argument(
     "--mod-cloud",
-    dest="modcloud",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="modcloud",
     help="Modify a cloud",
 )
 action_group.add_argument(
@@ -232,37 +231,37 @@ action_group.add_argument(
 )
 action_group.add_argument(
     "--mod-schedule",
-    dest="modschedule",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="modschedule",
     help="Modify a host reservation",
 )
 action_group.add_argument(
     "--add-interface",
-    dest="addinterface",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="addinterface",
     help="Define a host interface",
 )
 action_group.add_argument(
     "--rm-schedule",
-    dest="rmschedule",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="rmschedule",
     help="Remove a host reservation",
 )
 action_group.add_argument(
     "--rm-interface",
-    dest="rminterface",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="rminterface",
     help="Remove a host interface",
 )
 action_group.add_argument(
     "--mod-interface",
-    dest="modinterface",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="modinterface",
     help="Modify a host interface",
 )
 action_group.add_argument(
@@ -281,17 +280,17 @@ action_group.add_argument(
 )
 action_group.add_argument(
     "--rm-host",
-    dest="rmhost",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="rmhost",
     help="Remove a host",
 )
 action_group.add_argument(
     "--rm-cloud",
-    dest="rmcloud",
-    type=str,
-    default=None,
-    help="Remove a cloud"
+    dest="action",
+    action="store_const",
+    const="rmcloud",
+    help="Remove a cloud",
 )
 action_group.add_argument(
     "--ls-available",
@@ -388,9 +387,9 @@ action_group.add_argument(
 
 parser.add_argument(
     "--cloud-only",
-    dest="cloudonly",
-    type=str,
-    default=None,
+    dest="action",
+    action="store_const",
+    const="cloudonly",
     help="Limit full report to hosts only in this cloud",
 )
 parser.add_argument(
@@ -447,15 +446,16 @@ parser.add_argument(
 )
 parser.add_argument(
     "--default-cloud",
-    dest="hostcloud",
+    dest="defaultcloud",
     type=str,
     default=None,
     help="Defined default cloud for a host",
 )
 parser.add_argument(
     "--summary",
-    dest="summary",
-    action="store_true",
+    dest="action",
+    action="store_const",
+    const="summary",
     help="Generate a summary report",
 )
 parser.add_argument(
@@ -465,10 +465,17 @@ parser.add_argument(
     help="Get additional data over the summary",
 )
 parser.add_argument(
-    "--full-summary",
-    dest="fullsummary",
+    "--all",
+    dest="all",
     action="store_true",
-    help="Generate a summary report",
+    help="Get all hosts data over the summary",
+)
+parser.add_argument(
+    "--schedule-id",
+    dest="schedid",
+    type=int,
+    default=None,
+    help="Schedule id",
 )
 parser.add_argument(
     "--schedule-start",
@@ -504,6 +511,13 @@ parser.add_argument(
     type=str,
     default=None,
     help="Schedule cloud",
+)
+parser.add_argument(
+    "--interface-name",
+    dest="ifname",
+    type=str,
+    default=None,
+    help="Interface name",
 )
 parser.add_argument(
     "--interface-bios-id",
@@ -582,9 +596,9 @@ maintenance_group_args.add_argument(
 
 parser.add_argument(
     "--move-hosts",
-    dest="movehosts",
-    action="store_true",
-    default=None,
+    dest="action",
+    action="store_const",
+    const="movehosts",
     help="Move hosts if schedule has changed",
 )
 parser.add_argument(
@@ -625,6 +639,6 @@ parser.add_argument(
 )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # debugging helper
     parser.print_help()
