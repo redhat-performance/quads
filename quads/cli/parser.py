@@ -619,7 +619,6 @@ parser.add_argument(
 parser.add_argument(
     "--vlan",
     dest="vlan",
-    type=int,
     default=None,
     help="VLAN id number for public routable network",
 )
