@@ -973,7 +973,7 @@ class QuadsCli:
 
     def action_modcloud(self):
         data = {
-            "name": self.cli_args["modcloud"],
+            "name": self.cli_args["cloud"],
             "description": self.cli_args["description"],
             "owner": self.cli_args["cloudowner"],
             "ccuser": self.cli_args["ccusers"],
@@ -1008,7 +1008,7 @@ class QuadsCli:
             cloud.update(**prep_data)
         else:
             if results:
-                err_msg = [f"Failed to validate data for {self.cli_args['modcloud']}"]
+                err_msg = [f"Failed to validate data for {self.cli_args['cloud']}"]
                 for result in results:
                     err_msg.append(result)
 
