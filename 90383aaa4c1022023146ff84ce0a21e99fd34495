@@ -70,6 +70,30 @@
       },
       "revId": "90383aaa4c1022023146ff84ce0a21e99fd34495",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "421d4aa6_a891098b",
+        "filename": "quads/tools/move_and_rebuild_hosts.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2023-02-15T14:22:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5e60c24_48a68cb3",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 16
+      },
+      "revId": "90383aaa4c1022023146ff84ce0a21e99fd34495",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
