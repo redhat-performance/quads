@@ -67,7 +67,10 @@ def switch_config(host, old_cloud, new_cloud):
 
         if _new_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_cloud_obj.vlan.vlan_id):
-                logger.info("Setting last interface to public vlan %s." % new_vlan)
+                logger.info(
+                    "Setting last interface to public vlan %s."
+                    % _new_cloud_obj.vlan.vlan_id
+                )
 
                 juniper = Juniper(
                     interface.switch_ip,
