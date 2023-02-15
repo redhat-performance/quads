@@ -734,6 +734,96 @@ class QuadsCli:
                     "Host %s can be extended until %s" % (host.name, str(end_date)[:16])
                 )
 
+    def shrink(self, shrinkable, time_delta, _date, threshold, weeks):
+        end_date = None
+        _type = type(shrinkable)
+        _type_str = _type.__name__
+        if not shrinkable:
+            raise CliException(f"{_type_str} not found")
+
+        _kwargs = {f"{_type_str.lower()}": shrinkable}
+        schedules = Schedule.current_schedule(**_kwargs)
+        if not schedules:
+            self.logger.error(
+                f"The selected {_type_str.lower()} does not have any active schedules"
+            )
+            future_schedules = Schedule.future_schedules(**_kwargs)
+            if not future_schedules:
+                return 1
+
+            if not self._confirmation_dialog(
+                "Would you like to shrink a future allocation of"
+                f" {shrinkable.name}? (y/N): "
+            ):
+                return
+            schedules = future_schedules
+
+        non_shrinkable = []
+
+        for schedule in schedules:
+            if weeks:
+                end_date = schedule.end - time_delta
+            else:
+                end_date = _date
+            if (
+                end_date < schedule.start
+                or end_date > schedule.end
+                or (not self.cli_args["now"] and end_date < threshold)
+            ):
+                non_shrinkable.append(schedule.host)
+
+        if non_shrinkable:
+            self.logger.info(
+                f"The following {_type_str.lower()}[s] cannot be shrunk past it's start date, target date means an "
+                f"extension or target date is earlier than 1 hour from now:"
+            )
+            for _obj in non_shrinkable:
+                self.logger.info(_obj.name)
+            return 1
+
+        if not self.cli_args["check"]:
+            confirm_msg = (
+                f"for {weeks} week[s]? (y/N): "
+                if weeks
+                else f"to {str(_date)[:16]}? (y/N): "
+            )
+            if not self._confirmation_dialog(
+                f"Are you sure you want to shrink {shrinkable.name} " + confirm_msg
+            ):
+                return
+
+            for schedule in schedules:
+                if weeks:
+                    end_date = schedule.end - time_delta
+                else:
+                    end_date = _date
+                    schedule.update(end=end_date)
+            if weeks:
+                self.logger.info(
+                    f"{_type_str} {shrinkable.name} has now been shrunk for {str(weeks)} week[s] until {str(end_date)[:16]}"
+                )
+            elif self.cli_args["datearg"]:
+                self.logger.info(
+                    f"{_type_str} {shrinkable.name} has now been shrunk to {str(end_date)[:16]}"
+                )
+            else:
+                self.logger.info(
+                    f"{_type_str} {shrinkable.name} has now been terminated"
+                    % shrinkable.name
+                )
+
+        else:
+            if weeks:
+                self.logger.info(
+                    f"{_type_str} {shrinkable.name} can be shrunk for {str(weeks)} week[s] to {str(end_date)[:16]}"
+                )
+            elif self.cli_args["datearg"]:
+                self.logger.info(
+                    f"{_type_str} {shrinkable.name} can be shrunk to {str(weeks)[:16]}"
+                )
+            else:
+                self.logger.info(f"{_type_str} {shrinkable.name} can be terminated now")
+
     def action_shrink(self):
         if (
             not self.cli_args["weeks"]
@@ -752,7 +842,6 @@ class QuadsCli:
         time_delta = timedelta()
         weeks = 0
         _date = None
-        end_date = None
 
         if self.cli_args["weeks"]:
             try:
@@ -770,164 +859,10 @@ class QuadsCli:
 
         if self.cli_args["cloud"]:
             cloud = Cloud.objects(name=str(self.cli_args["cloud"])).first()
-            if not cloud:
-                raise CliException("Cloud not found")
-
-            schedules = Schedule.current_schedule(cloud=cloud)
-            if not schedules:
-                self.logger.error(
-                    "The selected cloud does not have any active schedules"
-                )
-                future_schedules = Schedule.future_schedules(cloud=cloud)
-                if not future_schedules:
-                    return 1
-
-                if not self._confirmation_dialog(
-                    "Would you like to shrink a future allocation of"
-                    f" {cloud.name}? (y/N): "
-                ):
-                    return
-                schedules = future_schedules
-
-            non_shrinkable = []
-
-            for schedule in schedules:
-                if self.cli_args["weeks"]:
-                    end_date = schedule.end - time_delta
-                else:
-                    end_date = _date
-                if (
-                    end_date < schedule.start
-                    or end_date > schedule.end
-                    or (not self.cli_args["now"] and end_date < threshold)
-                ):
-                    non_shrinkable.append(schedule.host)
-
-            if non_shrinkable:
-                self.logger.info(
-                    "The following hosts cannot be shrunk past it's start date, target date means an extension"
-                    " or target date is earlier than 1 hour from now:"
-                )
-                for host in non_shrinkable:
-                    self.logger.info(host.name)
-                return 1
-
-            if not self.cli_args["check"]:
-                confirm_msg = (
-                    f"for {self.cli_args['weeks']} week[s]? (y/N): "
-                    if weeks
-                    else f"to {str(_date)[:16]}? (y/N): "
-                )
-                if not self._confirmation_dialog(
-                    f"Are you sure you want to shrink {cloud.name} " + confirm_msg
-                ):
-                    return
-
-                for schedule in schedules:
-                    if self.cli_args["weeks"]:
-                        end_date = schedule.end - time_delta
-                    else:
-                        end_date = _date
-                        schedule.update(end=end_date)
-                if weeks:
-                    self.logger.info(
-                        "Cloud %s has now been shrunk for %s week[s] until %s"
-                        % (cloud.name, str(weeks), str(end_date)[:16])
-                    )
-                elif self.cli_args["datearg"]:
-                    self.logger.info(
-                        "Cloud %s has now been shrunk to %s"
-                        % (cloud.name, str(end_date)[:16])
-                    )
-                else:
-                    self.logger.info("Cloud %s has now been terminated" % cloud.name)
-
-            else:
-                if weeks:
-                    self.logger.info(
-                        "Cloud %s can be shrunk for %s week[s] to %s"
-                        % (cloud.name, str(weeks), str(end_date)[:16])
-                    )
-                elif self.cli_args["datearg"]:
-                    self.logger.info(
-                        "Cloud %s can be shrunk to %s"
-                        % (cloud.name, str(end_date)[:16])
-                    )
-                else:
-                    self.logger.info("Cloud %s can be terminated now" % cloud.name)
-
+            self.shrink(cloud, time_delta, _date, threshold, weeks)
         elif self.cli_args["host"]:
             host = Host.objects(name=str(self.cli_args["host"])).first()
-            if not host:
-                raise CliException("Host not found")
-
-            schedule = Schedule.current_schedule(host=host).first()
-            if not schedule:
-                self.logger.warning(
-                    "The selected host does not have any active schedules"
-                )
-                future_schedule = Schedule.future_schedules(host=host).first()
-                if not future_schedule:
-                    return 1
-
-                if self._confirmation_dialog(
-                    f"Would you like to shrink a future allocation of {host.name}? (y/N): "
-                ):
-                    return
-
-                schedule = future_schedule
-
-            if weeks:
-                end_date = schedule.end - time_delta
-            else:
-                end_date = _date
-            if (
-                end_date < schedule.start
-                or end_date > schedule.end
-                or (not self.cli_args["now"] and end_date < threshold)
-            ):
-                raise CliException(
-                    "The host cannot be shrunk past it's start date, target date means an extension"
-                    " or target date is earlier than 1 hour from now:"
-                )
-
-            if not self.cli_args["check"]:
-                if self._confirmation_dialog(
-                    "Are you sure you want to shrink"
-                    f"{host.name} to {str(end_date)[:16]}? (y/N): "
-                ):
-                    return
-
-                schedule.update(end=end_date)
-                if weeks:
-                    self.logger.info(
-                        "Host %s has now been shrunk for %s week[s] to %s"
-                        % (host.name, str(weeks), str(end_date)[:16])
-                    )
-                elif self.cli_args["datearg"]:
-                    self.logger.info(
-                        "Host %s has now been shrunk to %s"
-                        % (host.name, str(end_date)[:16])
-                    )
-                else:
-                    self.logger.info(
-                        "Host %s schedule has now been terminated" % host.name
-                    )
-            else:
-                if weeks:
-                    self.logger.info(
-                        "Host %s can be shrunk for %s weeks until %s"
-                        % (host.name, str(weeks), str(end_date)[:16])
-                    )
-                elif self.cli_args["datearg"]:
-                    self.logger.info(
-                        "Host %s can been shrunk to %s"
-                        % (host.name, str(end_date)[:16])
-                    )
-                else:
-                    self.logger.info(
-                        "Host %s schedule can be terminated now" % host.name
-                    )
+            self.shrink(host, time_delta, _date, threshold, weeks)
 
     def action_cloudresource(self):
         data = {
@@ -1776,7 +1711,7 @@ class QuadsCli:
             self.logger.info(host.default_cloud.name)
 
     def action_cloudonly(self):
-        _cloud = Cloud.objects(name=self.cli_args["cloudonly"]).first()
+        _cloud = Cloud.objects(name=self.cli_args["cloud"]).first()
         if not _cloud:
             raise CliException("Cloud is not defined.")
 
@@ -1796,7 +1731,7 @@ class QuadsCli:
                 if schedule.host in _hosts:
                     self.logger.info(schedule.host.name)
         else:
-            if _kwargs.get("date") and self.cli_args["cloudonly"] == "cloud01":
+            if _kwargs.get("date") and self.cli_args["cloud"] == "cloud01":
                 data = {
                     "start": _kwargs["date"],
                     "end": _kwargs["date"],
