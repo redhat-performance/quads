@@ -22,6 +22,30 @@
       },
       "revId": "da0f178e0bd66e7c19209fd927a16db49a2da54a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2041ed51_69017bf1",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2023-02-15T14:12:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a22a3cf_0985e26a",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 751,
+        "endChar": 36
+      },
+      "revId": "da0f178e0bd66e7c19209fd927a16db49a2da54a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aff4e918_20162da5",
+        "filename": "quads/tools/move_and_rebuild_hosts.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2023-02-15T14:12:55Z",
+      "side": 1,
+      "message": "Why is new_vlan assigned if it\u0027s not used?",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 16
+      },
+      "revId": "90383aaa4c1022023146ff84ce0a21e99fd34495",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
