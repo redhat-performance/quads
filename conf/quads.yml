@@ -41,7 +41,7 @@ ircbot_port: 5050
 ircbot_channel: #yourchannel
 
 # support for sending webhook notifications on assignment release
-webhook_notify: true
+webhook_notify: false
 webhook_url: https://chat.example.com/v1/spaces/AAABBBCCC
 
 # wordpress wiki

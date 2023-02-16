@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.6
+%define version 1.1.7
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -43,13 +43,13 @@ Requires: python3-flask >= 1.0
 Requires: python3-flask-bootstrap >= 3.3.7.1
 Requires: python3-flask-wtf >= 0.12
 Requires: python3-wtforms >= 2.2.0
-Requires: python3-wordpress-xmlrpc >= 2.2
 Requires: python3-pexpect >= 4.2
 Requires: python3-ipdb >= 0.10
 Requires: python3-argcomplete >= 1.9.5
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 2.0
 Requires: logrotate >= 3.0
+AutoReq: no
 
 Url: https://quads.dev
 
@@ -129,6 +129,14 @@ fi;
 :;
 
 %changelog
+
+* Wed Feb 08 2023 Will Foster <wfoster@redhat.com>
+- 1.1.7 release
+- no-op network moves for move-and-rebuild
+- lshw2meta / lshw hardware metadata gathering tool
+- many, many fixes
+- several other features
+- this will be the last 1.1 series release
 
 * Thu Feb 03 2022 Will Foster <wfoster@redhat.com>
 - 1.1.6 release
