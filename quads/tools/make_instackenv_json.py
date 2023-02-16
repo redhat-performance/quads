@@ -69,11 +69,11 @@ def make_env_json(filename):
             if "result" in overcloud and _overcloud_result:
                 mac = []
                 if filename == "instackenv":
-                    for interface in host.interfaces:
+                    for interface in sorted(host.interfaces, key=lambda k: k["name"]):
                         if interface.pxe_boot:
                             mac.append(interface.mac_address)
                 if filename == "ocpinventory":
-                    mac = [interface.mac_address for interface in host.interfaces]
+                    mac = [interface.mac_address for interface in sorted(host.interfaces, key=lambda k: k["name"])]
                 data["nodes"].append(
                     {
                         "name": host.name,

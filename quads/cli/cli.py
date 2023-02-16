@@ -488,6 +488,13 @@ class QuadsCli:
         _start = datetime.strptime(self.cli_args["schedstart"], "%Y-%m-%d %H:%M")
         _end = datetime.strptime(self.cli_args["schedend"], "%Y-%m-%d %H:%M")
 
+        if self.cli_args["cloud"]:
+            cloud = Cloud.objects(name=self.cli_args["cloud"]).first()
+            if cloud:
+                kwargs["cloud"] = cloud
+            else:
+                raise CliException(f"Cloud {self.cli_args['cloud']} not found.")
+
         available = []
         current = []
         all_hosts = Host.objects(**kwargs).all()
@@ -792,12 +799,12 @@ class QuadsCli:
             ):
                 return
 
-            for schedule in schedules:
+            for schedule in schedules.all():
                 if weeks:
                     end_date = schedule.end - time_delta
                 else:
                     end_date = _date
-                    schedule.update(end=end_date)
+                schedule.update(end=end_date)
             if weeks:
                 self.logger.info(
                     f"{_type_str} {shrinkable.name} has now been shrunk for {str(weeks)} week[s] until {str(end_date)[:16]}"
@@ -1721,7 +1728,7 @@ class QuadsCli:
             ).isoformat()
         schedules = Schedule.current_schedule(**_kwargs)
         if schedules:
-            _kwargs = {}
+            _kwargs = {"retired": False}
             if self.cli_args["filter"]:
                 filter_args = self._filter_kwargs(self.cli_args["filter"])
                 _kwargs.update(filter_args)

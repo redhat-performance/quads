@@ -169,6 +169,26 @@ class Jira(object):
             logger.error("No transitions found under %s" % issue_id)
             return []
 
+    async def get_project_transitions(self):
+        endpoint = "/project/%s/statuses" % Config["ticket_queue"]
+        result = await self.get_request(endpoint)
+        if not result:
+            logger.error("Failed to get project transitions")
+            return []
+
+        transitions = result[0].get("statuses")
+        if transitions:
+            return transitions
+        else:
+            logger.error("No transitions found under %s" % Config["ticket_queue"])
+            return []
+
+    async def get_transition_id(self, status):
+        transitions = await self.get_project_transitions()
+        for transition in transitions:
+            if transition["name"].lower() == status.lower():
+                return transition["id"]
+
     async def get_ticket(self, ticket):
         issue_id = "%s-%s" % (Config["ticket_queue"], ticket)
         endpoint = "/issue/%s" % issue_id
@@ -189,7 +209,8 @@ class Jira(object):
         return result
 
     async def get_all_pending_tickets(self):
-        query = {"statusCategory": 4}
+        transition_id = await self.get_transition_id("In Progress")
+        query = {"status": transition_id}
         logger.debug("GET cloud access active tickets")
         result = await self.search_tickets(query)
         if not result:
