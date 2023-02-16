@@ -317,7 +317,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 return False
 
         await badfish.set_power_state("off")
-        source_cloud_schedule = Schedule.current_schedule(cloud=_host_obj.cloud.name)
+        source_cloud_schedule = Schedule.current_schedule(cloud=_host_obj.cloud)
         if not source_cloud_schedule:
             _old_cloud_obj = Cloud.objects(name=_host_obj.cloud.name).first()
             _old_cloud_obj.update(vlan=None)
