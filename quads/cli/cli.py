@@ -809,7 +809,6 @@ class QuadsCli:
             else:
                 self.logger.info(
                     f"{_type_str} {shrinkable.name} has now been terminated"
-                    % shrinkable.name
                 )
 
         else:
@@ -1307,7 +1306,7 @@ class QuadsCli:
             )
 
         data = {
-            "index": self.cli_args["modschedule"],
+            "index": self.cli_args["schedid"],
             "start": self.cli_args["schedstart"],
             "end": self.cli_args["schedend"],
             "cloud": self.cli_args["schedcloud"],
