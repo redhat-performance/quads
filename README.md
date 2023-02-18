@@ -136,8 +136,9 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Setup Foreman/Satellite Validation Templates | [examples](/templates/README.md) | Templates for internal interface configs |
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | Install via RPM |
-| Install MongoDB | [docs](/docs/install-mongodb.md) | May not be available via your distribution due to licensing changes |
-| Install Wiki | [docs](#installing-other-quads-components) | For RPM or Github Source only |
+| Install MongoDB | [docs](/docs/install-mongodb.md) | Install MongoDB separately |
+| Install Wiki | [docs](#installing-wordpress-via-ansible) | Use Ansible to Deploy Wordpress |
+| Configure Wiki | [docs](#setup-of-wordpress) | Configure Wordpress Pages and Plugins |
 | Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
 | Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
 | Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
