@@ -103,9 +103,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
      * Currently allocated/free optional publicly routable VLAN status
    - Query scheduling data to determine future availability
    - Generates a per-month visualization map for per-machine allocations to assignments.
-   - RT (or similiar ticketing system) integration.
-   - IRC bot and email notifications for new provisioning tasks and ones ending completion
-   - ~~Control PDU sockets for connected bare-metal systems for power action~~ (to be re-introduced in 1.2)
+   - JIRA integration.
+   - Webhook and IRC notifications (via supybot/notify plugin) for system releases.
+   - Email notifications to users for new future assignments, releases and expirations.
+   - Flask-based Web UI for searching for available bare-metal systems in the future based on model.
 
 ## Design
    - Main components: `Python3, Cherrypy, Mongoengine, MongoDB, Jinja2`
@@ -1046,13 +1047,12 @@ quads-cli --ls-hosts --filter "retired==True"
 quads-cli --cloud-only cloud13 --filter "model==FC640"
 ```
 
-#### Find Available Web Preview
+#### Find Available Web Interface
 
 * We now have a Flask-based `--ls-available` web interface available on `quadshost:5001` if your firewall rules are open for `TCP/5001`.
 * Available in QUADS `1.1.4` or above as a tech preview (when we migrate fully to Flask this will be supplanted with a full UI).
 * This is provided via the `quads-web` systemd service or you can run it manually via `cd /opt/quads/web ; python3 main.py`
 * You will need to seed the `models` data for your systems using the new [host metadata feature](/docs/quads-host-metadata-search.md)
-* This is **not** available in containers as it's a tech preview but will be featured once our move from CherryPy to Flask is completed later.
 
 ![quads-available-web](/image/quads-available-web.png?raw=true)
 
