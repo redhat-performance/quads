@@ -64,7 +64,9 @@ class Quads:
         return self._parse_and_check_quads(_response)
 
     def post(self, endpoint, data):
-        _response = self.session.post(os.path.join(self.base_url, endpoint), data, verify=False)
+        _response = self.session.post(
+            os.path.join(self.base_url, endpoint), data, verify=False
+        )
         return self._parse_and_check_quads(_response)
 
     def delete(self, endpoint, **kwargs):

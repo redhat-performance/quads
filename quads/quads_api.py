@@ -62,7 +62,7 @@ class QuadsApi:
         return self.get("hosts")
 
     def filter_hosts(self, data):
-        return self.get("hosts", **data)
+        return self.post(os.path.join("hosts", "filter"), data)
 
     def get_host(self, hostname):
         return self.get(os.path.join("hosts", hostname))

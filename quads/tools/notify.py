@@ -79,17 +79,25 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
     if Config["webhook_notify"]:
         try:
-            message = "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
-                      cloud_info,
-                      Config["wp_wiki"],
-                      cloud,
-                      real_owner,
-                      Config["report_cc"],
+            message = (
+                "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
+                % (
+                    cloud_info,
+                    Config["wp_wiki"],
+                    cloud,
+                    real_owner,
+                    Config["report_cc"],
+                )
             )
-            requests.post(webhook_url, json={'text': message}, headers={'Content-Type': 'application/json'})
+            requests.post(
+                webhook_url,
+                json={"text": message},
+                headers={"Content-Type": "application/json"},
+            )
         except Exception as ex:
             logger.debug(ex)
             logger.error("Beep boop we can't communicate with your webhook.")
+
 
 def create_message(
     cloud_obj,
