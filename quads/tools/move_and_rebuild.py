@@ -315,6 +315,12 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 return False
 
         await badfish.set_power_state("off")
+        data = {"cloud": _host_obj.cloud.name}
+        source_cloud_schedule = quads.get_current_schedules(data)
+        if not source_cloud_schedule:
+            _old_ass_cloud_obj = quads.get_active_cloud_assignment(_host_obj.cloud)
+            data = {"active": False, "vlan": None}
+            quads.update_assignment(_old_ass_cloud_obj.id, data)
 
     data = {"host": _host_obj.name, "cloud": _target_cloud.name}
     schedule = quads.get_current_schedules(data)

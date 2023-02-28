@@ -64,7 +64,9 @@ class Quads:
         return self._parse_and_check_quads(_response)
 
     def post(self, endpoint, data):
-        _response = self.session.post(os.path.join(self.base_url, endpoint), data, verify=False)
+        _response = self.session.post(
+            os.path.join(self.base_url, endpoint), data, verify=False
+        )
         return self._parse_and_check_quads(_response)
 
     def delete(self, endpoint, **kwargs):
@@ -121,6 +123,9 @@ class Quads:
 
     def insert_cloud(self, data):
         return self.post("cloud", data)
+
+    def remove_cloud(self, **kwargs):
+        return self.delete("cloud", kwargs)
 
     def get_available(self, **kwargs):
         uri = self._uri_constructor("available", kwargs)

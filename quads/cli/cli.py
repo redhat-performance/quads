@@ -91,6 +91,21 @@ class QuadsCli:
 
         return 0
 
+    def clear_field(self, host, key):
+        dispatch_remove = {
+            "disks": self.quads.remove_disk,
+            "interfaces": self.quads.remove_interface,
+            "memory": self.quads.remove_memory,
+            "processors": self.quads.remove_processor,
+        }
+        field = host.get(key)
+        if not field:
+            raise CliException("{key} is not a Host property")
+
+        for obj in field:
+            remove_func = dispatch_remove.get(key)
+            remove_func(obj.get("id"))
+
     def _filter_kwargs(self, filter_args):
         kwargs = {}
         ops = {
@@ -974,14 +989,13 @@ class QuadsCli:
         if not self.cli_args["hostcloud"]:
             raise CliException("Missing option --default-cloud")
 
-        url = os.path.join(conf.API_URL, "host")
         data = {
             "name": self.cli_args["hostresource"],
             "default_cloud": self.cli_args["hostcloud"],
             "host_type": self.cli_args["hosttype"],
             "force": self.cli_args["force"],
         }
-        _response = requests.post(url, data)
+        _response = self.quads.create_host(data)
         self._output_json_result(_response, data)
 
     def action_define_host_metadata(self):
@@ -1004,59 +1018,40 @@ class QuadsCli:
             ready_defined = []
             host = self.quads.get_host(host_md.get("name"))
             if not host:
-                raise CliException(
-                    "Host not found. Check hostname or if name is defined on the yaml."
+                self.logger.warning(
+                    f"Host {host_md.get('name')} not found. Check hostname or if name is defined on the yaml. IGNORING."
                 )
+                continue
 
             data = {}
+            dispatch_create = {
+                "disks": self.quads.create_disk,
+                "interfaces": self.quads.create_interface,
+                "memory": self.quads.create_memory,
+                "processors": self.quads.create_processor,
+            }
             for key, value in host_md.items():
                 if key != "name" and host[key]:
                     ready_defined.append(key)
                     if not self.cli_args["force"]:
                         continue
                     if type(value) == list:
-                        dispatch = {
-                            "disks": Disk,
-                            "interfaces": Interface,
-                            "memory": Memory,
-                            "processors": Processor,
-                        }
-                        if host[key]:
-                            param_key = f"unset__{key}"
-                            kwargs = {param_key: 1}
-                            Host.objects(name=host.name).update_one(**kwargs)
+                        self.clear_field(host, key)
+                        dispatch_func = dispatch_create.get(key)
                         for obj in value:
-                            result = True
-                            if dispatch.get(key):
-                                result, data_obj = dispatch[key].prep_data(obj)
+
+                            if dispatch_func:
+                                dispatch_func(obj)
                             else:
                                 raise CliException(
                                     f"Invalid key '{key}' on metadata for {host.name}"
                                 )
 
-                            if result:
-                                self.logger.error(
-                                    f"{key.capitalize()} data for {host.name} is invalid"
-                                )
-                                break
-                            new_obj = dispatch[key](**data_obj)
-
-                            param_key = f"push__{key}"
-                            kwargs = {param_key: new_obj}
-                            host.update_one(**kwargs)
                 elif key == "default_cloud":
-                    cloud = Cloud.objects(name=value).first()
+                    cloud = self.quads.get_cloud(value)
                     data[key] = cloud
                 else:
-                    result, prep_data = host.prep_data(
-                        data={"name": host.name, key: value}, fields=["name", key]
-                    )
-                    if result:
-                        self.logger.error(
-                            f"{key.capitalize()} data for {host.name} is invalid"
-                        )
-                        continue
-                    data.update(prep_data)
+                    data = {"name": host.name, key: value}
 
             if ready_defined:
                 action = "SKIPPING" if not self.cli_args["force"] else "RECREATING"
@@ -1204,12 +1199,14 @@ class QuadsCli:
                     self.logger.info(f"{host} will be omitted.")
 
             for host in host_list:
-                is_available = Schedule.is_host_available(
-                    host=host,
-                    start=_sched_start,
-                    end=_sched_end,
+                is_available = self.quads.is_available(
+                    hostname=host,
+                    data={
+                        "start": _sched_start,
+                        "end": _sched_end,
+                    },
                 )
-                host_obj = Host.objects(name=host).first()
+                host_obj = self.quads.get_host(host)
                 if not is_available or host_obj.broken:
                     non_available.append(host)
 
@@ -1240,7 +1237,7 @@ class QuadsCli:
             with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
                 template = Template(_file.read())
 
-            _cloud = Cloud.objects(name=self.cli_args["schedcloud"]).first()
+            _cloud = self.quads.get_cloud(self.cli_args["schedcloud"])
             jira_docs_links = conf["jira_docs_links"].split(",")
             jira_vlans_docs_links = conf["jira_vlans_docs_links"].split(",")
             comment = template.render(

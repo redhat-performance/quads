@@ -34,6 +34,7 @@ class QuadsApi:
         response = json.loads(response_json, object_hook=Generic.from_dict)
         return response
 
+    # Base functions
     def get(self, endpoint, **kwargs):
         _response = self.session.get(
             os.path.join(self.base_url, endpoint), verify=False
@@ -58,15 +59,26 @@ class QuadsApi:
         )
         return self.serialize(_response)
 
+    # Hosts
     def get_hosts(self):
         return self.get("hosts")
 
     def filter_hosts(self, data):
-        return self.get("hosts", **data)
+        return self.post(os.path.join("hosts", "filter"), data)
 
     def get_host(self, hostname):
         return self.get(os.path.join("hosts", hostname))
 
+    def create_host(self, data):
+        return self.post(os.path.join("hosts"), data)
+
+    def update_host(self, hostname, data):
+        return self.patch(os.path.join("hosts", hostname), data)
+
+    def is_available(self, hostname, data):
+        return self.post(os.path.join("available", hostname), data)
+
+    # Clouds
     def get_clouds(self):
         return self.get("clouds")
 
@@ -76,6 +88,10 @@ class QuadsApi:
     def get_cloud(self, cloud_name):
         return self.get(os.path.join("clouds", cloud_name))
 
+    def insert_cloud(self, data):
+        return self.post("clouds", data)
+
+    # Schedules
     def get_schedules(self, data):
         return self.get("schedules", **data)
 
@@ -88,9 +104,19 @@ class QuadsApi:
     def update_schedule(self, schedule_id, data):
         return self.post(os.path.join("schedules", schedule_id), data)
 
-    def update_host(self, hostname, data):
-        return self.post(os.path.join("hosts", hostname), data)
+    def remove_schedule(self, schedule_id):
+        return self.delete(os.path.join("schedules", schedule_id))
 
+    def insert_schedule(self, data):
+        return self.post("schedules", data)
+
+    def get_available(self):
+        return self.get("available")
+
+    def filter_available(self, data):
+        return self.get("available", **data)
+
+    # Assignments
     def update_assignment(self, assignment_id, data):
         return self.patch(os.path.join("assignments", assignment_id), data)
 
@@ -101,35 +127,46 @@ class QuadsApi:
         # TODO:fix this
         return self.get("assignments", **data)
 
+    # Interfaces
     def get_host_interface(self, hostname):
         return self.get(os.path.join("interfaces", hostname))
 
     def get_interfaces(self):
         return self.get("interfaces")
 
-    def remove_schedule(self, schedule_id):
-        return self.delete(os.path.join("schedules", schedule_id))
+    def update_interface(self, hostname, data):
+        return self.patch(os.path.join("interfaces", hostname), data)
 
     def remove_interface(self, interface_id):
         return self.delete(os.path.join("interfaces", interface_id))
 
-    def insert_schedule(self, data):
-        return self.post("schedules", data)
+    def create_interface(self, hostname, data):
+        return self.post(os.path.join("interfaces", hostname), data)
 
-    def insert_cloud(self, data):
-        return self.post("clouds", data)
+    # Memory
+    def create_memory(self, hostname, data):
+        return self.post(os.path.join("memory", hostname), data)
 
-    def get_available(self):
-        return self.get("available")
+    def remove_memory(self, memory_id):
+        return self.delete(os.path.join("memory", memory_id))
 
+    # Disks
+    def create_disk(self, hostname, data):
+        return self.post(os.path.join("disk", hostname), data)
+
+    def remove_disk(self, disk_id):
+        return self.delete(os.path.join("disk", disk_id))
+
+    # Processor
+    def create_processor(self, hostname, data):
+        return self.post(os.path.join("processor", hostname), data)
+
+    def remove_processor(self, processor_id):
+        return self.delete(os.path.join("processor", processor_id))
+
+    # Vlans
     def get_vlans(self):
         return self.get("vlans")
-
-    def filter_available(self, data):
-        return self.get("available", **data)
-
-    def is_available(self, hostname, data):
-        return self.post(os.path.join("available", hostname), data)
 
     def get_summary(self):
         return self.get("summary")

@@ -103,8 +103,8 @@ def logout() -> Response:
                 }
                 return jsonify(response_object)
             except Exception as e:
-                response = {"status": "fail", "message": e}
-                return Response(response=json.dumps(response), status=400)
+                response = {"status": "fail", "message": str(e)}
+                return Response(response=json.dumps(response), status=500)
         else:
             response = {"status": "fail", "message": resp}
             return Response(response=json.dumps(response), status=401)

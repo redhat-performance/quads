@@ -16,12 +16,6 @@ from quads.server.models import Schedule, db
 schedule_bp = Blueprint("schedules", __name__)
 
 
-# @schedule_bp.route("/")
-# def get_schedules() -> Response:
-#     _schedules = ScheduleDao.get_schedules()
-#     return jsonify([_schedule.as_dict() for _schedule in _schedules])
-
-
 @schedule_bp.route("/")
 def get_schedules() -> Response:
     # TODO: Add filter for child objects
