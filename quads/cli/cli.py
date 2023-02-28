@@ -974,14 +974,13 @@ class QuadsCli:
         if not self.cli_args["hostcloud"]:
             raise CliException("Missing option --default-cloud")
 
-        url = os.path.join(conf.API_URL, "host")
         data = {
             "name": self.cli_args["hostresource"],
             "default_cloud": self.cli_args["hostcloud"],
             "host_type": self.cli_args["hosttype"],
             "force": self.cli_args["force"],
         }
-        _response = requests.post(url, data)
+        _response = self.quads.create_host(data)
         self._output_json_result(_response, data)
 
     def action_define_host_metadata(self):
@@ -1001,34 +1000,30 @@ class QuadsCli:
             )
 
         for host_md in hosts_metadata:
-            ready_defined = []
             host = self.quads.get_host(host_md.get("name"))
             if not host:
-                raise CliException(
-                    "Host not found. Check hostname or if name is defined on the yaml."
+                self.logger.warning(
+                    f"Host {host_md.get('name')} not found. Check hostname or if name is defined on the yaml. IGNORING."
                 )
+                continue
 
             data = {}
             for key, value in host_md.items():
                 if key != "name" and host[key]:
-                    ready_defined.append(key)
                     if not self.cli_args["force"]:
                         continue
                     if type(value) == list:
                         dispatch = {
-                            "disks": Disk,
-                            "interfaces": Interface,
-                            "memory": Memory,
-                            "processors": Processor,
+                            "disks": self.quads.create_disk,
+                            "interfaces": self.quads.create_interface,
+                            "memory": self.quads.create_memory,
+                            "processors": self.quads.create_processor,
                         }
-                        if host[key]:
-                            param_key = f"unset__{key}"
-                            kwargs = {param_key: 1}
-                            Host.objects(name=host.name).update_one(**kwargs)
+                        dispatch_func = dispatch.get(key)
                         for obj in value:
                             result = True
-                            if dispatch.get(key):
-                                result, data_obj = dispatch[key].prep_data(obj)
+                            if dispatch_func:
+                                dispatch_func(obj)
                             else:
                                 raise CliException(
                                     f"Invalid key '{key}' on metadata for {host.name}"
@@ -1045,7 +1040,7 @@ class QuadsCli:
                             kwargs = {param_key: new_obj}
                             host.update_one(**kwargs)
                 elif key == "default_cloud":
-                    cloud = Cloud.objects(name=value).first()
+                    cloud = self.quads.get_cloud(value)
                     data[key] = cloud
                 else:
                     result, prep_data = host.prep_data(

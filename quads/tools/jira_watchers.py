@@ -73,10 +73,14 @@ async def main(_loop):
                     response = await jira.add_watcher(ticket_key, watcher["key"])
                     if not response:
                         failed_watchers.append(watcher["key"])
-                if len(failed_watchers) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
+                if len(
+                    failed_watchers
+                ) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
                     await jira.add_label(ticket_key, "WATCHERS_MAP_FAIL_NOTIFIED")
                     template_file = "watchers_fail"
-                    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
+                    with open(
+                        os.path.join(Config.TEMPLATES_PATH, template_file)
+                    ) as _file:
                         template = Template(_file.read())
                     submitter = description.split("\n")[0].split()[-1]
                     parameters = {
