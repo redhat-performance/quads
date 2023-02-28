@@ -16,7 +16,7 @@ def verify(cloud):
     _cloud_obj = CloudDao.get_cloud(cloud)
     logger.info(f"Cloud qinq: {_cloud_obj.qinq}")
     if not _cloud_obj:
-        logger.error(f"Cloud not found.")
+        logger.error("Cloud not found.")
         return
 
     hosts = HostDao.filter_hosts(cloud=_cloud_obj)
@@ -33,15 +33,14 @@ def verify(cloud):
                 try:
                     if interface == interfaces[-1]:
                         _, vlan_member_out = ssh_helper.run_cmd(
-                            "show configuration interfaces %s" % interface.switch_port
+                            f"show configuration interfaces {interface.switch_port}"
                         )
                         vlan_member = vlan_member_out[0].split(";")[0].split()[1]
                         if vlan_member.startswith("QinQ"):
                             vlan_member = vlan_member[7:]
                     else:
                         _, vlan_member_out = ssh_helper.run_cmd(
-                            "show configuration vlans | display set | match %s.0"
-                            % interface.switch_port
+                            f"show configuration vlans | display set | match {interface.switch_port}.0"
                         )
                         vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
@@ -62,9 +61,7 @@ def verify(cloud):
                 )
 
         else:
-            logger.error(
-                f"The cloud has no hosts or the host has no interfaces defined"
-            )
+            logger.error("The cloud has no hosts or the host has no interfaces defined")
 
 
 if __name__ == "__main__":

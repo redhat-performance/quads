@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 def verify(_cloud_name, _host_name, change=False):
     if not _cloud_name and not _host_name:
-        logger.warning(f"At least one of --cloud or --host should be specified.")
+        logger.warning("At least one of --cloud or --host should be specified.")
         return
 
     _cloud_obj = None
@@ -32,13 +32,13 @@ def verify(_cloud_name, _host_name, change=False):
         _cloud_obj = first_host.cloud
 
     if _cloud_obj != first_host.cloud:
-        logger.warning(f"Both --cloud and --host have been specified.")
+        logger.warning("Both --cloud and --host have been specified.")
         logger.warning(f"Host: {first_host.name}")
         logger.warning(f"Cloud: {_cloud_obj.name}")
         logger.warning(
             f"However, {first_host.name} is a member of {first_host.cloud.name}"
         )
-        logger.warning(f"!!!!! Be certain this is what you want to do. !!!!!")
+        logger.warning("!!!!! Be certain this is what you want to do. !!!!!")
 
     for _host_obj in hosts:
         logger.info(f"Host: {_host_obj.name}")
@@ -51,7 +51,7 @@ def verify(_cloud_name, _host_name, change=False):
 
                 try:
                     _, old_vlan_out = ssh_helper.run_cmd(
-                        "show configuration interfaces %s" % interface.switch_port
+                        f"show configuration interfaces {interface.switch_port}"
                     )
                     old_vlan = old_vlan_out[0].split(";")[0].split()[1]
                     if old_vlan.startswith("QinQ"):

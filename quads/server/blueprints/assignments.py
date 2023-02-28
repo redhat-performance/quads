@@ -14,12 +14,6 @@ from quads.server.models import Assignment, Notification, Cloud, Vlan, db
 assignment_bp = Blueprint("assignments", __name__)
 
 
-# @assignment_bp.route("/")
-# def get_assignments() -> Response:
-#     _assignments = AssignmentDao.get_assignments()
-#     return jsonify([_assignment.as_dict() for _assignment in _assignments])
-
-
 @assignment_bp.route("/")
 def get_assignments() -> Response:
     # TODO: Add filter for child objects
@@ -84,7 +78,6 @@ def get_assignments() -> Response:
         )
     else:
         _assignments = AssignmentDao.get_assignments()
-    return jsonify([_assignment.as_dict() for _assignment in _assignments])
 
 
 @assignment_bp.route("/<assignment_id>/")
