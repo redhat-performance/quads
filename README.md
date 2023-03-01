@@ -1045,7 +1045,7 @@ quads-cli --ls-hosts --filter "retired==True"
 * Listing specific hosts from a certain cloud:
 
 ```
-quads-cli --cloud-only cloud13 --filter "model==FC640"
+quads-cli --cloud-only --cloud cloud13 --filter "model==FC640"
 ```
 
 #### Find Available Web Interface
