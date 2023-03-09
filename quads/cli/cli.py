@@ -32,7 +32,7 @@ from quads.model import (
 from quads.quads import Quads
 from quads.tools import reports
 from quads.tools.jira import Jira, JiraException
-from quads.tools.move_and_rebuild_hosts import move_and_rebuild, switch_config
+from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
 
 default_move_command = "/opt/quads/quads/tools/move_and_rebuild_hosts.py"
 

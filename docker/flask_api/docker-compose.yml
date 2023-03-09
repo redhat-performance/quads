@@ -1,0 +1,34 @@
+version: '3.3'
+services:
+  quads:
+    depends_on:
+      - quads-db
+    build:
+        context: /opt/docker/quads
+        dockerfile: docker/flask_api/Dockerfile
+        args:
+            QUADS_PYTHON_VERSION: "3.10"
+    container_name: quads
+    dns:
+      - "8.8.8.8"
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/docker/quads:/opt/quads
+
+  quads-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    container_name: quads_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - data_db:/var/lib/postgresql/data
+      - /opt/docker/quads/docker/flask_api/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+volumes:
+  data_db:
+    driver: local
