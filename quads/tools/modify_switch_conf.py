@@ -18,7 +18,7 @@ def verify(
     _nics = {"em1": nic1, "em2": nic2, "em3": nic3, "em4": nic4, "em5": nic5}
     _host_obj = Host.objects(name=_host_name).first()
     if not _host_obj:
-        logger.error(f"Hostname not found.")
+        logger.error("Hostname not found.")
         return
 
     logger.info(f"Host: {_host_obj.name}")
@@ -92,7 +92,7 @@ def verify(
                         f"Interface {interface.name} is already configured for vlan{vlan}"
                     )
     else:
-        logger.error(f"The host has no interfaces defined")
+        logger.error("The host has no interfaces defined")
 
 
 if __name__ == "__main__":
