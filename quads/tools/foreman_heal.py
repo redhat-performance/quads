@@ -56,7 +56,7 @@ def main():
             current_schedule = Schedule.current_schedule(cloud=cloud)
             if current_schedule:
 
-                logger.info(f"  Current Host Permissions:")
+                logger.info("  Current Host Permissions:")
                 for host, properties in cloud_hosts.items():
                     logger.info(f"    {host}")
 
