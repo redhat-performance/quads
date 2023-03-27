@@ -29,7 +29,7 @@ def create_app(test_config=None) -> Flask:
     if test_config is None:
         # load the instance config, if it exists, when not testing
         # app.config.from_pyfile("config.py", silent=True)
-        flask_app.config.from_object("quads.server.config.TestingConfig")
+        flask_app.config.from_object("quads.server.config.DevelopmentConfig")
     else:
         # load the test config if passed in
         flask_app.config.from_mapping(test_config)

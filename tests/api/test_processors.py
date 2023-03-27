@@ -23,11 +23,13 @@ class TestCreateProcessors:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{host_name}",
-            json=PROCESSOR_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{host_name}",
+                json=PROCESSOR_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -42,11 +44,13 @@ class TestCreateProcessors:
         auth_header = auth.get_auth_header()
         processor_request = PROCESSOR_1_REQUEST[0].copy()
         del processor_request["vendor"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json=processor_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json=processor_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: vendor"
@@ -61,11 +65,13 @@ class TestCreateProcessors:
         auth_header = auth.get_auth_header()
         processor_request = PROCESSOR_4_REQUEST[0].copy()
         processor_request["cores"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_4_REQUEST[1]}",
-            json=processor_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_4_REQUEST[1]}",
+                json=processor_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: cores"
@@ -80,11 +86,13 @@ class TestCreateProcessors:
         auth_header = auth.get_auth_header()
         processor_request = PROCESSOR_4_REQUEST[0].copy()
         processor_request["threads"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_4_REQUEST[1]}",
-            json=processor_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_4_REQUEST[1]}",
+                json=processor_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: threads"
@@ -97,11 +105,13 @@ class TestCreateProcessors:
         | THEN: User should be able to create a processor
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json=PROCESSOR_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json=PROCESSOR_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == PROCESSOR_1_RESPONSE
 
@@ -113,11 +123,13 @@ class TestCreateProcessors:
         | THEN: User should be able to create/add another processors
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_2_REQUEST[1]}",
-            json=PROCESSOR_2_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_2_REQUEST[1]}",
+                json=PROCESSOR_2_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == PROCESSOR_2_RESPONSE
 
@@ -129,15 +141,20 @@ class TestCreateProcessors:
         | THEN: User should not be able to create the processor
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json=PROCESSOR_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json=PROCESSOR_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already " \
-                                           "exists for this host."
+        assert (
+            response.json["message"]
+            == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already "
+            "exists for this host."
+        )
 
 
 class TestReadProcessors:
@@ -150,10 +167,12 @@ class TestReadProcessors:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/processors/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/processors/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -166,10 +185,12 @@ class TestReadProcessors:
         | THEN: User should be able to get processors
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [PROCESSOR_1_RESPONSE, PROCESSOR_2_RESPONSE]
 
@@ -181,10 +202,12 @@ class TestReadProcessors:
         | THEN: User should be able to get processors
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/processors/{PROCESSOR_3_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/processors/{PROCESSOR_3_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == []
 
@@ -198,10 +221,12 @@ class TestDeleteProcessors:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/processors/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/processors/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -215,14 +240,18 @@ class TestDeleteProcessors:
         """
         auth_header = auth.get_auth_header()
         invalid_processor_id = 42
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json={"id": invalid_processor_id},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json={"id": invalid_processor_id},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Processor not found: {invalid_processor_id}"
+        assert (
+            response.json["message"] == f"Processor not found: {invalid_processor_id}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_missing_id_arg(self, test_client, auth, prefill):
@@ -232,11 +261,13 @@ class TestDeleteProcessors:
         | THEN: User should not be able to delete processor
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json={},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json={},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: id"
@@ -249,10 +280,12 @@ class TestDeleteProcessors:
         | THEN: User should be able to delete processor
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-            json={"id": PROCESSOR_1_RESPONSE["id"]},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                json={"id": PROCESSOR_1_RESPONSE["id"]},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == "Processor deleted"

@@ -21,11 +21,13 @@ class TestCreateMemory:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.post(
-            f"/api/v3/memory/{host_name}",
-            json=MEMORY_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{host_name}",
+                json=MEMORY_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -40,11 +42,13 @@ class TestCreateMemory:
         auth_header = auth.get_auth_header()
         memory_request = MEMORY_1_REQUEST[0].copy()
         del memory_request["handle"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json=memory_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json=memory_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: handle"
@@ -59,11 +63,13 @@ class TestCreateMemory:
         auth_header = auth.get_auth_header()
         memory_request = MEMORY_1_REQUEST[0].copy()
         del memory_request["size_gb"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json=memory_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json=memory_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: size_gb"
@@ -78,11 +84,13 @@ class TestCreateMemory:
         auth_header = auth.get_auth_header()
         memory_request = MEMORY_1_REQUEST[0].copy()
         memory_request["size_gb"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json=memory_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json=memory_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: size_gb"
@@ -95,16 +103,20 @@ class TestCreateMemory:
         | THEN: User should be able to create memory
         """
         auth_header = auth.get_auth_header()
-        response_1 = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json=MEMORY_1_REQUEST[0],
-            headers=auth_header,
-        ))
-        response_2 = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_3_REQUEST[1]}",
-            json=MEMORY_3_REQUEST[0],
-            headers=auth_header,
-        ))
+        response_1 = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json=MEMORY_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
+        response_2 = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_3_REQUEST[1]}",
+                json=MEMORY_3_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response_1.status_code == 200
         assert response_1.json == MEMORY_1_RESPONSE
         assert response_2.status_code == 200
@@ -118,15 +130,20 @@ class TestCreateMemory:
         | THEN: User should not be able to create memory
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json=MEMORY_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json=MEMORY_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already " \
-                                           "exists for this host."
+        assert (
+            response.json["message"]
+            == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already "
+            "exists for this host."
+        )
 
 
 class TestReadMemory:
@@ -139,10 +156,12 @@ class TestReadMemory:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/memory/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/memory/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -155,10 +174,12 @@ class TestReadMemory:
         | THEN: User should be able to read memory
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [MEMORY_1_RESPONSE]
 
@@ -171,10 +192,12 @@ class TestReadMemory:
         """
         auth_header = auth.get_auth_header()
         host_with_no_memory = "host3.example.com"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/memory/{host_with_no_memory}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/memory/{host_with_no_memory}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == []
 
@@ -186,10 +209,12 @@ class TestReadMemory:
         | THEN: User should be able to read memory
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/memory",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/memory",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [MEMORY_1_RESPONSE, MEMORY_3_RESPONSE]
 
@@ -204,10 +229,12 @@ class TestDeleteMemory:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/memory/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/memory/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -221,11 +248,13 @@ class TestDeleteMemory:
         """
         auth_header = auth.get_auth_header()
         invalid_memory_id = 42
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json={"id": invalid_memory_id},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json={"id": invalid_memory_id},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Memory not found: {invalid_memory_id}"
@@ -238,11 +267,13 @@ class TestDeleteMemory:
         | THEN: User should not be able to delete memory
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json={},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json={},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: id"
@@ -255,10 +286,12 @@ class TestDeleteMemory:
         | THEN: User should be able to delete memory
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-            json={"id": MEMORY_1_RESPONSE["id"]},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                json={"id": MEMORY_1_RESPONSE["id"]},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == "Memory deleted"

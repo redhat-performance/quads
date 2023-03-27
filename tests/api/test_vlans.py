@@ -16,12 +16,14 @@ class TestCreateVLANs:
         """
         auth_header = auth.get_auth_header()
         vlan_request = VLAN_1_REQUEST.copy()
-        del vlan_request['ip_range']
-        response = unwrap_json(test_client.post(
-            "/api/v3/vlans",
-            headers=auth_header,
-            json=vlan_request,
-        ))
+        del vlan_request["ip_range"]
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/vlans",
+                headers=auth_header,
+                json=vlan_request,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: ip_range"
@@ -33,18 +35,22 @@ class TestCreateVLANs:
         | THEN: User should be able to create a VLAN
         """
         auth_header = auth.get_auth_header()
-        response_1 = unwrap_json(test_client.post(
-            "/api/v3/vlans",
-            headers=auth_header,
-            json=VLAN_1_REQUEST,
-        ))
+        response_1 = unwrap_json(
+            test_client.post(
+                "/api/v3/vlans",
+                headers=auth_header,
+                json=VLAN_1_REQUEST,
+            )
+        )
         assert response_1.status_code == 200
         assert response_1.json == VLAN_1_RESPONSE
-        response_2 = unwrap_json(test_client.post(
-            "/api/v3/vlans",
-            headers=auth_header,
-            json=VLAN_2_REQUEST,
-        ))
+        response_2 = unwrap_json(
+            test_client.post(
+                "/api/v3/vlans",
+                headers=auth_header,
+                json=VLAN_2_REQUEST,
+            )
+        )
         assert response_2.status_code == 200
         assert response_2.json == VLAN_2_RESPONSE
 
@@ -55,14 +61,19 @@ class TestCreateVLANs:
         | THEN: User should not be able to create a VLAN
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            "/api/v3/vlans",
-            headers=auth_header,
-            json=VLAN_1_REQUEST,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/vlans",
+                headers=auth_header,
+                json=VLAN_1_REQUEST,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Vlan {VLAN_1_REQUEST['vlan_id']} already exists"
+        assert (
+            response.json["message"]
+            == f"Vlan {VLAN_1_REQUEST['vlan_id']} already exists"
+        )
 
 
 class TestReadVLANs:
@@ -74,10 +85,12 @@ class TestReadVLANs:
         """
         auth_header = auth.get_auth_header()
         invalid_vlan_id = 42
-        response = unwrap_json(test_client.get(
-            f"/api/v3/vlans/{invalid_vlan_id}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/vlans/{invalid_vlan_id}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Vlan not found: {invalid_vlan_id}"
@@ -89,10 +102,12 @@ class TestReadVLANs:
         | THEN: User should be able to read a VLAN
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/vlans/{VLAN_1_REQUEST['vlan_id']}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/vlans/{VLAN_1_REQUEST['vlan_id']}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == VLAN_1_RESPONSE
 
@@ -103,10 +118,12 @@ class TestReadVLANs:
         | THEN: User should be able to read all VLANs
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            "/api/v3/vlans",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/vlans",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [VLAN_1_RESPONSE, VLAN_2_RESPONSE]
 
@@ -119,11 +136,13 @@ class TestDeleteVLANs:
         | THEN: User should not be able to delete a VLAN
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            "/api/v3/vlans",
-            json={},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                "/api/v3/vlans",
+                json={},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: id"
@@ -136,11 +155,13 @@ class TestDeleteVLANs:
         """
         auth_header = auth.get_auth_header()
         invalid_vlan_id = 42
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/vlans",
-            json={"id": invalid_vlan_id},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/vlans",
+                json={"id": invalid_vlan_id},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Vlan not found: {invalid_vlan_id}"
@@ -152,10 +173,12 @@ class TestDeleteVLANs:
         | THEN: User should be able to delete a VLAN
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/vlans",
-            json={"id": VLAN_2_REQUEST["vlan_id"]},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/vlans",
+                json={"id": VLAN_2_REQUEST["vlan_id"]},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == "Vlan deleted"

@@ -15,13 +15,13 @@ from quads.config import Config
 from quads.helpers import is_supported
 from quads.model import Cloud, Schedule, Notification
 from quads.quads_api import QuadsApi
-from quads.tools.badfish import BadfishException, badfish_factory
-from quads.tools.foreman import Foreman
+from quads.tools.external.badfish import BadfishException, badfish_factory
+from quads.tools.external.foreman import Foreman
 from quads.tools.helpers import get_running_loop
 from quads.tools.move_and_rebuild import switch_config
-from quads.tools.netcat import Netcat
-from quads.tools.postman import Postman
-from quads.tools.ssh_helper import SSHHelper
+from quads.tools.external.netcat import Netcat
+from quads.tools.external.postman import Postman
+from quads.tools.external.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 quads = QuadsApi(Config)
@@ -313,9 +313,10 @@ class Validator(object):
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                result_pst = await self.post_system_test()
-                if not result_pst:
-                    failed = True
+                if not self.args.skip_system:
+                    result_pst = await self.post_system_test()
+                    if not result_pst:
+                        failed = True
 
                 if not self.args.skip_network:
                     result_pnt = await self.post_network_test()
@@ -361,6 +362,12 @@ def main(_args, _loop):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
+    parser.add_argument(
+        "--skip-system",
+        action="store_true",
+        default=False,
+        help="Skip system tests.",
+    )
     parser.add_argument(
         "--skip-network",
         action="store_true",

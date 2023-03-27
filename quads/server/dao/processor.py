@@ -19,5 +19,7 @@ class ProcessorDao(BaseDao):
 
     @staticmethod
     def get_processor_for_host(host_id: int) -> [Processor]:
-        processors = db.session.query(Processor).filter(Processor.host_id == host_id).all()
+        processors = (
+            db.session.query(Processor).filter(Processor.host_id == host_id).all()
+        )
         return processors

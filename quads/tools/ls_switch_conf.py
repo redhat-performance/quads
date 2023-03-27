@@ -4,24 +4,24 @@ import argparse
 import logging
 
 from quads.config import Config
-from quads.model import Host, Cloud
-from quads.tools.ssh_helper import SSHHelper
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.host import HostDao
+from quads.tools.external.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(cloud):
-    _cloud_obj = Cloud.objects(name=cloud).first()
+    _cloud_obj = CloudDao.get_cloud(cloud)
     logger.info(f"Cloud qinq: {_cloud_obj.qinq}")
     if not _cloud_obj:
         logger.error("Cloud not found.")
         return
 
+    hosts = HostDao.filter_hosts(cloud=_cloud_obj)
     if args.all:
-        hosts = Host.objects(cloud=_cloud_obj)
-    else:
-        hosts = [Host.objects(cloud=_cloud_obj).first()]
+        hosts = [hosts[0]]
 
     for host in hosts:
         if args.all:

@@ -7,7 +7,7 @@ from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
-from quads.server.models import Assignment, Notification, Cloud, Vlan, db
+from quads.server.models import Assignment, Notification, db
 
 assignment_bp = Blueprint("assignments", __name__)
 

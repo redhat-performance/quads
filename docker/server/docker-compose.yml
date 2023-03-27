@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+
+  quads-db:
+    image: postgres
+    container_name: quads_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: quads
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@localhost:5432/quads"
+
+  quads:
+    depends_on:
+      - quads-db
+    build: .
+    container_name: quads
+#    restart: always
+    ports:
+      - 5000:5000
+    environment:
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@localhost:5432/quads"
+    volumes:
+      - /home/grafuls/Sources/quads-new:/opt/quads:z

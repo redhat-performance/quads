@@ -12,5 +12,5 @@ class DiskDao(BaseDao):
 
     @staticmethod
     def get_disk(disk_id: int) -> Disk:
-        clouds = db.session.query(Disk).filter(Disk.id == disk_id).first()
-        return clouds
+        disk = db.session.query(Disk).filter(Disk.id == disk_id).first()
+        return disk

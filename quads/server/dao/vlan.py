@@ -12,5 +12,7 @@ class VlanDao(BaseDao):
 
     @staticmethod
     def get_vlans() -> List[Vlan]:
+        # TODO:Union with assignments table on assignments.vlan_id=Vlan.vlan_id where assignments.active=True
+        # to include a column with the assignment ID
         vlans = db.session.query(Vlan).all()
         return vlans

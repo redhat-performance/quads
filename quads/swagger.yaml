@@ -98,6 +98,7 @@ paths:
       responses:
         '200':
           description: 'Deleted Cloud'
+
   /hosts/:
     get:
       summary: 'Returns a list with all the defined hosts'
@@ -150,7 +151,7 @@ paths:
       parameters:
         - name: hostName
           in: path
-          description: Cloud name
+          description: Host name
           required: true
           schema:
             type: string
@@ -172,6 +173,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: 'Update an existing host'
+      tags:
+        - hosts
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Host name'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     delete:
       description: Delete host by host name
       tags:
@@ -186,6 +218,7 @@ paths:
       responses:
         '200':
           description: 'Deleted Host'
+
   /schedules/:
     get:
       summary: 'Returns a list with all the defined schedules'
@@ -260,6 +293,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    patch:
+      summary: 'Update an existing schedule'
+      tags:
+        - schedules
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Schedule'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       description: Delete schedule by id
       tags:
@@ -274,6 +336,69 @@ paths:
       responses:
         '200':
           description: 'Deleted Schedule'
+
+  /schedules/current:
+    get:
+      summary: 'Returns all current schedules'
+      tags:
+        - schedules
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Schedule'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /schedules/future:
+    get:
+      summary: 'Returns all future schedules'
+      tags:
+        - schedules
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Schedule'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /assignments/:
     get:
       summary: 'Returns a list with all the defined assignments'

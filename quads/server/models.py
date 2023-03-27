@@ -36,14 +36,12 @@ db = SQLAlchemy()
 Base.query = db.session.query_property()
 migrate = Migrate()
 
-Engine = create_engine(
-    "postgresql://postgres@localhost:5432/quads_development", convert_unicode=True
-)
+Engine = create_engine("postgresql://postgres@0.0.0.0:5432/quads_development")
 
 
 def engine_from_config(config):
     global Engine
-    Engine = create_engine(config["SQLALCHEMY_DATABASE_URI"], convert_unicode=True)
+    Engine = create_engine(config["SQLALCHEMY_DATABASE_URI"])
     return Engine
 
 
@@ -59,11 +57,15 @@ class Serialize:
         result = {}
         for i, attr in enumerate(obj_attrs):
             if attr.key == "cloud":
-                result["cloud"] = getattr(self, attr.key).as_dict()
+                cloud = getattr(self, attr.key)
+                if cloud:
+                    result["cloud"] = cloud.as_dict()
             if attr.key == "host":
                 result["host"] = getattr(self, attr.key).as_dict()
             if attr.key == "default_cloud":
-                result["default_cloud"] = getattr(self, attr.key).as_dict()
+                default_cloud = getattr(self, attr.key)
+                if default_cloud:
+                    result["default_cloud"] = default_cloud.as_dict()
             if attr.key == "vlan":
                 result["vlan"] = getattr(self, attr.key).as_dict()
             if attr.key == "assignment":
@@ -120,7 +122,7 @@ class Serialize:
                 "vlan",
             ]
         }
-        return result | all_else
+        return {**result, **all_else}
 
 
 class RolesUsers(Base):
@@ -301,7 +303,9 @@ class Assignment(Serialize, TimestampMixin, Base):
     cloud = relationship("Cloud", foreign_keys=[cloud_id])
 
     # one-to-one parent
-    notification = relationship("Notification", cascade="all, delete-orphan", uselist=False)
+    notification = relationship(
+        "Notification", cascade="all, delete-orphan", uselist=False
+    )
 
     # one-to-one parent
     vlan_id = Column(Integer, ForeignKey("vlans.id"))
@@ -425,9 +429,7 @@ class Host(Serialize, TimestampMixin, Base):
 
     # many-to-one
     default_cloud_id = Column(Integer, ForeignKey("clouds.id"))
-    default_cloud = relationship(
-        "Cloud", foreign_keys=[default_cloud_id]
-    )
+    default_cloud = relationship("Cloud", foreign_keys=[default_cloud_id])
 
     # one-to-many parent
     interfaces = relationship("Interface", cascade="all, delete-orphan", lazy="select")

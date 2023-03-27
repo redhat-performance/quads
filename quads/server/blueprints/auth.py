@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, make_response, Response
+from flask import Blueprint, jsonify, request, Response
 from email_validator import validate_email, EmailNotValidError
 
 from quads.server.models import User, TokenBlackList, db, Role

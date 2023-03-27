@@ -72,7 +72,7 @@ def create_memory(hostname: str) -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    if not size_gb > 0:
+    if size_gb <= 0:
         response = {
             "status_code": 400,
             "error": "Bad Request",

@@ -50,7 +50,9 @@ class ScheduleDao(BaseDao):
         # TODO: check assignment cloud schedule relationship
         if cloud:
             result = query.all()
-            return [schedule for schedule in result if schedule.assignment.cloud == cloud]
+            return [
+                schedule for schedule in result if schedule.assignment.cloud == cloud
+            ]
         return query.all()
 
     @staticmethod
@@ -71,7 +73,7 @@ class ScheduleDao(BaseDao):
                 return False
             if result.start < end <= result.end:
                 return False
-            if start < result["start"] and end > result["end"]:
+            if start < result.start and end > result.end:
                 return False
 
         return True

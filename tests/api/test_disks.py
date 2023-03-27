@@ -22,11 +22,13 @@ class TestCreateDisks:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{host_name}",
-            json=dict(DISK_1_REQUEST[0]),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{host_name}",
+                json=dict(DISK_1_REQUEST[0]),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -41,11 +43,13 @@ class TestCreateDisks:
         auth_header = auth.get_auth_header()
         disk_request = DISK_1_REQUEST[0].copy()
         del disk_request["disk_type"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(disk_request),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(disk_request),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: disk_type"
@@ -60,11 +64,13 @@ class TestCreateDisks:
         auth_header = auth.get_auth_header()
         disk_request = DISK_1_REQUEST[0].copy()
         del disk_request["size_gb"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(disk_request),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(disk_request),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: size_gb"
@@ -79,11 +85,13 @@ class TestCreateDisks:
         auth_header = auth.get_auth_header()
         disk_request = DISK_1_REQUEST[0].copy()
         disk_request["size_gb"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(disk_request),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(disk_request),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: size_gb"
@@ -98,11 +106,13 @@ class TestCreateDisks:
         auth_header = auth.get_auth_header()
         disk_request = DISK_1_REQUEST[0].copy()
         del disk_request["count"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(disk_request),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(disk_request),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: count"
@@ -117,11 +127,13 @@ class TestCreateDisks:
         auth_header = auth.get_auth_header()
         disk_request = DISK_1_REQUEST[0].copy()
         disk_request["count"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(disk_request),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(disk_request),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: count"
@@ -134,11 +146,13 @@ class TestCreateDisks:
         | THEN: Disk should be created
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json=dict(DISK_1_REQUEST[0]),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict(DISK_1_REQUEST[0]),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == DISK_1_RESPONSE
 
@@ -150,11 +164,13 @@ class TestCreateDisks:
         | THEN: Disks should be created
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/disks/{DISK_2_REQUEST[1]}",
-            json=dict(DISK_2_REQUEST[0]),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/disks/{DISK_2_REQUEST[1]}",
+                json=dict(DISK_2_REQUEST[0]),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == DISK_2_RESPONSE
 
@@ -169,10 +185,12 @@ class TestReadDisks:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/disks/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/disks/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -185,10 +203,12 @@ class TestReadDisks:
         | THEN: Disks should be read
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [DISK_1_RESPONSE, DISK_2_RESPONSE]
 
@@ -200,10 +220,12 @@ class TestReadDisks:
         | THEN: Disks should be read
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/disks/{DISK_3_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/disks/{DISK_3_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == []
 
@@ -218,10 +240,12 @@ class TestDeleteDisks:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/disks/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/disks/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -234,11 +258,13 @@ class TestDeleteDisks:
         | THEN: Disks should be deleted
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json={"id": DISK_1_RESPONSE["id"]},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json={"id": DISK_1_RESPONSE["id"]},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == "Disk deleted"
 
@@ -251,11 +277,13 @@ class TestDeleteDisks:
         """
         auth_header = auth.get_auth_header()
         invalid_id = 42
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-            json={"id": invalid_id},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json={"id": invalid_id},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Disk not found: {invalid_id}"

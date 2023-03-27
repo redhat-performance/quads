@@ -43,6 +43,17 @@ def get_current_schedule() -> Response:
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 
+@schedule_bp.route("/future", methods=["POST"])
+def get_future_schedule() -> Response:
+    data = request.get_json()
+    hostname = data.get("host")
+    cloud_name = data.get("cloud")
+    host = HostDao.get_host(hostname)
+    cloud = CloudDao.get_cloud(cloud_name)
+    _schedules = ScheduleDao.get_future_schedules(host, cloud)
+    return jsonify([_schedule.as_dict() for _schedule in _schedules])
+
+
 @schedule_bp.route("/", methods=["POST"])
 @check_access("admin")
 def create_schedule() -> Response:
@@ -186,8 +197,12 @@ def update_schedule(schedule_id: str) -> Response:
 
     _start = dates.get("start") if dates.get("start") else schedule.start
     _end = dates.get("end") if dates.get("end") else schedule.end
-    _build_start = dates.get("build_start") if dates.get("build_start") else schedule.build_start
-    _build_end = dates.get("build_end") if dates.get("build_end") else schedule.build_end
+    _build_start = (
+        dates.get("build_start") if dates.get("build_start") else schedule.build_start
+    )
+    _build_end = (
+        dates.get("build_end") if dates.get("build_end") else schedule.build_end
+    )
 
     if _start > _end:
         response = {
@@ -231,7 +246,7 @@ def update_schedule(schedule_id: str) -> Response:
 def delete_schedule(schedule_id: int) -> Response:
     _schedule = ScheduleDao.get_schedule(schedule_id)
     if not _schedule:
-        response ={
+        response = {
             "status_code": 400,
             "error": "Bad Request",
             "message": f"Schedule not found: {schedule_id}",

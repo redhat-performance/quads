@@ -21,11 +21,13 @@ class TestCreateInterfaces:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.post(
-            f"/api/v3/interfaces/{host_name}",
-            json=INTERFACE_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/interfaces/{host_name}",
+                json=INTERFACE_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -40,11 +42,13 @@ class TestCreateInterfaces:
         auth_header = auth.get_auth_header()
         interface_request = INTERFACE_1_REQUEST[0].copy()
         del interface_request["name"]
-        response = unwrap_json(test_client.post(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=interface_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=interface_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: name"
@@ -59,11 +63,13 @@ class TestCreateInterfaces:
         auth_header = auth.get_auth_header()
         interface_request = INTERFACE_1_REQUEST[0].copy()
         interface_request["speed"] = -1
-        response = unwrap_json(test_client.post(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=interface_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=interface_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: speed"
@@ -76,11 +82,13 @@ class TestCreateInterfaces:
         | THEN: Interface should be created
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=INTERFACE_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=INTERFACE_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == INTERFACE_1_RESPONSE
 
@@ -95,10 +103,12 @@ class TestReadInterfaces:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/interfaces/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/interfaces/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -111,10 +121,12 @@ class TestReadInterfaces:
         | THEN: Interface should be read
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == [INTERFACE_1_RESPONSE]
 
@@ -127,10 +139,12 @@ class TestReadInterfaces:
         """
         auth_header = auth.get_auth_header()
         host_name = "host2.example.com"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/interfaces/{host_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/interfaces/{host_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == []
 
@@ -145,11 +159,13 @@ class TestUpdateInterfaces:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/interfaces/{host_name}",
-            json=INTERFACE_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/interfaces/{host_name}",
+                json=INTERFACE_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -164,11 +180,13 @@ class TestUpdateInterfaces:
         auth_header = auth.get_auth_header()
         update_request = INTERFACE_1_UPDATE_REQUEST.copy()
         del update_request["id"]
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=update_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=update_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: id"
@@ -183,14 +201,18 @@ class TestUpdateInterfaces:
         auth_header = auth.get_auth_header()
         update_request = INTERFACE_1_UPDATE_REQUEST.copy()
         update_request["id"] = 42
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=update_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=update_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Interface not found: {update_request['id']}"
+        assert (
+            response.json["message"] == f"Interface not found: {update_request['id']}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -200,11 +222,13 @@ class TestUpdateInterfaces:
         | THEN: Interface should be updated
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=INTERFACE_1_UPDATE_REQUEST,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=INTERFACE_1_UPDATE_REQUEST,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json == INTERFACE_1_UPDATE_RESPONSE
 
@@ -218,11 +242,13 @@ class TestUpdateInterfaces:
         auth_header = auth.get_auth_header()
         update_request = INTERFACE_1_UPDATE_REQUEST.copy()
         update_request["speed"] = -1
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json=update_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json=update_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Argument can't be negative or zero: speed"
@@ -238,11 +264,13 @@ class TestDeleteInterfaces:
         """
         auth_header = auth.get_auth_header()
         host_name = "invalid_host"
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/interfaces/{host_name}",
-            json=INTERFACE_1_REQUEST[0],
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/interfaces/{host_name}",
+                json=INTERFACE_1_REQUEST[0],
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
@@ -255,11 +283,13 @@ class TestDeleteInterfaces:
         | THEN: Interface should not be deleted
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json={},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json={},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: id"
@@ -273,11 +303,13 @@ class TestDeleteInterfaces:
         """
         auth_header = auth.get_auth_header()
         invalid_id = 42
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json={"id": invalid_id},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json={"id": invalid_id},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Interface not found: {invalid_id}"
@@ -290,10 +322,12 @@ class TestDeleteInterfaces:
         | THEN: Interface should be deleted
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-            json={"id": INTERFACE_1_RESPONSE["id"]},
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                json={"id": INTERFACE_1_RESPONSE["id"]},
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == "Interface deleted"

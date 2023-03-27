@@ -1,7 +1,6 @@
 import json
 
 from flask import Blueprint, jsonify, request, Response
-
 from quads.server.blueprints import check_access
 from quads.server.dao.cloud import CloudDao
 from quads.server.models import Cloud, db

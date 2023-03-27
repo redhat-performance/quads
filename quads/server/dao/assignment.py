@@ -12,7 +12,11 @@ class AssignmentDao(BaseDao):
             db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
         )
         if assignment and not assignment.notification:
-            assignment.notification = db.session.query(Notification).filter(Assignment.id == assignment_id).first()
+            assignment.notification = (
+                db.session.query(Notification)
+                .filter(Assignment.id == assignment_id)
+                .first()
+            )
         return assignment
 
     @staticmethod
@@ -21,12 +25,18 @@ class AssignmentDao(BaseDao):
         if assignment:
             for a in assignment:
                 if not a.notification:
-                    a.notification = db.session.query(Notification).filter(Assignment.id == a.id).first()
+                    a.notification = (
+                        db.session.query(Notification)
+                        .filter(Assignment.id == a.id)
+                        .first()
+                    )
         return assignment
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:
-        assignment = db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
+        assignment = (
+            db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
+        )
         return assignment.all()
 
     @staticmethod

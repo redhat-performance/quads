@@ -35,39 +35,42 @@ class AuthActions(object):
     | Used through the auth fixture.
     | Only `get_auth_header()` should be used in tests.
     """
+
     def __init__(self, client):
         self._client = client
         self._token = None
         self._username = ""
 
-    def login(self, username='grafuls@redhat.com', password='password'):
+    def login(self, username="grafuls@redhat.com", password="password"):
         valid_credentials = base64.b64encode(
-            f'{username}:{password}'.encode('utf-8')
-        ).decode('utf-8')
-        response = unwrap_json(self._client.post(
-            '/api/v3/login',
-            json=dict(),
-            headers={"Authorization": "Basic " + valid_credentials},
-        ))
-        self._token = response.json['auth_token']
+            f"{username}:{password}".encode("utf-8")
+        ).decode("utf-8")
+        response = unwrap_json(
+            self._client.post(
+                "/api/v3/login",
+                json=dict(),
+                headers={"Authorization": "Basic " + valid_credentials},
+            )
+        )
+        self._token = response.json["auth_token"]
         self._username = username
 
     def logout(self):
         self._client.post(
-            '/api/v3/logout',
+            "/api/v3/logout",
             json=dict(),
             headers=self.get_auth_header(),
         )
         self._token = None
         self._username = ""
 
-    def get_auth_header(self, username='grafuls@redhat.com', password='password'):
+    def get_auth_header(self, username="grafuls@redhat.com", password="password"):
         if self._token is None and self._username == "":
             self.login(username, password)
         if self._username != username:
             self.logout()
             self.login(username, password)
-        return {'Authorization': f'Bearer {self._token}'}
+        return {"Authorization": f"Bearer {self._token}"}
 
 
 @pytest.fixture(scope="module")
@@ -78,7 +81,7 @@ def auth(test_client):
 
 @pytest.fixture(scope="module")
 def prefill(test_client, auth, request):
-    """ Fixture to prefill the database with data.
+    """Fixture to prefill the database with data.
 
     With `request.param`, list with first argument being a string, with all the specified options of what to prefill.
     Parameters can be specified with `pytest.mark.parametrize()`.
@@ -107,7 +110,7 @@ def prefill(test_client, auth, request):
         for cloud_id in range(1, 6):
             cloud_name = f"cloud{str(cloud_id).zfill(2)}"
             test_client.post(
-                '/api/v3/clouds',
+                "/api/v3/clouds",
                 json=dict(name=cloud_name),
                 headers=auth_header,
             )
@@ -121,7 +124,7 @@ def prefill(test_client, auth, request):
     if "hosts" in request.param:
         for host_id in range(1, 6):
             test_client.post(
-                '/api/v3/hosts',
+                "/api/v3/hosts",
                 json=eval(f"HOST_{host_id}_REQUEST"),
                 headers=auth_header,
             )

@@ -17,66 +17,8 @@ host_bp = Blueprint("hosts", __name__)
 
 @host_bp.route("/")
 def get_hosts() -> Response:
-    # TODO: Add filter for child objects
-    filter_tuples = []
-    operator = "=="
-    for k, value in request.args.items():
-        fields = k.split(".")
-        if len(fields) > 2:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Too many arguments: {fields}",
-            }
-            return Response(response=json.dumps(response), status=400)
-
-        first_field = fields[0]
-        field_name = fields[-1]
-        if "__" in k:
-            for op in OPERATORS.keys():
-                if op in field_name:
-                    if first_field == field_name:
-                        first_field = field_name[: field_name.index(op)]
-                    field_name = field_name[: field_name.index(op)]
-                    operator = OPERATORS[op]
-                    break
-
-        field = Host.__mapper__.attrs.get(first_field)
-        if not field:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"{k} is not a valid field.",
-            }
-            return Response(response=json.dumps(response), status=400)
-        if (
-            type(field) != RelationshipProperty
-            and type(field.columns[0].type) == Boolean
-        ):
-            value = value.lower() in ["true", "y", 1, "yes"]
-        else:
-            if first_field in ["cloud", "default_cloud"]:
-                cloud = CloudDao.get_cloud(value)
-                if not cloud:
-                    response = {
-                        "status_code": 400,
-                        "error": "Bad Request",
-                        "message": f"Cloud not found: {value}",
-                    }
-                    return Response(response=json.dumps(response), status=400)
-                value = cloud
-            if first_field.lower() in MAP_MODEL.keys():
-                if len(fields) > 1:
-                    field_name = f"{first_field.lower()}.{field_name.lower()}"
-        filter_tuples.append(
-            (
-                field_name,
-                operator,
-                value,
-            )
-        )
-    if filter_tuples:
-        _hosts = HostDao.create_query_select(Host, filters=filter_tuples)
+    if request.args:
+        _hosts = HostDao.filter_hosts_dict(request.args)
     else:
         _hosts = HostDao.get_hosts()
     return jsonify([_host.as_dict() for _host in _hosts])

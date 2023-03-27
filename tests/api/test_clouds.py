@@ -13,16 +13,19 @@ class TestCreateClouds:
         auth_header = auth.get_auth_header()
         for cloud_id in range(1, 11):
             cloud_name = f"cloud{str(cloud_id).zfill(2)}"
-            response = unwrap_json(test_client.post(
-                "/api/v3/clouds",
-                json=dict(name=cloud_name),
-                headers=auth_header,
-            ))
+            response = unwrap_json(
+                test_client.post(
+                    "/api/v3/clouds",
+                    json=dict(name=cloud_name),
+                    headers=auth_header,
+                )
+            )
             assert response.status_code == 200
             assert response.json["id"] == cloud_id
             assert response.json["name"] == cloud_name
-            duration = datetime.utcnow() - datetime.strptime(response.json["last_redefined"],
-                                                             "%a, %d %b %Y %H:%M:%S GMT")
+            duration = datetime.utcnow() - datetime.strptime(
+                response.json["last_redefined"], "%a, %d %b %Y %H:%M:%S GMT"
+            )
             assert duration.total_seconds() < 5
 
     def test_invalid_missing_arg(self, test_client, auth):
@@ -32,11 +35,13 @@ class TestCreateClouds:
         | THEN: User should not be able to create a cloud
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            "/api/v3/clouds",
-            json=dict(),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/clouds",
+                json=dict(),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: name"
@@ -49,11 +54,13 @@ class TestCreateClouds:
         """
         auth_header = auth.get_auth_header()
         cloud_name = "cloud01"
-        response = unwrap_json(test_client.post(
-            "/api/v3/clouds",
-            json=dict(name=cloud_name),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/clouds",
+                json=dict(name=cloud_name),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Cloud {cloud_name} already exists"
@@ -69,10 +76,12 @@ class TestReadClouds:
         auth_header = auth.get_auth_header()
         cloud_id = 1
         cloud_name = f"cloud{str(cloud_id).zfill(2)}"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/clouds/{cloud_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/clouds/{cloud_name}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json["id"] == cloud_id
         assert response.json["name"] == cloud_name
@@ -85,10 +94,12 @@ class TestReadClouds:
         | THEN: User should be able to read all clouds
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            "/api/v3/clouds",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/clouds",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert len(response.json) == 10
         for cloud_id in range(1, 11):
@@ -105,10 +116,12 @@ class TestReadClouds:
         """
         auth_header = auth.get_auth_header()
         cloud_name = "cloud11"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/clouds/{cloud_name}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/clouds/{cloud_name}",
+                headers=auth_header,
+            )
+        )
         assert response.json == {}
 
 
@@ -122,11 +135,13 @@ class TestDeleteClouds:
         auth_header = auth.get_auth_header()
         cloud_id = 1
         cloud_name = f"cloud{str(cloud_id).zfill(2)}"
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/clouds",
-            json=dict(name=cloud_name),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/clouds",
+                json=dict(name=cloud_name),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == f"Cloud {cloud_name} deleted"
 
@@ -137,11 +152,13 @@ class TestDeleteClouds:
         | THEN: User should not be able to delete a cloud
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            "/api/v3/clouds",
-            json=dict(),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                "/api/v3/clouds",
+                json=dict(),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: name"
@@ -154,11 +171,13 @@ class TestDeleteClouds:
         """
         auth_header = auth.get_auth_header()
         cloud_name = "cloud11"
-        response = unwrap_json(test_client.delete(
-            "/api/v3/clouds",
-            json=dict(name=cloud_name),
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                "/api/v3/clouds",
+                json=dict(name=cloud_name),
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Cloud not found: {cloud_name}"

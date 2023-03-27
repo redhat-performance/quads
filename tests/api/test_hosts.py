@@ -23,11 +23,13 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         del host_request["model"]
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: model"
@@ -42,14 +44,19 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["model"] = "R999"
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Model R999 does not seem to be part of the defined models on quads.yml"
+        assert (
+            response.json["message"]
+            == "Model R999 does not seem to be part of the defined models on quads.yml"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_missing_name(self, test_client, auth, prefill):
@@ -61,11 +68,13 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         del host_request["name"]
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: name"
@@ -80,11 +89,13 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         del host_request["host_type"]
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: host_type"
@@ -100,11 +111,13 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         del host_request["default_cloud"]
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Missing argument: default_cloud"
@@ -119,14 +132,19 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["default_cloud"] = "cloudDoesNotExist"
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Default Cloud not found: {host_request['default_cloud']}"
+        assert (
+            response.json["message"]
+            == f"Default Cloud not found: {host_request['default_cloud']}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_undefined_cloud(self, test_client, auth, prefill):
@@ -138,11 +156,13 @@ class TestCreateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["cloud"] = "cloudDoesNotExist"
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Cloud not found: {host_request['cloud']}"
@@ -155,19 +175,22 @@ class TestCreateHosts:
         | THEN: User should be able to create a new host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=HOST_1_REQUEST,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=HOST_1_REQUEST,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json["id"] == 1
         assert response.json["name"] == HOST_1_REQUEST["name"]
         assert response.json["model"] == HOST_1_REQUEST["model"].upper()
         assert response.json["host_type"] == HOST_1_REQUEST["host_type"]
         assert response.json["default_cloud_id"] == response.json["cloud_id"]
-        duration = datetime.utcnow() - datetime.strptime(response.json["created_at"],
-                                                         "%a, %d %b %Y %H:%M:%S GMT")
+        duration = datetime.utcnow() - datetime.strptime(
+            response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
+        )
         assert duration.total_seconds() < 5
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
@@ -178,19 +201,22 @@ class TestCreateHosts:
         | THEN: User should be able to create a new host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=HOST_2_REQUEST,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=HOST_2_REQUEST,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json["id"] == 2
         assert response.json["name"] == HOST_2_REQUEST["name"]
         assert response.json["model"] == HOST_2_REQUEST["model"].upper()
         assert response.json["host_type"] == HOST_2_REQUEST["host_type"]
         assert response.json["default_cloud_id"] != response.json["cloud_id"]
-        duration = datetime.utcnow() - datetime.strptime(response.json["created_at"],
-                                                         "%a, %d %b %Y %H:%M:%S GMT")
+        duration = datetime.utcnow() - datetime.strptime(
+            response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
+        )
         assert duration.total_seconds() < 5
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
@@ -201,14 +227,18 @@ class TestCreateHosts:
         | THEN: User should not be able to create a new host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.post(
-            '/api/v3/hosts',
-            json=HOST_1_REQUEST,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/hosts",
+                json=HOST_1_REQUEST,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host {HOST_1_REQUEST['name']} already exists"
+        assert (
+            response.json["message"] == f"Host {HOST_1_REQUEST['name']} already exists"
+        )
 
 
 class TestGetHosts:
@@ -221,10 +251,12 @@ class TestGetHosts:
         | THEN: User should be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f'/api/v3/hosts/{HOST_1_REQUEST["name"]}',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f'/api/v3/hosts/{HOST_1_REQUEST["name"]}',
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json["id"] == 1
         assert response.json["name"] == HOST_1_REQUEST["name"]
@@ -240,10 +272,12 @@ class TestGetHosts:
         | THEN: User should not be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            '/api/v3/hosts/hostDoesNotExist',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts/hostDoesNotExist",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Host not found: hostDoesNotExist"
@@ -257,10 +291,12 @@ class TestGetHosts:
         | THEN: User should be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            f'/api/v3/hosts?model={HOST_1_REQUEST["model"].upper()}',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f'/api/v3/hosts?model={HOST_1_REQUEST["model"].upper()}',
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]["id"] == 1
@@ -277,10 +313,12 @@ class TestGetHosts:
         | THEN: User should be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            '/api/v3/hosts?broken=False',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts?broken=False",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert len(response.json) == 2
         assert response.json[0]["id"] == 1
@@ -302,10 +340,12 @@ class TestGetHosts:
         | THEN: User should be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            '/api/v3/hosts?cloud_id__ne=1',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts?cloud_id__ne=1",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]["id"] == 2
@@ -322,10 +362,12 @@ class TestGetHosts:
         | THEN: User should not be able to get the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.get(
-            '/api/v3/hosts?cloud=cloudDoesNotExist',
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts?cloud=cloudDoesNotExist",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == "Cloud not found: cloudDoesNotExist"
@@ -339,13 +381,18 @@ class TestGetHosts:
         """
         auth_header = auth.get_auth_header()
         too_many_args_filter = "cloud.last_redefined.date=2023-01-01"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/hosts?{too_many_args_filter}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/hosts?{too_many_args_filter}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Too many arguments: {too_many_args_filter.split('=')[0].split('.')}"
+        assert (
+            response.json["message"]
+            == f"Too many arguments: {too_many_args_filter.split('=')[0].split('.')}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_filter_by_invalid_field(self, test_client, auth, prefill):
@@ -356,13 +403,18 @@ class TestGetHosts:
         """
         auth_header = auth.get_auth_header()
         invalid_field_filter = "invalid_field=true"
-        response = unwrap_json(test_client.get(
-            f"/api/v3/hosts?{invalid_field_filter}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/hosts?{invalid_field_filter}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"{invalid_field_filter.split('=')[0]} is not a valid field."
+        assert (
+            response.json["message"]
+            == f"{invalid_field_filter.split('=')[0]} is not a valid field."
+        )
 
 
 class TestUpdateHosts:
@@ -376,11 +428,13 @@ class TestUpdateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["host_type"] = "alias"
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/hosts/{host_request['name']}",
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/hosts/{host_request['name']}",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 200
         assert response.json["id"] == 1
         assert response.json["name"] == host_request["name"]
@@ -399,11 +453,13 @@ class TestUpdateHosts:
         host_request = HOST_1_REQUEST.copy()
         host_request["host_type"] = "alias"
         undefined_host = "undefinedHost"
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/hosts/{undefined_host}",
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/hosts/{undefined_host}",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {undefined_host}"
@@ -418,14 +474,19 @@ class TestUpdateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["default_cloud"] = "undefinedCloud"
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/hosts/{host_request['name']}",
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/hosts/{host_request['name']}",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Default Cloud not found: {host_request['default_cloud']}"
+        assert (
+            response.json["message"]
+            == f"Default Cloud not found: {host_request['default_cloud']}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_undefined_cloud(self, test_client, auth, prefill):
@@ -437,11 +498,13 @@ class TestUpdateHosts:
         auth_header = auth.get_auth_header()
         host_request = HOST_1_REQUEST.copy()
         host_request["cloud"] = "undefinedCloud"
-        response = unwrap_json(test_client.patch(
-            f"/api/v3/hosts/{host_request['name']}",
-            json=host_request,
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/hosts/{host_request['name']}",
+                json=host_request,
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Cloud not found: {host_request['cloud']}"
@@ -456,10 +519,12 @@ class TestDeleteHosts:
         | THEN: User should be able to delete the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/hosts/{HOST_1_REQUEST['name']}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/hosts/{HOST_1_REQUEST['name']}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 201
         assert response.json["message"] == f"Host deleted"
 
@@ -471,10 +536,12 @@ class TestDeleteHosts:
         | THEN: User should not be able to delete the host
         """
         auth_header = auth.get_auth_header()
-        response = unwrap_json(test_client.delete(
-            f"/api/v3/hosts/{HOST_1_REQUEST['name']}",
-            headers=auth_header,
-        ))
+        response = unwrap_json(
+            test_client.delete(
+                f"/api/v3/hosts/{HOST_1_REQUEST['name']}",
+                headers=auth_header,
+            )
+        )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {HOST_1_REQUEST['name']}"
