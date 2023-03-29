@@ -799,12 +799,12 @@ class QuadsCli:
             ):
                 return
 
-            for schedule in schedules:
+            for schedule in schedules.all():
                 if weeks:
                     end_date = schedule.end - time_delta
                 else:
                     end_date = _date
-                    schedule.update(end=end_date)
+                schedule.update(end=end_date)
             if weeks:
                 self.logger.info(
                     f"{_type_str} {shrinkable.name} has now been shrunk for {str(weeks)} week[s] until {str(end_date)[:16]}"
