@@ -193,15 +193,15 @@ class Validator(object):
         for host in self.hosts:
             if not host.switch_config_applied:
                 current_schedule = Schedule.current_schedule(
-                    host=host, cloud=host.cloud.name
+                    host=host, cloud=host.cloud
                 ).first()
                 previous_cloud = host.default_cloud.name
                 previous_schedule = Schedule.objects(
-                    host=host.name, end=current_schedule.start
+                    host=host, end=current_schedule.start
                 ).first()
                 if previous_schedule:
                     previous_cloud = previous_schedule.cloud.name
-                result = switch_config(host, previous_cloud, host.cloud.name)
+                result = switch_config(host.name, previous_cloud, host.cloud.name)
                 if result:
                     host.update(switch_config_applied=True)
                 else:
