@@ -102,7 +102,7 @@ def delete_vlan() -> Response:
     db.session.delete(_vlan_obj)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Vlan deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)

@@ -14,7 +14,16 @@ schedule_bp = Blueprint("schedules", __name__)
 
 @schedule_bp.route("/")
 def get_schedules() -> Response:
-    _schedules = ScheduleDao.get_schedules()
+    kwargs = {}
+    if request.args:
+        date = request.args.get("date", datetime.now())
+        kwargs["start"] = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+        if request.args.get("host"):
+            kwargs["host"] = request.args.get("host")
+
+        _schedules = ScheduleDao.filter_schedule(**kwargs)
+    else:
+        _schedules = ScheduleDao.get_schedules()
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 
@@ -58,7 +67,7 @@ def get_future_schedule() -> Response:
 @check_access("admin")
 def create_schedule() -> Response:
     data = request.get_json()
-    hostname = data.get("hostname")
+    hostname = data.get("host")
     cloud = data.get("cloud")
     if not cloud:
         response = {
@@ -256,7 +265,7 @@ def delete_schedule(schedule_id: int) -> Response:
     db.session.delete(_schedule)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Schedule deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)

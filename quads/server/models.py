@@ -67,7 +67,9 @@ class Serialize:
                 if default_cloud:
                     result["default_cloud"] = default_cloud.as_dict()
             if attr.key == "vlan":
-                result["vlan"] = getattr(self, attr.key).as_dict()
+                vlan = getattr(self, attr.key)
+                if vlan:
+                    result["vlan"] = vlan.as_dict()
             if attr.key == "assignment":
                 assignment = getattr(self, attr.key)
                 if assignment:
@@ -123,6 +125,82 @@ class Serialize:
             ]
         }
         return {**result, **all_else}
+
+    def from_dict(self, data):
+        obj_attrs = inspect(self).mapper.attrs
+        for i, attr in enumerate(obj_attrs):
+            if attr.key in ["cloud", "default_cloud"]:
+                value = data.get(attr.key)
+                if value:
+                    cloud = Cloud().from_dict(value)
+                    setattr(self, attr.key, cloud)
+                continue
+            if attr.key == "host":
+                value = data.get(attr.key)
+                if value:
+                    host = Host().from_dict(value)
+                    setattr(self, attr.key, host)
+                continue
+            if attr.key == "vlan":
+                value = data.get(attr.key)
+                if value:
+                    vlan = Vlan().from_dict(value)
+                    setattr(self, attr.key, vlan)
+                continue
+            if attr.key == "assignment":
+                value = data.get(attr.key)
+                if value:
+                    assignment = Assignment().from_dict(value)
+                    setattr(self, attr.key, assignment)
+                continue
+            if attr.key == "notification":
+                value = data.get(attr.key)
+                if value:
+                    notification = Notification().from_dict(value)
+                    setattr(self, attr.key, notification)
+                continue
+            if attr.key == "disks":
+                disk_list = []
+                disks = data.get(attr.key, [])
+                if disks:
+                    for disk in disks:
+                        disk_obj = Disk().from_dict(disk)
+                        disk_list.append(disk_obj)
+                    setattr(self, attr.key, disk_list)
+                continue
+            if attr.key == "memory":
+                memory_list = []
+                memory_val = data.get(attr.key, [])
+                if memory_val:
+                    for memory in memory_val:
+                        memory_obj = Memory().from_dict(memory)
+                        memory_list.append(memory_obj)
+                    setattr(self, attr.key, memory_list)
+                continue
+            if attr.key == "interfaces":
+                interface_list = []
+                interfaces = data.get(attr.key, [])
+                if interfaces:
+                    for interface in interfaces:
+                        interface_obj = Interface().from_dict(interface)
+                        interface_list.append(interface_obj)
+                    setattr(self, attr.key, interface_list)
+                continue
+            if attr.key == "processors":
+                processor_list = []
+                processors = data.get(attr.key, [])
+                if processors:
+                    for processor in processors:
+                        processor_obj = Processor().from_dict(processor)
+                        processor_list.append(processor_obj)
+                    setattr(self, attr.key, processor_list)
+                continue
+            value = data.get(attr.key)
+            if value is not None:
+                if type(attr.columns[0].type) == DateTime:
+                    value = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
+                setattr(self, attr.key, value)
+        return self
 
 
 class RolesUsers(Base):
@@ -299,7 +377,7 @@ class Assignment(Serialize, TimestampMixin, Base):
     ccuser = Column(MutableList.as_mutable(PickleType), default=[])
 
     # many-to-one parent
-    cloud_id = Column(Integer, ForeignKey("clouds.id"))
+    cloud_id = Column(Integer, ForeignKey("clouds.id", ondelete='SET NULL'))
     cloud = relationship("Cloud", foreign_keys=[cloud_id])
 
     # one-to-one parent
@@ -422,6 +500,7 @@ class Host(Serialize, TimestampMixin, Base):
     broken = Column(Boolean, default=False)
     retired = Column(Boolean, default=False)
     last_build = Column(DateTime)
+    created_on = Column(DateTime, default=datetime.now())
 
     # many-to-one
     cloud_id = Column(Integer, ForeignKey("clouds.id"))
@@ -476,7 +555,6 @@ class Schedule(Serialize, TimestampMixin, Base):
     end = Column(DateTime)
     build_start = Column(DateTime)
     build_end = Column(DateTime)
-    index = Column(Integer)
 
     # many-to-one parent
     assignment_id = Column(Integer, ForeignKey("assignments.id"))

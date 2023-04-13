@@ -797,12 +797,13 @@ You can remove an existing schedule across a set of hosts using the ```--rm-sche
 
    - Example: removing the schedule for three machines in cloud
    - Obtain the schedule ID via ```quads-cli --ls-schedule --host```
-   - These machines would happen to have the same cloud assignment as schedule id 2.
 ```
-quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
-quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
-quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule --schedule-id 2
+quads-cli --rm-schedule --schedule-id 3
+quads-cli --rm-schedule --schedule-id 4
 ```
+
+ * NOTE: Previous versions of QUADS required passing `--host`. This is not required on QUADS 2.0 onwards as the schedule Ids are now unique. 
 
 ### Removing a Schedule across a large set of hosts
 
@@ -813,7 +814,7 @@ You should search for either the start or end dates to select the right schedule
    - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
 
 ```
-for host in $(cat /tmp/452851); do quads-cli --rm-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }') --host $host ; echo Done. ; done
+for host in $(cat /tmp/452851); do quads-cli --rm-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }'); echo Done. ; done
 ```
 
 ### Removing a Host from QUADS

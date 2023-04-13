@@ -28,7 +28,7 @@ def create_app(test_config=None) -> Flask:
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        # app.config.from_pyfile("config.py", silent=True)
+        # flask_app.config.from_pyfile("config.py", silent=True)
         flask_app.config.from_object("quads.server.config.DevelopmentConfig")
     else:
         # load the test config if passed in
@@ -83,11 +83,13 @@ def register_blueprints(app):
     from quads.server.blueprints.processors import processor_bp
     from quads.server.blueprints.schedules import schedule_bp
     from quads.server.blueprints.vlans import vlan_bp
+    from quads.server.blueprints.version import version_bp
 
     # Register blueprints
     api_prefix = f"/api/{app.config.get('API_VERSION')}"
     api_bp = Blueprint("api", __name__, url_prefix=api_prefix)
     api_bp.register_blueprint(auth_bp)
+    api_bp.register_blueprint(version_bp, url_prefix="/version")
     api_bp.register_blueprint(available_bp, url_prefix="/available")
     api_bp.register_blueprint(assignment_bp, url_prefix="/assignments")
     api_bp.register_blueprint(host_bp, url_prefix="/hosts")

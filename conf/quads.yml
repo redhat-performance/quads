@@ -88,6 +88,10 @@ quads_request_url:
 # to be submitted prior to, e.g. Wednesday
 quads_request_deadline_day:
 
+# Quads API authentication
+quads_api_username: grafuls@redhat.com
+quads_api_password: password
+
 # Foreman Specific Variables
 # foreman URL
 # set to true of foreman unavailable (useful for testing)

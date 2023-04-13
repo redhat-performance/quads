@@ -1,11 +1,97 @@
 from typing import List
 
-from quads.server.dao.baseDao import BaseDao, EntryNotFound
-from quads.server.models import db, Assignment, Cloud, Notification
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.vlan import VlanDao
+from quads.server.models import db, Assignment, Cloud, Notification, Vlan
 from sqlalchemy import and_
 
 
 class AssignmentDao(BaseDao):
+    @staticmethod
+    def create_assignment(
+            description: str,
+            owner: str,
+            ticket: str,
+            qinq: int,
+            wipe: bool,
+            ccuser: list[str],
+            vlan_id: int,
+            cloud: str,
+    ) -> Assignment:
+        vlan = VlanDao.get_vlan(vlan_id)
+        cloud = CloudDao.get_cloud(cloud)
+        notification = Notification()
+        try:
+            _assignment_obj = Assignment(
+                description=description,
+                owner=owner,
+                ticket=ticket,
+                qinq=qinq,
+                wipe=wipe,
+                ccuser=ccuser,
+                vlan=vlan,
+                cloud=cloud,
+                notification=notification,
+            )
+        except Exception as ex:
+            print(ex)
+        db.session.add(_assignment_obj)
+        db.session.commit()
+
+        return _assignment_obj
+
+    @classmethod
+    def udpate_assignment(
+            cls,
+            assignment_id: int,
+            **kwargs
+    ) -> Assignment:
+        """
+        Updates an assignment in the database.
+
+        :param self: Represent the instance of the class
+        :param assignment_id: int: Identify the assignment to be updated
+        :param description: str: Pass a string to the assignment description field
+        :param owner: str: Set the owner of the assignment
+        :param ticket: str: Update the ticket field in the assignment table
+        :param qinq: int: Set the qinq value for an assignment
+        :param wipe: bool: Wipe the assignment
+        :param ccuser: list[str]: Add multiple cc_users to the assignment
+        :param vlan_id: int: Set the vlan of an assignment
+        :param cloud: str: Set the cloud attribute of an assignment
+        :param active: bool: Set the assignment to active or inactive
+
+        :return: The updated assignment
+        """
+        assignment = cls.get_assignment(assignment_id)
+        if not assignment:
+            raise EntryNotFound
+
+        for key, value in kwargs.items():
+            if key == "vlan_id":
+                vlan = VlanDao.get_vlan(value)
+                if not vlan:
+                    raise EntryNotFound
+                assignment.vlan = vlan
+                continue
+
+            if key == "cloud":
+                cloud = CloudDao.get_cloud(value)
+                if not cloud:
+                    raise EntryNotFound
+                assignment.cloud = cloud
+                continue
+
+            if getattr(assignment, key):
+                setattr(assignment, key, value)
+            else:
+                raise InvalidArgument
+
+        db.session.commit()
+
+        return assignment
+
     @staticmethod
     def get_assignment(assignment_id: int) -> Assignment:
         assignment = (
@@ -18,6 +104,15 @@ class AssignmentDao(BaseDao):
                 .first()
             )
         return assignment
+
+    @classmethod
+    def remove_assignment(cls, assignment_id) -> None:
+        _assignments_obj = cls.get_assignment(assignment_id)
+        if not _assignments_obj:
+            raise EntryNotFound
+        db.session.delete(_assignments_obj)
+        db.session.commit()
+        return
 
     @staticmethod
     def get_assignments() -> List[Assignment]:
@@ -34,10 +129,10 @@ class AssignmentDao(BaseDao):
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:
-        assignment = (
+        assignments = (
             db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
         )
-        return assignment.all()
+        return assignments
 
     @staticmethod
     def get_active_cloud_assignment(cloud: Cloud) -> Assignment:
@@ -47,6 +142,59 @@ class AssignmentDao(BaseDao):
             .first()
         )
         return assignment
+
+    @staticmethod
+    def get_active_assignments() -> List[Assignment]:
+        assignments = (
+            db.session.query(Assignment)
+            .filter(Assignment.active == True)
+            .all()
+        )
+        return assignments
+
+    @staticmethod
+    def filter_assignments(
+            active: bool = None,
+            provisioned: bool = None,
+            validated: bool = None,
+            owner: str = None,
+            ticket: str = None,
+            qinq: int = None,
+            wipe: bool = None,
+            cloud: str = None,
+            vlan_id: int = None,
+    ) -> List[Assignment]:
+
+        query = db.session.query(Assignment)
+
+        if active is not None:
+            query.filter(Assignment.active == active)
+        if provisioned is not None:
+            query.filter(Assignment.provisioned == provisioned)
+        if validated is not None:
+            query.filter(Assignment.validated == validated)
+        if owner is not None:
+            query.filter(Assignment.owner == owner)
+        if ticket is not None:
+            query.filter(Assignment.ticket == ticket)
+        if qinq is not None:
+            query.filter(Assignment.qinq == qinq)
+        if wipe is not None:
+            query.filter(Assignment.wipe == wipe)
+        if cloud is not None:
+            cloud_obj = CloudDao.get_cloud(cloud)
+            if not cloud_obj:
+                raise EntryNotFound("Cloud not found")
+            query.filter(Assignment.cloud == cloud_obj)
+        if vlan_id is not None:
+            vlan = VlanDao.get_vlan(vlan_id)
+            if not vlan:
+                raise EntryNotFound("Vlan not found")
+            query.filter(Assignment.vlan == vlan)
+
+        assignments = query.all()
+
+        return assignments
 
     @staticmethod
     def delete_assignment(assignment_id: int):

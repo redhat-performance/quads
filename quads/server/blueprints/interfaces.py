@@ -193,7 +193,7 @@ def delete_interface(hostname: str) -> Response:
     db.session.delete(_interface_obj)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Interface deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)

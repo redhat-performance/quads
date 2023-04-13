@@ -1,12 +1,8 @@
 import json
 
 from flask import Blueprint, jsonify, request, Response
-from sqlalchemy.orm import RelationshipProperty
-from sqlalchemy.sql.sqltypes import Boolean
-
 from quads.config import Config
 from quads.server.blueprints import check_access
-from quads.server.dao.baseDao import MAP_MODEL, OPERATORS
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import Host, db
@@ -44,9 +40,8 @@ def update_host(hostname: str) -> Response:
     cloud_name = data.get("cloud")
     default_cloud = data.get("default_cloud")
     host_type = data.get("host_type")
-
-    if not default_cloud:
-        default_cloud = Config["spare_pool_name"]
+    broken = data.get("broken", None)
+    retired = data.get("retired", None)
 
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -85,6 +80,12 @@ def update_host(hostname: str) -> Response:
     if host_type:
         _host.host_type = host_type
 
+    if broken is not None:
+        _host.broken = broken
+
+    if retired is not None:
+        _host.retired = retired
+
     db.session.commit()
 
     return jsonify(_host.as_dict())
@@ -94,7 +95,6 @@ def update_host(hostname: str) -> Response:
 @check_access("admin")
 def create_host() -> Response:
     data = request.get_json()
-    cloud_name = data.get("cloud")
     hostname = data.get("name")
     model = data.get("model")
     default_cloud = data.get("default_cloud")
@@ -162,24 +162,12 @@ def create_host() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud = _default_cloud
-
-    if cloud_name:
-        _cloud = CloudDao.get_cloud(cloud_name)
-        if not _cloud:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Cloud not found: {cloud_name}",
-            }
-            return Response(response=json.dumps(response), status=400)
-
     _host_obj = Host(
         name=hostname,
         model=model.upper(),
         host_type=host_type,
-        cloud=_cloud,
         default_cloud=_default_cloud,
+        cloud=_default_cloud,
     )
     db.session.add(_host_obj)
     db.session.commit()
@@ -198,10 +186,10 @@ def delete_host(hostname: str) -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    db.session.delete(_host)
-    db.session.commit()
+    HostDao.remove_host(hostname)
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Host deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)
+

@@ -1,9 +1,13 @@
-import json
 import os
+from urllib.parse import urlencode
+from typing import Optional, List
+
 import requests
+from requests import Response
+from requests.auth import HTTPBasicAuth
 
 from quads.config import Config
-from quads.server.models import Host
+from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
 
 
 class MessengerDTO:
@@ -28,143 +32,237 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
+        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
-    def get(self, endpoint, **kwargs):
+    def get(self, endpoint) -> Response:
         _response = self.session.get(
-            os.path.join(self.base_url, endpoint), verify=False
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
-    def post(self, endpoint, data):
+    def post(self, endpoint, data) -> Response:
         _response = self.session.post(
-            os.path.join(self.base_url, endpoint), data, verify=False
+            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
-    def patch(self, endpoint, data):
+    def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
-            os.path.join(self.base_url, endpoint), data, verify=False
+            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
-    def delete(self, endpoint, **kwargs):
+    def delete(self, endpoint) -> Response:
         _response = self.session.delete(
-            os.path.join(self.base_url, endpoint), verify=False
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
     # Hosts
-    def get_hosts(self):
-        return self.get("hosts")
+    def get_hosts(self) -> List[Host]:
+        response = self.get("hosts")
+        hosts_json = response.json()
+        hosts = []
+        for host in hosts_json:
+            host_obj = Host().from_dict(data=host)
+            hosts.append(host_obj)
+        return hosts
 
-    def filter_hosts(self, data):
-        return self.post(os.path.join("hosts", "filter"), data)
+    def filter_hosts(self, data) -> List[Host]:
+        params = urlencode(data)
+        response = self.get(f"hosts?{params}")
+        hosts = []
+        for host in response.json():
+            host_obj = Host().from_dict(data=host)
+            hosts.append(host_obj)
+        return hosts
 
-    def get_host(self, hostname):
-        return self.get(os.path.join("hosts", hostname))
+    def get_host(self, hostname) -> Optional[Host]:
+        host_obj = None
+        response = self.get(os.path.join("hosts", hostname))
+        obj_json = response.json()
+        if obj_json:
+            host_obj = Host().from_dict(data=obj_json)
+        return host_obj
 
-    def create_host(self, data):
-        return self.post(os.path.join("hosts"), data)
+    def create_host(self, data) -> Host:
+        response = self.post(os.path.join("hosts"), data)
+        data = response.json()
+        host_obj = Host().from_dict(data)
+        return host_obj
 
-    def update_host(self, hostname, data):
+    def update_host(self, hostname, data) -> Response:
         return self.patch(os.path.join("hosts", hostname), data)
 
-    def is_available(self, hostname, data):
+    def remove_host(self, hostname) -> Response:
+        return self.delete(os.path.join("hosts", hostname))
+
+    def is_available(self, hostname, data) -> Response:
         return self.post(os.path.join("available", hostname), data)
 
     # Clouds
-    def get_clouds(self):
-        return self.get("clouds")
+    def get_clouds(self) -> List[Cloud]:
+        response = self.get("clouds")
+        clouds = []
+        for cloud in response.json():
+            clouds.append(Cloud(**cloud))
+        return clouds
 
-    def filter_clouds(self, data):
-        return self.get("clouds", **data)
+    def filter_clouds(self, data) -> List[Cloud]:
+        response = self.get("clouds", **data)
+        clouds = []
+        for cloud in response.json():
+            clouds.append(Cloud(**cloud))
+        return clouds
 
-    def get_cloud(self, cloud_name):
-        return self.get(os.path.join("clouds", cloud_name))
+    def get_cloud(self, cloud_name) -> Optional[Cloud]:
+        cloud_obj = None
+        response = self.get(os.path.join("clouds", cloud_name))
+        obj_json = response.json()
+        if obj_json:
+            cloud_obj = Cloud(**obj_json)
+        return cloud_obj
 
-    def insert_cloud(self, data):
+    def insert_cloud(self, data) -> Response:
         return self.post("clouds", data)
 
+    def remove_cloud(self, cloud_name) -> Response:
+        return self.delete(os.path.join("clouds", cloud_name))
+
     # Schedules
-    def get_schedules(self, data):
-        return self.get("schedules", **data)
+    def get_schedules(self, **data) -> List[Schedule]:
+        response = self.get("schedules")
+        schedules = []
+        for schedule in response.json():
+            schedules.append(Schedule().from_dict(schedule))
+        return schedules
 
-    def get_current_schedules(self, data):
-        return self.post(os.path.join("schedules", "current"), data)
+    def get_current_schedules(self, **kwargs) -> List[Schedule]:
+        response = self.post(os.path.join("schedules", "current"), kwargs)
+        schedules = []
+        for schedule in response.json():
+            schedules.append(Schedule().from_dict(schedule))
+        return schedules
 
-    def get_future_schedules(self, data):
-        return self.post(os.path.join("schedules", "future"), data)
+    def get_future_schedules(self, data) -> List[Schedule]:
+        response = self.post(os.path.join("schedules", "future"), data)
+        schedules = []
+        for schedule in response.json():
+            schedules.append(Schedule(**schedule))
+        return schedules
 
-    def update_schedule(self, schedule_id, data):
+    def update_schedule(self, schedule_id, data) -> Response:
         return self.post(os.path.join("schedules", schedule_id), data)
 
-    def remove_schedule(self, schedule_id):
-        return self.delete(os.path.join("schedules", schedule_id))
+    def remove_schedule(self, schedule_id) -> Response:
+        return self.delete(os.path.join("schedules", str(schedule_id)))
 
-    def insert_schedule(self, data):
+    def insert_schedule(self, data) -> Response:
         return self.post("schedules", data)
 
-    def get_available(self, data):
-        return self.get("available")
+    # Available
+    def get_available(self) -> List[Host]:
+        response = self.get("available")
+        hosts = []
+        for host in response.json():
+            hosts.append(Host(**host))
+        return hosts
 
-    def filter_available(self, data):
-        return self.get("available", **data)
+    # Available
+    def get_moves(self) -> List:
+        response = self.get("moves")
+        hosts = []
+        for host in response.json():
+            hosts.append(Host(**host))
+        return hosts
+
+    def filter_available(self, data) -> List[Host]:
+        response = self.get("available", **data)
+        hosts = []
+        for host in response.json():
+            hosts.append(Host(**host))
+        return hosts
 
     # Assignments
-    def update_assignment(self, assignment_id, data):
-        return self.patch(os.path.join("assignments", assignment_id), data)
+    def insert_assignment(self, data) -> Response:
+        return self.post("assignments", data)
 
-    def get_active_cloud_assignment(self, cloud_name):
+    def update_assignment(self, assignment_id, data) -> Response:
+        return self.patch(os.path.join("assignments", str(assignment_id)), data)
+
+    def get_active_cloud_assignment(self, cloud_name) -> Response:
         return self.get(os.path.join("assignments/active", cloud_name))
 
-    def get_assignment(self, data):
-        # TODO:fix this
-        return self.get("assignments", **data)
+    def get_active_assignments(self) -> List[Assignment]:
+        response = self.get("assignments/active")
+        data = response.json()
+        assignments = []
+        for ass in data:
+            ass_object = Assignment().from_dict(ass)
+            assignments.append(ass_object)
+
+        return assignments
+
+    def get_assignment(self, **kwargs) -> Response:
+        params = urlencode(kwargs)
+        return self.get(f"assignments?{params}")
 
     # Interfaces
-    def get_host_interface(self, hostname):
-        return self.get(os.path.join("interfaces", hostname))
+    def get_host_interface(self, hostname) -> List[Interface]:
+        response = self.get(os.path.join("interfaces", hostname))
+        data = response.json()
+        interfaces = []
+        for interface in data:
+            interface_obj = Interface().from_dict(interface)
+            interfaces.append(interface_obj)
+        return interfaces
 
-    def get_interfaces(self):
+    def get_interfaces(self) -> Response:
         return self.get("interfaces")
 
-    def update_interface(self, hostname, data):
+    def update_interface(self, hostname, data) -> Response:
         return self.patch(os.path.join("interfaces", hostname), data)
 
-    def remove_interface(self, interface_id):
+    def remove_interface(self, interface_id) -> Response:
         return self.delete(os.path.join("interfaces", interface_id))
 
-    def create_interface(self, hostname, data):
+    def create_interface(self, hostname, data) -> Response:
         return self.post(os.path.join("interfaces", hostname), data)
 
     # Memory
-    def create_memory(self, hostname, data):
+    def create_memory(self, hostname, data) -> Response:
         return self.post(os.path.join("memory", hostname), data)
 
-    def remove_memory(self, memory_id):
+    def remove_memory(self, memory_id) -> Response:
         return self.delete(os.path.join("memory", memory_id))
 
     # Disks
-    def create_disk(self, hostname, data):
+    def create_disk(self, hostname, data) -> Response:
         return self.post(os.path.join("disk", hostname), data)
 
-    def remove_disk(self, disk_id):
+    def remove_disk(self, disk_id) -> Response:
         return self.delete(os.path.join("disk", disk_id))
 
     # Processor
-    def create_processor(self, hostname, data):
+    def create_processor(self, hostname, data) -> Response:
         return self.post(os.path.join("processor", hostname), data)
 
-    def remove_processor(self, processor_id):
+    def remove_processor(self, processor_id) -> Response:
         return self.delete(os.path.join("processor", processor_id))
 
     # Vlans
-    def get_vlans(self):
-        return self.get("vlans")
+    def get_vlans(self) -> List[Vlan]:
+        response = self.get("vlans")
+        data = response.json()
+        vlans = []
+        for vlan in data:
+            vlan_obj = Vlan().from_dict(vlan)
+            vlans.append(vlan_obj)
+        return vlans
 
-    def get_summary(self):
+    def get_summary(self) -> Response:
         return self.get("summary")
 
-    def get_version(self):
+    def get_version(self) -> Response:
         return self.get("version")

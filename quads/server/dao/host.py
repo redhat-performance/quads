@@ -1,27 +1,96 @@
-from datetime import datetime
-from typing import List
+from typing import List, Optional, Type
 
 from sqlalchemy import Boolean
 from sqlalchemy.orm import RelationshipProperty
 
-from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound
+from quads.config import Config
+from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound, EntryExisting, InvalidArgument
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import db, Host, Cloud, Interface, Disk, Memory, Processor
+from quads.server.models import db, Host, Cloud
 
 
 class HostDao(BaseDao):
+    @classmethod
+    def create_host(cls, name: str, model: str, host_type: str, default_cloud: str) -> Host:
+        _host_obj = cls.get_host(name)
+        if _host_obj:
+            raise EntryExisting
+        if not default_cloud:
+            default_cloud = Config["spare_pool_name"]
+        _default_cloud_obj = CloudDao.get_cloud(default_cloud)
+        if not _default_cloud_obj:
+            raise EntryNotFound(f"Default cloud not found: {default_cloud}")
+        _host = Host(
+            name=name,
+            model=model,
+            host_type=host_type,
+            default_cloud=_default_cloud_obj,
+            cloud=_default_cloud_obj,
+        )
+        db.session.add(_host)
+        db.session.commit()
+        return _host
+
+    @classmethod
+    def udpate_host(
+            cls,
+            name: str,
+            **kwargs
+    ) -> Host:
+        """
+        Updates a host in the database.
+
+        :param self: Represent the instance of the class
+        :param name: int: Identify the host to be updated
+        :param model: str: Pass a string to the host model field
+        :param host_type: str: Set the type of the host
+        :param default_cloud: str: Update the host's default cloud
+        :param cloud: int: Set the cloud value for a host
+
+        :return: The updated host
+        """
+        host = cls.get_host(name)
+        if not host:
+            raise EntryNotFound
+
+        for key, value in kwargs.items():
+            if key in ["default_cloud", "cloud"]:
+                cloud = CloudDao.get_cloud(value)
+                if not cloud:
+                    raise EntryNotFound
+                setattr(host, key, cloud)
+                continue
+
+            if getattr(host, key):
+                setattr(host, key, value)
+            else:
+                raise InvalidArgument
+
+        db.session.commit()
+
+        return host
+
+    @classmethod
+    def remove_host(cls, name) -> None:
+        _host_obj = cls.get_host(name)
+        if not _host_obj:
+            raise EntryNotFound
+        db.session.delete(_host_obj)
+        db.session.commit()
+        return
+
     @staticmethod
-    def get_host(hostname) -> Host:
+    def get_host(hostname) -> Optional[Host]:
         host = db.session.query(Host).filter(Host.name == hostname).first()
         return host
 
     @staticmethod
-    def get_hosts() -> List[Host]:
+    def get_hosts() -> List[Type[Host]]:
         hosts = db.session.query(Host).all()
         return hosts
 
     @staticmethod
-    def filter_hosts_dict(data):
+    def filter_hosts_dict(data) -> List[Host]:
         filter_tuples = []
         operator = "=="
         for k, value in data.items():
@@ -79,6 +148,7 @@ class HostDao(BaseDao):
         cloud: Cloud = None,
         default_cloud: Cloud = None,
     ) -> List[Host]:
+        # TODO: Add children filters for interfaces, disk, memory and processor
         query = db.session.query(Host)
         if model:
             query.filter(Host.model == model)

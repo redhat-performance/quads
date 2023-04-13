@@ -11,6 +11,14 @@ available_bp = Blueprint("available", __name__)
 
 @available_bp.route("/")
 def get_available() -> Response:
+    """
+    Used to return a list of hosts that are available for the given time period.
+        ---
+        tags:
+          - Hosts
+
+    :return: A list of hosts that are available for the given start and end time
+    """
     _params = request.args.to_dict()
     _start = _end = datetime.now()
     if _params.get("start"):
@@ -36,6 +44,18 @@ def get_available() -> Response:
 
 @available_bp.route("/<hostname>", methods=["POST"])
 def is_available(hostname) -> Response:
+    """
+    Used to determine if a host is available for a given time period.
+        The function takes in the following parameters:
+            - hostname (string): The name of the host that you want to check availability for.
+            - start (datetime): A datetime object representing when you would like your reservation to begin.
+            If no value is provided, it will default to now().
+            - end (datetime): A datetime object representing when you would like your reservation to end.
+            If no value is provided, it will default to now().
+
+    :param hostname: Specify the hostname of the device
+    :return: A boolean value
+    """
     data = request.get_json()
     _start = _end = datetime.now()
     if data.get("start"):

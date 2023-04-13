@@ -3,7 +3,6 @@ import json
 from flask import Blueprint, jsonify, request, Response
 from quads.server.blueprints import check_access
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import Cloud, db
 
 
 cloud_bp = Blueprint("clouds", __name__)
@@ -11,12 +10,29 @@ cloud_bp = Blueprint("clouds", __name__)
 
 @cloud_bp.route("/<cloud>/")
 def get_cloud(cloud: str) -> Response:
+    """
+    GET request that returns the cloud with the given name.
+        ---
+        tags:
+          - API
+
+    :param cloud: str: Specify the cloud name
+    :return: A response object that contains the json representation of the cloud
+    """
     _cloud = CloudDao.get_cloud(cloud)
     return jsonify(_cloud.as_dict() if _cloud else {})
 
 
 @cloud_bp.route("/")
 def get_clouds() -> Response:
+    """
+    Returns a list of all clouds in the database.
+        ---
+        tags:
+          - API
+
+    :return: The list of clouds
+    """
     _clouds = CloudDao.get_clouds()
     return jsonify([_cloud.as_dict() for _cloud in _clouds] if _clouds else {})
 
@@ -24,6 +40,14 @@ def get_clouds() -> Response:
 @cloud_bp.route("/", methods=["POST"])
 @check_access("admin")
 def create_cloud() -> Response:
+    """
+    Creates a new cloud in the database.
+        ---
+        tags:
+          - API
+
+    :return: A response object with the created cloud
+    """
     data = request.get_json()
     cloud_name = data.get("name")
     if not cloud_name:
@@ -43,19 +67,22 @@ def create_cloud() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud_obj = Cloud(name=cloud_name)
-    db.session.add(_cloud_obj)
-    db.session.commit()
+    _cloud_obj = CloudDao.create_cloud(cloud_name)
     return jsonify(_cloud_obj.as_dict())
 
 
-@cloud_bp.route("/", methods=["DELETE"])
+@cloud_bp.route("/<cloud>/", methods=["DELETE"])
 @check_access("admin")
-def delete_cloud() -> Response:
-    data = request.get_json()
-    cloud_name = data.get("name")
+def delete_cloud(cloud: str) -> Response:
+    """
+    Deletes a cloud from the database.
+        Args:
+            cloud (str): The name of the cloud to delete.
 
-    if not cloud_name:
+    :param cloud: str: Specify the name of the cloud to be deleted
+    :return: A response object with a 204 status code
+    """
+    if not cloud:
         response = {
             "status_code": 400,
             "error": "Bad Request",
@@ -63,18 +90,17 @@ def delete_cloud() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud = CloudDao.get_cloud(cloud_name)
+    _cloud = CloudDao.get_cloud(cloud)
     if not _cloud:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Cloud not found: {cloud_name}",
+            "message": f"Cloud not found: {cloud}",
         }
         return Response(response=json.dumps(response), status=400)
-    db.session.delete(_cloud)
-    db.session.commit()
+    CloudDao.remove_cloud(cloud)
     response = {
-        "status_code": 201,
-        "message": f"Cloud {cloud_name} deleted",
+        "status_code": 204,
+        "message": f"Cloud {cloud} deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)
