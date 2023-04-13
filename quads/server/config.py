@@ -13,7 +13,7 @@ class BaseConfig(object):
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "SQLALCHEMY_DATABASE_URI"
+        "SQLALCHEMY_DATABASE_URI",
         "postgresql://postgres:postgres@localhost:5432/quads_test",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False

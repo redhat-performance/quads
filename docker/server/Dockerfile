@@ -14,6 +14,5 @@ RUN ls -alF
 
 ENV PYTHONPATH=/opt/quads
 EXPOSE 5000
-#RUN flask --app quads/server/app.py init-db
-#ENTRYPOINT flask --app quads/server/app.py run --host 0.0.0.0
-#ENTRYPOINT ["top", "-b"]
+RUN flask --app quads/server/app.py init-db
+ENTRYPOINT flask --app quads/server/app.py run --host 0.0.0.0
