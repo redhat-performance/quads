@@ -10,9 +10,10 @@ WORKDIR /opt/quads
 RUN git checkout flaskapi
 
 RUN pip install --upgrade pip
-RUN ls -alF
+RUN pip install -r requirements.txt
 
 ENV PYTHONPATH=/opt/quads
 EXPOSE 5000
-RUN flask --app quads/server/app.py init-db
-ENTRYPOINT flask --app quads/server/app.py run --host 0.0.0.0
+
+#ENTRYPOINT ["flask", "--app", "quads/server/app.py", "run", "--host", "0.0.0.0"]
+ENTRYPOINT ["entrypoint.sh"]
