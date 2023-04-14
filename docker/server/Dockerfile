@@ -14,7 +14,5 @@ RUN pip install -r requirements.txt
 
 ENV PYTHONPATH=/opt/quads
 EXPOSE 5000
-RUN chmod +x /opt/quads/docker/server/entrypoint.sh
 
-#ENTRYPOINT ["flask", "--app", "quads/server/app.py", "run", "--host", "0.0.0.0"]
 ENTRYPOINT ["/opt/quads/docker/server/entrypoint.sh"]

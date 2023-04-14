@@ -22,4 +22,4 @@ services:
     environment:
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@quads_db:5432/quads"
     volumes:
-      - /home/grafuls/Sources/quads-new:/opt/quads:z
+      - /home/grafuls/Sources/quads-mine:/opt/quads:z
