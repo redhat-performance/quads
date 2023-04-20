@@ -178,18 +178,21 @@ class QuadsCli:
     def _output_json_result(self, request, data):
         try:
             if request.status_code == 204:
-                self.logger.info("Removed: %s" % data)
+                self.logger.info("Successfully removed")
             else:
                 js = request.json()
                 self.logger.debug(
                     "%s %s: %s" % (request.status_code, request.reason, data)
                 )
-                for result in js["result"]:
-                    if type(result) == list:
-                        for line in result:
-                            self.logger.info(line)
-                    else:
-                        self.logger.info(result)
+                if request.request.method == 'POST' and request.status_code == 200:
+                    self.logger.info('Successful request')
+                if js.get("result"):
+                    for result in js["result"]:
+                        if type(result) == list:
+                            for line in result:
+                                self.logger.info(line)
+                        else:
+                            self.logger.info(result)
         except JSONDecodeError:
             self.logger.debug(request.text)
             raise CliException("Could not parse json reply")
@@ -972,9 +975,16 @@ class QuadsCli:
         self.logger.info("Cloud modified successfully")
 
     def action_rmcloud(self):
-        url = os.path.join(conf.API_URL, "cloud", self.cli_args["rmcloud"])
-        _response = requests.delete(url)
-        self._output_json_result(_response, {"cloud": self.cli_args["rmcloud"]})
+        if not self.cli_args.get("cloud"):
+            raise CliException("Missing parameter --cloud")
+        _response = self.quads.remove_cloud(self.cli_args["cloud"])
+        self._output_json_result(_response, {"cloud":self.cli_args.get("cloud")})
+
+    def action_rmhost(self):
+        if not self.cli_args.get("host"):
+            raise CliException("Missing parameter --host")
+        _response = self.quads.remove_host(self.cli_args["host"])
+        self._output_json_result(_response, {"host":self.cli_args.get("host")})
 
     def action_hostresource(self):
         if not self.cli_args["hostcloud"]:
@@ -984,6 +994,7 @@ class QuadsCli:
             "name": self.cli_args["hostresource"],
             "default_cloud": self.cli_args["hostcloud"],
             "host_type": self.cli_args["hosttype"],
+            "model": self.cli_args["model"],
             "force": self.cli_args["force"],
         }
         _response = self.quads.create_host(data)

@@ -256,7 +256,7 @@ def delete_schedule(schedule_id: int) -> Response:
     db.session.delete(_schedule)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Schedule deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)

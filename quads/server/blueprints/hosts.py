@@ -94,7 +94,6 @@ def update_host(hostname: str) -> Response:
 @check_access("admin")
 def create_host() -> Response:
     data = request.get_json()
-    cloud_name = data.get("cloud")
     hostname = data.get("name")
     model = data.get("model")
     default_cloud = data.get("default_cloud")
@@ -164,21 +163,10 @@ def create_host() -> Response:
 
     _cloud = _default_cloud
 
-    if cloud_name:
-        _cloud = CloudDao.get_cloud(cloud_name)
-        if not _cloud:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Cloud not found: {cloud_name}",
-            }
-            return Response(response=json.dumps(response), status=400)
-
     _host_obj = Host(
         name=hostname,
         model=model.upper(),
         host_type=host_type,
-        cloud=_cloud,
         default_cloud=_default_cloud,
     )
     db.session.add(_host_obj)
@@ -201,7 +189,7 @@ def delete_host(hostname: str) -> Response:
     db.session.delete(_host)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": "Host deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)

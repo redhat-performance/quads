@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from requests.auth import HTTPBasicAuth
 
 from quads.config import Config
 from quads.server.models import Host
@@ -28,31 +29,32 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
+        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
     def get(self, endpoint, **kwargs):
         _response = self.session.get(
-            os.path.join(self.base_url, endpoint), verify=False
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
     def post(self, endpoint, data):
         _response = self.session.post(
-            os.path.join(self.base_url, endpoint), data, verify=False
+            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
     def patch(self, endpoint, data):
         _response = self.session.patch(
-            os.path.join(self.base_url, endpoint), data, verify=False
+            os.path.join(self.base_url, endpoint), data, verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
     def delete(self, endpoint, **kwargs):
         _response = self.session.delete(
-            os.path.join(self.base_url, endpoint), verify=False
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
-        return _response.json()
+        return _response
 
     # Hosts
     def get_hosts(self):
@@ -70,6 +72,9 @@ class QuadsApi:
     def update_host(self, hostname, data):
         return self.patch(os.path.join("hosts", hostname), data)
 
+    def remove_host(self, hostname):
+        return self.delete(os.path.join("hosts", hostname))
+
     def is_available(self, hostname, data):
         return self.post(os.path.join("available", hostname), data)
 
@@ -85,6 +90,9 @@ class QuadsApi:
 
     def insert_cloud(self, data):
         return self.post("clouds", data)
+
+    def remove_cloud(self, cloud_name):
+        return self.delete(os.path.join("clouds", cloud_name))
 
     # Schedules
     def get_schedules(self, data):

@@ -74,7 +74,7 @@ def delete_cloud() -> Response:
     db.session.delete(_cloud)
     db.session.commit()
     response = {
-        "status_code": 201,
+        "status_code": 204,
         "message": f"Cloud {cloud_name} deleted",
     }
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=204)
