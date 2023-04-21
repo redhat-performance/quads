@@ -48,6 +48,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Managing Faulty Hosts](#managing-faulty-hosts)
             * [Migrating to QUADS-managed Host Health](#migrating-to-quads-managed-host-health)
          * [Managing Retired Hosts](#managing-retired-hosts)
+            * [Retiring Hosts](#retiring-hosts)
          * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
          * [Extending the <strong>Schedule</strong> of a Specific Host](#extending-the-schedule-of-a-specific-host)
          * [Shrinking the <strong>Schedule</strong> of an Existing Cloud](#shrinking-the-schedule-of-an-existing-cloud)
@@ -57,6 +58,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Removing a Schedule](#removing-a-schedule)
          * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
          * [Removing a Host from QUADS](#removing-a-host-from-quads)
+         * [Modifying a Host Schedule](#modifying-a-host-schedule)
+            * [Modifying a Host Schedule across a large set of hosts](#modifying-a-host-schedule-across-a-large-set-of-hosts)
          * [Modify a Host Interface](#modify-a-host-interface)
          * [Remove a Host Interface](#remove-a-host-interface)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
@@ -662,18 +665,17 @@ quads-cli --retire --host host01.example.com
 quads-cli --unretire --host host01.example.com
 ```
 
-* **NOTE** If upgrading from `1.1.4.1` or earlier QUADS you will need the following settings applied before using `--retire`.
-* This can be referenced in the [changelog/release notes](https://github.com/redhat-performance/quads/releases/tag/v1.1.5) as well.
+#### Retiring Hosts
+* Before retiring a host you should move it back to your resource pool first, in our case this is `cloud01`.
+* This requires shrinking any active schedules on the host.
+* The below command will shrink any active schedules on those hosts without prompting to terminate immediately.
 
 ```
-$ cd /opt/quads
-$ python
->>> from quads.model import Host
->>> hosts = Host.objects()
->>> for host in hosts:
-...	if not host.retired:
-...		host.update(retired=False)
+for host in $(cat /tmp/retired_hosts); do yes | quads-cli --shrink --host $host --now; done
 ```
+
+* After this the defined `--move-host` command will want to move these back to your resource pool and power them off.
+* `retired` hosts will remain officially in your resource pool but not show up in any visualizations or usage reporting, however their past usage history will all be available for record keeping and data requirements.
 
 ### Extending the __Schedule__ of an Existing Cloud
 
@@ -800,7 +802,7 @@ You can remove an existing schedule across a set of hosts using the ```--rm-sche
    - These machines would happen to have the same cloud assignment as schedule id 2.
 ```
 quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
-quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
+quads-cli --rm-schedule --schedule-id 3 --host c08-h01-r930.rdu.openstack.example.com
 quads-cli --rm-schedule --schedule-id 2 --host c08-h01-r930.rdu.openstack.example.com
 ```
 
@@ -824,6 +826,28 @@ To remove a host entirely from QUADS management you can use the `--rm-host` comm
 quads-cli --rm-host f03-h30-000-r720xd.rdu2.example.com
 Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 ```
+
+### Modifying a Host Schedule
+
+* Host schedules are managed by unique schedule ID's which can be viewed via the `--ls-schedule` command.
+* To modify a host schedule use the `--mod-schedule --schedule-id` command and either `--schedule-start` or `--schedule-end` or both as needed.
+* Before using this, make sure it's not easier to simply use `--shrink` or `--extend` and sub-commands across the entire cloud/environments or even per-host first.
+
+```
+quads-cli --mod-schedule --host host01.example.com --mod-schedule --schedule-id 31 --schedule-start "2023-05-22 22:00" --schedule-end "2023-06-22 22:00"
+```
+
+#### Modifying a Host Schedule across a large set of hosts
+
+* You may often need to modify the same schedule ID across a large set of hosts, in this scenario you can use the following one-liner:
+* You will want to filter for the specific cloudname and at least one schedule start or stop identifier (since environments are re-used).
+  * In this example we use `cloud06` and `start=2023-03-13` to make sure our `--mod-schedule` command is unique.
+* It's also a good idea to do this first by prepending `echo` to `quads-cli` to ensure that the `schedule-id` are matched.
+
+```
+for host in $(cat /tmp/2491); do quads-cli --mod-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud06 | grep "start=2023-03-13" | tail -1 | awk -F\| '{ print $1 }') --host $host --schedule-start "2023-03-12 22:00" ; done
+```
+
 
 ### Modify a Host Interface
 
