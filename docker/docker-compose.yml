@@ -51,6 +51,7 @@ services:
       - quads-db
     build: .
     container_name: quads
+    network_mode: host
     ports:
       - 8080:8080
     environment:
