@@ -310,13 +310,12 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     Config["ipmi_password"],
                     propagate=True,
                 )
+                await badfish.set_power_state("off")
             except BadfishException:
-                logger.error(
+                logger.warning(
                     f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
                 )
-                return False
 
-        await badfish.set_power_state("off")
         source_cloud_schedule = Schedule.current_schedule(cloud=_host_obj.cloud)
         if not source_cloud_schedule:
             _old_cloud_obj = Cloud.objects(name=_host_obj.cloud.name).first()
