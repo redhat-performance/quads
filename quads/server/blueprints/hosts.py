@@ -161,8 +161,6 @@ def create_host() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud = _default_cloud
-
     _host_obj = Host(
         name=hostname,
         model=model.upper(),
@@ -186,8 +184,7 @@ def delete_host(hostname: str) -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    db.session.delete(_host)
-    db.session.commit()
+    HostDao.remove_host(_host)
     response = {
         "status_code": 204,
         "message": "Host deleted",

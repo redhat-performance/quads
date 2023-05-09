@@ -1,22 +1,43 @@
-from datetime import datetime
-from typing import List
+from typing import List, Optional, Type
 
 from sqlalchemy import Boolean
 from sqlalchemy.orm import RelationshipProperty
 
-from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound
+from quads.config import Config
+from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound, EntryExisting
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import db, Host, Cloud, Interface, Disk, Memory, Processor
+from quads.server.models import db, Host, Cloud
 
 
 class HostDao(BaseDao):
+    @classmethod
+    def create_host(cls, name, model, host_type, default_cloud) -> Host:
+        _host_obj = cls.get_host(name)
+        if _host_obj:
+            raise EntryExisting
+        if not default_cloud:
+            default_cloud = Config["spare_pool_name"]
+        _default_cloud_obj = CloudDao.get_cloud(default_cloud)
+        if not _default_cloud_obj:
+            raise EntryNotFound(f"Default cloud not found: {default_cloud}")
+        _host = Host(name=name, model=model, host_type=host_type, default_cloud=_default_cloud_obj)
+        return _host
+
+    @classmethod
+    def remove_host(cls, name) -> None:
+        _host_obj = cls.get_host(name)
+        if not _host_obj:
+            raise EntryNotFound
+        HostDao.remove_host(name)
+        return
+
     @staticmethod
-    def get_host(hostname) -> Host:
+    def get_host(hostname) -> Optional[Host]:
         host = db.session.query(Host).filter(Host.name == hostname).first()
         return host
 
     @staticmethod
-    def get_hosts() -> List[Host]:
+    def get_hosts() -> List[Type[Host]]:
         hosts = db.session.query(Host).all()
         return hosts
 

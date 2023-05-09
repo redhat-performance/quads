@@ -43,19 +43,14 @@ def create_cloud() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud_obj = Cloud(name=cloud_name)
-    db.session.add(_cloud_obj)
-    db.session.commit()
+    _cloud_obj = CloudDao.create_cloud(cloud_name)
     return jsonify(_cloud_obj.as_dict())
 
 
-@cloud_bp.route("/", methods=["DELETE"])
+@cloud_bp.route("/<cloud>/", methods=["DELETE"])
 @check_access("admin")
-def delete_cloud() -> Response:
-    data = request.get_json()
-    cloud_name = data.get("name")
-
-    if not cloud_name:
+def delete_cloud(cloud: str) -> Response:
+    if not cloud:
         response = {
             "status_code": 400,
             "error": "Bad Request",
@@ -63,18 +58,17 @@ def delete_cloud() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    _cloud = CloudDao.get_cloud(cloud_name)
+    _cloud = CloudDao.get_cloud(cloud)
     if not _cloud:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Cloud not found: {cloud_name}",
+            "message": f"Cloud not found: {cloud}",
         }
         return Response(response=json.dumps(response), status=400)
-    db.session.delete(_cloud)
-    db.session.commit()
+    CloudDao.remove_cloud(cloud)
     response = {
         "status_code": 204,
-        "message": f"Cloud {cloud_name} deleted",
+        "message": f"Cloud {cloud} deleted",
     }
     return Response(response=json.dumps(response), status=204)
