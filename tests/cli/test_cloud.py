@@ -2,21 +2,24 @@ import logging
 import pytest
 
 from quads.server.dao.cloud import CloudDao
-from tests.cli.config import RESPONSE_DEF_HOST, RESPONSE_RM_HOST, CLOUD
+from tests.cli.config import RESPONSE_DEF_HOST, RESPONSE_RM, CLOUD, RESPONSE_LS
 from tests.cli.test_base import TestBase
 
 
+@pytest.fixture
+def resource(request):
+    def finalizer():
+        cloud = CloudDao.get_cloud(CLOUD)
+        if cloud:
+            CloudDao.remove_cloud(name=CLOUD)
+
+    request.addfinalizer(finalizer)
+
+    CloudDao.create_cloud(name=CLOUD)
+
+
 class TestCloud(TestBase):
-
-    @pytest.fixture(scope="function")
-    def setup(self):
-        CloudDao.create_cloud(name=CLOUD)
-
-    @pytest.fixture(scope="function")
-    def teardown(self):
-        CloudDao.remove_cloud(name=CLOUD)
-
-    def test_define_cloud(self, teardown):
+    def test_define_cloud(self, resource):
         self.cli_args["cloudresource"] = CLOUD
         self.cli_args["description"] = "Test cloud"
         self.cli_args["cloudowner"] = "scalelab"
@@ -28,11 +31,23 @@ class TestCloud(TestBase):
 
         with self._caplog.at_level(logging.INFO, logger="test_logger"):
             self.quads_cli_call("cloudresource")
-        assert self._caplog.text == RESPONSE_DEF_HOST
+        cloud = CloudDao.get_cloud(CLOUD)
+        assert cloud is not None
+        assert cloud.name == CLOUD
 
-    def test_remove_cloud(self, setup):
+    def test_ls_cloud(self, resource):
+        clouds = CloudDao.get_clouds()
+        assert len(clouds) > 0
+
+        with self._caplog.at_level(logging.INFO, logger="test_log"):
+            self.quads_cli_call("ls_clouds")
+
+        clouds = CloudDao.get_clouds()
+        assert len(clouds) == 0
+
+    def test_remove_cloud(self, resource):
         self.cli_args["cloud"] = CLOUD
 
         with self._caplog.at_level(logging.INFO, logger="test_logger"):
             self.quads_cli_call("rmcloud")
-        assert self._caplog.text == RESPONSE_RM_HOST
+        assert self._caplog.text == RESPONSE_RM

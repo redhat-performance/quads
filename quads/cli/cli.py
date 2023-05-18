@@ -424,6 +424,16 @@ class QuadsCli:
 
         return 0
 
+    def action_ls_clouds(self):
+        clouds = self.quads.get_clouds()
+        if clouds:
+            for cloud in sorted(clouds, key=lambda k: k.name):
+                self.logger.info(cloud["name"])
+        else:
+            self.logger.warning("No clouds found.")
+
+        return 0
+
     def action_free_cloud(self):
         _clouds = self.quads.get_clouds()
         _clouds = [_c for _c in _clouds if _c.name != "cloud01"]
@@ -936,7 +946,14 @@ class QuadsCli:
                 return 1
 
         try:
-            self.logger.info(self.quads.insert_cloud(data)["result"])
+            cloud = self.quads.get_cloud(data["name"])
+            if not cloud:
+                cloud_response = self.quads.insert_cloud(data)
+                self.logger.info(cloud_response["result"])
+
+            response = self.quads.insert_assignment(data)
+            self.logger.info(response["result"])
+
         except ConnectionError:
             raise CliException(
                 "Could not connect to the quads-server, verify service is up and running."

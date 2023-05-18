@@ -6,6 +6,8 @@ services:
     image: postgres
     container_name: quads_db
     restart: always
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres

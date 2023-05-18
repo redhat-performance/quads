@@ -1,6 +1,7 @@
 import pytest
 import base64
 
+from quads.database import init_db
 from tests.helpers import unwrap_json
 from quads.server.app import (
     create_app,
@@ -24,7 +25,7 @@ def test_client():
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             drop_all(flask_app.config)
-            db_init(flask_app.config)
+            init_db()
             populate(user_datastore)
             yield testing_client
 
