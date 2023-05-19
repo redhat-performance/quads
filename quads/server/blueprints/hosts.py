@@ -184,7 +184,7 @@ def delete_host(hostname: str) -> Response:
         }
         return Response(response=json.dumps(response), status=400)
 
-    HostDao.remove_host(_host)
+    HostDao.remove_host(hostname)
     response = {
         "status_code": 204,
         "message": "Host deleted",

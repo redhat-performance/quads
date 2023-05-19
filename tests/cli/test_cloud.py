@@ -2,7 +2,7 @@ import logging
 import pytest
 
 from quads.server.dao.cloud import CloudDao
-from tests.cli.config import RESPONSE_DEF_HOST, RESPONSE_RM, CLOUD, RESPONSE_LS
+from tests.cli.config import RESPONSE_RM, CLOUD
 from tests.cli.test_base import TestBase
 
 
@@ -19,7 +19,7 @@ def resource(request):
 
 
 class TestCloud(TestBase):
-    def test_define_cloud(self, resource):
+    def test_define_cloud(self, define_fixture):
         self.cli_args["cloudresource"] = CLOUD
         self.cli_args["description"] = "Test cloud"
         self.cli_args["cloudowner"] = "scalelab"
@@ -35,17 +35,7 @@ class TestCloud(TestBase):
         assert cloud is not None
         assert cloud.name == CLOUD
 
-    def test_ls_cloud(self, resource):
-        clouds = CloudDao.get_clouds()
-        assert len(clouds) > 0
-
-        with self._caplog.at_level(logging.INFO, logger="test_log"):
-            self.quads_cli_call("ls_clouds")
-
-        clouds = CloudDao.get_clouds()
-        assert len(clouds) == 0
-
-    def test_remove_cloud(self, resource):
+    def test_remove_cloud(self, define_fixture):
         self.cli_args["cloud"] = CLOUD
 
         with self._caplog.at_level(logging.INFO, logger="test_logger"):

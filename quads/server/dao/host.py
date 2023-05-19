@@ -21,6 +21,8 @@ class HostDao(BaseDao):
         if not _default_cloud_obj:
             raise EntryNotFound(f"Default cloud not found: {default_cloud}")
         _host = Host(name=name, model=model, host_type=host_type, default_cloud=_default_cloud_obj)
+        db.session.add(_host)
+        db.session.commit()
         return _host
 
     @classmethod
@@ -28,7 +30,8 @@ class HostDao(BaseDao):
         _host_obj = cls.get_host(name)
         if not _host_obj:
             raise EntryNotFound
-        HostDao.remove_host(name)
+        db.session.delete(_host_obj)
+        db.session.commit()
         return
 
     @staticmethod
