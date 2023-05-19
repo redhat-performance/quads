@@ -3,7 +3,6 @@ import json
 from flask import Blueprint, jsonify, request, Response
 from quads.server.blueprints import check_access
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import Cloud, db
 
 
 cloud_bp = Blueprint("clouds", __name__)
@@ -25,7 +24,7 @@ def get_clouds() -> Response:
 @check_access("admin")
 def create_cloud() -> Response:
     data = request.get_json()
-    cloud_name = data.get("name")
+    cloud_name = data.get("cloud")
     if not cloud_name:
         response = {
             "status_code": 400,

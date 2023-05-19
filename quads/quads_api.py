@@ -2,6 +2,7 @@ import os
 from typing import Optional, List
 
 import requests
+from requests import Response
 from requests.auth import HTTPBasicAuth
 
 from quads.config import Config
@@ -33,25 +34,25 @@ class QuadsApi:
         self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
-    def get(self, endpoint):
+    def get(self, endpoint) -> Response:
         _response = self.session.get(
             os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
         return _response
 
-    def post(self, endpoint, data):
+    def post(self, endpoint, data) -> Response:
         _response = self.session.post(
             os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
         return _response
 
-    def patch(self, endpoint, data):
+    def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
             os.path.join(self.base_url, endpoint), data, verify=False, auth=self.auth
         )
         return _response
 
-    def delete(self, endpoint):
+    def delete(self, endpoint) -> Response:
         _response = self.session.delete(
             os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
@@ -80,16 +81,16 @@ class QuadsApi:
             host_obj = Host(**obj_json)
         return host_obj
 
-    def create_host(self, data):
+    def create_host(self, data) -> Response:
         return self.post(os.path.join("hosts"), data)
 
-    def update_host(self, hostname, data):
+    def update_host(self, hostname, data) -> Response:
         return self.patch(os.path.join("hosts", hostname), data)
 
-    def remove_host(self, hostname):
+    def remove_host(self, hostname) -> Response:
         return self.delete(os.path.join("hosts", hostname))
 
-    def is_available(self, hostname, data):
+    def is_available(self, hostname, data) -> Response:
         return self.post(os.path.join("available", hostname), data)
 
     # Clouds
@@ -115,10 +116,10 @@ class QuadsApi:
             cloud_obj = Cloud(**obj_json)
         return cloud_obj
 
-    def insert_cloud(self, data):
+    def insert_cloud(self, data) -> Response:
         return self.post("clouds", data)
 
-    def remove_cloud(self, cloud_name):
+    def remove_cloud(self, cloud_name) -> Response:
         return self.delete(os.path.join("clouds", cloud_name))
 
     # Schedules
@@ -143,13 +144,13 @@ class QuadsApi:
             schedules.append(Schedule(**schedule))
         return schedules
 
-    def update_schedule(self, schedule_id, data):
+    def update_schedule(self, schedule_id, data) -> Response:
         return self.post(os.path.join("schedules", schedule_id), data)
 
-    def remove_schedule(self, schedule_id):
+    def remove_schedule(self, schedule_id) -> Response:
         return self.delete(os.path.join("schedules", schedule_id))
 
-    def insert_schedule(self, data):
+    def insert_schedule(self, data) -> Response:
         return self.post("schedules", data)
 
     # Available
@@ -168,62 +169,62 @@ class QuadsApi:
         return hosts
 
     # Assignments
-    def insert_assignment(self, data):
-        return self.post("assignment", data)
+    def insert_assignment(self, data) -> Response:
+        return self.post("assignments", data)
 
-    def update_assignment(self, assignment_id, data):
+    def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", assignment_id), data)
 
-    def get_active_cloud_assignment(self, cloud_name):
+    def get_active_cloud_assignment(self, cloud_name) -> Response:
         return self.get(os.path.join("assignments/active", cloud_name))
 
-    def get_assignment(self, data):
+    def get_assignment(self, data) -> Response:
         # TODO:fix this
         return self.get("assignments", **data)
 
     # Interfaces
-    def get_host_interface(self, hostname):
+    def get_host_interface(self, hostname) -> Response:
         return self.get(os.path.join("interfaces", hostname))
 
-    def get_interfaces(self):
+    def get_interfaces(self) -> Response:
         return self.get("interfaces")
 
-    def update_interface(self, hostname, data):
+    def update_interface(self, hostname, data) -> Response:
         return self.patch(os.path.join("interfaces", hostname), data)
 
-    def remove_interface(self, interface_id):
+    def remove_interface(self, interface_id) -> Response:
         return self.delete(os.path.join("interfaces", interface_id))
 
-    def create_interface(self, hostname, data):
+    def create_interface(self, hostname, data) -> Response:
         return self.post(os.path.join("interfaces", hostname), data)
 
     # Memory
-    def create_memory(self, hostname, data):
+    def create_memory(self, hostname, data) -> Response:
         return self.post(os.path.join("memory", hostname), data)
 
-    def remove_memory(self, memory_id):
+    def remove_memory(self, memory_id) -> Response:
         return self.delete(os.path.join("memory", memory_id))
 
     # Disks
-    def create_disk(self, hostname, data):
+    def create_disk(self, hostname, data) -> Response:
         return self.post(os.path.join("disk", hostname), data)
 
-    def remove_disk(self, disk_id):
+    def remove_disk(self, disk_id) -> Response:
         return self.delete(os.path.join("disk", disk_id))
 
     # Processor
-    def create_processor(self, hostname, data):
+    def create_processor(self, hostname, data) -> Response:
         return self.post(os.path.join("processor", hostname), data)
 
-    def remove_processor(self, processor_id):
+    def remove_processor(self, processor_id) -> Response:
         return self.delete(os.path.join("processor", processor_id))
 
     # Vlans
-    def get_vlans(self):
+    def get_vlans(self) -> Response:
         return self.get("vlans")
 
-    def get_summary(self):
+    def get_summary(self) -> Response:
         return self.get("summary")
 
-    def get_version(self):
+    def get_version(self) -> Response:
         return self.get("version")

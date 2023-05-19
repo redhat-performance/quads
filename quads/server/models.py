@@ -67,7 +67,9 @@ class Serialize:
                 if default_cloud:
                     result["default_cloud"] = default_cloud.as_dict()
             if attr.key == "vlan":
-                result["vlan"] = getattr(self, attr.key).as_dict()
+                vlan = getattr(self, attr.key)
+                if vlan:
+                    result["vlan"] = vlan.as_dict()
             if attr.key == "assignment":
                 assignment = getattr(self, attr.key)
                 if assignment:

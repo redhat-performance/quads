@@ -42,7 +42,10 @@ def get_active_cloud_assignment(cloud_name) -> Response:
         }
         return Response(response=json.dumps(response), status=400)
     _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
-    return jsonify(_assignment.as_dict())
+    response = {}
+    if _assignment:
+        response = _assignment.as_dict()
+    return jsonify(response)
 
 
 @assignment_bp.route("/", methods=["POST"])
@@ -67,7 +70,6 @@ def create_assignment() -> Response:
         "owner",
         "ticket",
         "cloud",
-        "vlan",
     ]
     for field in required_fields:
         if not data.get(field):

@@ -491,8 +491,8 @@ class QuadsCli:
                 current_schedule = self.quads.get_current_schedules({"host": host})
                 if current_schedule:
                     if (
-                        host.default_cloud.name == conf["spare_pool_name"]
-                        and current_schedule[0].cloud != omit_cloud
+                            host.default_cloud.name == conf["spare_pool_name"]
+                            and current_schedule[0].cloud != omit_cloud
                     ):
                         current.append(host["name"])
                 else:
@@ -587,7 +587,7 @@ class QuadsCli:
                     return
 
                 if not self._confirmation_dialog(
-                    f"Would you like to extend a future allocation of {cloud.name}? (y/N): "
+                        f"Would you like to extend a future allocation of {cloud.name}? (y/N): "
                 ):
                     return
                 schedules = future_schedules
@@ -662,8 +662,8 @@ class QuadsCli:
                     return 1
 
                 if not self._confirmation_dialog(
-                    "Would you like to extend a future allocation of"
-                    f" {host.name}? (y/N): "
+                        "Would you like to extend a future allocation of"
+                        f" {host.name}? (y/N): "
                 ):
                     return
                 schedule = future_schedule
@@ -713,9 +713,9 @@ class QuadsCli:
 
     def action_shrink(self):
         if (
-            not self.cli_args["weeks"]
-            and not self.cli_args["now"]
-            and not self.cli_args["datearg"]
+                not self.cli_args["weeks"]
+                and not self.cli_args["now"]
+                and not self.cli_args["datearg"]
         ):
             raise CliException(
                 "Missing option. Need --weeks, --date or --now when using --shrink"
@@ -763,8 +763,8 @@ class QuadsCli:
                     return 1
 
                 if not self._confirmation_dialog(
-                    "Would you like to shrink a future allocation of"
-                    f" {cloud.name}? (y/N): "
+                        "Would you like to shrink a future allocation of"
+                        f" {cloud.name}? (y/N): "
                 ):
                     return
                 schedules = future_schedules
@@ -777,9 +777,9 @@ class QuadsCli:
                 else:
                     end_date = _date
                 if (
-                    end_date < schedule.start
-                    or end_date > schedule.end
-                    or (not self.cli_args["now"] and end_date < threshold)
+                        end_date < schedule.start
+                        or end_date > schedule.end
+                        or (not self.cli_args["now"] and end_date < threshold)
                 ):
                     non_shrinkable.append(schedule.host)
 
@@ -799,7 +799,7 @@ class QuadsCli:
                     else f"to {str(_date)[:16]}? (y/N): "
                 )
                 if not self._confirmation_dialog(
-                    f"Are you sure you want to shrink {cloud.name} " + confirm_msg
+                        f"Are you sure you want to shrink {cloud.name} " + confirm_msg
                 ):
                     return
 
@@ -851,7 +851,7 @@ class QuadsCli:
                     return 1
 
                 if self._confirmation_dialog(
-                    f"Would you like to shrink a future allocation of {host.name}? (y/N): "
+                        f"Would you like to shrink a future allocation of {host.name}? (y/N): "
                 ):
                     return
 
@@ -862,9 +862,9 @@ class QuadsCli:
             else:
                 end_date = _date
             if (
-                end_date < schedule.start
-                or end_date > schedule.end
-                or (not self.cli_args["now"] and end_date < threshold)
+                    end_date < schedule.start
+                    or end_date > schedule.end
+                    or (not self.cli_args["now"] and end_date < threshold)
             ):
                 raise CliException(
                     "The host cannot be shrunk past it's start date, target date means an extension"
@@ -873,8 +873,8 @@ class QuadsCli:
 
             if not self.cli_args["check"]:
                 if self._confirmation_dialog(
-                    "Are you sure you want to shrink"
-                    f"{host.name} to {str(end_date)[:16]}? (y/N): "
+                        "Are you sure you want to shrink"
+                        f"{host.name} to {str(end_date)[:16]}? (y/N): "
                 ):
                     return
 
@@ -912,7 +912,7 @@ class QuadsCli:
 
     def action_cloudresource(self):
         data = {
-            "name": self.cli_args["cloudresource"],
+            "cloud": self.cli_args["cloud"],
             "description": self.cli_args["description"],
             "owner": self.cli_args["cloudowner"],
             "ccuser": self.cli_args["ccusers"],
@@ -930,7 +930,7 @@ class QuadsCli:
                 return 1
 
         cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-        assignment = self.quads.get_active_cloud_assignment(data["name"])
+        assignment = self.quads.get_active_cloud_assignment(data["cloud"])
         if assignment:
             lock_release = assignment.last_redefined + timedelta(
                 hours=cloud_reservation_lock
@@ -946,13 +946,15 @@ class QuadsCli:
                 return 1
 
         try:
-            cloud = self.quads.get_cloud(data["name"])
+            cloud = self.quads.get_cloud(data["cloud"])
             if not cloud:
                 cloud_response = self.quads.insert_cloud(data)
-                self.logger.info(cloud_response["result"])
+                if cloud_response.status_code == 200:
+                    self.logger.info(f"Cloud {data['cloud']} created.")
 
             response = self.quads.insert_assignment(data)
-            self.logger.info(response["result"])
+            if response.status_code == 200:
+                self.logger.info("Assignment created.")
 
         except ConnectionError:
             raise CliException(
@@ -995,13 +997,13 @@ class QuadsCli:
         if not self.cli_args.get("cloud"):
             raise CliException("Missing parameter --cloud")
         _response = self.quads.remove_cloud(self.cli_args["cloud"])
-        self._output_json_result(_response, {"cloud":self.cli_args.get("cloud")})
+        self._output_json_result(_response, {"cloud": self.cli_args.get("cloud")})
 
     def action_rmhost(self):
         if not self.cli_args.get("host"):
             raise CliException("Missing parameter --host")
         _response = self.quads.remove_host(self.cli_args["host"])
-        self._output_json_result(_response, {"host":self.cli_args.get("host")})
+        self._output_json_result(_response, {"host": self.cli_args.get("host")})
 
     def action_hostresource(self):
         if not self.cli_args["hostcloud"]:
@@ -1135,9 +1137,9 @@ class QuadsCli:
 
     def action_add_schedule(self):
         if (
-            self.cli_args["schedstart"] is None
-            or self.cli_args["schedend"] is None
-            or self.cli_args["schedcloud"] is None
+                self.cli_args["schedstart"] is None
+                or self.cli_args["schedend"] is None
+                or self.cli_args["schedcloud"] is None
         ):
             raise CliException(
                 "\n".join(
@@ -1182,7 +1184,11 @@ class QuadsCli:
                     "end": self.cli_args["schedend"],
                 }
                 try:
-                    self.logger.info(self.quads.insert_schedule(data)["result"][0])
+                    response = self.quads.insert_schedule(data)
+                    if response.status_code == 200:
+                        self.logger.info("Schedule created")
+                    else:
+                        self.logger.error("There was something wrong creating the schedule entry")
                 except ConnectionError:
                     raise CliException(
                         "Could not connect to the quads-server, verify service is up and running."
@@ -1246,7 +1252,11 @@ class QuadsCli:
                     "end": self.cli_args["schedend"],
                 }
                 try:
-                    self.logger.info(self.quads.insert_schedule(data)["result"][0])
+                    response = self.quads.insert_schedule(data)
+                    if response.status_code == 200:
+                        self.logger.info("Schedule created")
+                    else:
+                        self.logger.error("There was something wrong creating the schedule entry")
                 except ConnectionError:
                     raise CliException(
                         "Could not connect to the quads-server, verify service is up and running."
@@ -1319,9 +1329,9 @@ class QuadsCli:
             raise CliException("Missing option. Need --host when using --mod-schedule")
 
         if (
-            self.cli_args["schedstart"] is None
-            and self.cli_args["schedend"] is None
-            and self.cli_args["schedcloud"] is None
+                self.cli_args["schedstart"] is None
+                and self.cli_args["schedend"] is None
+                and self.cli_args["schedcloud"] is None
         ):
             raise CliException(
                 "\n".join(
@@ -1481,10 +1491,10 @@ class QuadsCli:
                             asyncio.gather(*[task(loop) for task in tasks])
                         )
                     except (
-                        asyncio.CancelledError,
-                        SystemExit,
-                        Exception,
-                        TimeoutError,
+                            asyncio.CancelledError,
+                            SystemExit,
+                            Exception,
+                            TimeoutError,
                     ):
                         self.logger.exception("Move command failed")
                         provisioned = False
@@ -1518,7 +1528,6 @@ class QuadsCli:
                                 provisioned = provisioned and future
 
                     if provisioned:
-
                         _new_cloud_obj = self.quads.get_cloud(_cloud)
                         validate = not _new_cloud_obj.wipe
                         assignment = self.quads.get_active_cloud_assignment(

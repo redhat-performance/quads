@@ -58,7 +58,7 @@ def get_future_schedule() -> Response:
 @check_access("admin")
 def create_schedule() -> Response:
     data = request.get_json()
-    hostname = data.get("hostname")
+    hostname = data.get("host")
     cloud = data.get("cloud")
     if not cloud:
         response = {

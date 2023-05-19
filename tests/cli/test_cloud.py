@@ -1,17 +1,28 @@
-import logging
 import pytest
 
+from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
-from tests.cli.config import RESPONSE_RM, CLOUD
+from tests.cli.config import CLOUD
 from tests.cli.test_base import TestBase
 
 
+def finalizer():
+    cloud = CloudDao.get_cloud(CLOUD)
+    if cloud:
+        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+        if assignment:
+            AssignmentDao.delete_assignment(assignment.id)
+        CloudDao.remove_cloud(name=CLOUD)
+
+
 @pytest.fixture
-def resource(request):
-    def finalizer():
-        cloud = CloudDao.get_cloud(CLOUD)
-        if cloud:
-            CloudDao.remove_cloud(name=CLOUD)
+def define_fixture(request):
+
+    request.addfinalizer(finalizer)
+
+
+@pytest.fixture
+def remove_fixture(request):
 
     request.addfinalizer(finalizer)
 
@@ -20,7 +31,7 @@ def resource(request):
 
 class TestCloud(TestBase):
     def test_define_cloud(self, define_fixture):
-        self.cli_args["cloudresource"] = CLOUD
+        self.cli_args["cloud"] = CLOUD
         self.cli_args["description"] = "Test cloud"
         self.cli_args["cloudowner"] = "scalelab"
         self.cli_args["ccusers"] = None
@@ -29,15 +40,17 @@ class TestCloud(TestBase):
         self.cli_args["force"] = True
         self.cli_args["wipe"] = True
 
-        with self._caplog.at_level(logging.INFO, logger="test_logger"):
-            self.quads_cli_call("cloudresource")
+        self.quads_cli_call("cloudresource")
         cloud = CloudDao.get_cloud(CLOUD)
+        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+        assert assignment is not None
         assert cloud is not None
         assert cloud.name == CLOUD
 
     def test_remove_cloud(self, define_fixture):
         self.cli_args["cloud"] = CLOUD
 
-        with self._caplog.at_level(logging.INFO, logger="test_logger"):
-            self.quads_cli_call("rmcloud")
-        assert self._caplog.text == RESPONSE_RM
+        self.quads_cli_call("rmcloud")
+
+        cloud = CloudDao.get_cloud(CLOUD)
+        assert not cloud

@@ -1,10 +1,8 @@
-import logging
-
 import pytest
 
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
-from tests.cli.config import HOST, CLOUD, RESPONSE_LS
+from tests.cli.config import HOST, CLOUD
 from tests.cli.test_base import TestBase
 
 
@@ -39,8 +37,8 @@ class TestHost(TestBase):
         self.cli_args["hosttype"] = "scalelab"
         self.cli_args["model"] = "r640"
 
-        with self._caplog.at_level(logging.INFO, logger="test_log"):
-            self.quads_cli_call("hostresource")
+        self.quads_cli_call("hostresource")
+
         host = HostDao.get_host(HOST)
         assert host is not None
         assert host.name == HOST
@@ -52,8 +50,7 @@ class TestHost(TestBase):
         assert host is not None
         assert host.name == HOST
 
-        with self._caplog.at_level(logging.INFO, logger="test_log"):
-            self.quads_cli_call("rmhost")
+        self.quads_cli_call("rmhost")
 
         host = HostDao.get_host(HOST)
         assert not host
