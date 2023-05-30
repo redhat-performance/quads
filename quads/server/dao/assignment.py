@@ -78,10 +78,10 @@ class AssignmentDao(BaseDao):
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:
-        assignment = (
+        assignments = (
             db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
         )
-        return assignment.all()
+        return assignments
 
     @staticmethod
     def get_active_cloud_assignment(cloud: Cloud) -> Assignment:

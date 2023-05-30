@@ -424,6 +424,7 @@ class Host(Serialize, TimestampMixin, Base):
     broken = Column(Boolean, default=False)
     retired = Column(Boolean, default=False)
     last_build = Column(DateTime)
+    created_on = Column(DateTime, default=datetime.now())
 
     # many-to-one
     cloud_id = Column(Integer, ForeignKey("clouds.id"))

@@ -47,10 +47,25 @@ class TestCloud(TestBase):
         assert cloud is not None
         assert cloud.name == CLOUD
 
-    def test_remove_cloud(self, define_fixture):
+    def test_remove_cloud(self, remove_fixture):
         self.cli_args["cloud"] = CLOUD
 
         self.quads_cli_call("rmcloud")
 
         cloud = CloudDao.get_cloud(CLOUD)
         assert not cloud
+
+    def test_mod_cloud(self, remove_fixture):
+        new_description = "Modified description"
+        self.cli_args["cloud"] = CLOUD
+        self.cli_args["description"] = new_description
+        self.cli_args["cloudowner"] = None
+        self.cli_args["ccusers"] = None
+        self.cli_args["cloudticket"] = None
+
+        self.quads_cli_call("modcloud")
+
+        cloud = CloudDao.get_cloud(CLOUD)
+        assignment = AssignmentDao.get_all_cloud_assignments(cloud)
+        assert cloud
+        assert cloud["description"] == new_description

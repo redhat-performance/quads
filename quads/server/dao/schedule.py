@@ -54,6 +54,27 @@ class ScheduleDao(BaseDao):
         return query.all()
 
     @staticmethod
+    def filter_schedule(
+        start: datetime = None, end: datetime = None, host: Host = None, cloud: Cloud = None
+    ) -> list[Type[Schedule]]:
+        query = db.session.query(Schedule)
+        if not start:
+            start = datetime.now()
+        if not end:
+            end = datetime.now()
+        query = query.filter(and_(Schedule.start >= start, Schedule.end <= end))
+
+        if host:
+            query = query.filter(Schedule.host == host)
+        # TODO: check assignment cloud schedule relationship
+        if cloud:
+            result = query.all()
+            return [
+                schedule for schedule in result if schedule.assignment.cloud == cloud
+            ]
+        return query.all()
+
+    @staticmethod
     def get_current_schedule(
         date: datetime = None, host: Host = None, cloud: Cloud = None
     ) -> list[Type[Schedule]]:

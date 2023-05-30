@@ -963,7 +963,7 @@ class QuadsCli:
 
     def action_modcloud(self):
         data = {
-            "name": self.cli_args["modcloud"],
+            "name": self.cli_args["cloud"],
             "description": self.cli_args["description"],
             "owner": self.cli_args["cloudowner"],
             "ccuser": self.cli_args["ccusers"],
@@ -1309,20 +1309,16 @@ class QuadsCli:
         return 0
 
     def action_rmschedule(self):
-        if self.cli_args["host"]:
-            data = {
-                "host": self.cli_args["host"],
-                "index": str(self.cli_args["rmschedule"]),
-            }
-            try:
-                self.logger.info(self.quads.remove_schedule(**data))
-            except ConnectionError:
-                raise CliException(
-                    "Could not connect to the quads-server, verify service is up and running."
-                )
-            return 0
-        else:
-            raise CliException("Missing option. Need --host when using --rm-schedule")
+        if self.cli_args["schedid"] is None:
+            raise CliException("Missing option --schedule-id.")
+
+        try:
+            self.logger.info(self.quads.remove_schedule(self.cli_args["schedid"]))
+        except (ConnectionError, Exception) as ex:
+            raise CliException(
+                "Could not connect to the quads-server, verify service is up and running."
+            )
+        return 0
 
     def action_modschedule(self):
         if self.cli_args["host"] is None:

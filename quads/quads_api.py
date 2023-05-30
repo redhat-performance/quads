@@ -148,7 +148,7 @@ class QuadsApi:
         return self.post(os.path.join("schedules", schedule_id), data)
 
     def remove_schedule(self, schedule_id) -> Response:
-        return self.delete(os.path.join("schedules", schedule_id))
+        return self.delete(os.path.join("schedules", str(schedule_id)))
 
     def insert_schedule(self, data) -> Response:
         return self.post("schedules", data)
