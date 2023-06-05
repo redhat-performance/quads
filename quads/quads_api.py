@@ -48,7 +48,7 @@ class QuadsApi:
 
     def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
-            os.path.join(self.base_url, endpoint), data, verify=False, auth=self.auth
+            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
         return _response
 
@@ -173,7 +173,7 @@ class QuadsApi:
         return self.post("assignments", data)
 
     def update_assignment(self, assignment_id, data) -> Response:
-        return self.patch(os.path.join("assignments", assignment_id), data)
+        return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
     def get_active_cloud_assignment(self, cloud_name) -> Response:
         return self.get(os.path.join("assignments/active", cloud_name))

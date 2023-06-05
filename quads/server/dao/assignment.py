@@ -1,6 +1,6 @@
 from typing import List
 
-from quads.server.dao.baseDao import BaseDao, EntryNotFound
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db, Assignment, Cloud, Notification, Vlan
@@ -40,6 +40,57 @@ class AssignmentDao(BaseDao):
         db.session.commit()
 
         return _assignment_obj
+
+    @classmethod
+    def udpate_assignment(
+            cls,
+            assignment_id: int,
+            **kwargs
+    ) -> Assignment:
+        """
+        Updates an assignment in the database.
+
+        :param self: Represent the instance of the class
+        :param assignment_id: int: Identify the assignment to be updated
+        :param description: str: Pass a string to the assignment description field
+        :param owner: str: Set the owner of the assignment
+        :param ticket: str: Update the ticket field in the assignment table
+        :param qinq: int: Set the qinq value for an assignment
+        :param wipe: bool: Wipe the assignment
+        :param ccuser: list[str]: Add multiple cc_users to the assignment
+        :param vlan_id: int: Set the vlan of an assignment
+        :param cloud: str: Set the cloud attribute of an assignment
+        :param active: bool: Set the assignment to active or inactive
+
+        :return: The updated assignment
+        """
+        assignment = cls.get_assignment(assignment_id)
+        if not assignment:
+            raise EntryNotFound
+
+        for key, value in kwargs.items():
+            if key == "vlan_id":
+                vlan = VlanDao.get_vlan(value)
+                if not vlan:
+                    raise EntryNotFound
+                assignment.vlan = vlan
+                continue
+
+            if key == "cloud":
+                cloud = CloudDao.get_cloud(value)
+                if not cloud:
+                    raise EntryNotFound
+                assignment.cloud = cloud
+                continue
+
+            if getattr(assignment, key):
+                setattr(assignment, key, value)
+            else:
+                raise InvalidArgument
+
+        db.session.commit()
+
+        return assignment
 
     @staticmethod
     def get_assignment(assignment_id: int) -> Assignment:

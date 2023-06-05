@@ -42,6 +42,10 @@ class EntryExisting(Exception):
     pass
 
 
+class InvalidArgument(Exception):
+    pass
+
+
 class BaseDao:
     @staticmethod
     def safe_commit() -> bool:

@@ -27,6 +27,16 @@ def remove_fixture(request):
     request.addfinalizer(finalizer)
 
     CloudDao.create_cloud(name=CLOUD)
+    assignment = AssignmentDao.create_assignment(
+        description="Test cloud",
+        owner="scalelab",
+        ticket="123456",
+        qinq=0,
+        wipe=False,
+        ccuser=[],
+        vlan_id=1,
+        cloud=CLOUD
+    )
 
 
 class TestCloud(TestBase):
@@ -49,11 +59,15 @@ class TestCloud(TestBase):
 
     def test_remove_cloud(self, remove_fixture):
         self.cli_args["cloud"] = CLOUD
+        cloud = CloudDao.get_cloud(CLOUD)
+
+        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+        AssignmentDao.udpate_assignment(assignment_id=assignment.id, active=False)
 
         self.quads_cli_call("rmcloud")
 
-        cloud = CloudDao.get_cloud(CLOUD)
-        assert not cloud
+        rm_cloud = CloudDao.get_cloud(CLOUD)
+        assert not rm_cloud
 
     def test_mod_cloud(self, remove_fixture):
         new_description = "Modified description"
@@ -66,6 +80,8 @@ class TestCloud(TestBase):
         self.quads_cli_call("modcloud")
 
         cloud = CloudDao.get_cloud(CLOUD)
-        assignment = AssignmentDao.get_all_cloud_assignments(cloud)
         assert cloud
-        assert cloud["description"] == new_description
+
+        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+        assert assignment
+        assert assignment.description == new_description

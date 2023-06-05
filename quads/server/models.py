@@ -301,7 +301,7 @@ class Assignment(Serialize, TimestampMixin, Base):
     ccuser = Column(MutableList.as_mutable(PickleType), default=[])
 
     # many-to-one parent
-    cloud_id = Column(Integer, ForeignKey("clouds.id"))
+    cloud_id = Column(Integer, ForeignKey("clouds.id", ondelete='SET NULL'))
     cloud = relationship("Cloud", foreign_keys=[cloud_id])
 
     # one-to-one parent

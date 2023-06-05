@@ -102,7 +102,7 @@ def create_assignment() -> Response:
             return Response(response=json.dumps(response), status=400)
 
     if vlan:
-        _vlan = VlanDao.get_vlan(vlan)
+        _vlan = VlanDao.get_vlan(int(vlan))
         if not _vlan:
             response = {
                 "status_code": 400,

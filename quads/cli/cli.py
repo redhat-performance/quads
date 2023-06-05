@@ -982,20 +982,27 @@ class QuadsCli:
         if "qinq" in self.cli_args:
             clean_data["qinq"] = self.cli_args["qinq"]
 
-        assignment = self.quads.get_active_cloud_assignment(data["name"])
+        response = self.quads.get_active_cloud_assignment(data["name"])
+        assignment = response.json()
 
         if self.cli_args.get("cloudticket"):
             payload = {"ticket": self.cli_args.get("cloudticket")}
             self.quads.update_assignment(assignment.get("id"), payload)
 
-        # TODO: Check this update and handle exceptions
         self.quads.update_assignment(assignment.get("id"), clean_data)
 
         self.logger.info("Cloud modified successfully")
 
     def action_rmcloud(self):
-        if not self.cli_args.get("cloud"):
+        cloud = self.cli_args.get("cloud")
+        if not cloud:
             raise CliException("Missing parameter --cloud")
+
+        response = self.quads.get_active_cloud_assignment(cloud)
+        assignment = response.json()
+        if assignment:
+            raise CliException(f"There is an active cloud assignment for {cloud}")
+
         _response = self.quads.remove_cloud(self.cli_args["cloud"])
         self._output_json_result(_response, {"cloud": self.cli_args.get("cloud")})
 
