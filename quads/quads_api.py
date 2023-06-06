@@ -6,7 +6,7 @@ from requests import Response
 from requests.auth import HTTPBasicAuth
 
 from quads.config import Config
-from quads.server.models import Host, Cloud, Schedule
+from quads.server.models import Host, Cloud, Schedule, Interface, Vlan
 
 
 class MessengerDTO:
@@ -61,16 +61,19 @@ class QuadsApi:
     # Hosts
     def get_hosts(self) -> List[Host]:
         response = self.get("hosts")
+        hosts_json = response.json()
         hosts = []
-        for host in response.json():
-            hosts.append(Host(**host))
+        for host in hosts_json:
+            host_obj = Host().from_dict(data=host)
+            hosts.append(host_obj)
         return hosts
 
     def filter_hosts(self, data) -> List[Host]:
         response = self.post(os.path.join("hosts", "filter"), data)
         hosts = []
         for host in response.json():
-            hosts.append(Host(**host))
+            host_obj = Host().from_dict(data=host)
+            hosts.append(host_obj)
         return hosts
 
     def get_host(self, hostname) -> Optional[Host]:
@@ -78,11 +81,14 @@ class QuadsApi:
         response = self.get(os.path.join("hosts", hostname))
         obj_json = response.json()
         if obj_json:
-            host_obj = Host(**obj_json)
+            host_obj = Host().from_dict(data=obj_json)
         return host_obj
 
-    def create_host(self, data) -> Response:
-        return self.post(os.path.join("hosts"), data)
+    def create_host(self, data) -> Host:
+        response = self.post(os.path.join("hosts"), data)
+        data = response.json()
+        host_obj = Host().from_dict(data)
+        return host_obj
 
     def update_host(self, hostname, data) -> Response:
         return self.patch(os.path.join("hosts", hostname), data)
@@ -178,13 +184,19 @@ class QuadsApi:
     def get_active_cloud_assignment(self, cloud_name) -> Response:
         return self.get(os.path.join("assignments/active", cloud_name))
 
-    def get_assignment(self, data) -> Response:
+    def get_assignment(self, **kwargs) -> Response:
         # TODO:fix this
-        return self.get("assignments", **data)
+        return self.get("assignments", **kwargs)
 
     # Interfaces
-    def get_host_interface(self, hostname) -> Response:
-        return self.get(os.path.join("interfaces", hostname))
+    def get_host_interface(self, hostname) -> List[Interface]:
+        response = self.get(os.path.join("interfaces", hostname))
+        data = response.json()
+        interfaces = []
+        for interface in data:
+            interface_obj = Interface().from_dict(interface)
+            interfaces.append(interface_obj)
+        return interfaces
 
     def get_interfaces(self) -> Response:
         return self.get("interfaces")
@@ -220,8 +232,14 @@ class QuadsApi:
         return self.delete(os.path.join("processor", processor_id))
 
     # Vlans
-    def get_vlans(self) -> Response:
-        return self.get("vlans")
+    def get_vlans(self) -> List[Vlan]:
+        response = self.get("vlans")
+        data = response.json()
+        vlans = []
+        for vlan in data:
+            vlan_obj = Vlan().from_dict(vlan)
+            vlans.append(vlan_obj)
+        return vlans
 
     def get_summary(self) -> Response:
         return self.get("summary")

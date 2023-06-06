@@ -257,17 +257,16 @@ class QuadsCli:
         data = self.quads.get_host_interface(hostname)
 
         if data:
-            result = [json.loads(entry) for entry in data["result"]]
-            for interface in sorted(result, key=lambda k: k["name"]):
-                self.logger.info(f"interface: {interface.get('name')}")
-                self.logger.info(f"  bios id: {interface.get('bios_id')}")
-                self.logger.info(f"  mac address: {interface.get('mac_address')}")
-                self.logger.info(f"  switch ip: {interface.get('switch_ip')}")
-                self.logger.info(f"  port: {interface.get('switch_port')}")
-                self.logger.info(f"  speed: {interface.get('speed')}")
-                self.logger.info(f"  vendor: {interface.get('vendor')}")
-                self.logger.info(f"  pxe_boot: {interface.get('pxe_boot')}")
-                self.logger.info(f"  maintenance: {interface.get('maintenance')}")
+            for interface in sorted(data, key=lambda k: k.name):
+                self.logger.info(f"interface: {interface.name}")
+                self.logger.info(f"  bios id: {interface.bios_id}")
+                self.logger.info(f"  mac address: {interface.mac_address}")
+                self.logger.info(f"  switch ip: {interface.switch_ip}")
+                self.logger.info(f"  port: {interface.switch_port}")
+                self.logger.info(f"  speed: {interface.speed}")
+                self.logger.info(f"  vendor: {interface.vendor}")
+                self.logger.info(f"  pxe_boot: {interface.pxe_boot}")
+                self.logger.info(f"  maintenance: {interface.maintenance}")
         else:
             self.logger.error(f"No interfaces defined for {hostname}")
 
@@ -311,13 +310,14 @@ class QuadsCli:
             )
 
         host = self.quads.get_host(hostname)
+
         if not host:
             raise CliException(f"Host {hostname} does not exist")
 
         for i, processor in enumerate(host.processors):
             self.logger.info(f"processor: {processor.handle}")
             self.logger.info(f"  vendor: {processor.vendor}")
-            self.logger.info(f"  product: {processor.size_gb}")
+            self.logger.info(f"  product: {processor.product}")
             self.logger.info(f"  cores: {processor.cores}")
             self.logger.info(f"  threads: {processor.threads}")
 
@@ -326,7 +326,6 @@ class QuadsCli:
         _vlans = self.quads.get_vlans()
         if not _vlans:
             raise CliException("No VLANs defined")
-
         for vlan in _vlans:
             payload = {"vlan_id": vlan.vlan_id}
             assignment = self.quads.get_assignment(**payload)
@@ -403,8 +402,8 @@ class QuadsCli:
             )
 
         if entries and "result" not in entries:
-            for entry in sorted(entries, key=lambda k: k["name"]):
-                self.logger.info(entry["name"])
+            for entry in sorted(entries, key=lambda k: k.name):
+                self.logger.info(entry.name)
         elif "result" in entries:
             self.logger.info(entries["result"])
 
@@ -417,8 +416,8 @@ class QuadsCli:
         else:
             hosts = self.quads.get_hosts()
         if hosts:
-            for host in sorted(hosts, key=lambda k: k["name"]):
-                self.logger.info(host["name"])
+            for host in sorted(hosts, key=lambda k: k.name):
+                self.logger.info(host.name)
         else:
             self.logger.warning("No hosts found.")
 
@@ -428,7 +427,7 @@ class QuadsCli:
         clouds = self.quads.get_clouds()
         if clouds:
             for cloud in sorted(clouds, key=lambda k: k.name):
-                self.logger.info(cloud["name"])
+                self.logger.info(cloud.name)
         else:
             self.logger.warning("No clouds found.")
 

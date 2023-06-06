@@ -14,12 +14,31 @@ assignment_bp = Blueprint("assignments", __name__)
 
 @assignment_bp.route("/")
 def get_assignments() -> Response:
+    """
+    Returns a list of all assignments in the database.
+        ---
+        tags:
+          - Assignment API
+
+    :return: A list of all assignments in the database
+    """
     _assignments = AssignmentDao.get_assignments()
     return jsonify([_assignment.as_dict() for _assignment in _assignments])
 
 
 @assignment_bp.route("/<assignment_id>/")
 def get_assignment(assignment_id) -> Response:
+    """
+    Used to retrieve a single assignment from the database.
+        It takes in an assignment_id as a parameter and returns the corresponding Assignment object.
+        If no such Assignment exists, it will return a 400 Bad Request error.
+        ---
+        tags:
+          - Assignment API
+
+    :param assignment_id: Get the assignment from the database
+    :return: The assignment as a json object
+    """
     _assignment = AssignmentDao.get_assignment(assignment_id)
     if not _assignment:
         response = {
@@ -33,6 +52,15 @@ def get_assignment(assignment_id) -> Response:
 
 @assignment_bp.route("active/<cloud_name>/")
 def get_active_cloud_assignment(cloud_name) -> Response:
+    """
+    Returns the active assignment for a given cloud.
+        ---
+        tags:
+          - Assignment API
+
+    :param cloud_name: Find the cloud in the database
+    :return: The active assignment for the cloud
+    """
     _cloud = CloudDao.get_cloud(cloud_name)
     if not _cloud:
         response = {
@@ -51,6 +79,14 @@ def get_active_cloud_assignment(cloud_name) -> Response:
 @assignment_bp.route("/", methods=["POST"])
 @check_access("admin")
 def create_assignment() -> Response:
+    """
+    Creates a new assignment in the database.
+        ---
+        tags:
+          - API
+
+    :return: The created object as a json
+    """
     data = request.get_json()
 
     notification = Notification()
@@ -130,6 +166,20 @@ def create_assignment() -> Response:
 @assignment_bp.route("/<assignment_id>", methods=["PATCH"])
 @check_access("admin")
 def update_assignment(assignment_id: str) -> Response:
+    """
+    Updates an existing assignment.
+        ---
+        tags: API
+        parameters:
+          - in: path
+            name: assignment_id  # The id of the assignment to update. This is a required parameter.
+                It must be passed as part of the URL path, not as a query string or request body parameter.
+                Example usage would be /api/v3/assignments/&lt;assignment_id&gt; where &lt;assignment_id&gt;
+                is replaced with the actual value for that field (e.g., /api/v3/assignments/12345). Note that
+
+    :param assignment_id: str: Identify which assignment to update
+    :return: A json object containing the updated assignment
+    """
     data = request.get_json()
     assignment_obj = AssignmentDao.get_assignment(assignment_id)
     if not assignment_obj:
@@ -191,6 +241,16 @@ def update_assignment(assignment_id: str) -> Response:
 @assignment_bp.route("/", methods=["DELETE"])
 @check_access("admin")
 def delete_assignment() -> Response:
+    """
+    Used to delete an assignment from the database.
+    It takes in a JSON object with one key, &quot;id&quot;, which corresponds to the id of the assignment that
+    will be deleted.
+    If no such assignment exists, it returns a 400 error code and message explaining that there was no such entry
+    found.
+    Otherwise, it deletes the entry and returns a 204 status code.
+
+    :return: A response with a status code of 204
+    """
     data = request.get_json()
     assignment_id = data.get("id")
     if not assignment_id:

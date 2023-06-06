@@ -11,6 +11,14 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/register/", methods=["POST"])
 def register() -> Response:
+    """
+    Used to register a new user.
+        It takes in the email and password of the user as JSON input, validates it,
+        creates a new User object with that data and saves it to the database.
+        If successful, an auth token is generated for that user and returned along with a success message.
+
+    :return: A json response with the auth token:
+    """
     data = request.get_json()
     user = user_datastore.get_user(data.get("email"))
     role = db.session.query(Role).filter(Role.name == "user").first()
@@ -64,6 +72,13 @@ def register() -> Response:
 @auth_bp.route("/login/", methods=["POST"])
 @basic_auth.login_required()
 def login() -> Response:
+    """
+    Used to authenticate a user.
+        It takes in the email and password of the user, and returns an auth token if successful.
+        If unsuccessful, it returns a 401 error code.
+
+    :return: A json object with a status code, status, message and auth_token
+    """
     current_user = basic_auth.current_user()
     try:
         user = db.session.query(User).filter(User.email == current_user).first()
@@ -91,6 +106,13 @@ def login() -> Response:
 @auth_bp.route("/logout/", methods=["POST"])
 def logout() -> Response:
     # get auth token
+    """
+    Used to logout a user.
+        It takes in the Authorization header and checks if it exists. If it exists we add this auth token into our
+        blacklist table
+
+    :return: A response object
+    """
     auth_header = request.headers.get("Authorization")
     if auth_header:
         auth_token = auth_header.split(" ")[1]
