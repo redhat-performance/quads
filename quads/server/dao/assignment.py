@@ -144,6 +144,15 @@ class AssignmentDao(BaseDao):
         return assignment
 
     @staticmethod
+    def get_active_assignments() -> List[Assignment]:
+        assignments = (
+            db.session.query(Assignment)
+            .filter(Assignment.active == True)
+            .all()
+        )
+        return assignments
+
+    @staticmethod
     def delete_assignment(assignment_id: int):
         _assignment_obj = (
             db.session.query(Assignment).filter(Assignment.id == assignment_id).first()

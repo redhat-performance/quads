@@ -1,12 +1,8 @@
 import json
 
 from flask import Blueprint, jsonify, request, Response
-from sqlalchemy.orm import RelationshipProperty
-from sqlalchemy.sql.sqltypes import Boolean
-
 from quads.config import Config
 from quads.server.blueprints import check_access
-from quads.server.dao.baseDao import MAP_MODEL, OPERATORS
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import Host, db
@@ -166,6 +162,7 @@ def create_host() -> Response:
         model=model.upper(),
         host_type=host_type,
         default_cloud=_default_cloud,
+        cloud=_default_cloud,
     )
     db.session.add(_host_obj)
     db.session.commit()
@@ -185,6 +182,22 @@ def delete_host(hostname: str) -> Response:
         return Response(response=json.dumps(response), status=400)
 
     HostDao.remove_host(hostname)
+    response = {
+        "status_code": 204,
+        "message": "Host deleted",
+    }
+    return Response(response=json.dumps(response), status=204)
+
+
+@host_bp.route("/filter", methods=["POST"])
+def filter_host() -> Response:
+    data = request.get_json()
+    for k,v in data.items():
+        pass
+    HostDao.filter_hosts()
+    hostname = data.get("name")
+
+    # HostDao.remove_host(hostname)
     response = {
         "status_code": 204,
         "message": "Host deleted",

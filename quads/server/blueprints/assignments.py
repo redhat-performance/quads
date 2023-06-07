@@ -50,7 +50,7 @@ def get_assignment(assignment_id) -> Response:
     return jsonify(_assignment.as_dict())
 
 
-@assignment_bp.route("active/<cloud_name>/")
+@assignment_bp.route("/active/<cloud_name>/")
 def get_active_cloud_assignment(cloud_name) -> Response:
     """
     Returns the active assignment for a given cloud.
@@ -73,6 +73,24 @@ def get_active_cloud_assignment(cloud_name) -> Response:
     response = {}
     if _assignment:
         response = _assignment.as_dict()
+    return jsonify(response)
+
+
+@assignment_bp.route("/active/")
+def get_active_assignments() -> Response:
+    """
+    Returns all active assignments for a given cloud.
+        ---
+        tags:
+          - Assignment API
+
+    :return: A list of all active assignments
+    """
+    _assignments = AssignmentDao.get_active_assignments()
+    response = []
+    if _assignments:
+        for _ass in _assignments:
+            response.append(_ass.as_dict())
     return jsonify(response)
 
 

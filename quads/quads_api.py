@@ -6,7 +6,7 @@ from requests import Response
 from requests.auth import HTTPBasicAuth
 
 from quads.config import Config
-from quads.server.models import Host, Cloud, Schedule, Interface, Vlan
+from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
 
 
 class MessengerDTO:
@@ -167,6 +167,14 @@ class QuadsApi:
             hosts.append(Host(**host))
         return hosts
 
+    # Available
+    def get_moves(self) -> List:
+        response = self.get("moves")
+        hosts = []
+        for host in response.json():
+            hosts.append(Host(**host))
+        return hosts
+
     def filter_available(self, data) -> List[Host]:
         response = self.get("available", **data)
         hosts = []
@@ -183,6 +191,16 @@ class QuadsApi:
 
     def get_active_cloud_assignment(self, cloud_name) -> Response:
         return self.get(os.path.join("assignments/active", cloud_name))
+
+    def get_active_assignments(self) -> List[Assignment]:
+        response = self.get("assignments/active")
+        data = response.json()
+        assignments = []
+        for ass in data:
+            ass_object = Assignment().from_dict(ass)
+            assignments.append(ass_object)
+
+        return assignments
 
     def get_assignment(self, **kwargs) -> Response:
         # TODO:fix this

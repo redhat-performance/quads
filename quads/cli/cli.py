@@ -17,6 +17,7 @@ from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
 from quads.quads_api import QuadsApi as Quads
+from quads.server.models import Assignment
 from quads.tools import reports
 from quads.tools.external.jira import Jira, JiraException
 from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
@@ -213,35 +214,24 @@ class QuadsCli:
             self.logger.info(host.name)
 
     def _call_api_action(self, action: str):
-        try:
-            data = self.quads.get(action)
-        except ConnectionError:
-            self.logger.error(
-                "Could not connect to the quads-server, verify service is up and running."
-            )
-            return 1
-        if data:
-            for k in data:
-                if isinstance(k[action], list):
-                    self.logger.info(str(k["name"]) + ": " + str(", ".join(k[action])))
-                else:
-                    self.logger.info(str(k["name"]) + ": " + str(k[action]))
-        return 0
+        assignments = self.quads.get_active_assignments()
+        for ass in assignments:
+            self.logger.info(f"{ass.cloud.name}: {getattr(ass, action)}")
 
     def action_owner(self):
-        return self._call_api_action("owner")
+        self._call_api_action("owner")
 
     def action_ticket(self):
-        return self._call_api_action("ticket")
+        self._call_api_action("ticket")
 
     def action_qinq(self):
-        return self._call_api_action("qinq")
+        self._call_api_action("qinq")
 
     def action_wipe(self):
-        return self._call_api_action("wipe")
+        self._call_api_action("wipe")
 
     def action_ccuser(self):
-        return self._call_api_action("ccuser")
+        self._call_api_action("ccuser")
 
     def action_interface(self):
         hostname = self.cli_args["host"]
@@ -437,7 +427,8 @@ class QuadsCli:
         _clouds = self.quads.get_clouds()
         _clouds = [_c for _c in _clouds if _c.name != "cloud01"]
         for cloud in _clouds:
-            _future_sched = self.quads.get_future_schedules({"cloud": cloud})
+            import pdb;pdb.set_trace()
+            _future_sched = self.quads.get_future_schedules({"cloud": cloud.name})
             if len(_future_sched):
                 continue
             else:
@@ -1194,7 +1185,8 @@ class QuadsCli:
                     if response.status_code == 200:
                         self.logger.info("Schedule created")
                     else:
-                        self.logger.error("There was something wrong creating the schedule entry")
+                        data = response.json()
+                        self.logger.error(f"Status code:{data.get('status_code')}, Error: {data.get('message')}")
                 except ConnectionError:
                     raise CliException(
                         "Could not connect to the quads-server, verify service is up and running."
@@ -1369,20 +1361,20 @@ class QuadsCli:
             )
 
         url = os.path.join(conf.API_URL, "moves")
-        data = {}
+        date = ''
         if self.cli_args["datearg"] is not None:
-            data["date"] = datetime.strptime(
+            date = datetime.strptime(
                 self.cli_args["datearg"], "%Y-%m-%d %H:%M"
             ).isoformat()
-        _response = requests.get(url, data)
-        js = _response.json()
-        if "result" in js:
-            if len(js["result"]) == 0:
+        _response = requests.get(os.path.join(url, date))
+        if _response.status_code == 200:
+            data = _response.json()
+            if not data:
                 self.logger.info("Nothing to do.")
                 return 0
 
             _clouds = defaultdict(list)
-            for result in js["result"]:
+            for result in data:
                 _clouds[result["new"]].append(result)
 
             # TODO:
@@ -1398,7 +1390,11 @@ class QuadsCli:
                     current = result["current"]
                     new = result["new"]
                     cloud = self.quads.get_cloud(new)
-                    target_assignment = self.quads.get_active_cloud_assignment(cloud)
+                    response = self.quads.get_active_cloud_assignment(cloud.name)
+                    data = response.json()
+                    target_assignment = None
+                    if data:
+                        target_assignment = Assignment().from_dict(data=data)
                     wipe = target_assignment.wipe if target_assignment else False
 
                     self.logger.info(

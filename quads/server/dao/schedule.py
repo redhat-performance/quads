@@ -48,9 +48,7 @@ class ScheduleDao(BaseDao):
             assignments = AssignmentDao.get_all_cloud_assignments(cloud)
             # TODO: check or_ construction
 
-            query = query.filter(
-                or_([Schedule.assignment == ass for ass in assignments])
-            )
+            query = query.filter(Schedule.assignment.in_(assignments))
         return query.all()
 
     @staticmethod
