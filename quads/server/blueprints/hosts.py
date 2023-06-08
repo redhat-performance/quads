@@ -40,9 +40,8 @@ def update_host(hostname: str) -> Response:
     cloud_name = data.get("cloud")
     default_cloud = data.get("default_cloud")
     host_type = data.get("host_type")
-
-    if not default_cloud:
-        default_cloud = Config["spare_pool_name"]
+    broken = data.get("broken", None)
+    retired = data.get("retired", None)
 
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -80,6 +79,12 @@ def update_host(hostname: str) -> Response:
 
     if host_type:
         _host.host_type = host_type
+
+    if broken is not None:
+        _host.broken = broken
+
+    if retired is not None:
+        _host.retired = retired
 
     db.session.commit()
 
@@ -188,18 +193,3 @@ def delete_host(hostname: str) -> Response:
     }
     return Response(response=json.dumps(response), status=204)
 
-
-@host_bp.route("/filter", methods=["POST"])
-def filter_host() -> Response:
-    data = request.get_json()
-    for k,v in data.items():
-        pass
-    HostDao.filter_hosts()
-    hostname = data.get("name")
-
-    # HostDao.remove_host(hostname)
-    response = {
-        "status_code": 204,
-        "message": "Host deleted",
-    }
-    return Response(response=json.dumps(response), status=204)

@@ -12,6 +12,12 @@ disk_bp = Blueprint("disks", __name__)
 
 @disk_bp.route("/<hostname>")
 def get_disks(hostname: str) -> Response:
+    """
+    Returns a list of disks for the specified host.
+
+    :param hostname: str: Specify the hostname of the host to be queried
+    :return: A list of dictionaries, each dictionary containing the details for a disk
+    """
     _host = HostDao.get_host(hostname)
     if not _host:
         response = {
@@ -26,6 +32,15 @@ def get_disks(hostname: str) -> Response:
 @disk_bp.route("/<hostname>", methods=["POST"])
 @check_access("admin")
 def create_disks(hostname: str) -> Response:
+    """
+    Creates a disk object and adds it to the database.
+        ---
+        tags:
+          - Disks
+
+    :param hostname: str: Specify the hostname of the host you want to create the disk object for
+    :return: The created disk in json format
+    """
     _host = HostDao.get_host(hostname)
     if not _host:
         response = {
@@ -91,6 +106,12 @@ def create_disks(hostname: str) -> Response:
 @disk_bp.route("/<hostname>", methods=["PATCH"])
 @check_access("admin")
 def update_disk(hostname: str) -> Response:
+    """
+    Updates a disk for a host.
+
+    :param hostname: str: Specify the hostname of the host you want to modify the disk object for
+    :return: The modified disk object
+    """
     _host = HostDao.get_host(hostname)
     if not _host:
         response = {
@@ -122,6 +143,15 @@ def update_disk(hostname: str) -> Response:
 @disk_bp.route("/<hostname>", methods=["DELETE"])
 @check_access("admin")
 def delete_disk(hostname) -> Response:
+    """
+    Deletes a disk from the database.
+        ---
+        tags:
+          - Disk API
+
+    :param hostname: Identify the host that is being updated
+    :return: A 204 status code, which means that the server successfully processed the request and is not returning any content
+    """
     _host = db.session.query(Host).filter(Host.name == hostname).first()
     if not _host:
         response = {

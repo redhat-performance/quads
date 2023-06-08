@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from typing import Tuple, Optional
+from urllib.parse import urlencode
 
 import requests
 import yaml
@@ -199,7 +200,12 @@ class QuadsCli:
             raise CliException("Could not parse json reply")
 
     def action_version(self):
-        self.logger.info(self.quads.get_version())
+        response = self.quads.get_version()
+        if response.status_code == 200:
+            data = response.json()
+        else:
+            raise CliException("There was something wrong communicating with the quads server")
+        self.logger.info(data.get("result"))
 
     def action_ls_broken(self):
         payload = {"broken": True}
@@ -312,16 +318,17 @@ class QuadsCli:
             self.logger.info(f"  threads: {processor.threads}")
 
     def action_ls_vlan(self):
-        # TODO: check this
         _vlans = self.quads.get_vlans()
         if not _vlans:
             raise CliException("No VLANs defined")
         for vlan in _vlans:
-            payload = {"vlan_id": vlan.vlan_id}
+            payload = {"vlan_id": vlan.vlan_id, "active": True}
             assignment = self.quads.get_assignment(**payload)
+            data = assignment.json()
+            ass_obj = Assignment().from_dict(data[0])
             cloud_assigned = "Free"
             if assignment:
-                cloud_assigned = assignment.cloud.name
+                cloud_assigned = ass_obj.cloud.name
             self.logger.info(f"{vlan.vlan_id}: {cloud_assigned}")
 
     def action_schedule(self):
@@ -331,7 +338,7 @@ class QuadsCli:
             if not _host:
                 raise CliException("Host %s does not exist" % self.cli_args["host"])
 
-            _kwargs["host"] = _host
+            _kwargs["host"] = _host.name
             self.logger.info("Default cloud: %s" % _host.default_cloud.name)
             _current_schedule = self.quads.get_current_schedules(**_kwargs)
             if _current_schedule:
@@ -350,11 +357,11 @@ class QuadsCli:
             _host_schedules = self.quads.get_schedules(**_kwargs)
             if _host_schedules:
                 for schedule in _host_schedules:
-                    _cloud_name = schedule.cloud.name
+                    _cloud_name = schedule.assignment.cloud.name
                     start = str(schedule.start)[:-3]
                     end = str(schedule.end)[:-3]
                     self.logger.info(
-                        f"{schedule['index']}| start={start}, end={end}, cloud={_cloud_name}"
+                        f"{schedule.id}| start={start}, end={end}, cloud={_cloud_name}"
                     )
         else:
             _clouds = self.quads.get_clouds()
@@ -383,6 +390,7 @@ class QuadsCli:
                     for host in _hosts:
                         self.logger.info(host.name)
 
+    # TODO: Remove this if not used
     def action_cloud(self):
         try:
             entries = self.quads.get_clouds()
@@ -427,13 +435,13 @@ class QuadsCli:
         _clouds = self.quads.get_clouds()
         _clouds = [_c for _c in _clouds if _c.name != "cloud01"]
         for cloud in _clouds:
-            import pdb;pdb.set_trace()
             _future_sched = self.quads.get_future_schedules({"cloud": cloud.name})
             if len(_future_sched):
                 continue
             else:
                 cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-                lock_release = cloud.last_redefined + timedelta(
+                last_redefined = datetime.strptime(cloud.last_redefined, "%a, %d %b %Y %H:%M:%S GMT")
+                lock_release = last_redefined + timedelta(
                     hours=cloud_reservation_lock
                 )
                 cloud_string = f"{cloud.name}"
@@ -595,8 +603,7 @@ class QuadsCli:
                     non_extendable.append(schedule.host)
 
             if non_extendable:
-                # TODO: could be warning?
-                self.logger.info(
+                self.logger.warning(
                     "The following hosts cannot be extended for the "
                     "allocation or target date is sooner than current end date:"
                 )
@@ -1543,7 +1550,7 @@ class QuadsCli:
 
         host = self.quads.get_host(self.cli_args["host"])
         if host:
-            if host["broken"]:
+            if host.broken:
                 self.logger.warning(
                     f"Host {self.cli_args['host']} has already been marked broken"
                 )
@@ -1563,7 +1570,7 @@ class QuadsCli:
         if not host:
             raise CliException("Host not found")
 
-        if not host["broken"]:
+        if not host.broken:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked repaired"
             )
@@ -1579,7 +1586,7 @@ class QuadsCli:
         if not host:
             raise CliException(f"Host {self.cli_args['host']} not found")
 
-        if host["retired"]:
+        if host.retired:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked as retired"
             )
@@ -1593,7 +1600,7 @@ class QuadsCli:
 
         host = self.quads.get_host(self.cli_args["host"])
 
-        if not host["retired"]:
+        if not host.retired:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked unretired"
             )

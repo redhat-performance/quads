@@ -555,7 +555,6 @@ class Schedule(Serialize, TimestampMixin, Base):
     end = Column(DateTime)
     build_start = Column(DateTime)
     build_end = Column(DateTime)
-    index = Column(Integer)
 
     # many-to-one parent
     assignment_id = Column(Integer, ForeignKey("assignments.id"))

@@ -22,7 +22,10 @@ def get_assignments() -> Response:
 
     :return: A list of all assignments in the database
     """
-    _assignments = AssignmentDao.get_assignments()
+    if request.args:
+        _assignments = AssignmentDao.filter_assignments(**request.args)
+    else:
+        _assignments = AssignmentDao.get_assignments()
     return jsonify([_assignment.as_dict() for _assignment in _assignments])
 
 

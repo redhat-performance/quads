@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, Response
 
 from quads.config import Config
@@ -10,4 +12,4 @@ def get_version() -> Response:
     response = {
         "result": f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"
     }
-    return Response(response=response)
+    return Response(response=json.dumps(response))

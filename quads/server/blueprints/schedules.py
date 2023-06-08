@@ -14,7 +14,16 @@ schedule_bp = Blueprint("schedules", __name__)
 
 @schedule_bp.route("/")
 def get_schedules() -> Response:
-    _schedules = ScheduleDao.get_schedules()
+    kwargs = {}
+    if request.args:
+        date = request.args.get("date", datetime.now())
+        kwargs["start"] = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+        if request.args.get("host"):
+            kwargs["host"] = request.args.get("host")
+
+        _schedules = ScheduleDao.filter_schedule(**kwargs)
+    else:
+        _schedules = ScheduleDao.get_schedules()
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 

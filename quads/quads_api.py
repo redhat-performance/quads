@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlencode
 from typing import Optional, List
 
 import requests
@@ -69,7 +70,8 @@ class QuadsApi:
         return hosts
 
     def filter_hosts(self, data) -> List[Host]:
-        response = self.post(os.path.join("hosts", "filter"), data)
+        params = urlencode(data)
+        response = self.get(f"hosts?{params}")
         hosts = []
         for host in response.json():
             host_obj = Host().from_dict(data=host)
@@ -129,18 +131,18 @@ class QuadsApi:
         return self.delete(os.path.join("clouds", cloud_name))
 
     # Schedules
-    def get_schedules(self, data) -> List[Schedule]:
-        response = self.get("schedules", **data)
+    def get_schedules(self, **data) -> List[Schedule]:
+        response = self.get("schedules")
         schedules = []
         for schedule in response.json():
-            schedules.append(Schedule(**schedule))
+            schedules.append(Schedule().from_dict(schedule))
         return schedules
 
-    def get_current_schedules(self, data) -> List[Schedule]:
-        response = self.post(os.path.join("schedules", "current"), data)
+    def get_current_schedules(self, **kwargs) -> List[Schedule]:
+        response = self.post(os.path.join("schedules", "current"), kwargs)
         schedules = []
         for schedule in response.json():
-            schedules.append(Schedule(**schedule))
+            schedules.append(Schedule().from_dict(schedule))
         return schedules
 
     def get_future_schedules(self, data) -> List[Schedule]:
@@ -203,8 +205,8 @@ class QuadsApi:
         return assignments
 
     def get_assignment(self, **kwargs) -> Response:
-        # TODO:fix this
-        return self.get("assignments", **kwargs)
+        params = urlencode(kwargs)
+        return self.get(f"assignments?{params}")
 
     # Interfaces
     def get_host_interface(self, hostname) -> List[Interface]:

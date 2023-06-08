@@ -153,6 +153,50 @@ class AssignmentDao(BaseDao):
         return assignments
 
     @staticmethod
+    def filter_assignments(
+            active: bool = None,
+            provisioned: bool = None,
+            validated: bool = None,
+            owner: str = None,
+            ticket: str = None,
+            qinq: int = None,
+            wipe: bool = None,
+            cloud: str = None,
+            vlan_id: int = None,
+    ) -> List[Assignment]:
+
+        query = db.session.query(Assignment)
+
+        if active is not None:
+            query.filter(Assignment.active == active)
+        if provisioned is not None:
+            query.filter(Assignment.provisioned == provisioned)
+        if validated is not None:
+            query.filter(Assignment.validated == validated)
+        if owner is not None:
+            query.filter(Assignment.owner == owner)
+        if ticket is not None:
+            query.filter(Assignment.ticket == ticket)
+        if qinq is not None:
+            query.filter(Assignment.qinq == qinq)
+        if wipe is not None:
+            query.filter(Assignment.wipe == wipe)
+        if cloud is not None:
+            cloud_obj = CloudDao.get_cloud(cloud)
+            if not cloud_obj:
+                raise EntryNotFound("Cloud not found")
+            query.filter(Assignment.cloud == cloud_obj)
+        if vlan_id is not None:
+            vlan = VlanDao.get_vlan(vlan_id)
+            if not vlan:
+                raise EntryNotFound("Vlan not found")
+            query.filter(Assignment.vlan == vlan)
+
+        assignments = query.all()
+
+        return assignments
+
+    @staticmethod
     def delete_assignment(assignment_id: int):
         _assignment_obj = (
             db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
