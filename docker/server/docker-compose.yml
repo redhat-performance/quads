@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+
+  quads-db:
+    image: postgres
+    container_name: quads_db
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: quads
+    healthcheck:
+      test: ["CMD", "pg_isready -d postgres -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  quads_api:
+    depends_on:
+      quads-db:
+        condition: service_healthy
+    build: .
+    container_name: quads_api
+    ports:
+      - 5000:5000
+    environment:
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@quads_db:5432/quads"
+    volumes:
+      - /home/grafuls/Sources/quads-mine:/opt/quads:z

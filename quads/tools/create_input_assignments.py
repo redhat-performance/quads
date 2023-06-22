@@ -7,8 +7,10 @@ import requests
 
 from datetime import datetime
 from quads.config import Config
-from quads.model import Host, Schedule, Cloud
-from quads.tools.foreman import Foreman
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.host import HostDao
+from quads.server.dao.schedule import ScheduleDao
+from quads.tools.external.foreman import Foreman
 
 HEADERS = [
     "ServerHostnamePublic",
@@ -81,9 +83,9 @@ def print_summary():
                 'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
             )
         else:
-            cloud_obj = Cloud.objects(name=cloud_name).first()
-            scheduled_hosts = Schedule.current_schedule(cloud=cloud_obj).count()
-            moved_hosts = Host.objects(cloud=cloud_obj).count()
+            cloud_obj = CloudDao.get_cloud(cloud_name)
+            scheduled_hosts = len(ScheduleDao.get_current_schedule(cloud=cloud_obj))
+            moved_hosts = len(HostDao.filter_hosts(cloud=cloud_obj))
             percent = moved_hosts / scheduled_hosts * 100
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
@@ -183,9 +185,8 @@ def print_summary():
 
         _summary.append("| %s |\n" % " | ".join(_data))
 
-    _hosts = Host.objects(broken=False, retired=False)
-    _host_count = len(_hosts)
-    _schedules = Schedule.current_schedule().count()
+    _host_count = len(HostDao.filter_hosts(broken=False, retired=False))
+    _schedules = len(ScheduleDao.get_current_schedule())
     _daily_percentage = _schedules * 100 // _host_count
     _summary.append(f"| Total | {_host_count} |\n")
     _summary.append("\n")
@@ -205,7 +206,7 @@ def print_unmanaged(hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
         real_host = host[5:]
-        host_obj = Host.objects(name=real_host).first()
+        host_obj = HostDao.get_host(real_host)
         if not host_obj:
             short_host = real_host.split(".")[0]
             lines.append(
@@ -233,7 +234,10 @@ def add_row(host):
     lines = []
     short_host = host.name.split(".")[0]
 
-    _schedule_obj = Schedule.current_schedule(host=host).first()
+    _schedule_obj = None
+    _schedules = ScheduleDao.get_current_schedule(host=host)
+    if _schedules:
+        _schedule_obj = _schedules[0]
 
     if not _schedule_obj:
         _date_start = "∞"
@@ -283,7 +287,9 @@ def main():
     )
 
     broken_hosts = Host.objects(broken=True)
-    domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
+    domain_broken_hosts = [
+        host for host in broken_hosts if Config["domain"] in host.name
+    ]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -313,9 +319,9 @@ def main():
             % (name.strip(), cloud["count"], cloud["description"], owner)
         )
         lines.extend(print_header())
-        _cloud_obj = Cloud.objects(name=name).first()
+        _cloud_obj = CloudDao.get_cloud(name)
         _hosts = sorted(
-            Host.objects(cloud=_cloud_obj, retired=False, broken=False),
+            HostDao.filter_hosts(cloud=_cloud_obj, retired=False, broken=False),
             key=lambda x: x.name,
         )
         for host in _hosts:

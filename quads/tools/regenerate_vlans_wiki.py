@@ -2,9 +2,11 @@
 import logging
 
 from xmlrpc.client import ProtocolError
-from quads.tools.wiki import Wiki
+
+from quads.server.dao.schedule import ScheduleDao
+from quads.server.dao.vlan import VlanDao
+from quads.tools.external.wiki import Wiki
 from quads.config import Config
-from quads.model import Vlan, Cloud, Schedule
 from tempfile import NamedTemporaryFile
 
 
@@ -31,15 +33,16 @@ def render_header(markdown):
 
 def render_vlans(markdown):
     lines = []
-    vlans = Vlan.objects().all()
+    vlans = VlanDao.get_vlans()
     for vlan in vlans:
+        # TODO: filter cloud by vlan
         cloud_obj = Cloud.objects(vlan=vlan).first()
         vlan_id = vlan.vlan_id
         ip_range = vlan.ip_range
         netmask = vlan.netmask
         gateway = vlan.gateway
         ip_free = vlan.ip_free
-        cloud_current_count = Schedule.current_schedule(cloud=cloud_obj).count()
+        cloud_current_count = len(ScheduleDao.get_current_schedule(cloud=cloud_obj))
         if cloud_obj and cloud_current_count > 0:
             owner = cloud_obj.owner
             ticket = cloud_obj.ticket
@@ -78,12 +81,8 @@ def regenerate_vlans_wiki():
         render_vlans(_markdown)
         _markdown.seek(0)
         try:
-            wiki = Wiki(
-                wp_url, wp_username, wp_password
-            )
-            wiki.update(
-                page_title, page_id, _markdown.name
-            )
+            wiki = Wiki(wp_url, wp_username, wp_password)
+            wiki.update(page_title, page_id, _markdown.name)
         except ProtocolError as ex:
             logger.error(ex.errmsg)
 

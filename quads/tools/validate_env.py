@@ -13,16 +13,18 @@ from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import Config
 from quads.helpers import is_supported
-from quads.model import Cloud, Schedule, Host, Notification
-from quads.tools.badfish import BadfishException, badfish_factory
-from quads.tools.foreman import Foreman
+from quads.model import Cloud, Schedule, Notification
+from quads.quads_api import QuadsApi
+from quads.tools.external.badfish import BadfishException, badfish_factory
+from quads.tools.external.foreman import Foreman
 from quads.tools.helpers import get_running_loop
-from quads.tools.move_and_rebuild_hosts import switch_config
-from quads.tools.netcat import Netcat
-from quads.tools.postman import Postman
-from quads.tools.ssh_helper import SSHHelper
+from quads.tools.move_and_rebuild import switch_config
+from quads.tools.external.netcat import Netcat
+from quads.tools.external.postman import Postman
+from quads.tools.external.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
+quads = QuadsApi(Config)
 
 
 class Validator(object):
@@ -30,9 +32,11 @@ class Validator(object):
         self.cloud = cloud
         self.report = ""
         self.args = _args
-        self.hosts = Host.objects(cloud=self.cloud, validated=False)
+        self.hosts = quads.filter_hosts({"cloud": self.cloud.name, "validated": False})
         self.hosts = [
-            host for host in self.hosts if Schedule.current_schedule(host=host)
+            host
+            for host in self.hosts
+            if quads.get_current_schedules({"host": host.name})
         ]
         self.loop = _loop if _loop else get_running_loop()
 
@@ -75,16 +79,19 @@ class Validator(object):
 
     def env_allocation_time_exceeded(self):
         now = datetime.now()
-        schedule = Schedule.objects(
-            cloud=self.cloud, start__lt=now, end__gt=now
-        ).first()
-        time_delta = now - schedule.start
-        if time_delta.seconds // 60 > Config["validation_grace_period"]:
-            return True
-        logger.warning(
-            "You're still within the configurable validation grace period. Skipping validation for %s."
-            % self.cloud.name
-        )
+        data = {
+            "cloud": self.cloud.name,
+        }
+        # TODO: Check return from get below
+        schedules = quads.get_current_schedules(data)
+        if schedules:
+            time_delta = now - schedules[0].start
+            if time_delta.seconds // 60 > Config["validation_grace_period"]:
+                return True
+            logger.warning(
+                "You're still within the configurable validation grace period. Skipping validation for %s."
+                % self.cloud.name
+            )
         return False
 
     async def post_system_test(self):
@@ -112,7 +119,8 @@ class Validator(object):
         build_hosts = await foreman.get_build_hosts()
 
         pending = []
-        schedules = Schedule.current_schedule(cloud=self.cloud)
+        data = {"cloud": self.cloud.name}
+        schedules = quads.get_current_schedules(data)
         if schedules:
             for schedule in schedules:
                 if schedule.host and schedule.host.name in build_hosts:
@@ -192,9 +200,8 @@ class Validator(object):
         switch_config_missing = []
         for host in self.hosts:
             if not host.switch_config_applied:
-                current_schedule = Schedule.current_schedule(
-                    host=host, cloud=host.cloud
-                ).first()
+                data = {"host": host.name, "cloud": host.cloud.name}
+                current_schedule = quads.get_current_schedules(data)
                 previous_cloud = host.default_cloud.name
                 previous_schedule = Schedule.objects(
                     host=host, end=current_schedule.start
@@ -306,9 +313,10 @@ class Validator(object):
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                result_pst = await self.post_system_test()
-                if not result_pst:
-                    failed = True
+                if not self.args.skip_system:
+                    result_pst = await self.post_system_test()
+                    if not result_pst:
+                        failed = True
 
                 if not self.args.skip_network:
                     result_pnt = await self.post_network_test()
@@ -354,6 +362,12 @@ def main(_args, _loop):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
+    parser.add_argument(
+        "--skip-system",
+        action="store_true",
+        default=False,
+        help="Skip system tests.",
+    )
     parser.add_argument(
         "--skip-network",
         action="store_true",

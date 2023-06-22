@@ -14,7 +14,7 @@ mail_display_name: "QUADS Scheduler"
 mail_user_agent: "Rufus Postman 1.1.6"
 domain: example.com
 log: /opt/quads/log/quads.log
-quads_base_url: http://127.0.0.1:8080/
+quads_base_url: http://127.0.0.1:5000/
 
 # used for reporting
 # add your email here to receive copies of notification emails
@@ -87,6 +87,10 @@ quads_request_url:
 # Deadline day you'd like extension requests for assignments
 # to be submitted prior to, e.g. Wednesday
 quads_request_deadline_day:
+
+# Quads API authentication
+quads_api_username: grafuls@redhat.com
+quads_api_password: password
 
 # Foreman Specific Variables
 # foreman URL

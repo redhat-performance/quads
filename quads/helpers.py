@@ -1,13 +1,12 @@
 import calendar
-import struct
 
-from bson.objectid import ObjectId
 from datetime import timedelta
-from mongoengine import ObjectIdField
 from quads.config import Config
 
 
-def param_check(data, params, defaults={}):
+def param_check(data, params, defaults=None):
+    if not defaults:
+        defaults = {}
     result = []
     # set defaults
     for k, v in defaults.items():
@@ -22,8 +21,6 @@ def param_check(data, params, defaults={}):
                 result.append("Could not parse %s parameter" % param)
             elif data[param] == "None":
                 data[param] = None
-            if param == "_id":
-                data["_id"] = ObjectIdField(data[param])
 
     return result, data
 
@@ -82,20 +79,3 @@ def last_day_month(date):
 def first_day_month(date):
     return date - timedelta(days=date.day - 1)
 
-
-def date_to_object_id(date):
-    """
-    Create a dummy ObjectId instance with a specific datetime.
-
-    This method is useful for doing range queries by oid creation date.
-
-    .. _warning:
-           It is not safe to insert a document containing an ObjectId
-           generated using this method. This method deliberately
-           eliminates the uniqueness guarantee that ObjectIds
-           generally provide. ObjectIds generated with this method
-           should be used exclusively in queries.
-    """
-    timestamp = calendar.timegm(date.timetuple())
-    oid = struct.pack(">I", int(timestamp)) + b"\x00\x00\x00\x00\x00\x00\x00\x00"
-    return ObjectId(oid)

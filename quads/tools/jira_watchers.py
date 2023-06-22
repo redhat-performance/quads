@@ -7,9 +7,11 @@ import sys
 from datetime import timedelta
 from jinja2 import Template
 from quads.config import Config
-from quads.model import Cloud, Schedule
-from quads.tools.jira import Jira, JiraException
-from quads.tools.postman import Postman
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.schedule import ScheduleDao
+
+from quads.tools.external.jira import Jira, JiraException
+from quads.tools.external.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -41,15 +43,16 @@ async def main(_loop):
                 logger.warning(
                     f"Could not retrieve cloud name from ticket {ticket_key}"
                 )
+                continue
 
             if "EXTENSION" in fields.get("labels"):
-                cloud_obj = Cloud.objects(name=cloud).first()
-                schedules = Schedule.current_schedule(cloud=cloud_obj)
+                cloud_obj = CloudDao.get_cloud(cloud)
+                schedules = ScheduleDao.get_current_schedule(cloud=cloud_obj)
                 conflict = False
                 for schedule in schedules:
                     end_date = schedule.end + timedelta(weeks=2)
-                    available = Schedule.is_host_available(
-                        host=schedule.host.name, start=schedule.end, end=end_date
+                    available = ScheduleDao.is_host_available(
+                        hostname=schedule.host.name, start=schedule.end, end=end_date
                     )
                     if not available:
                         conflict = True
@@ -70,10 +73,14 @@ async def main(_loop):
                     response = await jira.add_watcher(ticket_key, watcher["key"])
                     if not response:
                         failed_watchers.append(watcher["key"])
-                if len(failed_watchers) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
+                if len(
+                    failed_watchers
+                ) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
                     await jira.add_label(ticket_key, "WATCHERS_MAP_FAIL_NOTIFIED")
                     template_file = "watchers_fail"
-                    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
+                    with open(
+                        os.path.join(Config.TEMPLATES_PATH, template_file)
+                    ) as _file:
                         template = Template(_file.read())
                     submitter = description.split("\n")[0].split()[-1]
                     parameters = {

@@ -10,9 +10,10 @@ from enum import Enum
 from jinja2 import Template
 from pathlib import Path
 from quads.config import Config
-from quads.tools.netcat import Netcat
-from quads.tools.postman import Postman
-from quads.model import Cloud, Schedule, Notification
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.schedule import ScheduleDao
+from quads.tools.external.netcat import Netcat
+from quads.tools.external.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -60,13 +61,16 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     if Config["irc_notify"]:
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                message = "%s QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
-                    irc_bot_channel,
-                    cloud_info,
-                    Config["wp_wiki"],
-                    cloud,
-                    real_owner,
-                    Config["report_cc"],
+                message = (
+                    "%s QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
+                    % (
+                        irc_bot_channel,
+                        cloud_info,
+                        Config["wp_wiki"],
+                        cloud,
+                        real_owner,
+                        Config["report_cc"],
+                    )
                 )
                 await nc.write(bytes(message.encode("utf-8")))
         except (TypeError, BrokenPipeError) as ex:
@@ -75,17 +79,25 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
     if Config["webhook_notify"]:
         try:
-            message = "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
-                      cloud_info,
-                      Config["wp_wiki"],
-                      cloud,
-                      real_owner,
-                      Config["report_cc"],
+            message = (
+                "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
+                % (
+                    cloud_info,
+                    Config["wp_wiki"],
+                    cloud,
+                    real_owner,
+                    Config["report_cc"],
+                )
             )
-            requests.post(webhook_url, json={'text': message}, headers={'Content-Type': 'application/json'})
+            requests.post(
+                webhook_url,
+                json={"text": message},
+                headers={"Content-Type": "application/json"},
+            )
         except Exception as ex:
             logger.debug(ex)
             logger.error("Beep boop we can't communicate with your webhook.")
+
 
 def create_message(
     cloud_obj,
@@ -180,11 +192,11 @@ def main():
     asyncio.set_event_loop(loop)
     future_days = 7
 
-    _all_clouds = Cloud.objects()
+    _all_clouds = CloudDao.get_clouds()
     _active_clouds = [
         _cloud
         for _cloud in _all_clouds
-        if Schedule.current_schedule(cloud=_cloud).count() > 0
+        if len(ScheduleDao.get_current_schedule(cloud=_cloud)) > 0
     ]
     _validated_clouds = [_cloud for _cloud in _active_clouds if _cloud.validated]
 
@@ -194,15 +206,13 @@ def main():
         )
 
     for cloud in _validated_clouds:
-        notification_obj = Notification.objects(
-            cloud=cloud, ticket=cloud.ticket
-        ).first()
-        current_hosts = Schedule.current_schedule(cloud=cloud)
+        current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
         cloud_info = "%s: %s (%s)" % (
             cloud.name,
-            current_hosts.count(),
+            len(current_hosts),
             cloud.description,
         )
+        notification_obj = current_hosts[0].assignment.notification
         if not notification_obj.initial:
             logger.info("=============== Initial Message")
             loop.run_until_complete(
@@ -223,7 +233,9 @@ def main():
                 future.month,
                 future.day,
             )
-            future_hosts = Schedule.current_schedule(cloud=cloud, date=future_date)
+            future_hosts = ScheduleDao.get_current_schedule(
+                cloud=cloud, date=datetime.strptime(future_date, "%Y-%m-%d %H:%M")
+            )
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future > current_hosts[0].end:
@@ -241,14 +253,12 @@ def main():
                     break
 
     for cloud in _all_clouds:
-        notification_obj = Notification.objects(
-            cloud=cloud, ticket=cloud.ticket
-        ).first()
         if cloud.name != "cloud01" and cloud.owner not in ["quads", None]:
-            current_hosts = Schedule.current_schedule(cloud=cloud)
+            current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
+            notification_obj = current_hosts[0].assignment.notification
             cloud_info = "%s: %s (%s)" % (
                 cloud.name,
-                current_hosts.count(),
+                len(current_hosts),
                 cloud.description,
             )
 
@@ -268,11 +278,12 @@ def main():
                         future.month,
                         future.day,
                     )
-                    future_hosts = Schedule.current_schedule(
-                        cloud=cloud, date=future_date
+                    future_hosts = ScheduleDao.get_current_schedule(
+                        cloud=cloud,
+                        date=datetime.strptime(future_date, "%Y-%m-%d %H:%M"),
                     )
 
-                    if future_hosts.count() > 0:
+                    if len(future_hosts) > 0:
                         diff = set(current_hosts) - set(future_hosts)
                         host_list = [schedule.host.name for schedule in diff]
                         if diff:
