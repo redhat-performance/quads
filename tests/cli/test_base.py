@@ -38,12 +38,6 @@ class TestBase:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @pytest.fixture(autouse=True)
-    def capture_wrap(self):
-        sys.stderr.close = lambda *args: None
-        sys.stdout.close = lambda *args: None
-        yield
-
     def quads_cli_call(self, action):
         Config.load_from_yaml(DEFAULT_CONF_PATH)
 

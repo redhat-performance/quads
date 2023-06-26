@@ -54,3 +54,8 @@ class TestHost(TestBase):
 
         host = HostDao.get_host(HOST)
         assert not host
+
+    def test_ls_host(self, remove_fixture):
+        self.quads_cli_call("ls_hosts")
+
+        assert self._caplog.messages[0] == HOST

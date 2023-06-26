@@ -82,3 +82,9 @@ class TestHost(TestBase):
         self.quads_cli_call("rmschedule")
         schedule = ScheduleDao.get_schedule(self.cli_args["schedid"])
         assert not schedule
+
+    def test_ls_schedule(self, remove_fixture):
+        # TODO: fix this
+        self.cli_args["host"] = HOST
+        self.quads_cli_call("schedule")
+        assert self._caplog.messages[0] == 'Default cloud: cloud99'

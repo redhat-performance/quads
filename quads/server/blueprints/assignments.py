@@ -27,7 +27,7 @@ def get_assignments() -> Response:
 
 
 @assignment_bp.route("/<assignment_id>/")
-def get_assignment(assignment_id) -> Response:
+def get_assignment(assignment_id: str) -> Response:
     """
     Used to retrieve a single assignment from the database.
         It takes in an assignment_id as a parameter and returns the corresponding Assignment object.
@@ -51,7 +51,7 @@ def get_assignment(assignment_id) -> Response:
 
 
 @assignment_bp.route("/active/<cloud_name>/")
-def get_active_cloud_assignment(cloud_name) -> Response:
+def get_active_cloud_assignment(cloud_name: str) -> Response:
     """
     Returns the active assignment for a given cloud.
         ---

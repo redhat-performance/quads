@@ -51,6 +51,10 @@ class TestCloud(TestBase):
         self.cli_args["wipe"] = True
 
         self.quads_cli_call("cloudresource")
+
+        assert self._caplog.messages[0] == 'Cloud cloud99 created.'
+        assert self._caplog.messages[1] == 'Assignment created.'
+
         cloud = CloudDao.get_cloud(CLOUD)
         assignment = AssignmentDao.get_active_cloud_assignment(cloud)
         assert assignment is not None
@@ -67,6 +71,8 @@ class TestCloud(TestBase):
         self.quads_cli_call("rmcloud")
 
         rm_cloud = CloudDao.get_cloud(CLOUD)
+
+        assert self._caplog.messages[0] == 'Successfully removed'
         assert not rm_cloud
 
     def test_mod_cloud(self, remove_fixture):
@@ -79,9 +85,16 @@ class TestCloud(TestBase):
 
         self.quads_cli_call("modcloud")
 
+        assert self._caplog.messages[0] == 'Cloud modified successfully'
+
         cloud = CloudDao.get_cloud(CLOUD)
         assert cloud
 
         assignment = AssignmentDao.get_active_cloud_assignment(cloud)
         assert assignment
         assert assignment.description == new_description
+
+    def test_ls_cloud(self, remove_fixture):
+        self.quads_cli_call("cloud")
+
+        assert self._caplog.messages[0] == CLOUD

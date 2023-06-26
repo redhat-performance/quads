@@ -7,6 +7,7 @@ import subprocess
 from collections import defaultdict
 from datetime import datetime, timedelta
 from json import JSONDecodeError
+from tempfile import NamedTemporaryFile
 from typing import Tuple, Optional
 
 import requests
@@ -1089,6 +1090,10 @@ class QuadsCli:
                 "model": host.model,
                 "host_type": host.host_type,
                 "default_cloud": host.default_cloud.name,
+                "broken": host.broken,
+                "retired": host.retired,
+                "last_build": host.last_build,
+                "created_on": host.created_on,
             }
 
             interfaces = []
@@ -1118,11 +1123,35 @@ class QuadsCli:
             if disks:
                 host_meta["disks"] = disks
 
+            memories = []
+            for memory in host.memory:
+                memory_dict = {
+                    "handle": memory.handle,
+                    "size_gb": memory.size_gb,
+                }
+                memories.append(memory_dict)
+            if memories:
+                host_meta["memory"] = memories
+
+            processors = []
+            for processor in host.processors:
+                processor_dict = {
+                    "handle": processor.handle,
+                    "vendor": processor.vendor,
+                    "product": processor.product,
+                    "cores": processor.cores,
+                    "threads": processor.threads,
+                }
+                processors.append(processor_dict)
+            if processors:
+                host_meta["processors"] = processors
+
             content.append(host_meta)
 
         try:
-            with open(self.cli_args["host_metadata_export"], "w") as _file:
-                yaml.dump(content, _file)
+            with NamedTemporaryFile("w", delete=False) as temp:
+                yaml.dump(content, temp)
+                self.logger.info(f"Metadata successfully exported to {temp.name}.")
         except Exception as ಠ益ಠ:
             self.logger.debug(ಠ益ಠ, exc_info=ಠ益ಠ)
             raise BaseQuadsException(
@@ -1674,7 +1703,7 @@ class QuadsCli:
                     _kwargs.update(filter_args)
                 # TODO: check return from API
                 _hosts = self.quads.get_hosts()
-                for host in sorted(_hosts, key=lambda k: k["name"]):
+                for host in sorted(_hosts, key=lambda k: k.name):
                     self.logger.info(host.name)
 
     def action_summary(self):

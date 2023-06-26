@@ -90,7 +90,7 @@ class HostDao(BaseDao):
         return hosts
 
     @staticmethod
-    def filter_hosts_dict(data):
+    def filter_hosts_dict(data: dict) -> List[Type[Host]]:
         filter_tuples = []
         operator = "=="
         for k, value in data.items():
