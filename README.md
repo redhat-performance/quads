@@ -112,7 +112,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Flask-based Web UI for searching for available bare-metal systems in the future based on model.
 
 ## Design
-   - Main components: `Python3, CherryPy, Mongoengine, MongoDB, Jinja2`
+   - QUADS 1.1 series main components: `Python3, CherryPy, Mongoengine, MongoDB, Jinja2` (Current)
+   - QUADS 2.0 and APIv3 is currently [in-progress](https://github.com/redhat-performance/quads/tree/flaskapi_v3) to feature `Flask` (replacing CherryPy) and `SQLAlchemy` and `PostgreSQL` (replacing MongoEngine / MongoDB)
    - Installation via RPM for Fedora Linux.
    - We use [Badfish](https://github.com/redhat-performance/badfish) for managing bare-metal IPMI
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend.
