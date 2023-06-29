@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request, Response
 from quads.server.blueprints import check_access
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
-from quads.server.models import Interface, Host, db
+from quads.server.models import Interface, db
 
 interface_bp = Blueprint("interfaces", __name__)
 
@@ -193,7 +193,7 @@ def delete_interface(hostname: str) -> Response:
     db.session.delete(_interface_obj)
     db.session.commit()
     response = {
-        "status_code": 204,
+        "status_code": 200,
         "message": "Interface deleted",
     }
-    return Response(response=json.dumps(response), status=204)
+    return Response(response=json.dumps(response), status=200)

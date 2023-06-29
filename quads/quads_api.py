@@ -129,18 +129,19 @@ class QuadsApi:
         return self.delete(os.path.join("clouds", cloud_name))
 
     # Schedules
-    def get_schedules(self, data) -> List[Schedule]:
+    def get_schedules(self, data: dict = None) -> List[Schedule]:
+        # TODO: fix payload input
         response = self.get("schedules", **data)
         schedules = []
         for schedule in response.json():
-            schedules.append(Schedule(**schedule))
+            schedules.append(Schedule().from_dict(schedule))
         return schedules
 
-    def get_current_schedules(self, data) -> List[Schedule]:
+    def get_current_schedules(self, data: dict = None) -> List[Schedule]:
         response = self.post(os.path.join("schedules", "current"), data)
         schedules = []
         for schedule in response.json():
-            schedules.append(Schedule(**schedule))
+            schedules.append(Schedule().from_dict(schedule))
         return schedules
 
     def get_future_schedules(self, data) -> List[Schedule]:

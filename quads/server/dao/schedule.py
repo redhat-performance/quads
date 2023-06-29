@@ -1,10 +1,9 @@
 from datetime import datetime
-from typing import List, Any, Type
+from typing import List, Type
 from sqlalchemy import and_, or_
 
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import BaseDao, EntryNotFound
-from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
@@ -54,7 +53,7 @@ class ScheduleDao(BaseDao):
     @staticmethod
     def filter_schedule(
         start: datetime = None, end: datetime = None, host: Host = None, cloud: Cloud = None
-    ) -> list[Type[Schedule]]:
+    ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if not start:
             start = datetime.now()
@@ -75,7 +74,7 @@ class ScheduleDao(BaseDao):
     @staticmethod
     def get_current_schedule(
         date: datetime = None, host: Host = None, cloud: Cloud = None
-    ) -> list[Type[Schedule]]:
+    ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if not date:
             date = datetime.now()

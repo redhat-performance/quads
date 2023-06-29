@@ -3,6 +3,7 @@
 
 from flask import Flask, Blueprint, jsonify, Response
 from flask_security import SQLAlchemySessionUserDatastore
+from flask_cors import CORS
 
 from quads.server.database import populate, drop_all
 from quads.server.database import init_db as db_init
@@ -11,6 +12,7 @@ from quads.server.models import User, db, Role, migrate
 
 
 user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
+cors = CORS()
 
 
 @basic_auth.verify_password
@@ -68,6 +70,7 @@ def register_extensions(app):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     security.init_app(app, user_datastore)
+    cors.init_app(app)
 
 
 def register_blueprints(app):

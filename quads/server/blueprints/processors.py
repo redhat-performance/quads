@@ -132,7 +132,7 @@ def delete_processor(hostname: str) -> Response:
     db.session.delete(_processor_obj)
     db.session.commit()
     response = {
-        "status_code": 204,
+        "status_code": 200,
         "message": "Processor deleted",
     }
-    return Response(response=json.dumps(response), status=204)
+    return Response(response=json.dumps(response), status=200)
