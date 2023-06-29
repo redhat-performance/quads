@@ -8,7 +8,7 @@ import random
 
 from jinja2 import Template
 from quads.config import Config
-from quads.model import Schedule, Host, CloudHistory
+from quads.quads_api import QuadsApi
 
 
 def random_color():
@@ -19,12 +19,14 @@ def random_color():
 
 
 def generator(_host_file, _days, _month, _year, _gentime):
+    quads = QuadsApi(Config)
     if _host_file:
         with open(_host_file, "r") as f:
             reader = csv.reader(f)
             hosts = list(reader)
     else:
-        hosts = sorted(Host.objects(retired=False, broken=False), key=lambda x: x.name)
+        filtered_hosts = quads.filter_hosts(data={"retired": False, "broken": False})
+        hosts = sorted(filtered_hosts, key=lambda x: x.name)
 
     lines = []
     __days = []
@@ -43,8 +45,11 @@ def generator(_host_file, _days, _month, _year, _gentime):
         for j in range(1, _days + 1):
             cell_date = "%s-%.2d-%.2d 01:00" % (_year, _month, j)
             cell_time = datetime.strptime(cell_date, "%Y-%m-%d %H:%M")
-            schedule = Schedule.current_schedule(host=host, date=cell_time).first()
-            if schedule:
+            payload = {"host": host, "date": cell_time}
+            schedule = None
+            schedules = quads.get_current_schedules(payload)
+            if schedules:
+                schedule = schedules[0]
                 chosen_color = schedule.cloud.name[5:]
             else:
                 non_allocated_count += 1
@@ -59,16 +64,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             }
 
             if schedule:
-                cloud = (
-                    CloudHistory.objects(
-                        __raw__={
-                            "_id": {"$lt": schedule.id},
-                            "name": schedule.cloud.name,
-                        }
-                    )
-                    .order_by("-_id")
-                    .first()
-                )
+                cloud = schedule.assignment.cloud
                 _day["display_description"] = cloud.description
                 _day["display_owner"] = cloud.owner
                 _day["display_ticket"] = cloud.ticket
@@ -78,7 +74,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
         lines.append(line)
 
     total_hosts = len(hosts)
-    total_use = Schedule.current_schedule().count()
+    total_use = len(quads.get_current_schedules())
     utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
     utilization_daily = total_use * 100 // total_hosts
     with open(os.path.join(Config.TEMPLATES_PATH, "simple_table_emoji")) as _file:

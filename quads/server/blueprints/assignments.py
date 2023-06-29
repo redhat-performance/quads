@@ -289,7 +289,7 @@ def delete_assignment() -> Response:
         }
         return Response(response=json.dumps(response), status=400)
     response = {
-        "status_code": 204,
+        "status_code": 200,
         "message": "Assignment deleted",
     }
-    return Response(response=json.dumps(response), status=204)
+    return Response(response=json.dumps(response), status=200)

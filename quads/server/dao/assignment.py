@@ -3,7 +3,7 @@ from typing import List
 from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
-from quads.server.models import db, Assignment, Cloud, Notification, Vlan
+from quads.server.models import db, Assignment, Cloud, Notification
 from sqlalchemy import and_
 
 
@@ -15,7 +15,7 @@ class AssignmentDao(BaseDao):
             ticket: str,
             qinq: int,
             wipe: bool,
-            ccuser: list[str],
+            ccuser: List[str],
             vlan_id: int,
             cloud: str,
     ) -> Assignment:

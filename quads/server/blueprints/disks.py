@@ -146,7 +146,7 @@ def delete_disk(hostname) -> Response:
     db.session.delete(_disk_obj)
     db.session.commit()
     response = {
-        "status_code": 204,
+        "status_code": 200,
         "message": f"Disk deleted",
     }
-    return Response(response=json.dumps(response), status=204)
+    return Response(response=json.dumps(response), status=200)

@@ -82,13 +82,6 @@ def delete_cloud(cloud: str) -> Response:
     :param cloud: str: Specify the name of the cloud to be deleted
     :return: A response object with a 204 status code
     """
-    if not cloud:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: name",
-        }
-        return Response(response=json.dumps(response), status=400)
 
     _cloud = CloudDao.get_cloud(cloud)
     if not _cloud:
@@ -100,7 +93,7 @@ def delete_cloud(cloud: str) -> Response:
         return Response(response=json.dumps(response), status=400)
     CloudDao.remove_cloud(cloud)
     response = {
-        "status_code": 204,
+        "status_code": 200,
         "message": f"Cloud {cloud} deleted",
     }
-    return Response(response=json.dumps(response), status=204)
+    return Response(response=json.dumps(response), status=200)

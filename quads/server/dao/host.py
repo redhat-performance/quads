@@ -1,7 +1,7 @@
 from typing import List, Optional, Type
 
 from sqlalchemy import Boolean
-from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm import RelationshipProperty, Relationship
 
 from quads.config import Config
 from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound, EntryExisting, InvalidArgument
@@ -108,9 +108,11 @@ class HostDao(BaseDao):
                         break
 
             field = Host.__mapper__.attrs.get(first_field)
-
+            if not field:
+                raise InvalidArgument(f"{k} is not a valid field.")
             if (
                 type(field) != RelationshipProperty
+                and type(field) != Relationship
                 and type(field.columns[0].type) == Boolean
             ):
                 value = value.lower() in ["true", "y", 1, "yes"]
