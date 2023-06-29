@@ -20,7 +20,11 @@ from sqlalchemy import (
 from jwt import encode, decode, ExpiredSignatureError, InvalidTokenError
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship, backref, declarative_base
+from sqlalchemy.orm import relationship, backref
+try:
+    from sqlalchemy.orm import declarative_base
+except ImportError:
+    from sqlalchemy.ext.declarative import declarative_base
 from werkzeug.security import generate_password_hash, check_password_hash
 
 convention = {

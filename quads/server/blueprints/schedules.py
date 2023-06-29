@@ -33,7 +33,7 @@ def get_schedule(schedule_id: int) -> Response:
 
 @schedule_bp.route("/current", methods=["POST"])
 def get_current_schedule() -> Response:
-    data = request.get_json()
+    data = request.args.to_dict()
     date = data.get("date")
     hostname = data.get("host")
     cloud_name = data.get("cloud")
@@ -45,7 +45,7 @@ def get_current_schedule() -> Response:
 
 @schedule_bp.route("/future", methods=["POST"])
 def get_future_schedule() -> Response:
-    data = request.get_json()
+    data = request.args.to_dict()
     hostname = data.get("host")
     cloud_name = data.get("cloud")
     host = HostDao.get_host(hostname)

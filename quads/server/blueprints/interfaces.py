@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request, Response
 from quads.server.blueprints import check_access
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
-from quads.server.models import Interface, Host, db
+from quads.server.models import Interface, db
 
 interface_bp = Blueprint("interfaces", __name__)
 

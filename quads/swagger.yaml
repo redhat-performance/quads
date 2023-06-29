@@ -11,7 +11,6 @@ paths:
   /clouds/:
     get:
       summary: 'Returns a list with all the defined clouds'
-#      operationId: listCloud
       tags:
         - clouds
       responses:
@@ -20,13 +19,8 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                - $ref: '#/components/schemas/Pagination'
-                - properties:
-                    data:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Cloud'
+                items:
+                  $ref: '#/components/schemas/Cloud'
         default:
           description: Unexpected error
           content:
@@ -53,6 +47,10 @@ paths:
       responses:
         '201':
           description: Created
+        '400':
+          description: Bad Request
+      security:
+        - BearerAuth: [ ]
 
   /clouds/{cloudName}:
     get:
@@ -85,7 +83,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
-      description: Delete cloud by cloud name
+      summary: Delete cloud by cloud name
       tags:
         - clouds
       parameters:
@@ -98,12 +96,65 @@ paths:
       responses:
         '200':
           description: 'Deleted Cloud'
+      security:
+        - BearerAuth: [ ]
 
   /hosts/:
     get:
       summary: 'Returns a list with all the defined hosts'
       tags:
         - hosts
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filter hosts by name.
+        - in: query
+          name: model
+          schema:
+            type: string
+          description: Filter hosts by model name.
+        - in: query
+          name: host_type
+          schema:
+            type: string
+          description: Filter hosts by type.
+        - in: query
+          name: build
+          schema:
+            type: boolean
+          description: Filter by build status.
+        - in: query
+          name: validated
+          schema:
+            type: boolean
+          description: Filter by validated status.
+        - in: query
+          name: switch_config_applied
+          schema:
+            type: boolean
+          description: Filter by switch config applied status.
+        - in: query
+          name: broken
+          schema:
+            type: boolean
+          description: Filter by broken status.
+        - in: query
+          name: retired
+          schema:
+            type: boolean
+          description: Filter by retired status.
+        - in: query
+          name: last_build
+          schema:
+            type: string
+          description: Filter by last build date.
+        - in: query
+          name: created_on
+          schema:
+            type: string
+          description: Filter by created on date.
       responses:
         '200':
           description: 'Host name'
@@ -142,6 +193,8 @@ paths:
       responses:
         '201':
           description: Created
+      security:
+        - BearerAuth: [ ]
 
   /hosts/{hostName}:
     get:
@@ -203,9 +256,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
 
     delete:
-      description: Delete host by host name
+      summary: Delete host by host name
       tags:
         - hosts
       parameters:
@@ -218,6 +273,294 @@ paths:
       responses:
         '200':
           description: 'Deleted Host'
+      security:
+        - BearerAuth: [ ]
+
+  /disks/{hostName}:
+    get:
+      summary: 'Returns a list of disk for a specific hostname'
+      tags:
+        - disks
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Disks'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Disk'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Create a host disk definition'
+      tags:
+        - disks
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *disk* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Disk details'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disk'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    patch:
+      summary: 'Update an existing host disks definitions'
+      tags:
+        - disks
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *disk* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Disk details'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disk'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    delete:
+      summary: Delete disk on host by disk id
+      tags:
+        - disks
+      parameters:
+        - name: hostName
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *disk* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Disk'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Deleted Disk'
+      security:
+        - BearerAuth: [ ]
+
+  /interfaces/{hostName}:
+    get:
+      summary: 'Returns a list of interfaces for a specific hostname'
+      tags:
+        - interfaces
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Interface details list'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Interface'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Create a host interface definition'
+      tags:
+        - interfaces
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *interface* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Interface details list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interface'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    patch:
+      summary: 'Update an existing host interface definitions'
+      tags:
+        - interfaces
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *interface* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Interface details'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interface'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    delete:
+      summary: Delete interface on host by interface id
+      tags:
+        - disks
+      parameters:
+        - name: hostName
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *interface* id
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Interface'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Deleted Disk'
+      security:
+        - BearerAuth: [ ]
 
   /schedules/:
     get:
@@ -227,11 +570,6 @@ paths:
       responses:
         '200':
           description: 'Schedule'
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:
               schema:
@@ -262,6 +600,8 @@ paths:
       responses:
         '201':
           description: Created
+      security:
+        - BearerAuth: [ ]
 
   /schedules/{schedule_id}:
     get:
@@ -278,11 +618,6 @@ paths:
       responses:
         '200':
           description: 'Schedule'
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:
               schema:
@@ -304,6 +639,19 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        description: Body request with *schedule* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+          text/plain:
+            schema:
+              type: string
       responses:
         '200':
           description: 'Schedule'
@@ -322,8 +670,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
     delete:
-      description: Delete schedule by id
+      summary: Delete schedule by id
       tags:
         - schedules
       parameters:
@@ -336,6 +687,8 @@ paths:
       responses:
         '200':
           description: 'Deleted Schedule'
+      security:
+        - BearerAuth: [ ]
 
   /schedules/current:
     get:
@@ -343,10 +696,22 @@ paths:
       tags:
         - schedules
       parameters:
-        - name: schedule_id
-          in: path
-          description: Schedule ID
-          required: true
+        - name: date
+          in: query
+          description: Date for current
+          required: false
+          schema:
+            type: string
+        - name: host
+          in: query
+          description: Hostname to filter by
+          required: false
+          schema:
+            type: string
+        - name: cloud
+          in: query
+          description: Cloud name to filter by
+          required: false
           schema:
             type: string
       responses:
@@ -374,10 +739,16 @@ paths:
       tags:
         - schedules
       parameters:
-        - name: schedule_id
-          in: path
-          description: Schedule ID
-          required: true
+        - name: host
+          in: query
+          description: Hostname to filter by
+          required: false
+          schema:
+            type: string
+        - name: cloud
+          in: query
+          description: Cloud name to filter by
+          required: false
           schema:
             type: string
       responses:
@@ -399,6 +770,54 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /assignments/active:
+    get:
+      summary: 'Returns a list with all active assignments'
+      tags:
+        - assignments
+      responses:
+        '200':
+          description: 'Assignment'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /assignments/active/{cloud_name}:
+    get:
+      summary: 'Returns a list with all active assignments for a specific cloud'
+      tags:
+        - assignments
+      parameters:
+        - name: cloud_name
+          in: path
+          description: Cloud name to filter by
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Assignment'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /assignments/:
     get:
       summary: 'Returns a list with all the defined assignments'
@@ -407,11 +826,6 @@ paths:
       responses:
         '200':
           description: 'Assignment'
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:
               schema:
@@ -426,6 +840,35 @@ paths:
       summary: Add a new assignment
       tags:
         - assignments
+      requestBody:
+        description: Body request with *assignment* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          text/plain:
+            schema:
+              type: string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '201':
+          description: Created
+    patch:
+      summary: Add a new assignment
+      tags:
+        - assignments
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Body request with *assignment* details
         required: true
@@ -476,7 +919,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
-      description: Delete assignment by id
+      summary: Delete assignment by id
       tags:
         - assignments
       parameters:
@@ -489,6 +932,88 @@ paths:
       responses:
         '200':
           description: 'Deleted assignment'
+      security:
+        - BearerAuth: [ ]
+
+  /available:
+    get:
+      summary: 'Returns a list of available hosts'
+      tags:
+        - available
+      parameters:
+        - name: start
+          in: query
+          description: Start date
+          required: false
+          schema:
+            type: string
+        - name: end
+          in: query
+          description: End date
+          required: false
+          schema:
+            type: string
+        - name: cloud
+          in: query
+          description: Cloud
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Hosts'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Host'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /available/{hostname}:
+    get:
+      summary: 'Returns a boolean for weather the host is available or not'
+      tags:
+        - available
+      parameters:
+        - name: hostname
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: Start date
+          required: false
+          schema:
+            type: string
+        - name: end
+          in: query
+          description: End date
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Hosts'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Host'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /login/:
     post:
@@ -589,12 +1114,15 @@ components:
         name:
           type: string
           example: cloud12
-        last_redefined:
-          type: string
-          example: 1984-02-02
+#        last_redefined:
+#          type: string
+#          example: 1984-02-02
     Disk:
       type: object
       properties:
+        disk_id:
+          type: integer
+          example: 1
         disk_type:
           type: string
           example: nvme
@@ -779,21 +1307,22 @@ components:
         vlan_id:
           type: integer
           example: 12
+
     Schedule:
       type: object
       properties:
         start:
           type: string
-          example: 2022-02-02
+          example: 2022-02-02T22:00
         end:
           type: string
-          example: 2022-04-02
+          example: 2022-04-02T22:00
         build_start:
           type: string
-          example: 2022-02-02
+          example: 2022-02-02T22:00
         build_end:
           type: string
-          example: 2022-04-02
+          example: 2022-04-02T22:00
         assignment_id:
           type: integer
           example: 12
@@ -877,10 +1406,10 @@ components:
           example: true
         confirmed_at:
           type: string
-          example: 1984-02-02
+          example: 1984-02-02T22:00
         auth_token:
           type: string
-          example: 1984-02-02
+          example: 1984-02-02T22:00
         roles:
           type: array
           items:
@@ -893,25 +1422,11 @@ components:
       properties:
         code:
           type: integer
+          example: 400
           format: int32
         message:
           type: string
-    Pagination:
-      type: object
-      properties:
-        total:
-          type: number
-        page:
-          type: number
-        per_page:
-          type: number
-        has_next:
-          type: boolean
-        has_prev:
-          type: boolean
-        results:
-          type: array
-          items: {}
+          example: Something went horribly wrong.
   securitySchemes:
     BasicAuth:
       type: http

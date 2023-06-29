@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request, Response
 from quads.config import Config
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import Host, db
@@ -14,7 +15,16 @@ host_bp = Blueprint("hosts", __name__)
 @host_bp.route("/")
 def get_hosts() -> Response:
     if request.args:
-        _hosts = HostDao.filter_hosts_dict(request.args)
+        try:
+            _hosts = HostDao.filter_hosts_dict(request.args)
+        except (EntryNotFound, InvalidArgument) as ex:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": ex,
+            }
+            return Response(response=json.dumps(response), status=400)
+
     else:
         _hosts = HostDao.get_hosts()
     return jsonify([_host.as_dict() for _host in _hosts])

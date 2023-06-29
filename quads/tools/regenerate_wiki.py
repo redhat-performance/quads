@@ -9,7 +9,6 @@ from quads.config import Config
 from quads.tools import create_input, create_input_assignments
 from quads.tools.external.wiki import Wiki
 from quads.tools.regenerate_vlans_wiki import regenerate_vlans_wiki
-
 wp_wiki = Config["wp_wiki"]
 wp_username = Config["wp_username"]
 wp_password = Config["wp_password"]
