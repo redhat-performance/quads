@@ -1,11 +1,11 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.host import HostDao
 from quads.server.dao.processor import ProcessorDao
-from quads.server.models import Host, db, Processor
+from quads.server.models import db, Processor
 
 processor_bp = Blueprint("processors", __name__)
 
@@ -19,7 +19,7 @@ def get_processors(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     return jsonify([_processor.as_dict() for _processor in _host.processors])
 
@@ -34,7 +34,7 @@ def create_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -57,7 +57,7 @@ def create_processor(hostname: str) -> Response:
                 "error": "Bad Request",
                 "message": f"Missing argument: {field}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     if not cores > 0:
         response = {
@@ -65,7 +65,7 @@ def create_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: cores",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not threads > 0:
         response = {
@@ -73,7 +73,7 @@ def create_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: threads",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     processors = ProcessorDao.get_processor_for_host(_host.id)
     if any(processor.handle == handle for processor in processors):
@@ -82,7 +82,7 @@ def create_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Processor with this handle ({handle}) already exists for this host.",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _processor_obj = Processor(
         handle=handle,
@@ -107,7 +107,7 @@ def delete_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -118,7 +118,7 @@ def delete_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: id",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _processor_obj = ProcessorDao.get_processor(processor_id)
     if not _processor_obj:
@@ -127,7 +127,7 @@ def delete_processor(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Processor not found: {processor_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     db.session.delete(_processor_obj)
     db.session.commit()
@@ -135,4 +135,4 @@ def delete_processor(hostname: str) -> Response:
         "status_code": 200,
         "message": "Processor deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

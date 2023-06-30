@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.disk import DiskDao
@@ -19,7 +19,7 @@ def get_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     return jsonify([_disks.as_dict() for _disks in _host.disks])
 
 
@@ -33,7 +33,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     data = request.get_json()
 
     disk_type = data.get("disk_type")
@@ -46,7 +46,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: disk_type",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not size_gb:
         response = {
@@ -54,7 +54,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: size_gb",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not count:
         response = {
@@ -62,7 +62,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: count",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not count > 0:
         response = {
@@ -70,7 +70,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: count",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if size_gb <= 0:
         response = {
@@ -78,7 +78,7 @@ def create_disks(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: size_gb",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _disk_obj = Disk(
         disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id
@@ -98,7 +98,7 @@ def update_disk(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     data = request.get_json()
     disk_id = data.get("disk_id")
     _disk = DiskDao.get_disk(disk_id)
@@ -129,7 +129,7 @@ def delete_disk(hostname) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -141,7 +141,7 @@ def delete_disk(hostname) -> Response:
             "error": "Bad Request",
             "message": f"Disk not found: {disk_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     db.session.delete(_disk_obj)
     db.session.commit()
@@ -149,4 +149,4 @@ def delete_disk(hostname) -> Response:
         "status_code": 200,
         "message": f"Disk deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

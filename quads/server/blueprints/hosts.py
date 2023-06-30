@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 from quads.config import Config
 from quads.server.blueprints import check_access
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
@@ -23,7 +23,7 @@ def get_hosts() -> Response:
                 "error": "Bad Request",
                 "message": ex,
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     else:
         _hosts = HostDao.get_hosts()
@@ -39,7 +39,7 @@ def get_host(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     return jsonify(_host.as_dict())
 
 
@@ -61,7 +61,7 @@ def update_host(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if default_cloud:
         _default_cloud = CloudDao.get_cloud(default_cloud)
@@ -71,7 +71,7 @@ def update_host(hostname: str) -> Response:
                 "error": "Bad Request",
                 "message": f"Default Cloud not found: {default_cloud}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
         else:
             _host.default_cloud = _default_cloud
@@ -84,7 +84,7 @@ def update_host(hostname: str) -> Response:
                 "error": "Bad Request",
                 "message": f"Cloud not found: {cloud_name}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
         else:
             _host.cloud = _cloud
 
@@ -106,12 +106,7 @@ def create_host() -> Response:
     host_type = data.get("host_type")
 
     if not model:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: model",
-        }
-        return Response(response=json.dumps(response), status=400)
+        return Response("Missing argument: model", status=400)
     else:
         if model.upper() not in Config["models"]:
             response = {
@@ -119,7 +114,7 @@ def create_host() -> Response:
                 "error": "Bad Request",
                 "message": f"Model {model} does not seem to be part of the defined models on quads.yml",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     if not default_cloud:
         default_cloud = Config["spare_pool_name"]
@@ -130,7 +125,7 @@ def create_host() -> Response:
             "error": "Bad Request",
             "message": "Missing argument: name",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _host = HostDao.get_host(hostname)
     if _host:
@@ -139,7 +134,7 @@ def create_host() -> Response:
             "error": "Bad Request",
             "message": f"Host {hostname} already exists",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not host_type:
         response = {
@@ -147,7 +142,7 @@ def create_host() -> Response:
             "error": "Bad Request",
             "message": "Missing argument: host_type",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if default_cloud:
         _default_cloud = CloudDao.get_cloud(default_cloud)
@@ -157,7 +152,7 @@ def create_host() -> Response:
                 "error": "Bad Request",
                 "message": f"Default Cloud not found: {default_cloud}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     else:
         response = {
@@ -165,7 +160,7 @@ def create_host() -> Response:
             "error": "Bad Request",
             "message": "Missing argument: default_cloud",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _host_obj = Host(
         name=hostname,
@@ -189,11 +184,11 @@ def delete_host(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     HostDao.remove_host(hostname)
     response = {
         "status_code": 200,
         "message": "Host deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

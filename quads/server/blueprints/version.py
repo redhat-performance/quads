@@ -1,4 +1,4 @@
-from flask import Blueprint, Response
+from flask import Blueprint, Response, jsonify
 
 from quads.config import Config
 
@@ -10,4 +10,4 @@ def get_version() -> Response:
     response = {
         "result": f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"
     }
-    return Response(response=response)
+    return jsonify(response)

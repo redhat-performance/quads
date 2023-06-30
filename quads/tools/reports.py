@@ -118,7 +118,7 @@ def process_scheduled(_logger, month, now):
     end = last_day_month(_date)
 
     scheduled = len(ScheduleDao.filter_schedule(start,end))
-    hosts = len(HostDao.filter_hosts(**{"created_on__gt": start}))
+    hosts = len(HostDao.filter_hosts(**{"created_at__gt": start}))
 
     days = 0
     scheduled_count = 0
