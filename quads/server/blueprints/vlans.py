@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.vlan import VlanDao
@@ -18,7 +18,7 @@ def get_vlan(vlan_id: str) -> Response:
             "error": "Bad Request",
             "message": f"Vlan not found: {vlan_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     return jsonify(_vlan.as_dict())
 
@@ -53,7 +53,7 @@ def create_vlan() -> Response:
                 "error": "Bad Request",
                 "message": f"Missing argument: {field}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     _vlan = VlanDao.get_vlan(vlan_id)
     if _vlan:
@@ -62,7 +62,7 @@ def create_vlan() -> Response:
             "error": "Bad Request",
             "message": f"Vlan {vlan_id} already exists",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _vlan_obj = Vlan(
         gateway=gateway,
@@ -76,20 +76,9 @@ def create_vlan() -> Response:
     return jsonify(_vlan_obj.as_dict())
 
 
-@vlan_bp.route("/", methods=["DELETE"])
+@vlan_bp.route("/<vlan_id>", methods=["DELETE"])
 @check_access("admin")
-def delete_vlan() -> Response:
-    data = request.get_json()
-
-    vlan_id = data.get("id")
-    if not vlan_id:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Missing argument: id",
-        }
-        return Response(response=json.dumps(response), status=400)
-
+def delete_vlan(vlan_id: int) -> Response:
     _vlan_obj = VlanDao.get_vlan(vlan_id)
     if not _vlan_obj:
         response = {
@@ -97,7 +86,7 @@ def delete_vlan() -> Response:
             "error": "Bad Request",
             "message": f"Vlan not found: {vlan_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     db.session.delete(_vlan_obj)
     db.session.commit()
@@ -105,4 +94,4 @@ def delete_vlan() -> Response:
         "status_code": 200,
         "message": "Vlan deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

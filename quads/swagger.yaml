@@ -2,17 +2,147 @@ openapi: 3.0.0
 info:
   version: '3.0.0'
   title: 'QUADS'
-  description: 'QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.'
+  description: |-
+    QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.
+    
+    This is it's REST API implementation.
+    
+    Some useful links:
+    - [Quads repository](https://github.com/redhat-performance/quads)
+    - [Quads blog](https://quads.dev)
   license:
     name: GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
 servers:
   - url: 'https://quads.example.com/api/v3/'
+
+tags:
+  - name: Auth
+    description: Everything about authentication
+#    externalDocs:
+#      description: Find out more
+#      url: http://swagger.io
+  - name: Clouds
+    description: Operations about clouds
+  - name: Assignments
+    description: Operations about assignments
+  - name: Hosts
+    description: Operations about hosts
+  - name: Interfaces
+    description: Operations about interfaces
+  - name: Disks
+    description: Operations about disks
+  - name: Memory
+    description: Operations about memory
+  - name: Processors
+    description: Operations about processors
+  - name: Vlans
+    description: Operations about vlans
+  - name: Schedules
+    description: Operations about schedules
+  - name: Available
+    description: Operations about hosts availability
+  - name: Moves
+    description: Operations about hosts transitions
+  - name: Other
+    description: Other operations
+
 paths:
+
+  /login/:
+    post:
+      summary: Login endpoint with Basic Auth that returns token for Bearer Auth
+      tags:
+        - Auth
+      security:
+        - BasicAuth: []
+      responses:
+        '200':
+          description: Successful user login
+          content:
+            application/json:
+              schema:
+                properties:
+                  auth_token:
+                    description: Authentication Token
+                    type: string
+                    example: 7h1515aV3rYkr1p71k70k3n
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /logout/:
+    post:
+      summary: Logout endpoint for blacklisting authentication token
+      tags:
+        - Auth
+      security:
+        - BasicAuth: []
+      responses:
+        '200':
+          description: Successful user logout
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /register/:
+    post:
+      summary: Register new users
+      tags:
+        - Auth
+      requestBody:
+        description: Body request with *user* details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: quads@redhat.com
+                password:
+                  type: string
+                  example: 7h1515aV3rYkr1p71k70k3n
+      responses:
+        '200':
+          description: New user authentication token
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Successful login
+                  auth_token:
+                    description: Authentication Token
+                    type: string
+                    example: 7h1515aV3rYkr1p71k70k3n
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /clouds/:
     get:
       summary: 'Returns a list with all the defined clouds'
       tags:
-        - clouds
+        - Clouds
       responses:
         '200':
           description: OK
@@ -30,15 +160,12 @@ paths:
     post:
       summary: Add a new cloud
       tags:
-        - clouds
+        - Clouds
       requestBody:
         description: Body request with *cloud* details
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Cloud'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Cloud'
           text/plain:
@@ -56,7 +183,7 @@ paths:
     get:
       summary: 'Returns a cloud by name'
       tags:
-        - clouds
+        - Clouds
       parameters:
         - name: cloudName
           in: path
@@ -85,7 +212,7 @@ paths:
     delete:
       summary: Delete cloud by cloud name
       tags:
-        - clouds
+        - Clouds
       parameters:
         - name: cloudName
           in: path
@@ -103,7 +230,7 @@ paths:
     get:
       summary: 'Returns a list with all the defined hosts'
       tags:
-        - hosts
+        - Hosts
       parameters:
         - in: query
           name: name
@@ -176,15 +303,12 @@ paths:
     post:
       summary: Add a new host
       tags:
-        - hosts
+        - Hosts
       requestBody:
         description: Body request with *host* details
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Host'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Host'
           text/plain:
@@ -200,7 +324,7 @@ paths:
     get:
       summary: 'Returns a host by name'
       tags:
-        - hosts
+        - Hosts
       parameters:
         - name: hostName
           in: path
@@ -230,7 +354,7 @@ paths:
     patch:
       summary: 'Update an existing host'
       tags:
-        - hosts
+        - Hosts
       parameters:
         - name: hostName
           in: path
@@ -262,7 +386,7 @@ paths:
     delete:
       summary: Delete host by host name
       tags:
-        - hosts
+        - Hosts
       parameters:
         - name: hostName
           in: path
@@ -280,7 +404,7 @@ paths:
     get:
       summary: 'Returns a list of disk for a specific hostname'
       tags:
-        - disks
+        - Disks
       parameters:
         - name: hostName
           in: path
@@ -307,7 +431,7 @@ paths:
     post:
       summary: 'Create a host disk definition'
       tags:
-        - disks
+        - Disks
       parameters:
         - name: hostName
           in: path
@@ -320,9 +444,6 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Disk'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Disk'
           text/plain:
@@ -352,7 +473,7 @@ paths:
     patch:
       summary: 'Update an existing host disks definitions'
       tags:
-        - disks
+        - Disks
       parameters:
         - name: hostName
           in: path
@@ -365,9 +486,6 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Disk'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Disk'
           text/plain:
@@ -397,7 +515,7 @@ paths:
     delete:
       summary: Delete disk on host by disk id
       tags:
-        - disks
+        - Disks
       parameters:
         - name: hostName
           in: path
@@ -405,19 +523,6 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        description: Body request with *disk* details
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Disk'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Disk'
-          text/plain:
-            schema:
-              type: string
       responses:
         '200':
           description: 'Deleted Disk'
@@ -428,7 +533,7 @@ paths:
     get:
       summary: 'Returns a list of interfaces for a specific hostname'
       tags:
-        - interfaces
+        - Interfaces
       parameters:
         - name: hostName
           in: path
@@ -455,7 +560,7 @@ paths:
     post:
       summary: 'Create a host interface definition'
       tags:
-        - interfaces
+        - Interfaces
       parameters:
         - name: hostName
           in: path
@@ -468,9 +573,6 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Interface'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Interface'
           text/plain:
@@ -495,7 +597,7 @@ paths:
     patch:
       summary: 'Update an existing host interface definitions'
       tags:
-        - interfaces
+        - Interfaces
       parameters:
         - name: hostName
           in: path
@@ -508,9 +610,6 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Interface'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Interface'
           text/plain:
@@ -535,7 +634,7 @@ paths:
     delete:
       summary: Delete interface on host by interface id
       tags:
-        - disks
+        - Interfaces
       parameters:
         - name: hostName
           in: path
@@ -543,22 +642,294 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        '200':
+          description: 'Deleted Disk'
+      security:
+        - BearerAuth: [ ]
+
+  /memory/{hostName}:
+    get:
+      summary: 'Returns a list of all memory for a specific hostname'
+      tags:
+        - Memory
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Memory details list'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Memory'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Create a host memory definition'
+      tags:
+        - Memory
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
       requestBody:
-        description: Body request with *interface* id
+        description: Body request with *memory* details
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Interface'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Interface'
+              $ref: '#/components/schemas/Memory'
           text/plain:
             schema:
               type: string
       responses:
         '200':
-          description: 'Deleted Disk'
+          description: 'Memory details list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    patch:
+      summary: 'Update an existing host memory definitions'
+      tags:
+        - Memory
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *memory* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Memory'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Memory details'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    delete:
+      summary: Delete memory on host by memory id
+      tags:
+        - Memory
+      parameters:
+        - name: hostName
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted Memory'
+      security:
+        - BearerAuth: [ ]
+
+  /processors/{hostName}:
+    get:
+      summary: 'Returns a list of all processors for a specific hostname'
+      tags:
+        - Processors
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Processor details list'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Processor'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Create a host processors definition'
+      tags:
+        - Processors
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *processor* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Processor'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: 'Processor details list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Processor'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: [ ]
+
+    delete:
+      summary: Delete processor on host by processor id
+      tags:
+        - Processors
+      parameters:
+        - name: hostName
+          in: path
+          description: Hostname
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Deleted Processor'
+      security:
+        - BearerAuth: [ ]
+
+  /vlans/:
+    get:
+      summary: Returns a list with all the defined vlans
+      tags:
+        - Vlans
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Vlan'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a new vlan
+      tags:
+        - Vlans
+      requestBody:
+        description: Body request with *vlan* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vlan'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+      security:
+        - BearerAuth: [ ]
+
+  /vlans/{vlan_id}:
+    get:
+      summary: 'Returns a detail of a specific vlan by id'
+      tags:
+        - Vlans
+      parameters:
+        - name: vlan_id
+          in: path
+          description: Vlan ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Vlan details list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vlan'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete vlan by vlan id
+      tags:
+        - Vlans
+      parameters:
+        - name: vlan_id
+          in: path
+          description: Vlan ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Deleted Vlan'
       security:
         - BearerAuth: [ ]
 
@@ -566,14 +937,16 @@ paths:
     get:
       summary: 'Returns a list with all the defined schedules'
       tags:
-        - schedules
+        - Schedules
       responses:
         '200':
           description: 'Schedule'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Schedule'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schedule'
         default:
           description: Unexpected error
           content:
@@ -583,15 +956,12 @@ paths:
     post:
       summary: Add a new schedule
       tags:
-        - schedules
+        - Schedules
       requestBody:
         description: Body request with *schedule* details
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Schedule'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Schedule'
           text/plain:
@@ -607,7 +977,7 @@ paths:
     get:
       summary: 'Returns a schedule by id'
       tags:
-        - schedules
+        - Schedules
       parameters:
         - name: schedule_id
           in: path
@@ -631,7 +1001,7 @@ paths:
     patch:
       summary: 'Update an existing schedule'
       tags:
-        - schedules
+        - Schedules
       parameters:
         - name: schedule_id
           in: path
@@ -644,9 +1014,6 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Schedule'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Schedule'
           text/plain:
@@ -676,7 +1043,7 @@ paths:
     delete:
       summary: Delete schedule by id
       tags:
-        - schedules
+        - Schedules
       parameters:
         - name: schedule_id
           in: path
@@ -694,7 +1061,7 @@ paths:
     get:
       summary: 'Returns all current schedules'
       tags:
-        - schedules
+        - Schedules
       parameters:
         - name: date
           in: query
@@ -737,7 +1104,7 @@ paths:
     get:
       summary: 'Returns all future schedules'
       tags:
-        - schedules
+        - Schedules
       parameters:
         - name: host
           in: query
@@ -774,7 +1141,7 @@ paths:
     get:
       summary: 'Returns a list with all active assignments'
       tags:
-        - assignments
+        - Assignments
       responses:
         '200':
           description: 'Assignment'
@@ -795,7 +1162,7 @@ paths:
     get:
       summary: 'Returns a list with all active assignments for a specific cloud'
       tags:
-        - assignments
+        - Assignments
       parameters:
         - name: cloud_name
           in: path
@@ -822,7 +1189,7 @@ paths:
     get:
       summary: 'Returns a list with all the defined assignments'
       tags:
-        - assignments
+        - Assignments
       responses:
         '200':
           description: 'Assignment'
@@ -839,44 +1206,12 @@ paths:
     post:
       summary: Add a new assignment
       tags:
-        - assignments
+        - Assignments
       requestBody:
         description: Body request with *assignment* details
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Assignment'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Assignment'
-          text/plain:
-            schema:
-              type: string
-      security:
-        - BearerAuth: [ ]
-      responses:
-        '201':
-          description: Created
-    patch:
-      summary: Add a new assignment
-      tags:
-        - assignments
-      parameters:
-        - name: schedule_id
-          in: path
-          description: Schedule ID
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Body request with *assignment* details
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Assignment'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Assignment'
           text/plain:
@@ -892,7 +1227,7 @@ paths:
     get:
       summary: 'Returns an assignment by id'
       tags:
-        - assignments
+        - Assignments
       parameters:
         - name: assignment_id
           in: path
@@ -918,10 +1253,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update an existing assignment
+      tags:
+        - Assignments
+      parameters:
+        - name: assignment_id
+          in: path
+          description: Assignment ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Body request with *assignment* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          text/plain:
+            schema:
+              type: string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '201':
+          description: Created
     delete:
       summary: Delete assignment by id
       tags:
-        - assignments
+        - Assignments
       parameters:
         - name: assignment_id
           in: path
@@ -939,7 +1300,7 @@ paths:
     get:
       summary: 'Returns a list of available hosts'
       tags:
-        - available
+        - Available
       parameters:
         - name: start
           in: query
@@ -979,7 +1340,7 @@ paths:
     get:
       summary: 'Returns a boolean for weather the host is available or not'
       tags:
-        - available
+        - Available
       parameters:
         - name: hostname
           in: path
@@ -1015,24 +1376,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /login/:
-    post:
-      summary: Login endpoint with Basic Auth that returns token for Bearer Auth
+  /moves:
+    get:
+      summary: Returns a list of hosts that are transitioning with the source and target clouds
       tags:
-        - auth
-      security:
-        - BasicAuth: []
+        - Moves
       responses:
         '200':
-          description: Successful user login
+          description: 'Moves'
           content:
             application/json:
               schema:
-                properties:
-                  auth_token:
-                    description: Authentication Token
-                    type: string
-                    example: 7h1515aV3rYkr1p71k70k3n
+                type: array
+                items:
+                  $ref: '#/components/schemas/Move'
         default:
           description: Unexpected error
           content:
@@ -1040,16 +1397,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /logout/:
-    post:
-      summary: Logout endpoint for blacklisting authentication token
+  /moves/{date}:
+    get:
+      summary: Returns a move on a specific date
       tags:
-        - auth
-      security:
-        - BasicAuth: []
+        - Moves
+      parameters:
+        - name: date
+          in: path
+          description: Future date
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: Successful user logout
+          description: 'Moves'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Move'
         default:
           description: Unexpected error
           content:
@@ -1057,46 +1425,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /register/:
-    post:
-      summary: Register new users
+  /version:
+    get:
+      summary: Returns Quads version
       tags:
-        - auth
-      requestBody:
-        description: Body request with *user* details
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  example: quads@redhat.com
-                password:
-                  type: string
-                  example: 7h1515aV3rYkr1p71k70k3n
+        - Other
       responses:
         '200':
-          description: New user authentication token
+          description: 'Version'
           content:
             application/json:
               schema:
-                properties:
-                  status:
-                    type: integer
-                    format: int32
-                    example: 200
-                  message:
-                    type: string
-                    example: Successful login
-                  auth_token:
-                    description: Authentication Token
-                    type: string
-                    example: 7h1515aV3rYkr1p71k70k3n
+                $ref: '#/components/schemas/Version'
         default:
           description: Unexpected error
           content:
@@ -1329,6 +1669,27 @@ components:
         host_id:
           type: integer
           example: 1
+
+    Move:
+      type: object
+      properties:
+        host:
+          type: string
+          example: host.example.com
+        new:
+          type: string
+          example: cloud09
+        current:
+          type: string
+          example: cloud01
+
+    Version:
+      type: object
+      properties:
+        result:
+          type: string
+          example: Quads version 2.0 Max
+
     Notification:
       type: object
       properties:

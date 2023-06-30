@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 from email_validator import validate_email, EmailNotValidError
 
 from quads.server.models import User, TokenBlackList, db, Role
@@ -132,14 +132,14 @@ def logout() -> Response:
                 }
                 return jsonify(response_object)
             except Exception as e:
-                response = {"status": "fail", "message": f"{e}"}
-                return Response(response=json.dumps(response), status=500)
+                response = {"status": "fail", "message": f"{str(e)}"}
+                return make_response(jsonify(response), 500)
         else:
             response = {"status": "fail", "message": resp}
-            return Response(response=json.dumps(response), status=401)
+            return make_response(jsonify(response), 401)
     else:
         response = {
             "status": "fail",
             "message": "Provide a valid auth token.",
         }
-        return Response(response=json.dumps(response), status=403)
+        return make_response(jsonify(response), 403)
