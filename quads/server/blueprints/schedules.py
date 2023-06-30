@@ -31,7 +31,7 @@ def get_schedule(schedule_id: int) -> Response:
     return jsonify(_schedule.as_dict())
 
 
-@schedule_bp.route("/current", methods=["POST"])
+@schedule_bp.route("/current")
 def get_current_schedule() -> Response:
     data = request.args.to_dict()
     date = data.get("date")
@@ -43,7 +43,7 @@ def get_current_schedule() -> Response:
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 
-@schedule_bp.route("/future", methods=["POST"])
+@schedule_bp.route("/future")
 def get_future_schedule() -> Response:
     data = request.args.to_dict()
     hostname = data.get("host")
@@ -58,7 +58,7 @@ def get_future_schedule() -> Response:
 @check_access("admin")
 def create_schedule() -> Response:
     data = request.get_json()
-    hostname = data.get("host")
+    hostname = data.get("hostname")
     cloud = data.get("cloud")
     if not cloud:
         response = {

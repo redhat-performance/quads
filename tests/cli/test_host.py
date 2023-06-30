@@ -1,5 +1,6 @@
 import pytest
 
+from quads.exceptions import CliException
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from tests.cli.config import HOST, CLOUD
@@ -42,6 +43,18 @@ class TestHost(TestBase):
         host = HostDao.get_host(HOST)
         assert host is not None
         assert host.name == HOST
+
+        assert self._caplog.messages[0] == HOST
+
+    def test_define_host_missing_model(self, define_fixture):
+        self.cli_args["hostresource"] = HOST
+        self.cli_args["hostcloud"] = CLOUD
+        self.cli_args["hosttype"] = "scalelab"
+
+        try:
+            self.quads_cli_call("hostresource")
+        except CliException as ex:
+            assert str(ex) == 'Missing argument: model'
 
     def test_remove_host(self, remove_fixture):
         self.cli_args["host"] = HOST

@@ -106,12 +106,7 @@ def create_host() -> Response:
     host_type = data.get("host_type")
 
     if not model:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: model",
-        }
-        return Response(response=json.dumps(response), status=400)
+        return Response("Missing argument: model", status=400)
     else:
         if model.upper() not in Config["models"]:
             response = {

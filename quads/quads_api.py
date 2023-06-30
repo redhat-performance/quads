@@ -14,6 +14,14 @@ class MessengerDTO:
         self.__dict__ = response.json()
 
 
+class APIServerException(Exception):
+    pass
+
+
+class APIBadRequest(Exception):
+    pass
+
+
 class Generic:
     @classmethod
     def from_dict(cls, dict):
@@ -61,6 +69,8 @@ class QuadsApi:
     # Hosts
     def get_hosts(self) -> List[Host]:
         response = self.get("hosts")
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         hosts_json = response.json()
         hosts = []
         for host in hosts_json:
@@ -70,6 +80,8 @@ class QuadsApi:
 
     def filter_hosts(self, data) -> List[Host]:
         response = self.post(os.path.join("hosts", "filter"), data)
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         hosts = []
         for host in response.json():
             host_obj = Host().from_dict(data=host)
@@ -79,6 +91,8 @@ class QuadsApi:
     def get_host(self, hostname) -> Optional[Host]:
         host_obj = None
         response = self.get(os.path.join("hosts", hostname))
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         obj_json = response.json()
         if obj_json:
             host_obj = Host().from_dict(data=obj_json)
@@ -86,6 +100,10 @@ class QuadsApi:
 
     def create_host(self, data) -> Host:
         response = self.post(os.path.join("hosts"), data)
+        if response.status_code == 500:
+            raise APIServerException("The Flask server is failing. Contact admin.")
+        if response.status_code == 400:
+            raise APIBadRequest(response.text)
         data = response.json()
         host_obj = Host().from_dict(data)
         return host_obj
@@ -102,6 +120,8 @@ class QuadsApi:
     # Clouds
     def get_clouds(self) -> List[Cloud]:
         response = self.get("clouds")
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         clouds = []
         for cloud in response.json():
             clouds.append(Cloud(**cloud))
@@ -109,6 +129,8 @@ class QuadsApi:
 
     def filter_clouds(self, data) -> List[Cloud]:
         response = self.get("clouds", **data)
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         clouds = []
         for cloud in response.json():
             clouds.append(Cloud(**cloud))
@@ -117,6 +139,8 @@ class QuadsApi:
     def get_cloud(self, cloud_name) -> Optional[Cloud]:
         cloud_obj = None
         response = self.get(os.path.join("clouds", cloud_name))
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         obj_json = response.json()
         if obj_json:
             cloud_obj = Cloud(**obj_json)
@@ -132,6 +156,8 @@ class QuadsApi:
     def get_schedules(self, data: dict = None) -> List[Schedule]:
         # TODO: fix payload input
         response = self.get("schedules", **data)
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule().from_dict(schedule))
@@ -139,6 +165,8 @@ class QuadsApi:
 
     def get_current_schedules(self, data: dict = None) -> List[Schedule]:
         response = self.post(os.path.join("schedules", "current"), data)
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule().from_dict(schedule))
@@ -146,6 +174,8 @@ class QuadsApi:
 
     def get_future_schedules(self, data) -> List[Schedule]:
         response = self.post(os.path.join("schedules", "future"), data)
+        if response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule(**schedule))
