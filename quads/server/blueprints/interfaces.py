@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.host import HostDao
@@ -36,7 +36,7 @@ def create_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     name = data.get("name")
     bios_id = data.get("bios_id")
@@ -64,7 +64,7 @@ def create_interface(hostname: str) -> Response:
                 "error": "Bad Request",
                 "message": f"Missing argument: {key}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     if not speed > 0:
         response = {
@@ -72,7 +72,7 @@ def create_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: speed",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _interface_obj = Interface(
         name=name,
@@ -103,7 +103,7 @@ def update_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     interface_id = data.get("id")
     if not interface_id:
@@ -112,7 +112,7 @@ def update_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: id",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     interface_obj = InterfaceDao.get_interface(interface_id)
     if not interface_obj:
@@ -121,7 +121,7 @@ def update_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Interface not found: {interface_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     keys = [
         "name",
@@ -150,7 +150,7 @@ def update_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: speed",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     for key, value in update_fields.items():
         setattr(interface_obj, key, value)
@@ -168,7 +168,7 @@ def delete_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -179,7 +179,7 @@ def delete_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: id",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _interface_obj = InterfaceDao.get_interface(interface_id)
     if not _interface_obj:
@@ -188,7 +188,7 @@ def delete_interface(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Interface not found: {interface_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     db.session.delete(_interface_obj)
     db.session.commit()
@@ -196,4 +196,4 @@ def delete_interface(hostname: str) -> Response:
         "status_code": 200,
         "message": "Interface deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

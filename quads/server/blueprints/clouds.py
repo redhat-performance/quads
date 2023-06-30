@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.blueprints import check_access
 from quads.server.dao.cloud import CloudDao
 
@@ -90,10 +90,10 @@ def delete_cloud(cloud: str) -> Response:
             "error": "Bad Request",
             "message": f"Cloud not found: {cloud}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     CloudDao.remove_cloud(cloud)
     response = {
         "status_code": 200,
         "message": f"Cloud {cloud} deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

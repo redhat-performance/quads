@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
@@ -46,7 +46,7 @@ def get_assignment(assignment_id: str) -> Response:
             "error": "Bad Request",
             "message": f"Assignment not found: {assignment_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     return jsonify(_assignment.as_dict())
 
 
@@ -68,7 +68,7 @@ def get_active_cloud_assignment(cloud_name: str) -> Response:
             "error": "Bad Request",
             "message": f"Cloud not found: {cloud_name}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
     response = {}
     if _assignment:
@@ -132,7 +132,7 @@ def create_assignment() -> Response:
                 "error": "Bad Request",
                 "message": f"Missing argument: {field}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     if cc_user:
         cc_user = cc_user.split(",")
@@ -145,7 +145,7 @@ def create_assignment() -> Response:
                 "error": "Bad Request",
                 "message": f"Cloud not found: {cloud_name}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
         _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
         if _assignment:
             response = {
@@ -153,7 +153,7 @@ def create_assignment() -> Response:
                 "error": "Bad Request",
                 "message": f"There is an already active assignment for {cloud_name}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     if vlan:
         _vlan = VlanDao.get_vlan(int(vlan))
@@ -163,7 +163,7 @@ def create_assignment() -> Response:
                 "error": "Bad Request",
                 "message": f"Vlan not found: {vlan}",
             }
-            return Response(response=json.dumps(response), status=400)
+            return make_response(jsonify(response), 400)
 
     _assignment_obj = Assignment(
         description=description,
@@ -206,7 +206,7 @@ def update_assignment(assignment_id: str) -> Response:
             "error": "Bad Request",
             "message": f"Assignment not found: {assignment_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     keys = [
         "cloud",
@@ -233,7 +233,7 @@ def update_assignment(assignment_id: str) -> Response:
                         "error": "Bad Request",
                         "message": f"Cloud not found: {value}",
                     }
-                    return Response(response=json.dumps(response), status=400)
+                    return make_response(jsonify(response), 400)
                 value = _cloud
             if key == "vlan":
                 _vlan = VlanDao.get_vlan(value)
@@ -243,7 +243,7 @@ def update_assignment(assignment_id: str) -> Response:
                         "error": "Bad Request",
                         "message": f"Vlan not found: {value}",
                     }
-                    return Response(response=json.dumps(response), status=400)
+                    return make_response(jsonify(response), 400)
                 value = _vlan
             if type(value) == str:
                 if value.lower() in ["true", "false"]:
@@ -277,7 +277,7 @@ def delete_assignment() -> Response:
             "error": "Bad Request",
             "message": "Missing argument: id",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     try:
         AssignmentDao.delete_assignment(assignment_id)
@@ -287,9 +287,9 @@ def delete_assignment() -> Response:
             "error": "Bad Request",
             "message": f"Assignment not found: {assignment_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
     response = {
         "status_code": 200,
         "message": "Assignment deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)

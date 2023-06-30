@@ -14,6 +14,14 @@ class MessengerDTO:
         self.__dict__ = response.json()
 
 
+class APIServerException(Exception):
+    pass
+
+
+class APIBadRequest(Exception):
+    pass
+
+
 class Generic:
     @classmethod
     def from_dict(cls, dict):
@@ -34,28 +42,48 @@ class QuadsApi:
         self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
-    def get(self, endpoint) -> Response:
+    def get(self, endpoint: str) -> Response:
         _response = self.session.get(
             os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
+        if _response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
+        if _response.status_code == 400:
+            response_json = _response.json()
+            raise APIBadRequest(response_json.get("message"))
         return _response
 
     def post(self, endpoint, data) -> Response:
         _response = self.session.post(
             os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
+        if _response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
+        if _response.status_code == 400:
+            response_json = _response.json()
+            raise APIBadRequest(response_json.get("message"))
         return _response
 
     def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
             os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
         )
+        if _response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
+        if _response.status_code == 400:
+            response_json = _response.json()
+            raise APIBadRequest(response_json.get("message"))
         return _response
 
     def delete(self, endpoint) -> Response:
         _response = self.session.delete(
             os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
         )
+        if _response.status_code == 500:
+            raise APIServerException("Check the flask server logs")
+        if _response.status_code == 400:
+            response_json = _response.json()
+            raise APIBadRequest(response_json.get("message"))
         return _response
 
     # Hosts

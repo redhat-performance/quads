@@ -17,7 +17,7 @@ from requests import ConnectionError
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers import first_day_month, last_day_month
-from quads.quads_api import QuadsApi as Quads
+from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 from quads.server.models import Assignment
 from quads.tools import reports
 from quads.tools.external.jira import Jira, JiraException
@@ -1004,17 +1004,20 @@ class QuadsCli:
         self._output_json_result(_response, {"host": self.cli_args.get("host")})
 
     def action_hostresource(self):
-        if not self.cli_args["hostcloud"]:
+        if not self.cli_args.get("hostcloud"):
             raise CliException("Missing option --default-cloud")
 
         data = {
-            "name": self.cli_args["hostresource"],
-            "default_cloud": self.cli_args["hostcloud"],
-            "host_type": self.cli_args["hosttype"],
-            "model": self.cli_args["model"],
-            "force": self.cli_args["force"],
+            "name": self.cli_args.get("hostresource"),
+            "default_cloud": self.cli_args.get("hostcloud"),
+            "host_type": self.cli_args.get("hosttype"),
+            "model": self.cli_args.get("model"),
+            "force": self.cli_args.get("force"),
         }
-        _response = self.quads.create_host(data)
+        try:
+            _response = self.quads.create_host(data)
+        except (APIServerException, APIBadRequest) as ex:
+            raise CliException(str(ex))
         self._output_json_result(_response, data)
 
     def action_define_host_metadata(self):
@@ -1093,7 +1096,7 @@ class QuadsCli:
                 "broken": host.broken,
                 "retired": host.retired,
                 "last_build": host.last_build,
-                "created_on": host.created_on,
+                "created_at": host.created_at,
             }
 
             interfaces = []
@@ -1205,7 +1208,7 @@ class QuadsCli:
             else:
                 data = {
                     "cloud": self.cli_args["schedcloud"],
-                    "host": self.cli_args["host"],
+                    "hostname": self.cli_args["host"],
                     "start": self.cli_args["schedstart"],
                     "end": self.cli_args["schedend"],
                 }
@@ -1274,7 +1277,7 @@ class QuadsCli:
             for host in host_list:
                 data = {
                     "cloud": self.cli_args["schedcloud"],
-                    "host": host,
+                    "hostname": host,
                     "start": self.cli_args["schedstart"],
                     "end": self.cli_args["schedend"],
                 }
@@ -1372,10 +1375,10 @@ class QuadsCli:
             "start": self.cli_args["schedstart"],
             "end": self.cli_args["schedend"],
             "cloud": self.cli_args["schedcloud"],
-            "host": self.cli_args["host"],
+            "hostname": self.cli_args["host"],
         }
         try:
-            self.logger.info(self.quads.insert_schedule(data)["result"])
+            self.logger.info(self.quads.insert_schedule(data))
         except ConnectionError:
             raise CliException(
                 "Could not connect to the quads-server, verify service is up and running."

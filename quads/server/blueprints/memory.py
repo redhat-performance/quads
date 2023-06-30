@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.host import HostDao
@@ -25,7 +25,7 @@ def get_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     return jsonify([_memory.as_dict() for _memory in _host.memory])
 
@@ -40,7 +40,7 @@ def create_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -53,7 +53,7 @@ def create_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: handle",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     memories = MemoryDao.get_memory_for_host(_host.id)
     if any(memory.handle == handle for memory in memories):
@@ -62,7 +62,7 @@ def create_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Memory with this handle ({handle}) already exists for this host.",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if not size_gb:
         response = {
@@ -70,7 +70,7 @@ def create_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: size_gb",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     if size_gb <= 0:
         response = {
@@ -78,7 +78,7 @@ def create_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Argument can't be negative or zero: size_gb",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _memory_obj = Memory(handle=handle, size_gb=size_gb, host_id=_host.id)
     db.session.add(_memory_obj)
@@ -96,7 +96,7 @@ def delete_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     data = request.get_json()
 
@@ -107,7 +107,7 @@ def delete_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": "Missing argument: id",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     _memory_obj = MemoryDao.get_memory(memory_id)
     if not _memory_obj:
@@ -116,7 +116,7 @@ def delete_memory(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Memory not found: {memory_id}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     db.session.delete(_memory_obj)
     db.session.commit()
@@ -124,4 +124,4 @@ def delete_memory(hostname: str) -> Response:
         "status_code": 200,
         "message": "Memory deleted",
     }
-    return Response(response=json.dumps(response), status=200)
+    return jsonify(response)
