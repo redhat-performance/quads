@@ -85,6 +85,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Troubleshooting Steps](#troubleshooting-steps)
          * [Validation using Debug Mode](#validation-using-debug-mode)
          * [Skipping Past Network Validation](#skipping-past-network-validation)
+         * [Skipping Past Host and Systems Validation](#skipping-past-host-and-systems-validation)
+         * [Skipping Past Network and Systems Validation per Host](#skipping-past-network-and-systems-validation-per-host)
          * [Skipping Past Foreman Validation](#skipping-past-foreman-validation)
          * [Validate Only a Specific Cloud](#validate-only-a-specific-cloud)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
@@ -1305,7 +1307,27 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 
 * In older versions of QUADS you will want to consult the documentation for [interacting with MongoDB](/docs/interact-mongodb.md) for how to override this check.
 
+### Skipping Past Host and Systems Validation
+
+* In `QUADS 1.1.8` you can skip past systems and host validation (Foreman) via:
+
+```
+/opt/quads/quads/tools/validate_env.py --skip-system
+```
+
+### Skipping Past Network and Systems Validation per Host
+
+* In `QUADS 1.1.8` you can skip past both systems and network checks per host via:
+
+``
+/opt/quads/quads/tools/validate_env.py --skip-hosts host01.example.com host02.example.com
+```
+
+* Effectively, any host listed with `--skip-hosts` will pass it completely through validation.
+* This can be used in combination with `--skip-system` and `--skip-network` as well.
+
 ### Skipping Past Foreman Validation
+* You only need to do this prior to `QUADS 1.1.8`, otherwise use `--skip-hosts` and `--skip-system` above.
 
 * If you know your systems are built you can force `validate_env.py` to move into the network portions of the validation by toggling the `provisioned` attribute in MongoDB for your cloud object.
 

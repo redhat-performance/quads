@@ -20,7 +20,7 @@ from quads.tools.helpers import get_running_loop
 from quads.tools.move_and_rebuild_hosts import switch_config
 from quads.tools.netcat import Netcat
 from quads.tools.postman import Postman
-from quads.tools.ssh_helper import SSHHelper
+from quads.tools.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,10 @@ class Validator(object):
         self.hosts = [
             host for host in self.hosts if Schedule.current_schedule(host=host)
         ]
+        if self.args.skip_hosts:
+            self.hosts = [
+                host for host in self.hosts if host.name not in self.args.skip_hosts[0]
+            ]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -117,6 +121,8 @@ class Validator(object):
             for schedule in schedules:
                 if schedule.host and schedule.host.name in build_hosts:
                     pending.append(schedule.host.name)
+
+            pending = [host for host in pending if host not in self.args.skip_hosts[0]]
 
             if pending:
                 logger.info(
@@ -209,7 +215,8 @@ class Validator(object):
             try:
                 nc = Netcat(host.name)
                 healthy = await nc.health_check()
-            except OSError:
+            except Exception as ex:
+                logger.debug(str(ex))
                 healthy = False
             if not healthy:
                 hosts_down.append(host.name)
@@ -232,10 +239,16 @@ class Validator(object):
         if error:
             return False
 
+        failed_ssh = False
         try:
             ssh_helper = SSHHelper(test_host.name)
-        except (SSHException, NoValidConnectionsError, socket.timeout) as ex:
-            logger.debug(ex)
+        except (
+            SSHHelperException,
+            SSHException,
+            NoValidConnectionsError,
+            socket.timeout,
+        ) as ex:
+            logger.error(str(ex))
             logger.error(
                 "Could not establish connection with host: %s." % test_host.name
             )
@@ -243,7 +256,11 @@ class Validator(object):
                 self.report
                 + "Could not establish connection with host: %s.\n" % test_host.name
             )
+            failed_ssh = True
+
+        if failed_ssh:
             return False
+
         host_list = " ".join([host.name for host in self.hosts])
 
         result, output = ssh_helper.run_cmd(
@@ -306,9 +323,10 @@ class Validator(object):
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                result_pst = await self.post_system_test()
-                if not result_pst:
-                    failed = True
+                if not self.args.skip_system:
+                    result_pst = await self.post_system_test()
+                    if not result_pst:
+                        failed = True
 
                 if not self.args.skip_network:
                     result_pnt = await self.post_network_test()
@@ -348,17 +366,29 @@ def main(_args, _loop):
             try:
                 _loop.run_until_complete(validator.validate_env())
             except Exception as ex:
-                logger.debug(ex)
+                logger.debug(str(ex))
                 logger.info("Failed validation for %s" % _cloud.name)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
     parser.add_argument(
+        "--skip-system",
+        action="store_true",
+        default=False,
+        help="Skip system tests.",
+    )
+    parser.add_argument(
         "--skip-network",
         action="store_true",
         default=False,
         help="Skip network tests.",
+    )
+    parser.add_argument(
+        "--skip-hosts",
+        action="append",
+        nargs="*",
+        help="Skip specific hosts.",
     )
     parser.add_argument(
         "--debug",
