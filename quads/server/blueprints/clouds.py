@@ -2,8 +2,8 @@ import json
 
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
-
 
 cloud_bp = Blueprint("clouds", __name__)
 
@@ -33,7 +33,19 @@ def get_clouds() -> Response:
 
     :return: The list of clouds
     """
-    _clouds = CloudDao.get_clouds()
+    if request.args:
+        try:
+            _clouds = CloudDao.filter_clouds_dict(request.args)
+        except (EntryNotFound, InvalidArgument) as ex:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": ex,
+            }
+            return make_response(jsonify(response), 400)
+
+    else:
+        _clouds = CloudDao.get_clouds()
     return jsonify([_cloud.as_dict() for _cloud in _clouds] if _clouds else {})
 
 

@@ -4,7 +4,7 @@ from sqlalchemy import Boolean
 from sqlalchemy.orm import RelationshipProperty, Relationship
 
 from quads.config import Config
-from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_MODEL, EntryNotFound, EntryExisting, InvalidArgument
+from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_HOST_META, EntryNotFound, EntryExisting, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.models import db, Host, Cloud
 
@@ -122,7 +122,7 @@ class HostDao(BaseDao):
                     if not cloud:
                         raise EntryNotFound(f"Could not find cloud: {value}")
                     value = cloud
-                if first_field.lower() in MAP_MODEL.keys():
+                if first_field.lower() in MAP_HOST_META.keys():
                     if len(fields) > 1:
                         field_name = f"{first_field.lower()}.{field_name.lower()}"
             filter_tuples.append(

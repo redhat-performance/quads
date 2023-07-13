@@ -1,7 +1,9 @@
 import os
+import urllib.parse
 from typing import Optional, List
 
 import requests
+import urllib3.util
 from requests import Response
 from requests.auth import HTTPBasicAuth
 
@@ -97,12 +99,22 @@ class QuadsApi:
         return hosts
 
     def filter_hosts(self, data) -> List[Host]:
-        response = self.post(os.path.join("hosts", "filter"), data)
+        url_params = urllib.parse.urlencode(data)
+        response = self.get(f"hosts?{url_params}")
         hosts = []
         for host in response.json():
             host_obj = Host().from_dict(data=host)
             hosts.append(host_obj)
         return hosts
+
+    def filter_clouds(self, data) -> List[Cloud]:
+        url_params = urllib.parse.urlencode(data)
+        response = self.get(f"clouds?{url_params}")
+        clouds = []
+        for cloud in response.json():
+            host_obj = Cloud().from_dict(data=cloud)
+            clouds.append(host_obj)
+        return clouds
 
     def get_host(self, hostname) -> Optional[Host]:
         host_obj = None
