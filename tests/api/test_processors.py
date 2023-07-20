@@ -287,5 +287,5 @@ class TestDeleteProcessors:
                 headers=auth_header,
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == "Processor deleted"

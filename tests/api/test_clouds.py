@@ -119,7 +119,7 @@ class TestReadClouds:
         response = unwrap_json(
             test_client.get(
                 f"/api/v3/clouds/{cloud_name}",
-                headers=auth_header,
+                headers=auth_header
             )
         )
         assert response.json == {}
@@ -137,12 +137,11 @@ class TestDeleteClouds:
         cloud_name = f"cloud{str(cloud_id).zfill(2)}"
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/clouds",
-                json=dict(name=cloud_name),
-                headers=auth_header,
+                f"/api/v3/clouds/{cloud_name}",
+                headers=auth_header
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == f"Cloud {cloud_name} deleted"
 
     def test_invalid_missing_arg(self, test_client, auth):
@@ -154,14 +153,11 @@ class TestDeleteClouds:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                "/api/v3/clouds",
-                json=dict(),
-                headers=auth_header,
+                "/api/v3/clouds/",
+                headers=auth_header
             )
         )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: name"
+        assert response.status_code == 405
 
     def test_invalid_cloud_not_found(self, test_client, auth):
         """
@@ -173,8 +169,7 @@ class TestDeleteClouds:
         cloud_name = "cloud11"
         response = unwrap_json(
             test_client.delete(
-                "/api/v3/clouds",
-                json=dict(name=cloud_name),
+                f"/api/v3/clouds/{cloud_name}",
                 headers=auth_header,
             )
         )

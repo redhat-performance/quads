@@ -95,6 +95,8 @@ class HostDao(BaseDao):
         operator = "=="
         for k, value in data.items():
             fields = k.split(".")
+            if len(fields) > 2:
+                raise InvalidArgument(f"Too many arguments: {fields}")
 
             first_field = fields[0]
             field_name = fields[-1]
@@ -120,7 +122,7 @@ class HostDao(BaseDao):
                 if first_field in ["cloud", "default_cloud"]:
                     cloud = CloudDao.get_cloud(value)
                     if not cloud:
-                        raise EntryNotFound(f"Could not find cloud: {value}")
+                        raise EntryNotFound(f"Cloud not found: {value}")
                     value = cloud
                 if first_field.lower() in MAP_MODEL.keys():
                     if len(fields) > 1:
