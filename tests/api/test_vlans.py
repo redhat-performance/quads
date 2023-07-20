@@ -139,13 +139,10 @@ class TestDeleteVLANs:
         response = unwrap_json(
             test_client.delete(
                 "/api/v3/vlans",
-                json={},
                 headers=auth_header,
             )
         )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: id"
+        assert response.status_code == 404
 
     def test_invalid_vlan_not_found(self, test_client, auth):
         """
@@ -157,14 +154,13 @@ class TestDeleteVLANs:
         invalid_vlan_id = 42
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/vlans",
-                json={"id": invalid_vlan_id},
+                f"/api/v3/vlans/6253",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Vlan not found: {invalid_vlan_id}"
+        assert response.json["message"] == f"Vlan not found: {6253}"
 
     def test_valid(self, test_client, auth):
         """
@@ -175,10 +171,9 @@ class TestDeleteVLANs:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/vlans",
-                json={"id": VLAN_2_REQUEST["vlan_id"]},
+                f"/api/v3/vlans/{VLAN_2_REQUEST['vlan_id']}",
                 headers=auth_header,
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == "Vlan deleted"

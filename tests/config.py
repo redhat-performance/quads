@@ -19,9 +19,8 @@ HOST_1_REQUEST = {
 HOST_2_REQUEST = {
     "name": "host2.example.com",
     "default_cloud": "cloud01",
-    "cloud": "cloud02",
     "model": "r640",
-    "host_type": "scalelab",
+    "host_type": "alias",
 }
 HOST_3_REQUEST = {
     "name": "host3.example.com",
@@ -479,11 +478,11 @@ SCHEDULE_1_RESPONSE = {
         "broken": False,
         "build": False,
         "cloud": {
-            "id": 2,
+            "id": 1,
             "last_redefined": "Tue, 07 Mar 2023 11:36:53 GMT",
-            "name": "cloud02",
+            "name": "cloud01",
         },
-        "cloud_id": 2,
+        "cloud_id": 1,
         "created_at": "Tue, 07 Mar 2023 11:36:53 GMT",
         "default_cloud": {
             "id": 1,
@@ -491,7 +490,7 @@ SCHEDULE_1_RESPONSE = {
             "name": "cloud01",
         },
         "default_cloud_id": 1,
-        "host_type": "scalelab",
+        "host_type": "alias",
         "id": 2,
         "last_build": None,
         "model": "R640",

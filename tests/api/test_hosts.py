@@ -147,77 +147,31 @@ class TestCreateHosts:
         )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_undefined_cloud(self, test_client, auth, prefill):
+    def test_valid_multi(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token and clouds
-        | WHEN: User tries to create a new host with an undefined cloud
-        | THEN: User should not be able to create a new host
+        | WHEN: User tries to create a new hosts
+        | THEN: User should be able to create a new hosts
         """
         auth_header = auth.get_auth_header()
-        host_request = HOST_1_REQUEST.copy()
-        host_request["cloud"] = "cloudDoesNotExist"
-        response = unwrap_json(
-            test_client.post(
-                "/api/v3/hosts",
-                json=host_request,
-                headers=auth_header,
+        for num, req in enumerate([HOST_1_REQUEST, HOST_2_REQUEST], start=1):
+            response = unwrap_json(
+                test_client.post(
+                    "/api/v3/hosts",
+                    json=req,
+                    headers=auth_header,
+                )
             )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Cloud not found: {host_request['cloud']}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token and clouds
-        | WHEN: User tries to create a new host
-        | THEN: User should be able to create a new host
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.post(
-                "/api/v3/hosts",
-                json=HOST_1_REQUEST,
-                headers=auth_header,
+            assert response.status_code == 200
+            assert response.json["id"] == num
+            assert response.json["name"] == req["name"]
+            assert response.json["model"] == req["model"].upper()
+            assert response.json["host_type"] == req["host_type"]
+            assert response.json["default_cloud_id"] == response.json["cloud_id"]
+            duration = datetime.utcnow() - datetime.strptime(
+                response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
             )
-        )
-        assert response.status_code == 200
-        assert response.json["id"] == 1
-        assert response.json["name"] == HOST_1_REQUEST["name"]
-        assert response.json["model"] == HOST_1_REQUEST["model"].upper()
-        assert response.json["host_type"] == HOST_1_REQUEST["host_type"]
-        assert response.json["default_cloud_id"] == response.json["cloud_id"]
-        duration = datetime.utcnow() - datetime.strptime(
-            response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
-        )
-        assert duration.total_seconds() < 5
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid_with_cloud(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token and clouds
-        | WHEN: User tries to create a new host with a different cloud than default specified
-        | THEN: User should be able to create a new host
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.post(
-                "/api/v3/hosts",
-                json=HOST_2_REQUEST,
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 200
-        assert response.json["id"] == 2
-        assert response.json["name"] == HOST_2_REQUEST["name"]
-        assert response.json["model"] == HOST_2_REQUEST["model"].upper()
-        assert response.json["host_type"] == HOST_2_REQUEST["host_type"]
-        assert response.json["default_cloud_id"] != response.json["cloud_id"]
-        duration = datetime.utcnow() - datetime.strptime(
-            response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
-        )
-        assert duration.total_seconds() < 5
+            assert duration.total_seconds() < 5
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_host_already_exists(self, test_client, auth, prefill):
@@ -330,19 +284,19 @@ class TestGetHosts:
         assert response.json[1]["name"] == HOST_2_REQUEST["name"]
         assert response.json[1]["model"] == HOST_2_REQUEST["model"].upper()
         assert response.json[1]["host_type"] == HOST_2_REQUEST["host_type"]
-        assert response.json[1]["default_cloud_id"] != response.json[1]["cloud_id"]
+        assert response.json[1]["default_cloud_id"] == response.json[1]["cloud_id"]
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid_filter_moved(self, test_client, auth, prefill):
+    def test_valid_filter_alias(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token and clouds and hosts from TestCreateHosts
-        | WHEN: User tries to get hosts that have different cloud_id than 1 (default_cloud for all hosts in this case)
+        | WHEN: User tries to get hosts that have different host_type than "scalelab" (not equal to)
         | THEN: User should be able to get the host
         """
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                "/api/v3/hosts?cloud_id__ne=1",
+                "/api/v3/hosts?host_type__ne=scalelab",
                 headers=auth_header,
             )
         )
@@ -352,7 +306,7 @@ class TestGetHosts:
         assert response.json[0]["name"] == HOST_2_REQUEST["name"]
         assert response.json[0]["model"] == HOST_2_REQUEST["model"].upper()
         assert response.json[0]["host_type"] == HOST_2_REQUEST["host_type"]
-        assert response.json[0]["default_cloud_id"] != response.json[0]["cloud_id"]
+        assert response.json[0]["default_cloud_id"] == response.json[0]["cloud_id"]
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_filter_by_undefined_cloud(self, test_client, auth, prefill):
@@ -525,7 +479,7 @@ class TestDeleteHosts:
                 headers=auth_header,
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == f"Host deleted"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)

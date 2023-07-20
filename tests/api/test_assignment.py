@@ -59,27 +59,6 @@ class TestCreateAssignments:
         assert response.json["message"] == "Missing argument: cloud"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_missing_vlan(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth, clouds and vlans
-        | WHEN: User tries to create an assignment without specifying a VLAN
-        | THEN: User should be able to create an assignment
-        """
-        auth_header = auth.get_auth_header()
-        assignment_request = ASSIGNMENT_1_REQUEST.copy()
-        del assignment_request["vlan"]
-        response = unwrap_json(
-            test_client.post(
-                "/api/v3/assignments",
-                json=assignment_request,
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: vlan"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_cloud_not_found(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth, clouds and vlans
@@ -435,5 +414,5 @@ class TestDeleteAssignment:
                 headers=auth_header,
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == "Assignment deleted"

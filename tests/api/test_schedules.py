@@ -1,6 +1,7 @@
 import pytest
 
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 
 from tests.helpers import unwrap_json
 from tests.config import (
@@ -350,9 +351,8 @@ class TestReadSchedule:
             range(len(schedule_responses)), schedule_responses, requests
         ):
             response = unwrap_json(
-                test_client.post(
-                    f"/api/v3/schedules/current",
-                    json=req,
+                test_client.get(
+                    f"/api/v3/schedules/current/?{urlencode(req)}",
                     headers=auth_header,
                 )
             )
@@ -569,5 +569,5 @@ class TestDeleteSchedule:
                 headers=auth_header,
             )
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         assert response.json["message"] == "Schedule deleted"
