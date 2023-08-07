@@ -1445,7 +1445,7 @@ class QuadsCli:
             "name": self.cli_args["ifname"],
             "bios_id": self.cli_args["ifbiosid"],
             "mac_address": self.cli_args["ifmac"],
-            "ip_address": self.cli_args["ifip"],
+            "switch_ip": self.cli_args["ifip"],
             "switch_port": self.cli_args["ifport"],
             "speed": self.cli_args["ifspeed"],
             "vendor": self.cli_args["ifvendor"],
