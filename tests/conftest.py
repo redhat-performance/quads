@@ -25,7 +25,7 @@ def test_client():
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             drop_all(flask_app.config)
-            init_db()
+            init_db(flask_app.config)
             populate(user_datastore)
             yield testing_client
 
@@ -112,7 +112,7 @@ def prefill(test_client, auth, request):
             cloud_name = f"cloud{str(cloud_id).zfill(2)}"
             test_client.post(
                 "/api/v3/clouds",
-                json=dict(name=cloud_name),
+                json=dict(cloud=cloud_name),
                 headers=auth_header,
             )
     if "vlans" in request.param:
