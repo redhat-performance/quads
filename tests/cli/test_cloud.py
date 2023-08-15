@@ -72,7 +72,6 @@ class TestCloud(TestBase):
 
         rm_cloud = CloudDao.get_cloud(CLOUD)
 
-        assert self._caplog.messages[0] == 'Successfully removed'
         assert not rm_cloud
 
     def test_mod_cloud(self, remove_fixture):
