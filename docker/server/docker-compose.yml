@@ -13,7 +13,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: quads
     healthcheck:
-      test: ["CMD", "pg_isready -d postgres -U postgres"]
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d postgres'" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,4 +29,4 @@ services:
     environment:
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@quads_db:5432/quads"
     volumes:
-      - /home/grafuls/Sources/quads-mine:/opt/quads:z
+      - /opt/quads:/opt/quads:z
