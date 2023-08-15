@@ -57,4 +57,4 @@ curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $T
 
 curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02","vlan":"601","description":"Test allocation","owner":"grafuls","ticket":"123","cc_user":"gonza"}' http://127.0.0.1:5000/api/v3/assignments/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02", "host":"host2.example.com", "start":"2023-02-28 22:00", "end":"2023-03-02 22:00"}' http://127.0.0.1:5000/api/v3/schedules/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02", "hostname":"host2.example.com", "start":"2023-02-28 22:00", "end":"2023-03-02 22:00"}' http://127.0.0.1:5000/api/v3/schedules/
