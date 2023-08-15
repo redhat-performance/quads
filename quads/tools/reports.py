@@ -117,7 +117,7 @@ def process_scheduled(_logger, month, now):
     start = first_day_month(_date)
     end = last_day_month(_date)
 
-    scheduled = len(ScheduleDao.filter_schedule(start,end))
+    scheduled = len(ScheduleDao.filter_schedules(start, end))
     hosts = len(HostDao.filter_hosts(**{"created_at__gt": start}))
 
     days = 0
@@ -140,7 +140,7 @@ def process_scheduled(_logger, month, now):
 def report_detailed(_logger, _start, _end):
     start = _start.replace(hour=21, minute=59, second=0)
     end = _end.replace(hour=22, minute=1, second=0)
-    schedules = ScheduleDao.filter_schedule(start=start, end=end)
+    schedules = ScheduleDao.filter_schedules(start=start, end=end)
 
     headers = [
         "Owner",

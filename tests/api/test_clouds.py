@@ -16,7 +16,7 @@ class TestCreateClouds:
             response = unwrap_json(
                 test_client.post(
                     "/api/v3/clouds",
-                    json=dict(name=cloud_name),
+                    json=dict(cloud=cloud_name),
                     headers=auth_header,
                 )
             )
@@ -44,7 +44,7 @@ class TestCreateClouds:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: name"
+        assert response.json["message"] == "Missing argument: cloud"
 
     def test_invalid_exists(self, test_client, auth):
         """
@@ -57,7 +57,7 @@ class TestCreateClouds:
         response = unwrap_json(
             test_client.post(
                 "/api/v3/clouds",
-                json=dict(name=cloud_name),
+                json=dict(cloud=cloud_name),
                 headers=auth_header,
             )
         )

@@ -1,9 +1,10 @@
 import os
-from typing import Optional, List
-
 import requests
+
+from typing import Optional, List
 from requests import Response
 from requests.auth import HTTPBasicAuth
+from urllib import parse as url_parse
 
 from quads.config import Config
 from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
@@ -97,12 +98,22 @@ class QuadsApi:
         return hosts
 
     def filter_hosts(self, data) -> List[Host]:
-        response = self.post(os.path.join("hosts", "filter"), data)
+        url_params = url_parse.urlencode(data)
+        response = self.get(f"hosts?{url_params}")
         hosts = []
         for host in response.json():
             host_obj = Host().from_dict(data=host)
             hosts.append(host_obj)
         return hosts
+
+    def filter_clouds(self, data) -> List[Cloud]:
+        url_params = url_parse.urlencode(data)
+        response = self.get(f"clouds?{url_params}")
+        clouds = []
+        for cloud in response.json():
+            host_obj = Cloud().from_dict(data=cloud)
+            clouds.append(host_obj)
+        return clouds
 
     def get_host(self, hostname) -> Optional[Host]:
         host_obj = None
@@ -158,15 +169,23 @@ class QuadsApi:
 
     # Schedules
     def get_schedules(self, data: dict = None) -> List[Schedule]:
-        # TODO: fix payload input
-        response = self.get("schedules", **data)
+        url_params = url_parse.urlencode(data)
+        url = "schedules"
+        if url_params:
+            url = f"{url}?{url_params}"
+        response = self.get(url)
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule().from_dict(schedule))
         return schedules
 
     def get_current_schedules(self, data: dict = None) -> List[Schedule]:
-        response = self.post(os.path.join("schedules", "current"), data)
+        url_params = url_parse.urlencode(data)
+        endpoint = os.path.join("schedules", "current")
+        url = f"{endpoint}"
+        if data:
+            url = f"{endpoint}?{url_params}"
+        response = self.get(url)
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule().from_dict(schedule))

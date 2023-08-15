@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -14,7 +15,19 @@ schedule_bp = Blueprint("schedules", __name__)
 
 @schedule_bp.route("/")
 def get_schedules() -> Response:
-    _schedules = ScheduleDao.get_schedules()
+    if request.args:
+        try:
+            _schedules = ScheduleDao.filter_schedules(**request.args)
+        except (EntryNotFound, InvalidArgument) as ex:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": str(ex),
+            }
+            return make_response(jsonify(response), 400)
+
+    else:
+        _schedules = ScheduleDao.get_schedules()
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 
