@@ -1,6 +1,6 @@
 import argparse
 
-default_move_command = "/opt/quads/quads/tools/move_and_rebuild_hosts.py"
+default_move_command = "/opt/quads/quads/tools/move_and_rebuild.py"
 
 parser = argparse.ArgumentParser(description="Query current cloud for a given host")
 action_group = parser.add_mutually_exclusive_group()
