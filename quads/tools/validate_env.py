@@ -13,15 +13,15 @@ from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import Config
 from quads.helpers import is_supported
-from quads.model import Cloud, Schedule, Notification
 from quads.quads_api import QuadsApi
+from quads.server.models import Assignment
 from quads.tools.external.badfish import BadfishException, badfish_factory
 from quads.tools.external.foreman import Foreman
 from quads.tools.helpers import get_running_loop
 from quads.tools.move_and_rebuild import switch_config
 from quads.tools.external.netcat import Netcat
 from quads.tools.external.postman import Postman
-from quads.tools.external.ssh_helper import SSHHelper
+from quads.tools.external.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
 quads = QuadsApi(Config)
@@ -38,6 +38,8 @@ class Validator(object):
             for host in self.hosts
             if quads.get_current_schedules({"host": host.name})
         ]
+        if self.args.skip_hosts:
+            self.hosts = [host for host in self.hosts if host.name not in self.args.skip_hosts]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -108,11 +110,11 @@ class Validator(object):
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
             logger.error("Verify Foreman password is correct: %s" % password)
             self.report = (
-                self.report
-                + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
+                    self.report
+                    + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
             )
             self.report = (
-                self.report + "Verify Foreman password is correct: %s\n" % password
+                    self.report + "Verify Foreman password is correct: %s\n" % password
             )
             return False
 
@@ -126,12 +128,14 @@ class Validator(object):
                 if schedule.host and schedule.host.name in build_hosts:
                     pending.append(schedule.host.name)
 
+            pending = [host for host in pending if host not in self.args.skip_hosts]
+
             if pending:
                 logger.info(
                     "The following hosts are marked for build and will now be rebooted:"
                 )
                 self.report = (
-                    self.report + "The following hosts are marked for build:\n"
+                        self.report + "The following hosts are marked for build:\n"
                 )
                 for host in pending:
                     logger.info(host)
@@ -181,18 +185,23 @@ class Validator(object):
 
         failed = False
         for host in self.hosts:
-            try:
-                badfish = await badfish_factory(
-                    "mgmt-" + host.name,
-                    str(Config["ipmi_cloud_username"]),
-                    password,
-                )
-                await badfish.validate_credentials()
-            except BadfishException:
-                logger.info(f"Could not verify badfish credentials for: {host.name}")
-                failed = True
+            failed = await self.verify_badfish_creds(host, password)
 
         return not failed
+
+    @staticmethod
+    async def verify_badfish_creds(host, password):
+        try:
+            badfish = await badfish_factory(
+                "mgmt-" + host.name,
+                str(Config["ipmi_cloud_username"]),
+                password,
+            )
+            await badfish.validate_credentials()
+        except BadfishException:
+            logger.info(f"Could not verify badfish credentials for: {host.name}")
+            return False
+        return True
 
     async def post_network_test(self):
         test_host = self.hosts[0]
@@ -203,9 +212,8 @@ class Validator(object):
                 data = {"host": host.name, "cloud": host.cloud.name}
                 current_schedule = quads.get_current_schedules(data)
                 previous_cloud = host.default_cloud.name
-                previous_schedule = Schedule.objects(
-                    host=host, end=current_schedule.start
-                ).first()
+                data = {'host': host, 'end': current_schedule.start}
+                previous_schedule = quads.get_schedules(data=data)
                 if previous_schedule:
                     previous_cloud = previous_schedule.cloud.name
                 result = switch_config(host.name, previous_cloud, host.cloud.name)
@@ -223,34 +231,37 @@ class Validator(object):
             if len(host.interfaces) > len(test_host.interfaces):
                 test_host = host
 
-        error = False
         if hosts_down:
             logger.error(
                 "The following hosts appear to be down or with no ssh connection:"
             )
             for i in hosts_down:
                 logger.error(i)
-            error = True
+            return False
+
         if switch_config_missing:
             logger.error("The following hosts are missing switch configuration:")
             for i in switch_config_missing:
                 logger.error(i)
-            error = True
-        if error:
             return False
 
+        failed_ssh = False
         try:
             ssh_helper = SSHHelper(test_host.name)
-        except (SSHException, NoValidConnectionsError, socket.timeout) as ex:
-            logger.debug(ex)
+        except (SSHHelperException, SSHException, NoValidConnectionsError, socket.timeout) as ex:
+            logger.error(str(ex))
             logger.error(
                 "Could not establish connection with host: %s." % test_host.name
             )
             self.report = (
-                self.report
-                + "Could not establish connection with host: %s.\n" % test_host.name
+                    self.report
+                    + "Could not establish connection with host: %s.\n" % test_host.name
             )
+            failed_ssh = True
+
+        if failed_ssh:
             return False
+
         host_list = " ".join([host.name for host in self.hosts])
 
         result, output = ssh_helper.run_cmd(
@@ -303,13 +314,9 @@ class Validator(object):
 
     async def validate_env(self):
         logger.info(f"Validating {self.cloud.name}")
-        notification_obj = Notification.objects(
-            cloud=self.cloud, ticket=self.cloud.ticket
-        ).first()
-        if not notification_obj:
-            notification_obj = Notification(cloud=self.cloud, ticket=self.ticket)
-            notification_obj.save()
         failed = False
+        assignment_json = quads.get_active_cloud_assignment(self.cloud.name)
+        assignment = Assignment().from_dict(assignment_json)
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
@@ -328,29 +335,51 @@ class Validator(object):
             # TODO: quads dell config report
 
             if not failed:
-                if not notification_obj.success:
+                if not assignment.notification.success:
                     self.notify_success()
-                    notification_obj.update(success=True, fail=False)
+                    # TODO: fix update
+                    assignment.notification.success = True
+                    assignment.notification.fail = False
+                    assignment.save()
 
                 for host in self.hosts:
-                    host.update(validated=True)
-                self.cloud.update(validated=True)
+                    # TODO: fix update
+                    host.validated = True
+                    host.save()
+                # TODO: fix update
+                self.cloud.validated = True
 
-        if failed and not notification_obj.fail:
+        if failed and not assignment.notification.fail:
             self.notify_failure()
-            notification_obj.update(fail=True)
+            # TODO: fix update
+            assignment.notification.fail = True
+            assignment.save()
 
         return
 
 
 def main(_args, _loop):
-    clouds = Cloud.objects(validated=False, provisioned=True, name__ne="cloud01")
+    _filter = {"validated": False, "provisioned": True, "name__ne": "cloud01"}
+    # TODO: verify name__ne
+    clouds = quads.filter_clouds(_filter)
+
     if _args.cloud:
         clouds = [cloud for cloud in clouds if cloud.name == _args.cloud]
         if len(clouds) == 0:
             logger.error("No cloud with this name.")
+
+    if _args.skip_hosts:
+        hosts = []
+        for hostname in _args.skip_hosts:
+            host = quads.get_host(hostname)
+            if not host:
+                logger.error(f"Host not found: {hostname}")
+            else:
+                hosts.append(host)
+
     for _cloud in clouds:
-        _schedule_count = Schedule.current_schedule(cloud=_cloud).count()
+        _schedules = quads.get_current_schedules(data={'cloud': _cloud})
+        _schedule_count = len(_schedules)
         if _schedule_count and _cloud.wipe:
             validator = Validator(_cloud, _args, _loop=_loop)
             try:
@@ -373,6 +402,12 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Skip network tests.",
+    )
+    parser.add_argument(
+        "--skip-hosts",
+        action='append',
+        nargs='*',
+        help="Skip specific hosts.",
     )
     parser.add_argument(
         "--debug",
