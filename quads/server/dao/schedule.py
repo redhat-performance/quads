@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import List, Type
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import BaseDao, EntryNotFound
+from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
@@ -51,24 +52,19 @@ class ScheduleDao(BaseDao):
         return query.all()
 
     @staticmethod
-    def filter_schedule(
+    def filter_schedules(
         start: datetime = None, end: datetime = None, host: Host = None, cloud: Cloud = None
     ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
-        if not start:
-            start = datetime.now()
-        if not end:
-            end = datetime.now()
-        query = query.filter(and_(Schedule.start >= start, Schedule.end <= end))
-
+        if start:
+            query = query.filter(Schedule.start >= start)
+        if end:
+            query = query.filter(Schedule.end <= end)
         if host:
-            query = query.filter(Schedule.host == host)
-        # TODO: check assignment cloud schedule relationship
+            query = query.filter(Schedule.host.has(name=host))
         if cloud:
-            result = query.all()
-            return [
-                schedule for schedule in result if schedule.assignment.cloud == cloud
-            ]
+            cloud_obj = CloudDao.get_cloud(cloud)
+            query = query.filter(Schedule.assignment.has(cloud_id=cloud_obj.id))
         return query.all()
 
     @staticmethod
