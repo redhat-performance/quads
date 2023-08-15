@@ -1,3 +1,5 @@
+[![Gerrit](https://quads-ci.scalelab.redhat.com/job/Quads-2.0/badge/icon)](https://quads-ci.scalelab.redhat.com/job/Quads-2.0/)
+
 Contributing to QUADS
 =====================
 
