@@ -21,6 +21,9 @@ def verify(_cloud_name, _host_name, change=False):
     _cloud_obj = None
     if _cloud_name:
         _cloud_obj = Cloud.objects(name=_cloud_name).first()
+        if not _cloud_obj:
+            logger.error("Cloud not found.")
+            return
 
     if _host_name:
         hosts = Host.objects(name=_host_name, retired=False)

@@ -1,7 +1,6 @@
 from sqlalchemy import and_, or_
 
-from quads.server.models import db, Interface, Disk, Memory, Processor
-from quads.server import models
+from quads.server.models import db, Interface, Disk, Memory, Processor, Host
 from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -26,11 +25,14 @@ OPERATORS = {
     "__ilike": "ilike",
     "__in": "in",
 }
-MAP_MODEL = {
+MAP_HOST_META = {
     "interfaces": Interface,
     "disks": Disk,
     "memory": Memory,
     "processors": Processor,
+}
+MAP_MODEL = {
+    "HostDao": Host,
 }
 
 
@@ -77,7 +79,7 @@ class BaseDao:
             attrs = column_name.split(".")
             if len(attrs) > 1:
                 column_name = attrs[0]
-                parent_column = MAP_MODEL[column_name]
+                parent_column = MAP_HOST_META[column_name]
                 column = getattr(parent_column, attrs[1])
                 query = query.filter(model.id == parent_column.host_id)
             else:
