@@ -52,10 +52,11 @@ def remove_fixture(request):
     host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
     vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
     assignment = AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name)
-    ScheduleDao.create_schedule(today.strftime("%Y-%m-%d %H:%M"), tomorrow.strftime("%Y-%m-%d %H:%M"),assignment, host)
+    schedule = ScheduleDao.create_schedule(today.strftime("%Y-%m-%d %H:%M"), tomorrow.strftime("%Y-%m-%d %H:%M"),assignment, host)
+    assert schedule
 
 
-class TestHost(TestBase):
+class TestSchedule(TestBase):
     def test_add_schedule(self, define_fixture):
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
@@ -84,7 +85,8 @@ class TestHost(TestBase):
         assert not schedule
 
     def test_ls_schedule(self, remove_fixture):
-        # TODO: fix this
         self.cli_args["host"] = HOST
         self.quads_cli_call("schedule")
         assert self._caplog.messages[0] == 'Default cloud: cloud99'
+        assert self._caplog.messages[1] == 'Current cloud: cloud99'
+        assert self._caplog.messages[2].startswith('1| start=')

@@ -355,6 +355,13 @@ paths:
       summary: 'Update an existing host'
       tags:
         - Hosts
+      requestBody:
+        description: Body request with *host* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostClean'
       parameters:
         - name: hostName
           in: path
@@ -1554,6 +1561,42 @@ components:
         host_id:
           type: integer
           example: 10
+    HostClean:
+      type: object
+      properties:
+        name:
+          type: string
+          example: host.example.com
+        model:
+          type: string
+          example: r640
+        host_type:
+          type: string
+          example: vendor
+        build:
+          type: boolean
+          example: true
+        validated:
+          type: boolean
+          example: true
+        switch_config_applied:
+          type: boolean
+          example: true
+        broken:
+          type: boolean
+          example: true
+        retired:
+          type: boolean
+          example: true
+        last_build:
+          type: string
+          example: 2022-02-02
+        cloud_id:
+          type: integer
+          example: 12
+        default_cloud_id:
+          type: integer
+          example: 1
     Host:
       type: object
       properties:

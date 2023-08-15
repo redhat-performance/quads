@@ -4,19 +4,19 @@
 
 export TOKEN=$(sed -e 's/^"//' -e 's/"$//' <<< $(curl -k -X POST -u "grafuls@redhat.com:password" -H "Content-Type: application/json" http://127.0.0.1:5000/api/v3/login/ | awk -F\: '{print $2}' | awk -F\, '{print $1}'))
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud01"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud01"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud02"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud03"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud03"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud04"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud04"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud05"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud05"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud06"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud06"}' http://127.0.0.1:5000/api/v3/clouds/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"cloud07"}' http://127.0.0.1:5000/api/v3/clouds/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud07"}' http://127.0.0.1:5000/api/v3/clouds/
 
 curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"name":"host1.example.com", "default_cloud":"cloud01", "model": "fc640", "host_type": "scalelab"}' http://127.0.0.1:5000/api/v3/hosts/
 
@@ -57,4 +57,4 @@ curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $T
 
 curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02","vlan":"601","description":"Test allocation","owner":"grafuls","ticket":"123","cc_user":"gonza"}' http://127.0.0.1:5000/api/v3/assignments/
 
-curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02", "host":"host2.example.com", "start":"2023-02-28 22:00", "end":"2023-03-02 22:00"}' http://127.0.0.1:5000/api/v3/schedules/
+curl -k -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"cloud":"cloud02", "hostname":"host2.example.com", "start":"2023-02-28 22:00", "end":"2023-03-02 22:00"}' http://127.0.0.1:5000/api/v3/schedules/

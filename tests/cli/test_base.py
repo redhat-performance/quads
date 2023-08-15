@@ -1,11 +1,8 @@
 import logging
-import sys
-
 import pytest
 
 from quads.cli import QuadsCli
 from quads.config import DEFAULT_CONF_PATH, Config
-from quads.exceptions import CliException
 from quads.quads_api import QuadsApi
 
 from quads.server.app import create_app, user_datastore
