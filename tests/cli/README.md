@@ -1,13 +1,13 @@
-define-cloud
+define - cloud
 rmcloud
 modcloud
-define-host
+define - host
 rmhost
-add-schedule
+add - schedule
 rmschedule
 
-ls-cloud
-ls-host
-ls-interface
-ls-memory
-ls-processor
+ls - cloud
+ls - host
+ls - interface
+ls - memory
+ls - processor

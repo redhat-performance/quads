@@ -115,6 +115,15 @@ class QuadsApi:
             clouds.append(host_obj)
         return clouds
 
+    def filter_assignments(self, data) -> List[Assignment]:
+        url_params = url_parse.urlencode(data)
+        response = self.get(f"assignments?{url_params}")
+        assignments = []
+        for ass in response.json():
+            host_obj = Assignment().from_dict(data=ass)
+            assignments.append(host_obj)
+        return assignments
+
     def get_host(self, hostname) -> Optional[Host]:
         host_obj = None
         response = self.get(os.path.join("hosts", hostname))

@@ -32,7 +32,7 @@ class HostDao(BaseDao):
         return _host
 
     @classmethod
-    def udpate_host(
+    def update_host(
             cls,
             name: str,
             **kwargs
@@ -61,7 +61,7 @@ class HostDao(BaseDao):
                 setattr(host, key, cloud)
                 continue
 
-            if getattr(host, key):
+            if hasattr(host, key):
                 setattr(host, key, value)
             else:
                 raise InvalidArgument

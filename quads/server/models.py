@@ -40,7 +40,7 @@ db = SQLAlchemy()
 Base.query = db.session.query_property()
 migrate = Migrate()
 
-Engine = create_engine("postgresql://postgres@quads_db:5432/quads")
+Engine = create_engine("postgresql://postgres@localhost:5432/quads")
 
 
 def engine_from_config(config):

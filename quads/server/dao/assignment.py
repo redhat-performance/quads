@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Type
 
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, OPERATORS, MAP_HOST_META
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db, Assignment, Cloud, Notification
-from sqlalchemy import and_
+from sqlalchemy import and_, Boolean
+from sqlalchemy.orm import RelationshipProperty, Relationship
 
 
 class AssignmentDao(BaseDao):
@@ -126,6 +127,54 @@ class AssignmentDao(BaseDao):
                         .first()
                     )
         return assignment
+
+    @staticmethod
+    def filter_assignments(data: dict) -> List[Type[Assignment]]:
+        filter_tuples = []
+        operator = "=="
+        for k, value in data.items():
+            fields = k.split(".")
+            if len(fields) > 2:
+                raise InvalidArgument(f"Too many arguments: {fields}")
+
+            first_field = fields[0]
+            field_name = fields[-1]
+            if "__" in k:
+                for op in OPERATORS.keys():
+                    if op in field_name:
+                        if first_field == field_name:
+                            first_field = field_name[: field_name.index(op)]
+                        field_name = field_name[: field_name.index(op)]
+                        operator = OPERATORS[op]
+                        break
+
+            field = Assignment.__mapper__.attrs.get(first_field)
+            if not field:
+                raise InvalidArgument(f"{k} is not a valid field.")
+            if (
+                type(field) != RelationshipProperty
+                and type(field) != Relationship
+                and type(field.columns[0].type) == Boolean
+            ):
+                value = value.lower() in ["true", "y", 1, "yes"]
+            else:
+                if first_field in ["cloud"]:
+                    cloud = CloudDao.get_cloud(value)
+                    if not cloud:
+                        raise EntryNotFound(f"Cloud not found: {value}")
+                    value = cloud
+            filter_tuples.append(
+                (
+                    field_name,
+                    operator,
+                    value,
+                )
+            )
+        if filter_tuples:
+            _hosts = AssignmentDao.create_query_select(Assignment, filters=filter_tuples)
+        else:
+            _hosts = AssignmentDao.get_assignments()
+        return _hosts
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:

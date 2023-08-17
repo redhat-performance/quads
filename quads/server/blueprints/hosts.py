@@ -50,9 +50,8 @@ def update_host(hostname: str) -> Response:
     cloud_name = data.get("cloud")
     default_cloud = data.get("default_cloud")
     host_type = data.get("host_type")
-
-    if not default_cloud:
-        default_cloud = Config["spare_pool_name"]
+    broken = data.get("broken")
+    retired = data.get("retired")
 
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -90,6 +89,12 @@ def update_host(hostname: str) -> Response:
 
     if host_type:
         _host.host_type = host_type
+
+    if isinstance(broken, bool):
+        _host.broken = broken
+
+    if isinstance(retired, bool):
+        _host.retired = retired
 
     db.session.commit()
 

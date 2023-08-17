@@ -1,10 +1,8 @@
-import json
-
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import EntryNotFound
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import Assignment, Notification, db
@@ -22,7 +20,19 @@ def get_assignments() -> Response:
 
     :return: A list of all assignments in the database
     """
-    _assignments = AssignmentDao.get_assignments()
+    if request.args:
+        try:
+            _assignments = AssignmentDao.filter_assignments(request.args)
+        except (EntryNotFound, InvalidArgument) as ex:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": str(ex),
+            }
+            return make_response(jsonify(response), 400)
+
+    else:
+        _assignments = AssignmentDao.get_assignments()
     return jsonify([_assignment.as_dict() for _assignment in _assignments])
 
 
