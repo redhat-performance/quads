@@ -14,7 +14,7 @@ _logger.propagate = True
 
 
 class TestBase:
-    cli_args = {"datearg": None, "filter": None, "force": 'False'}
+    cli_args = {"datearg": None, "filter": None, "force": "False"}
 
     @pytest.fixture(autouse=True)
     def test_client(self):

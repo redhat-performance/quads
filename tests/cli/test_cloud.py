@@ -2,6 +2,7 @@ import pytest
 
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
+from quads.server.dao.vlan import VlanDao
 from tests.cli.config import CLOUD
 from tests.cli.test_base import TestBase
 
@@ -26,7 +27,14 @@ def remove_fixture(request):
 
     request.addfinalizer(finalizer)
 
-    CloudDao.create_cloud(name=CLOUD)
+    cloud = CloudDao.create_cloud(name=CLOUD)
+    vlan = VlanDao.create_vlan(
+        gateway="10.0.0.1",
+        ip_free=510,
+        vlan_id=1,
+        ip_range="10.0.0.0/23",
+        netmask="255.255.0.0",
+    )
     assignment = AssignmentDao.create_assignment(
         description="Test cloud",
         owner="scalelab",
@@ -35,7 +43,7 @@ def remove_fixture(request):
         wipe=False,
         ccuser=[],
         vlan_id=1,
-        cloud=CLOUD
+        cloud=CLOUD,
     )
 
 
@@ -52,8 +60,8 @@ class TestCloud(TestBase):
 
         self.quads_cli_call("cloudresource")
 
-        assert self._caplog.messages[0] == 'Cloud cloud99 created.'
-        assert self._caplog.messages[1] == 'Assignment created.'
+        assert self._caplog.messages[0] == "Cloud cloud99 created."
+        assert self._caplog.messages[1] == "Assignment created."
 
         cloud = CloudDao.get_cloud(CLOUD)
         assignment = AssignmentDao.get_active_cloud_assignment(cloud)
@@ -84,7 +92,7 @@ class TestCloud(TestBase):
 
         self.quads_cli_call("modcloud")
 
-        assert self._caplog.messages[0] == 'Cloud modified successfully'
+        assert self._caplog.messages[0] == "Cloud modified successfully"
 
         cloud = CloudDao.get_cloud(CLOUD)
         assert cloud
@@ -97,3 +105,33 @@ class TestCloud(TestBase):
         self.quads_cli_call("cloud")
 
         assert self._caplog.messages[0] == CLOUD
+
+    def test_ls_wipe(self, remove_fixture):
+        self.quads_cli_call("wipe")
+
+        assert self._caplog.messages[0] == f"{CLOUD}: False"
+
+    def test_ls_ticket(self, remove_fixture):
+        self.quads_cli_call("ticket")
+
+        assert self._caplog.messages[0] == f"{CLOUD}: 123456"
+
+    def test_ls_owner(self, remove_fixture):
+        self.quads_cli_call("owner")
+
+        assert self._caplog.messages[0] == f"{CLOUD}: scalelab"
+
+    def test_ls_qinq(self, remove_fixture):
+        self.quads_cli_call("qinq")
+
+        assert self._caplog.messages[0] == f"{CLOUD}: 0"
+
+    def test_ls_cc_users(self, remove_fixture):
+        self.quads_cli_call("ccuser")
+
+        assert self._caplog.messages[0] == f"{CLOUD}: []"
+
+    def test_ls_vlan(self, remove_fixture):
+        self.quads_cli_call("ls_vlan")
+
+        assert self._caplog.messages[0] == f"1: {CLOUD}"
