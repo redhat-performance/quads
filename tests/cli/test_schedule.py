@@ -37,8 +37,12 @@ def define_fixture(request):
 
     cloud = CloudDao.create_cloud(CLOUD)
     host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-    vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
-    AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name)
+    vlan = VlanDao.create_vlan(
+        "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+    )
+    AssignmentDao.create_assignment(
+        "test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name
+    )
 
 
 @pytest.fixture
@@ -50,9 +54,18 @@ def remove_fixture(request):
 
     cloud = CloudDao.create_cloud(CLOUD)
     host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-    vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
-    assignment = AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name)
-    schedule = ScheduleDao.create_schedule(today.strftime("%Y-%m-%d %H:%M"), tomorrow.strftime("%Y-%m-%d %H:%M"),assignment, host)
+    vlan = VlanDao.create_vlan(
+        "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+    )
+    assignment = AssignmentDao.create_assignment(
+        "test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name
+    )
+    schedule = ScheduleDao.create_schedule(
+        today.strftime("%Y-%m-%d %H:%M"),
+        tomorrow.strftime("%Y-%m-%d %H:%M"),
+        assignment,
+        host,
+    )
     assert schedule
 
 
@@ -87,6 +100,6 @@ class TestSchedule(TestBase):
     def test_ls_schedule(self, remove_fixture):
         self.cli_args["host"] = HOST
         self.quads_cli_call("schedule")
-        assert self._caplog.messages[0] == 'Default cloud: cloud99'
-        assert self._caplog.messages[1] == 'Current cloud: cloud99'
-        assert self._caplog.messages[2].startswith('1| start=')
+        assert self._caplog.messages[0] == "Default cloud: cloud99"
+        assert self._caplog.messages[1] == "Current cloud: cloud99"
+        assert self._caplog.messages[2].startswith("1| start=")

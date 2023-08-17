@@ -357,14 +357,14 @@ class QuadsCli:
         if not _vlans:
             raise CliException("No VLANs defined")
         for vlan in _vlans:
-            payload = {"vlan_id": vlan.vlan_id}
+            payload = {"vlan.vlan_id": vlan.vlan_id}
             try:
-                assignment = self.quads.get_assignment(**payload)
+                assignments = self.quads.filter_assignments(payload)
             except (APIServerException, APIBadRequest) as ex:
                 raise CliException(str(ex))
             cloud_assigned = "Free"
-            if assignment:
-                cloud_assigned = assignment.cloud.name
+            if assignments:
+                cloud_assigned = assignments[0].cloud.name
             self.logger.info(f"{vlan.vlan_id}: {cloud_assigned}")
 
     def action_schedule(self):
@@ -1794,7 +1794,7 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
         if host:
-            if host["broken"]:
+            if host.broken:
                 self.logger.warning(
                     f"Host {self.cli_args['host']} has already been marked broken"
                 )
@@ -1820,7 +1820,7 @@ class QuadsCli:
         if not host:
             raise CliException("Host not found")
 
-        if not host["broken"]:
+        if not host.broken:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked repaired"
             )
@@ -1842,7 +1842,7 @@ class QuadsCli:
         if not host:
             raise CliException(f"Host {self.cli_args['host']} not found")
 
-        if host["retired"]:
+        if host.retired:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked as retired"
             )
@@ -1862,7 +1862,7 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
-        if not host["retired"]:
+        if not host.retired:
             self.logger.warning(
                 f"Host {self.cli_args['host']} has already been marked unretired"
             )
@@ -1884,8 +1884,8 @@ class QuadsCli:
         schedules = self.quads.get_current_schedules(**_kwargs)
         if schedules:
             for schedule in schedules:
-                if schedule["end"] != datetime_obj:
-                    self.logger.info(schedule["cloud"])
+                if schedule.end != datetime_obj:
+                    self.logger.info(schedule.cloud.name)
         else:
             self.logger.info(host.default_cloud.name)
 
@@ -1908,7 +1908,7 @@ class QuadsCli:
             _hosts = self.quads.get_hosts()
             for schedule in sorted(schedules, key=lambda k: k["host"]["name"]):
                 # TODO: check data properties
-                if schedule["host"] in _hosts:
+                if schedule.host.name in _hosts:
                     self.logger.info(schedule.host.name)
         else:
             if _kwargs.get("date") and self.cli_args["cloudonly"] == "cloud01":
