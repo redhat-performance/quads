@@ -89,13 +89,13 @@ class BaseDao:
             else:
                 try:
                     attr = (
-                            list(
-                                filter(
-                                    lambda e: hasattr(column, e % FILTERING_OPERATORS[op]),
-                                    ["%s", "%s_", "__%s__"],
-                                )
-                            )[0]
-                            % FILTERING_OPERATORS[op]
+                        list(
+                            filter(
+                                lambda e: hasattr(column, e % FILTERING_OPERATORS[op]),
+                                ["%s", "%s_", "__%s__"],
+                            )
+                        )[0]
+                        % FILTERING_OPERATORS[op]
                     )
                 except IndexError:
                     raise Exception(

@@ -1,6 +1,12 @@
 from typing import List, Type
 
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, OPERATORS, MAP_HOST_META
+from quads.server.dao.baseDao import (
+    BaseDao,
+    EntryNotFound,
+    InvalidArgument,
+    OPERATORS,
+    MAP_HOST_META,
+)
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db, Assignment, Cloud, Notification
@@ -11,14 +17,14 @@ from sqlalchemy.orm import RelationshipProperty, Relationship
 class AssignmentDao(BaseDao):
     @staticmethod
     def create_assignment(
-            description: str,
-            owner: str,
-            ticket: str,
-            qinq: int,
-            wipe: bool,
-            ccuser: List[str],
-            vlan_id: int,
-            cloud: str,
+        description: str,
+        owner: str,
+        ticket: str,
+        qinq: int,
+        wipe: bool,
+        ccuser: List[str],
+        vlan_id: int,
+        cloud: str,
     ) -> Assignment:
         vlan = VlanDao.get_vlan(vlan_id)
         cloud = CloudDao.get_cloud(cloud)
@@ -43,11 +49,7 @@ class AssignmentDao(BaseDao):
         return _assignment_obj
 
     @classmethod
-    def udpate_assignment(
-            cls,
-            assignment_id: int,
-            **kwargs
-    ) -> Assignment:
+    def udpate_assignment(cls, assignment_id: int, **kwargs) -> Assignment:
         """
         Updates an assignment in the database.
 
@@ -171,7 +173,9 @@ class AssignmentDao(BaseDao):
                 )
             )
         if filter_tuples:
-            _hosts = AssignmentDao.create_query_select(Assignment, filters=filter_tuples)
+            _hosts = AssignmentDao.create_query_select(
+                Assignment, filters=filter_tuples
+            )
         else:
             _hosts = AssignmentDao.get_assignments()
         return _hosts
@@ -195,9 +199,7 @@ class AssignmentDao(BaseDao):
     @staticmethod
     def get_active_assignments() -> List[Assignment]:
         assignments = (
-            db.session.query(Assignment)
-            .filter(Assignment.active == True)
-            .all()
+            db.session.query(Assignment).filter(Assignment.active == True).all()
         )
         return assignments
 

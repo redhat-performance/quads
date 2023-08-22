@@ -3,7 +3,13 @@ from typing import List, Optional, Type
 from sqlalchemy import Boolean
 from sqlalchemy.orm import RelationshipProperty, Relationship
 
-from quads.server.dao.baseDao import BaseDao, EntryExisting, EntryNotFound, OPERATORS, InvalidArgument
+from quads.server.dao.baseDao import (
+    BaseDao,
+    EntryExisting,
+    EntryNotFound,
+    OPERATORS,
+    InvalidArgument,
+)
 from quads.server.models import db, Cloud
 
 

@@ -11,7 +11,9 @@ from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
 class ScheduleDao(BaseDao):
     @staticmethod
-    def create_schedule(start: datetime, end: datetime, assignment: Assignment, host: Host) -> Schedule:
+    def create_schedule(
+        start: datetime, end: datetime, assignment: Assignment, host: Host
+    ) -> Schedule:
         _schedule_obj = Schedule(start=start, end=end, assignment=assignment, host=host)
         db.session.add(_schedule_obj)
         db.session.commit()
@@ -53,7 +55,10 @@ class ScheduleDao(BaseDao):
 
     @staticmethod
     def filter_schedules(
-        start: datetime = None, end: datetime = None, host: Host = None, cloud: Cloud = None
+        start: datetime = None,
+        end: datetime = None,
+        host: Host = None,
+        cloud: Cloud = None,
     ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if start:
