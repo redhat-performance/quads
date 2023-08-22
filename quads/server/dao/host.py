@@ -4,14 +4,23 @@ from sqlalchemy import Boolean
 from sqlalchemy.orm import RelationshipProperty, Relationship
 
 from quads.config import Config
-from quads.server.dao.baseDao import BaseDao, OPERATORS, MAP_HOST_META, EntryNotFound, EntryExisting, InvalidArgument
+from quads.server.dao.baseDao import (
+    BaseDao,
+    OPERATORS,
+    MAP_HOST_META,
+    EntryNotFound,
+    EntryExisting,
+    InvalidArgument,
+)
 from quads.server.dao.cloud import CloudDao
 from quads.server.models import db, Host, Cloud
 
 
 class HostDao(BaseDao):
     @classmethod
-    def create_host(cls, name: str, model: str, host_type: str, default_cloud: str) -> Host:
+    def create_host(
+        cls, name: str, model: str, host_type: str, default_cloud: str
+    ) -> Host:
         _host_obj = cls.get_host(name)
         if _host_obj:
             raise EntryExisting
@@ -32,11 +41,7 @@ class HostDao(BaseDao):
         return _host
 
     @classmethod
-    def update_host(
-            cls,
-            name: str,
-            **kwargs
-    ) -> Host:
+    def update_host(cls, name: str, **kwargs) -> Host:
         """
         Updates a host in the database.
 

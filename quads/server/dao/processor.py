@@ -7,7 +7,9 @@ from quads.server.models import db, Processor
 
 class ProcessorDao(BaseDao):
     @staticmethod
-    def create_processor(hostname: str, handle: str, vendor: str, product: str, cores: int, threads: int) -> Processor:
+    def create_processor(
+        hostname: str, handle: str, vendor: str, product: str, cores: int, threads: int
+    ) -> Processor:
         _host_obj = HostDao.get_host(hostname)
         if not _host_obj:
             raise EntryNotFound

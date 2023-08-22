@@ -7,7 +7,18 @@ from quads.server.models import db, Disk, Interface
 
 class InterfaceDao(BaseDao):
     @staticmethod
-    def create_interface(hostname: str, name: str, bios_id: str, mac_address: str, switch_ip: str, switch_port: str, speed: int, vendor: str, pxe_boot: bool, maintenance: str) -> Interface:
+    def create_interface(
+        hostname: str,
+        name: str,
+        bios_id: str,
+        mac_address: str,
+        switch_ip: str,
+        switch_port: str,
+        speed: int,
+        vendor: str,
+        pxe_boot: bool,
+        maintenance: bool,
+    ) -> Interface:
         _host_obj = HostDao.get_host(hostname)
         if not _host_obj:
             raise EntryNotFound

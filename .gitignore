@@ -115,3 +115,4 @@ log/
 data_db/
 wiki_db/
 wordpress_data/
+codecov
