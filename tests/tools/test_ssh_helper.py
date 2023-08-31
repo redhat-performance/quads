@@ -20,4 +20,5 @@ class TestSSHHelper(object):
 
     def test_run_cmd(self):
         out = self.helper.run_cmd(f"cat {self.tmp_file}")
-        assert out == self.string
+        assert out[0]
+        assert out[1][0] == 'test'

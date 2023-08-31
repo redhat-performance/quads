@@ -10,15 +10,16 @@ vlan_bp = Blueprint("vlans", __name__)
 
 
 @vlan_bp.route("/<vlan_id>")
-def get_vlan(vlan_id: str) -> Response:
+def get_vlan(vlan_id: int) -> Response:
     _vlan = VlanDao.get_vlan(vlan_id)
     if not _vlan:
+        status_code = 400
         response = {
-            "status_code": 400,
-            "error": "Bad Request",
+            "status_code": status_code,
+            "error": "Entry not found",
             "message": f"Vlan not found: {vlan_id}",
         }
-        return make_response(jsonify(response), 400)
+        return make_response(jsonify(response), status_code)
 
     return jsonify(_vlan.as_dict())
 
@@ -95,3 +96,35 @@ def delete_vlan(vlan_id: int) -> Response:
         "message": "Vlan deleted",
     }
     return jsonify(response)
+
+
+@vlan_bp.route("/<vlan_id>", methods=["PATCH"])
+@check_access("admin")
+def update_vlan(vlan_id: int) -> Response:
+    data = request.get_json()
+    gateway = data.get("gateway")
+    ip_free = data.get("ip_free")
+    ip_range = data.get("ip_range")
+    netmask = data.get("netmask")
+
+    _vlan = VlanDao.get_vlan(vlan_id)
+    if not _vlan:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Vlan not found: {vlan_id}",
+        }
+        return make_response(jsonify(response), 400)
+
+    if gateway:
+        _vlan.gateway = gateway
+    if ip_free:
+        _vlan.ip_free = ip_free
+    if ip_range:
+        _vlan.ip_range = ip_range
+    if netmask:
+        _vlan.netmask = netmask
+
+    db.session.commit()
+
+    return jsonify(_vlan.as_dict())

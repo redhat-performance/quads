@@ -3,9 +3,9 @@
 import argparse
 import logging
 
-from quads.config import Config
+from quads.config import Config, DEFAULT_CONF_PATH
 from quads.helpers import get_vlan
-from quads.model import Cloud, Host
+from quads.quads_api import QuadsApi
 from quads.tools.external.juniper import Juniper
 from quads.tools.external.ssh_helper import SSHHelper
 
@@ -14,22 +14,25 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
 def verify(_cloud_name, _host_name, change=False):
+    Config.load_from_yaml(DEFAULT_CONF_PATH)
+
+    quads = QuadsApi(config=Config)
     if not _cloud_name and not _host_name:
         logger.warning("At least one of --cloud or --host should be specified.")
         return
 
     _cloud_obj = None
     if _cloud_name:
-        _cloud_obj = Cloud.objects(name=_cloud_name).first()
-        if not _cloud_obj:
+        _cloud = quads.get_cloud(_cloud_name)
+        if not _cloud:
             logger.error("Cloud not found.")
             return
 
     if _host_name:
-        hosts = Host.objects(name=_host_name, retired=False)
+        hosts = quads.filter_hosts({"name": _host_name, "retired": False})
     else:
-        hosts = Host.objects(cloud=_cloud_obj, retired=False)
-    first_host = hosts.first()
+        hosts = quads.filter_hosts({"cloud": _cloud_name, "retired": False})
+    first_host = hosts[0]
 
     if not _cloud_obj:
         _cloud_obj = first_host.cloud

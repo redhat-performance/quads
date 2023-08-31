@@ -92,7 +92,7 @@ class TestReadVLANs:
             )
         )
         assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
+        assert response.json["error"] == "Entry not found"
         assert response.json["message"] == f"Vlan not found: {invalid_vlan_id}"
 
     def test_valid(self, test_client, auth):
