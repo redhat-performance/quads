@@ -1,4 +1,6 @@
 import os
+from json import JSONDecodeError
+
 import requests
 
 from typing import Optional, List
@@ -50,7 +52,10 @@ class QuadsApi:
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
-            response_json = _response.json()
+            try:
+                response_json = _response.json()
+            except JSONDecodeError:
+                raise APIBadRequest("Failed to parse response")
             raise APIBadRequest(response_json.get("message"))
         return _response
 
@@ -294,17 +299,17 @@ class QuadsApi:
 
     # Disks
     def create_disk(self, hostname, data) -> Response:
-        return self.post(os.path.join("disk", hostname), data)
+        return self.post(os.path.join("disks", hostname), data)
 
     def remove_disk(self, disk_id) -> Response:
-        return self.delete(os.path.join("disk", disk_id))
+        return self.delete(os.path.join("disks", disk_id))
 
     # Processor
     def create_processor(self, hostname, data) -> Response:
-        return self.post(os.path.join("processor", hostname), data)
+        return self.post(os.path.join("processors", hostname), data)
 
     def remove_processor(self, processor_id) -> Response:
-        return self.delete(os.path.join("processor", processor_id))
+        return self.delete(os.path.join("processors", processor_id))
 
     # Vlans
     def get_vlans(self) -> List[Vlan]:
@@ -315,6 +320,16 @@ class QuadsApi:
             vlan_obj = Vlan().from_dict(vlan)
             vlans.append(vlan_obj)
         return vlans
+
+    def get_vlan(self, vlan_id) -> Response:
+        return self.get(os.path.join("vlans", str(vlan_id)))
+
+    def update_vlan(self, vlan_id, data) -> Response:
+        return self.patch(os.path.join("vlans", str(vlan_id)), data)
+
+    # Processor
+    def create_vlan(self, data) -> Response:
+        return self.post("vlans", data)
 
     def get_summary(self) -> Response:
         return self.get("summary")

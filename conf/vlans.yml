@@ -1,83 +1,123 @@
 # Data file for populating MongoDB with public vlan definitions
-# to be used as input for vlan_yaml_to_mongo.py
+# to be used as input for vlan_yaml_to_db.py
 
 pubnet01:
   gateway: 10.12.81.254
-  iprange: 10.12.80.0/23
-  vlanid: 601
+  ip_range: 10.12.80.0/23
+  ip_free: 510
+  netmask: 255.255.254.0
+  vlan_id: 601
 pubnet02:
   gateway: 10.12.83.254
-  iprange: 10.12.82.0/23
-  vlanid: 602
+  ip_range: 10.12.82.0/23
+  ip_free: 510
+  netmask: 255.255.254.0
+  vlan_id: 602
 pubnet03:
   gateway: 10.12.84.254
-  iprange: 10.12.84.0/24
-  vlanid: 603
+  ip_range: 10.12.84.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 603
 pubnet04:
   gateway: 10.12.85.254
-  iprange: 10.12.85.0/24
-  vlanid: 604
+  ip_range: 10.12.85.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 604
 pubnet05:
   gateway: 10.12.86.254
-  iprange: 10.12.86.0/24
-  vlanid: 605
+  ip_range: 10.12.86.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 605
 pubnet06:
   gateway: 10.12.87.254
-  iprange: 10.12.87.0/24
-  vlanid: 606
+  ip_range: 10.12.87.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 606
 pubnet07:
   gateway: 10.12.88.254
-  iprange: 10.12.88.0/24
-  vlanid: 607
+  ip_range: 10.12.88.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 607
 pubnet08:
   gateway: 10.12.89.254
-  iprange: 10.12.89.0/24
-  vlanid: 608
+  ip_range: 10.12.89.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 608
 pubnet09:
   gateway: 10.12.90.254
-  iprange: 10.12.90.0/24
-  vlanid: 609
+  ip_range: 10.12.90.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 609
 pubnet10:
   gateway: 10.12.91.254
-  iprange: 10.12.91.0/24
-  vlanid: 610
+  ip_range: 10.12.91.0/24
+  ip_free: 254
+  netmask: 255.255.255.0
+  vlan_id: 610
 pubnet11:
   gateway: 10.12.92.126
-  iprange: 10.12.92.0/25
-  vlanid: 611
+  ip_range: 10.12.92.0/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 611
 pubnet12:
   gateway: 10.12.92.254
-  iprange: 10.12.92.128/25
-  vlanid: 612
+  ip_range: 10.12.92.128/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 612
 pubnet13:
   gateway: 10.12.93.126
-  iprange: 10.12.93.0/25
-  vlanid: 613
+  ip_range: 10.12.93.0/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 613
 pubnet14:
   gateway: 10.12.93.254
-  iprange: 10.12.93.128/25
-  vlanid: 614
+  ip_range: 10.12.93.128/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 614
 pubnet15:
   gateway: 10.12.94.126
-  iprange: 10.12.94.0/25
-  vlanid: 615
+  ip_range: 10.12.94.0/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 615
 pubnet16:
   gateway: 10.12.94.254
-  iprange: 10.12.94.128/25
-  vlanid: 616
+  ip_range: 10.12.94.128/25
+  ip_free: 126
+  netmask: 255.255.255.128
+  vlan_id: 616
 pubnet17:
   gateway: 10.12.95.62
-  iprange: 10.12.95.0/26
-  vlanid: 617
+  ip_range: 10.12.95.0/26
+  ip_free: 62
+  netmask: 255.255.255.192
+  vlan_id: 617
 pubnet18:
   gateway: 10.12.95.126
-  iprange: 10.12.95.64/26
-  vlanid: 618
+  ip_range: 10.12.95.64/26
+  ip_free: 62
+  netmask: 255.255.255.192
+  vlan_id: 618
 pubnet19:
   gateway: 10.12.95.190
-  iprange: 10.12.95.128/26
-  vlanid: 619
+  ip_range: 10.12.95.128/26
+  ip_free: 62
+  netmask: 255.255.255.192
+  vlan_id: 619
 pubnet20:
   gateway: 10.12.95.254
-  iprange: 10.12.95.192/26
-  vlanid: 620
+  ip_range: 10.12.95.192/26
+  ip_free: 62
+  netmask: 255.255.255.192
+  vlan_id: 620

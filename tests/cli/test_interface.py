@@ -42,7 +42,7 @@ def mod_fixture(request):
     CloudDao.create_cloud(CLOUD)
     HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
     InterfaceDao.create_interface(
-        HOST, IFNAME, IFBIOSID, IFMAC, IFIP, IFPORT, IFSPEED, IFVENDOR, False, False
+        HOST, IFNAME, IFBIOSID, IFMAC, IFIP, IFPORT, IFSPEED, IFVENDOR, True, False
     )
 
 
@@ -131,3 +131,18 @@ class TestInterface(TestBase):
         assert len(host.interfaces) == 1
         assert host.interfaces[0].name == IFNAME
         assert host.interfaces[0].switch_ip == "192.168.0.1"
+
+    def test_ls_interface(self, mod_fixture):
+        self.cli_args["host"] = HOST
+
+        self.quads_cli_call("interface")
+
+        assert self._caplog.messages[0] == f"interface: {IFNAME}"
+        assert self._caplog.messages[1] == f"  bios id: {IFBIOSID}"
+        assert self._caplog.messages[2] == f"  mac address: {IFMAC}"
+        assert self._caplog.messages[3] == f"  switch ip: {IFIP}"
+        assert self._caplog.messages[4] == f"  port: {IFPORT}"
+        assert self._caplog.messages[5] == f"  speed: {IFSPEED}"
+        assert self._caplog.messages[6] == f"  vendor: {IFVENDOR}"
+        assert self._caplog.messages[7] == "  pxe_boot: True"
+        assert self._caplog.messages[8] == "  maintenance: False"
