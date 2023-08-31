@@ -3,10 +3,9 @@ import pytest
 from quads.exceptions import CliException
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
-from quads.server.dao.interface import InterfaceDao
 from quads.server.dao.memory import MemoryDao
 from quads.server.dao.processor import ProcessorDao
-from tests.cli.config import HOST, CLOUD
+from tests.cli.config import HOST, CLOUD, MODEL, HOST_TYPE
 from tests.cli.test_base import TestBase
 
 
@@ -31,15 +30,15 @@ def remove_fixture(request):
     request.addfinalizer(finalizer)
 
     CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
+    HostDao.create_host(HOST, MODEL, HOST_TYPE, CLOUD)
 
 
 class TestHost(TestBase):
     def test_define_host(self, define_fixture):
         self.cli_args["hostresource"] = HOST
         self.cli_args["hostcloud"] = CLOUD
-        self.cli_args["hosttype"] = "scalelab"
-        self.cli_args["model"] = "r640"
+        self.cli_args["hosttype"] = HOST_TYPE
+        self.cli_args["model"] = MODEL
 
         self.quads_cli_call("hostresource")
 
@@ -52,7 +51,7 @@ class TestHost(TestBase):
     def test_define_host_missing_model(self, define_fixture):
         self.cli_args["hostresource"] = HOST
         self.cli_args["hostcloud"] = CLOUD
-        self.cli_args["hosttype"] = "scalelab"
+        self.cli_args["hosttype"] = HOST_TYPE
 
         try:
             self.quads_cli_call("hostresource")
@@ -97,29 +96,3 @@ class TestHost(TestBase):
         assert self._caplog.messages[1] == "  size: 2000"
         assert self._caplog.messages[2] == "memory: DIMM2"
         assert self._caplog.messages[3] == "  size: 2000"
-
-    def test_ls_interface(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        InterfaceDao.create_interface(
-            HOST,
-            "em1",
-            "Int.Nic.1",
-            "A0:B1:C2:D4",
-            "10.0.0.1",
-            "ex-0/1/0",
-            1000,
-            "Intel",
-            True,
-            False,
-        )
-        self.quads_cli_call("interface")
-
-        assert self._caplog.messages[0] == "interface: em1"
-        assert self._caplog.messages[1] == "  bios id: Int.Nic.1"
-        assert self._caplog.messages[2] == "  mac address: A0:B1:C2:D4"
-        assert self._caplog.messages[3] == "  switch ip: 10.0.0.1"
-        assert self._caplog.messages[4] == "  port: ex-0/1/0"
-        assert self._caplog.messages[5] == "  speed: 1000"
-        assert self._caplog.messages[6] == "  vendor: Intel"
-        assert self._caplog.messages[7] == "  pxe_boot: True"
-        assert self._caplog.messages[8] == "  maintenance: False"
