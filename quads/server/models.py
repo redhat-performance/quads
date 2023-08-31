@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from typing import Any
 from flask import current_app
@@ -39,8 +40,8 @@ Base = declarative_base(metadata=metadata)
 db = SQLAlchemy()
 Base.query = db.session.query_property()
 migrate = Migrate()
-
-Engine = create_engine("postgresql://postgres@quads_db:5432/quads")
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres@localhost:5432/quads")
+Engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 
 def engine_from_config(config):
