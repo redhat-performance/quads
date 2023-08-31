@@ -1,5 +1,7 @@
 CLOUD = "cloud99"
 HOST = "host.example.com"
+MODEL = "r640"
+HOST_TYPE = "scalelab"
 IFNAME = "em1"
 IFMAC = "A0:B1:C2:D3"
 IFIP = "10.0.0.1"
