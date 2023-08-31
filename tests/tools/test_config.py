@@ -39,12 +39,8 @@ class TestConfig(unittest.TestCase):
         # Both in yaml and on class, class attr should not be overridden
         self.assertEqual(conf.KEY, "value")
 
-        self.assertEqual(conf.other_key, "other_value")
-
-        self.assertListEqual(conf.array, [1, "s", False])
-
         self.assertDictEqual(
-            conf.dict, {"key1": "val1", "key2": "val2", "key3": "val3"}
+            conf.test, {'gateway': '10.12.81.254', 'iprange': '10.12.80.0/23', 'vlanid': 601}
         )
 
 

@@ -4,15 +4,20 @@ import logging
 import argparse
 import yaml
 
-from quads.model import Vlan
+from quads.config import Config, DEFAULT_CONF_PATH
+from quads.quads_api import QuadsApi, APIBadRequest, APIServerException
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def main(_args):
+    Config.load_from_yaml(DEFAULT_CONF_PATH)
+
+    quads = QuadsApi(config=Config)
+    vlans = None
+
     if _args.yaml:
-        vlans = None
         try:
             with open(_args.yaml, "r") as _vlans_read:
                 try:
@@ -26,17 +31,14 @@ def main(_args):
             exit(1)
         if vlans:
             for vlan, properties in vlans.items():
-                vlan_obj = Vlan.objects(vlan_id=properties["vlanid"]).first()
-                result, data = Vlan.prep_data(properties)
-                if result:
-                    logger.error("Failed to validate all fields")
-                    exit(1)
-                if vlan_obj:
-                    vlan_obj.update(**data)
-                    logger.info("Updated vlan: %s" % data["vlan_id"])
-                else:
-                    Vlan(**data).save()
-                    logger.info("Inserted vlan: %s" % data["vlan_id"])
+                try:
+                    vlan = quads.get_vlan(properties["vlan_id"])
+                except (APIServerException, APIBadRequest):
+                    quads.create_vlan(properties)
+                    logger.info("Inserted vlan: %s" % properties["vlan_id"])
+                    continue
+                quads.update_vlan(properties["vlan_id"], properties)
+                logger.info("Updated vlan: %s" % properties["vlan_id"])
 
 
 if __name__ == "__main__":
