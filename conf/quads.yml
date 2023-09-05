@@ -100,6 +100,8 @@ foreman_password: password
 foreman_default_os: "RHEL 7"
 foreman_default_ptable: "generic-rhel7"
 foreman_default_medium: "RHEL Local"
+# This corresponds to your 'sshpw --username=root my_kickstart_password' foreman template
+foreman_kickstart_password: my_kickstart_password
 
 # Foreman RBAC fix ignore
 # variable to pass cloud names to be excluded from foreman_heal

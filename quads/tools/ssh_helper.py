@@ -14,10 +14,11 @@ class SSHHelperException(Exception):
 
 
 class SSHHelper(object):
-    def __init__(self, _host, _user=None, _password=None):
+    def __init__(self, _host, _user=None, _password=None, _no_key=None):
         self.host = _host
         self.user = _user
         self.password = _password
+        self.no_key = _no_key
         try:
             self.ssh = self.connect()
         except SSHHelperException as ex:
@@ -34,13 +35,17 @@ class SSHHelper(object):
         host_config = config.lookup(self.host)
         ssh.set_missing_host_key_policy(AutoAddPolicy())
         ssh.load_system_host_keys()
+        if self.no_key:
+            key_filename=None
+        else:
+            key_filename=host_config["identityfile"][0]
 
         try:
             ssh.connect(
                 self.host,
                 username=self.user,
                 password=self.password,
-                key_filename=host_config["identityfile"][0],
+                key_filename,
                 allow_agent=False,
                 timeout=30,
             )
