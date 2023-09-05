@@ -136,6 +136,21 @@ class Validator(object):
                     try:
                         nc = Netcat(host)
                         healthy = await nc.health_check()
+                        if healthy:
+                            success_ssh = True
+                            try:
+                                ssh_helper = SSHHelper(host, "root", str(Config["foreman_kickstart_password"]))
+                            except (SSHHelperException, SSHException, NoValidConnectionsError, socket.timeout) as ex:
+                                logger.error(str(ex))
+                                logger.error(
+                                    "Could not establish connection with host: %s." % host
+                                )
+                                success_ssh = False
+                            if success_ssh:
+                                # If ssh succeeds with the default kickstart password, we assume kickstart is
+                                # still in progress, and we toggle healthy to avoid inadvertantly rebooting host
+                                # during installation
+                                healthy = False
                     except OSError:
                         healthy = False
                     if not healthy:
