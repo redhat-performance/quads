@@ -101,22 +101,42 @@ def update_disk(hostname: str) -> Response:
         return make_response(jsonify(response), 400)
     data = request.get_json()
     disk_id = data.get("disk_id")
-    _disk = DiskDao.get_disk(disk_id)
-    if not _disk:
+    disk_object = DiskDao.get_disk(disk_id)
+    if not disk_object:
         response = {
             "status_code": 400,
             "error": "Bad Request",
             "message": f"Disk not found for {hostname}: {disk_id}",
         }
         return Response(response=json.dumps(response), status=400)
-    fields = ["disk_type", "size_gb", "count"]
-    for field in fields:
-        value = data.get(field)
-        if value:
-            _disk[field] = value
 
+    update_fields = {}
+    keys = ["disk_type", "size_gb", "count"]
+    for key in keys:
+        value = data.get(key)
+        if value:
+            update_fields[key] = value
+
+    if update_fields.get("count") and update_fields.get("count") <= 0:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Argument can't be negative or zero: count",
+        }
+        return make_response(jsonify(response), 400)
+
+    if update_fields.get("size_gb") and update_fields.get("size_gb") <= 0:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Argument can't be negative or zero: size_gb",
+        }
+        return make_response(jsonify(response), 400)
+
+    for key, value in update_fields.items():
+        setattr(disk_object, key, value)
     db.session.commit()
-    return jsonify(_disk.as_dict())
+    return jsonify(disk_object.as_dict())
 
 
 @disk_bp.route("/<hostname>", methods=["DELETE"])
@@ -147,6 +167,6 @@ def delete_disk(hostname) -> Response:
     db.session.commit()
     response = {
         "status_code": 200,
-        "message": f"Disk deleted",
+        "message": "Disk deleted",
     }
     return jsonify(response)

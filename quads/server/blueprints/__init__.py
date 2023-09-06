@@ -1,6 +1,6 @@
 import json
 from functools import wraps
-from flask import request, abort, Response
+from flask import request, Response
 from quads.server.models import User, db, Role
 
 
@@ -32,7 +32,11 @@ def check_access(role):
                             }
                             return Response(response=json.dumps(response), status=401)
                         if not current_user.active:
-                            abort(403)
+                            response = {
+                                "message": "You don't have the permission to access the requested resource",
+                                "error": "Forbidden",
+                            }
+                            return Response(response=json.dumps(response), status=403)
                     except Exception as e:
                         response = {
                             "message": "Something went wrong",
@@ -46,16 +50,26 @@ def check_access(role):
                     current_user = (
                         db.session.query(User).filter(User.email == username).first()
                     )
+                    if current_user is None:
+                        response = {
+                            "message": "Invalid Credentials!",
+                            "error": "Unauthorized",
+                        }
+                        return Response(response=json.dumps(response), status=401)
                     if not current_user.verify_password(password):
                         response = {
-                            "message": "Invalid password",
+                            "message": "Invalid Credentials!",
                             "error": "Unauthorized",
                         }
                         return Response(response=json.dumps(response), status=401)
 
                 role_obj = db.session.query(Role).filter(Role.name == role).first()
                 if role_obj not in current_user.roles:
-                    return abort(401)
+                    response = {
+                        "message": "You don't have the permission to access the requested resource",
+                        "error": "Forbidden",
+                    }
+                    return Response(response=json.dumps(response), status=403)
             else:
                 response = {
                     "message": "Missing authentication data",
