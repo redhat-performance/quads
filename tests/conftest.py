@@ -5,7 +5,6 @@ from quads.database import init_db
 from tests.helpers import unwrap_json
 from quads.server.app import (
     create_app,
-    db_init,
     populate,
     user_datastore,
     drop_all,

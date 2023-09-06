@@ -37,7 +37,7 @@ HOST_4_REQUEST = {
 }
 HOST_5_REQUEST = {
     "name": "host5.example.com",
-    "default_cloud": "cloud01",
+    "default_cloud": "cloud05",
     "model": "6048r",
     "cloud": "cloud05",
     "host_type": "scalelab",
@@ -76,6 +76,22 @@ DISK_4_REQUEST = (
     {"disk_type": "scsi", "size_gb": 1000, "count": 2},
     "host3.example.com",
 )
+DISK_1_UPDATE_REQUEST = [{
+    "disk_id": 1,
+    "disk_type": "scsi",
+    "size_gb": 1000,
+    "count": 4,
+},
+    "host1.example.com",
+]
+DISK_1_UPDATE_RESPONSE = {
+    "disk_type": "scsi",
+    "size_gb": 1000,
+    "count": 4,
+    "host_id": 1,
+    "id": 1,
+}
+
 
 # --------------------
 # INTERFACES

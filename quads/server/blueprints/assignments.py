@@ -89,7 +89,7 @@ def get_active_cloud_assignment(cloud_name: str) -> Response:
 @assignment_bp.route("/active/")
 def get_active_assignments() -> Response:
     """
-    Returns all active assignments for a given cloud.
+    Returns all active assignments.
         ---
         tags:
           - Assignment API

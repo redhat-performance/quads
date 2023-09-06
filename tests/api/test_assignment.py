@@ -269,6 +269,50 @@ class TestReadAssignment:
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Cloud not found: {invalid_cloud_name}"
 
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_active_all(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds and vlans with assignments from TestCreateAssignment
+        | WHEN: User tries to read all active assignments
+        | THEN: User should be able to read all active assignments
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/assignments/active",
+                headers=auth_header,
+            )
+        )
+        assignment_responses = [
+            ASSIGNMENT_1_RESPONSE.copy(),
+            ASSIGNMENT_2_RESPONSE.copy(),
+        ]
+        for resp, assignment_response in zip(response.json, assignment_responses):
+            assignment_response["cloud"]["last_redefined"] = resp["cloud"][
+                "last_redefined"
+            ]
+            assignment_response["created_at"] = resp["created_at"]
+        assert response.status_code == 200
+        assert response.json == assignment_responses
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_field_filter(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds and vlans with assignments from TestCreateAssignment
+        | WHEN: User tries to read active assignments which respond to an invalid filter
+        | THEN: User should not be able to read any assignment
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/assignments/?SomeField=value",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "SomeField is not a valid field."
+
 
 class TestUpdateAssignment:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
