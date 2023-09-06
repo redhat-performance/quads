@@ -378,6 +378,67 @@ class TestReadSchedule:
             assert response.status_code == 200
             assert response.json == resp
 
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_filter(self, test_client, auth, prefill):
+        """
+        | GIVEN: : Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to filter schedules by an invalid field
+        | THEN: User should not be able to get any schedule
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/schedules?start=invalid",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == f"start argument must be a datetime object"
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_filter(self, test_client, auth, prefill):
+        """
+        | GIVEN: : Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to filter schedules by with a valid filter
+        | THEN: User should be able to read the appropriate schedule(s)
+        """
+        auth_header = auth.get_auth_header()
+        hostname = SCHEDULE_1_RESPONSE["host"]["name"]
+        resp = SCHEDULE_1_RESPONSE.copy()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/schedules?host={hostname}",
+                headers=auth_header,
+            )
+        )
+        resp["created_at"] = response.json[0]["created_at"]
+        assert response.status_code == 200
+        assert response.json == [resp]
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_future(self, test_client, auth, prefill):
+        """
+        | GIVEN: : Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to read future schedules
+        | THEN: User should be able to read the appropriate schedule(s)
+        """
+        auth_header = auth.get_auth_header()
+        schedule_responses = [
+            SCHEDULE_2_RESPONSE.copy(),
+        ]
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/schedules/future?host=host3.example.com",
+                headers=auth_header,
+            )
+        )
+        for resp, sched_resp in zip(response.json, schedule_responses):
+            sched_resp["created_at"] = resp["created_at"]
+            sched_resp["start"] = resp["start"]
+        assert response.status_code == 200
+        assert response.json == schedule_responses
+
 
 class TestUpdateSchedule:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)

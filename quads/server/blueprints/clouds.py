@@ -40,7 +40,7 @@ def get_clouds() -> Response:
             response = {
                 "status_code": 400,
                 "error": "Bad Request",
-                "message": ex,
+                "message": str(ex),
             }
             return make_response(jsonify(response), 400)
 

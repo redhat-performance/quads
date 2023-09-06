@@ -1801,7 +1801,7 @@ class QuadsCli:
                         raise CliException(str(ex))
                     target_assignment = None
                     if data:
-                        target_assignment = Assignment().from_dict(data=data)
+                        target_assignment = Assignment().from_dict(data=json.loads(data.text))
                     wipe = target_assignment.wipe if target_assignment else False
 
                     self.logger.info(
@@ -1811,7 +1811,10 @@ class QuadsCli:
                     if not self.cli_args["dryrun"]:
                         try:
                             self.quads.update_host(
-                                host, {"switch_config_applied": False}
+                                host, {
+                                    "switch_config_applied": False,
+                                    "cloud": target_assignment.cloud.name,
+                                }
                             )
                         except (APIServerException, APIBadRequest) as ex:
                             raise CliException(str(ex))
@@ -1824,6 +1827,7 @@ class QuadsCli:
                                     assignment = self.quads.get_active_cloud_assignment(
                                         cloud.name
                                     )
+                                    assignment = Assignment().from_dict(data=json.loads(assignment.text))
                                     self.quads.update_assignment(
                                         assignment.id, {"validated": False}
                                     )
@@ -1851,7 +1855,7 @@ class QuadsCli:
                                         )
                                     )
                             else:
-                                if cloud.wipe:
+                                if wipe:
                                     subprocess.check_call(
                                         [
                                             self.cli_args["movecommand"],
@@ -1881,13 +1885,14 @@ class QuadsCli:
                     try:
                         _old_cloud_obj = self.quads.get_cloud(results[0]["current"])
                         old_cloud_schedule = self.quads.get_current_schedules(
-                            {"cloud": _old_cloud_obj}
+                            {"cloud": _old_cloud_obj.name}
                         )
 
                         if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
                             assignment = self.quads.get_active_cloud_assignment(
-                                _old_cloud_obj
+                                _old_cloud_obj.name
                             )
+                            assignment = Assignment().from_dict(data=json.loads(assignment.text))
                             payload = {"active": False}
                             self.quads.update_assignment(assignment.id, payload)
                     except (APIServerException, APIBadRequest) as ex:
@@ -1954,10 +1959,11 @@ class QuadsCli:
                     if provisioned:
                         try:
                             _new_cloud_obj = self.quads.get_cloud(_cloud)
-                            validate = not _new_cloud_obj.wipe
-                            assignment = self.quads.get_active_cloud_assignment(
-                                _new_cloud_obj
+                            resp_assignment = self.quads.get_active_cloud_assignment(
+                                _new_cloud_obj.name
                             )
+                            assignment = Assignment().from_dict(data=json.loads(resp_assignment.text))
+                            validate = assignment.wipe
                             self.quads.update_assignment(
                                 assignment.id,
                                 {"provisioned": True, "validated": validate},

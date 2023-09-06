@@ -37,7 +37,7 @@ HOST_4_REQUEST = {
 }
 HOST_5_REQUEST = {
     "name": "host5.example.com",
-    "default_cloud": "cloud01",
+    "default_cloud": "cloud05",
     "model": "6048r",
     "cloud": "cloud05",
     "host_type": "scalelab",
@@ -76,6 +76,22 @@ DISK_4_REQUEST = (
     {"disk_type": "scsi", "size_gb": 1000, "count": 2},
     "host3.example.com",
 )
+DISK_1_UPDATE_REQUEST = [{
+    "disk_id": 1,
+    "disk_type": "scsi",
+    "size_gb": 1000,
+    "count": 4,
+},
+    "host1.example.com",
+]
+DISK_1_UPDATE_RESPONSE = {
+    "disk_type": "scsi",
+    "size_gb": 1000,
+    "count": 4,
+    "host_id": 1,
+    "id": 1,
+}
+
 
 # --------------------
 # INTERFACES
@@ -275,6 +291,20 @@ VLAN_3_REQUEST = {
     "ip_range": "10.1.54.0/22",
     "netmask": "255.255.252.0",
     "vlan_id": 603,
+}
+VLAN_1_UPDATE_REQUEST = {
+    "gateway": "192.168.22.19",
+    "ip_free": 510,
+    "ip_range": "10.20.48.0/23",
+    "netmask": "255.254.0.0",
+}
+VLAN_1_UPDATE_RESPONSE = {
+    "gateway": "192.168.22.19",
+    "ip_free": 510,
+    "ip_range": "10.20.48.0/23",
+    "netmask": "255.254.0.0",
+    "vlan_id": 601,
+    "id": 1,
 }
 
 # --------------------

@@ -90,12 +90,12 @@ class HostDao(BaseDao):
         return host
 
     @staticmethod
-    def get_hosts() -> List[Type[Host]]:
+    def get_hosts() -> List[Host]:
         hosts = db.session.query(Host).all()
         return hosts
 
     @staticmethod
-    def filter_hosts_dict(data: dict) -> List[Type[Host]]:
+    def filter_hosts_dict(data: dict) -> List[Host]:
         filter_tuples = []
         operator = "=="
         for k, value in data.items():

@@ -1,5 +1,3 @@
-import json
-
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
@@ -19,7 +17,7 @@ def get_interfaces(hostname: str) -> Response:
             "error": "Bad Request",
             "message": f"Host not found: {hostname}",
         }
-        return Response(response=json.dumps(response), status=400)
+        return make_response(jsonify(response), 400)
 
     return jsonify([_interface.as_dict() for _interface in _host.interfaces])
 
