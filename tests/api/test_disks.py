@@ -7,6 +7,8 @@ from tests.config import (
     DISK_2_REQUEST,
     DISK_2_RESPONSE,
     DISK_3_REQUEST,
+    DISK_1_UPDATE_REQUEST,
+    DISK_1_UPDATE_RESPONSE,
 )
 
 prefill_settings = ["clouds, hosts"]
@@ -228,6 +230,110 @@ class TestReadDisks:
         )
         assert response.status_code == 200
         assert response.json == []
+
+
+class TestUpdateDisks:
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_host(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
+        | WHEN: User tries to update disks for an invalid host
+        | THEN: Disks should not be updated
+        """
+        auth_header = auth.get_auth_header()
+        host_name = "invalid_host"
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/disks/{host_name}",
+                json=dict(DISK_1_REQUEST[0]),
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == f"Host not found: {host_name}"
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_disk_id(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
+        | WHEN: User tries to update disks for a valid host, but an invalid disk ID
+        | THEN: Disks should not be updated
+        """
+        auth_header = auth.get_auth_header()
+        invalid_id = 42
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                json=dict({"disk_id": invalid_id}),
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == f"Disk not found for {DISK_1_REQUEST[1]}: {invalid_id}"
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
+        | WHEN: User tries to update disks for a valid host with a valid request
+        | THEN: Disks should be updated
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/disks/{DISK_1_UPDATE_REQUEST[1]}",
+                json=dict(DISK_1_UPDATE_REQUEST[0]),
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == DISK_1_UPDATE_RESPONSE
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_negative_count(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
+        | WHEN: User tries to update disks for a valid host, but an invalid value for the count field
+        | THEN: Disks should not be updated
+        """
+        auth_header = auth.get_auth_header()
+        invalid_count = -1
+        update_request = DISK_1_UPDATE_REQUEST[0].copy()
+        update_request["count"] = invalid_count
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/disks/{DISK_1_UPDATE_REQUEST[1]}",
+                json=dict(update_request),
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Argument can't be negative or zero: count"
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_negative_size(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
+        | WHEN: User tries to update disks for a valid host, but an invalid value for the size_gb field
+        | THEN: Disks should not be updated
+        """
+        auth_header = auth.get_auth_header()
+        invalid_size = -1
+        update_request = DISK_1_UPDATE_REQUEST[0].copy()
+        update_request["size_gb"] = invalid_size
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/disks/{DISK_1_UPDATE_REQUEST[1]}",
+                json=dict(update_request),
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Argument can't be negative or zero: size_gb"
 
 
 class TestDeleteDisks:

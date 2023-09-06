@@ -4,6 +4,8 @@ from tests.config import (
     VLAN_1_RESPONSE,
     VLAN_2_REQUEST,
     VLAN_2_RESPONSE,
+    VLAN_1_UPDATE_REQUEST,
+    VLAN_1_UPDATE_RESPONSE,
 )
 
 
@@ -126,6 +128,44 @@ class TestReadVLANs:
         )
         assert response.status_code == 200
         assert response.json == [VLAN_1_RESPONSE, VLAN_2_RESPONSE]
+
+
+class TestUpdateVLANs:
+    def test_invalid_vlan_not_found(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database and VLANs from TestCreateVLANs
+        | WHEN: User tries to update a VLAN that does not exist
+        | THEN: User should not be able to update a VLAN
+        """
+        auth_header = auth.get_auth_header()
+        invalid_vlan_id = 42
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/vlans/{invalid_vlan_id}",
+                headers=auth_header,
+                json=dict(),
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == f"Vlan not found: {invalid_vlan_id}"
+
+    def test_valid(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database and VLANs from TestCreateVLANs
+        | WHEN: User tries to update a VLAN that exists
+        | THEN: User should be able to update a VLAN
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/vlans/{VLAN_1_REQUEST['vlan_id']}",
+                headers=auth_header,
+                json=VLAN_1_UPDATE_REQUEST,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == VLAN_1_UPDATE_RESPONSE
 
 
 class TestDeleteVLANs:

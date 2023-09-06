@@ -3,7 +3,7 @@ from typing import List, Type
 from sqlalchemy import and_
 
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao, EntryNotFound
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
@@ -57,17 +57,25 @@ class ScheduleDao(BaseDao):
     def filter_schedules(
         start: datetime = None,
         end: datetime = None,
-        host: Host = None,
-        cloud: Cloud = None,
+        host: str = None,
+        cloud: str = None,
     ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if start:
+            if not isinstance(start, datetime):
+                raise InvalidArgument("start argument must be a datetime object")
             query = query.filter(Schedule.start >= start)
         if end:
+            if not isinstance(end, datetime):
+                raise InvalidArgument("end argument must be a datetime object")
             query = query.filter(Schedule.end <= end)
         if host:
+            if not isinstance(host, str):
+                raise InvalidArgument("host argument must be a str object")
             query = query.filter(Schedule.host.has(name=host))
         if cloud:
+            if not isinstance(cloud, str):
+                raise InvalidArgument("cloud argument must be a str object")
             cloud_obj = CloudDao.get_cloud(cloud)
             query = query.filter(Schedule.assignment.has(cloud_id=cloud_obj.id))
         return query.all()

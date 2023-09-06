@@ -1,5 +1,3 @@
-import json
-
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access

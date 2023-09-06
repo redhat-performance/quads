@@ -124,6 +124,42 @@ class TestReadClouds:
         )
         assert response.json == {}
 
+    def test_invalid_filter(self, test_client, auth):
+        """
+        | GIVEN: Clouds from TestCreateClouds in database and user logged in
+        | WHEN: User tries to filter clouds with invalid filter
+        | THEN: User should not be able to filter clouds
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/clouds?NOT_A_FIELD=invalid",
+                headers=auth_header
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "NOT_A_FIELD is not a valid field."
+
+    def test_valid_filter(self, test_client, auth):
+        """
+        | GIVEN: Clouds from TestCreateClouds in database and user logged in
+        | WHEN: User tries to filter clouds with valid filter
+        | THEN: User should be able to filter clouds
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/clouds?id=1",
+                headers=auth_header
+            )
+        )
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["id"] == 1
+        assert response.json[0]["name"] == "cloud01"
+        assert response.json[0]["last_redefined"] is not None
+
 
 class TestDeleteClouds:
     def test_valid(self, test_client, auth):
