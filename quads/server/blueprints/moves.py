@@ -18,18 +18,19 @@ def get_moves() -> Response:
     try:
         _hosts = HostDao.get_hosts()
         for host in _hosts:
-            _schedule_cloud = host.default_cloud
-            _host_defined_cloud = host.cloud
             _current_schedule = ScheduleDao.get_current_schedule(host=host)
+            _schedule_cloud = (
+                _current_schedule[0].assignment.cloud
+                if _current_schedule
+                else host.default_cloud
+            )
             try:
-                if _current_schedule:
-                    _schedule_cloud = _current_schedule[0].assignment.cloud
-                if _schedule_cloud != _host_defined_cloud:
+                if _schedule_cloud != host.cloud:
                     result.append(
                         {
                             "host": host.name,
                             "new": _schedule_cloud.name,
-                            "current": _host_defined_cloud.name,
+                            "current": host.cloud.name,
                         }
                     )
             except Exception:

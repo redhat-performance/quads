@@ -37,7 +37,7 @@ class HostDao(BaseDao):
             cloud=_default_cloud_obj,
         )
         db.session.add(_host)
-        db.session.commit()
+        cls.safe_commit()
         return _host
 
     @classmethod
@@ -71,7 +71,7 @@ class HostDao(BaseDao):
             else:
                 raise InvalidArgument
 
-        db.session.commit()
+        cls.safe_commit()
 
         return host
 
@@ -81,7 +81,7 @@ class HostDao(BaseDao):
         if not _host_obj:
             raise EntryNotFound
         db.session.delete(_host_obj)
-        db.session.commit()
+        cls.safe_commit()
         return
 
     @staticmethod

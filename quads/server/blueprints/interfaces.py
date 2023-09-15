@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
 from quads.server.models import Interface, db
@@ -87,7 +88,7 @@ def create_interface(hostname: str) -> Response:
         host_id=_host.id,
     )
     db.session.add(_interface_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_interface_obj.as_dict())
 
 
@@ -154,7 +155,7 @@ def update_interface(hostname: str) -> Response:
 
     for key, value in update_fields.items():
         setattr(interface_obj, key, value)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(interface_obj.as_dict())
 
 
@@ -191,7 +192,7 @@ def delete_interface(hostname: str) -> Response:
         return make_response(jsonify(response), 400)
 
     db.session.delete(_interface_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     response = {
         "status_code": 200,
         "message": "Interface deleted",

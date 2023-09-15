@@ -31,6 +31,7 @@ def remove_fixture(request):
 
     CloudDao.create_cloud(CLOUD)
     HostDao.create_host(HOST, MODEL, HOST_TYPE, CLOUD)
+    HostDao.create_host("NEWHOST.example.com", "NEWMODEL", HOST_TYPE, CLOUD)
 
 
 class TestHost(TestBase):
@@ -74,6 +75,18 @@ class TestHost(TestBase):
         self.quads_cli_call("ls_hosts")
 
         assert self._caplog.messages[0] == HOST
+        assert self._caplog.messages[1] == HOST
+
+    def test_ls_host_filter(self, remove_fixture):
+        self.cli_args["filter"] = f"model=={MODEL}"
+        self.quads_cli_call("ls_hosts")
+
+        assert self._caplog.messages[0] == HOST
+
+    def test_ls_no_host(self):
+        self.quads_cli_call("ls_hosts")
+
+        assert self._caplog.messages[0] == "No hosts found."
 
     def test_ls_processors(self, remove_fixture):
         self.cli_args["host"] = HOST
@@ -85,6 +98,23 @@ class TestHost(TestBase):
         assert self._caplog.messages[2] == "  product: i7"
         assert self._caplog.messages[3] == "  cores: 2"
         assert self._caplog.messages[4] == "  threads: 4"
+
+    def test_ls_processors_no_host(self, remove_fixture):
+        if self.cli_args.get("host"):
+            self.cli_args.pop("host")
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("processors")
+
+        assert (
+            str(ex.value)
+            == "Missing option. --host option is required for --ls-processors."
+        )
+
+    def test_ls_processors_no_processor(self, remove_fixture):
+        self.cli_args["host"] = HOST
+        self.quads_cli_call("processors")
+
+        assert self._caplog.messages[0] == f"No processors defined for {HOST}"
 
     def test_ls_memory(self, remove_fixture):
         self.cli_args["host"] = HOST

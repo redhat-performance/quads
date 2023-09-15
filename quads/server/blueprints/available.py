@@ -21,12 +21,12 @@ def get_available() -> Response:
     """
     _params = request.args.to_dict()
     _start = _end = datetime.now()
+    _cloud = None
     if _params.get("start"):
         _start = datetime.fromisoformat(_params.pop("start"))
     if _params.get("end"):
         _end = datetime.fromisoformat(_params.pop("end"))
     if _params.get("cloud"):
-        # TODO: fix cloud filter
         _cloud = CloudDao.get_cloud(_params.pop("cloud"))
 
     available = []
@@ -38,7 +38,8 @@ def get_available() -> Response:
 
     for host in all_hosts:
         if ScheduleDao.is_host_available(host.name, _start, _end):
-            available.append(host.name)
+            if _cloud and host.cloud.name == _cloud.name:
+                available.append(host.name)
     return jsonify(available)
 
 
@@ -58,10 +59,11 @@ def is_available(hostname) -> Response:
     """
     data = request.get_json()
     _start = _end = datetime.now()
+    _format = "%Y-%m-%d %H:%M"
     if data.get("start"):
-        _start = datetime.strptime(data.get("start"), "%Y-%m-%d %H:%M")
+        _start = datetime.strptime(data.get("start"), _format)
     if data.get("end"):
-        _end = datetime.strptime(data.get("end"), "%Y-%m-%d %H:%M")
+        _end = datetime.strptime(data.get("end"), _format)
 
     available = ScheduleDao.is_host_available(hostname, _start, _end)
 

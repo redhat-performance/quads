@@ -1,8 +1,7 @@
-import json
-
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.memory import MemoryDao
 from quads.server.models import db, Memory
@@ -82,7 +81,7 @@ def create_memory(hostname: str) -> Response:
 
     _memory_obj = Memory(handle=handle, size_gb=size_gb, host_id=_host.id)
     db.session.add(_memory_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_memory_obj.as_dict())
 
 
@@ -119,7 +118,7 @@ def delete_memory(hostname: str) -> Response:
         return make_response(jsonify(response), 400)
 
     db.session.delete(_memory_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     response = {
         "status_code": 200,
         "message": "Memory deleted",

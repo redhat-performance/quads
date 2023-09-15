@@ -3,11 +3,10 @@ import json
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.config import Config
 from quads.server.blueprints import check_access
-from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import Host, db
-
 
 host_bp = Blueprint("hosts", __name__)
 
@@ -96,7 +95,7 @@ def update_host(hostname: str) -> Response:
     if isinstance(retired, bool):
         _host.retired = retired
 
-    db.session.commit()
+    BaseDao.safe_commit()
 
     return jsonify(_host.as_dict())
 
@@ -180,7 +179,7 @@ def create_host() -> Response:
         cloud=_default_cloud,
     )
     db.session.add(_host_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_host_obj.as_dict())
 
 

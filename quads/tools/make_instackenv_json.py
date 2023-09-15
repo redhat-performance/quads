@@ -10,6 +10,7 @@ from distutils.util import strtobool
 from datetime import datetime
 from shutil import copyfile
 
+from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.tools.external.foreman import Foreman
@@ -42,10 +43,10 @@ def make_env_json(filename):
 
     for cloud in cloud_list:
         host_list = HostDao.filter_hosts(cloud=cloud)
-
+        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
         foreman_password = Config["ipmi_password"]
-        if cloud.ticket:
-            foreman_password = f"{Config['infra_location']}@{cloud.ticket}"
+        if assignment and assignment.ticket:
+            foreman_password = f"{Config['infra_location']}@{assignment.ticket}"
 
         data = defaultdict(list)
         for host in host_list:
