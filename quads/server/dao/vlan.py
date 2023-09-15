@@ -5,9 +5,9 @@ from quads.server.models import db, Vlan
 
 
 class VlanDao(BaseDao):
-    @staticmethod
+    @classmethod
     def create_vlan(
-        gateway: str, ip_free: int, ip_range: str, netmask: str, vlan_id: int
+        cls, gateway: str, ip_free: int, ip_range: str, netmask: str, vlan_id: int
     ) -> Vlan:
         _vlan = Vlan(
             gateway=gateway,
@@ -17,7 +17,7 @@ class VlanDao(BaseDao):
             vlan_id=vlan_id,
         )
         db.session.add(_vlan)
-        db.session.commit()
+        cls.safe_commit()
         return _vlan
 
     @staticmethod

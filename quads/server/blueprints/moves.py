@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, jsonify, Response, make_response, request
+from flask import Blueprint, jsonify, Response, make_response, request, abort
 
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -11,6 +11,36 @@ moves_bp = Blueprint("moves", __name__)
 
 @moves_bp.route("/", methods=["GET"])
 def get_moves() -> Response:
+    result = []
+    try:
+        _hosts = HostDao.get_hosts()
+        for host in _hosts:
+            _current_schedule = ScheduleDao.get_current_schedule(host=host)
+            _schedule_cloud = (
+                _current_schedule[0].assignment.cloud
+                if _current_schedule
+                else host.default_cloud
+            )
+            try:
+                if _schedule_cloud != host.cloud:
+                    result.append(
+                        {
+                            "host": host.name,
+                            "new": _schedule_cloud.name,
+                            "current": host.cloud.name,
+                        }
+                    )
+            except Exception:
+                # TODO: check exceptions
+                abort(400)
+    except Exception:
+        abort(400)
+
+    return jsonify(result)
+
+
+@moves_bp.route("/<date>/")
+def get_moves_on_date(date: str) -> Response:
     """
     Returns a list of hosts that need to be moved from one cloud to another.
         The function takes in a date parameter, which is used to determine the current schedule for each host.
@@ -29,14 +59,20 @@ def get_moves() -> Response:
         for host in _hosts:
             _current_schedule = ScheduleDao.get_current_schedule(host=host, date=_date)
             _host_current_cloud = host.cloud
-            _new_cloud = _current_schedule[0].assignment.cloud if _current_schedule else host.default_cloud
+            _new_cloud = (
+                _current_schedule[0].assignment.cloud
+                if _current_schedule
+                else host.default_cloud
+            )
             if _new_cloud == _host_current_cloud:
                 continue
-            result.append({
-                "host": host.name,
-                "new": _new_cloud.name,
-                "current": _host_current_cloud.name,
-            })
+            result.append(
+                {
+                    "host": host.name,
+                    "new": _new_cloud.name,
+                    "current": _host_current_cloud.name,
+                }
+            )
     except (IndexError, AttributeError):
         response = {
             "status_code": 500,
