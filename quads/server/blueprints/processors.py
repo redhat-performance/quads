@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.processor import ProcessorDao
 from quads.server.models import db, Processor
@@ -93,7 +94,7 @@ def create_processor(hostname: str) -> Response:
         host_id=_host.id,
     )
     db.session.add(_processor_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_processor_obj.as_dict())
 
 
@@ -130,7 +131,7 @@ def delete_processor(hostname: str) -> Response:
         return make_response(jsonify(response), 400)
 
     db.session.delete(_processor_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     response = {
         "status_code": 200,
         "message": "Processor deleted",

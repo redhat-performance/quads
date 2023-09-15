@@ -7,7 +7,5 @@ version_bp = Blueprint("version", __name__)
 
 @version_bp.route("/")
 def get_version() -> Response:
-    response = {
-        "result": f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"
-    }
+    response = f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"
     return jsonify(response)

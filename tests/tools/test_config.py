@@ -40,7 +40,8 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(conf.KEY, "value")
 
         self.assertDictEqual(
-            conf.test, {'gateway': '10.12.81.254', 'iprange': '10.12.80.0/23', 'vlanid': 601}
+            conf.test,
+            {"gateway": "10.12.81.254", "iprange": "10.12.80.0/23", "vlanid": 601},
         )
 
 

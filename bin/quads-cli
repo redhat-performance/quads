@@ -52,7 +52,6 @@ def main(_logger: logging) -> Optional[int]:
     Config.load_from_yaml(DEFAULT_CONF_PATH)
 
     sys.path.append(os.path.dirname(__file__) + "/../")
-    sys.path.append(Config.install_dir)
 
     quads = QuadsApi(config=Config)
 

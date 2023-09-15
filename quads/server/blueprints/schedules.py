@@ -1,10 +1,8 @@
-import json
-
 from datetime import datetime
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -33,7 +31,7 @@ def get_schedules() -> Response:
 
 @schedule_bp.route("/<schedule_id>")
 def get_schedule(schedule_id: int) -> Response:
-    _schedule = ScheduleDao.get_schedule(schedule_id)
+    _schedule = ScheduleDao.get_schedule(int(schedule_id))
     if not _schedule:
         response = {
             "status_code": 400,
@@ -147,24 +145,19 @@ def create_schedule() -> Response:
 
     _schedule_obj = Schedule(start=_start, end=_end, assignment=_assignment, host=_host)
     db.session.add(_schedule_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
 
     return jsonify(_schedule_obj.as_dict())
 
 
 @schedule_bp.route("/<schedule_id>", methods=["PATCH"])
 @check_access("admin")
-def update_schedule(schedule_id: str) -> Response:
+def update_schedule(schedule_id: int) -> Response:
     data = request.get_json()
-    dates = {
-        "start": data.get("start"),
-        "end": data.get("end"),
-        "build_start": data.get("build_start"),
-        "build_end": data.get("build_end"),
-    }
-    objects = [("hostname", HostDao.get_host), ("cloud", CloudDao.get_cloud)]
+    hostname = data.get("hostname")
+    cloud = data.get("cloud")
 
-    schedule = ScheduleDao.get_schedule(schedule_id)
+    schedule = ScheduleDao.get_schedule(int(schedule_id))
     if not schedule:
         response = {
             "status_code": 400,
@@ -173,23 +166,49 @@ def update_schedule(schedule_id: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    for key, method in objects:
-        value = data.get(key)
-        if value:
-            model_obj = method(value)
-            if not model_obj:
-                response = {
-                    "status_code": 400,
-                    "error": "Bad Request",
-                    "message": f"{key} not found: {value}",
-                }
-                return make_response(jsonify(response), 400)
-            else:
-                if key == "hostname":
-                    key = "host"
-                schedule[key] = model_obj
+    if cloud:
+        _cloud = CloudDao.get_cloud(cloud)
+        if not _cloud:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Cloud not found: {cloud}",
+            }
+            return make_response(jsonify(response), 400)
 
-    if not any(dates.values()):
+    if hostname:
+        _host = HostDao.get_host(hostname)
+        if not _host:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Host not found: {hostname}",
+            }
+            return make_response(jsonify(response), 400)
+
+    start = data.get("start")
+    end = data.get("end")
+    build_start = data.get("build_start")
+    build_end = data.get("build_end")
+
+    try:
+        if start:
+            _start = datetime.strptime(start, "%Y-%m-%d %H:%M")
+        if end:
+            _end = datetime.strptime(end, "%Y-%m-%d %H:%M")
+        if build_start:
+            _build_start = datetime.strptime(build_start, "%Y-%m-%d %H:%M")
+        if build_end:
+            _build_end = datetime.strptime(build_end, "%Y-%m-%d %H:%M")
+    except ValueError:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'",
+        }
+        return make_response(jsonify(response), 400)
+
+    if not start and not end and not build_start and not build_end:
         response = {
             "status_code": 400,
             "error": "Bad Request",
@@ -197,61 +216,41 @@ def update_schedule(schedule_id: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    for key, value in [(k, v) for k, v in dates.items() if v]:
-        try:
-            dates[key] = datetime.strptime(value, "%Y-%m-%d %H:%M")
-        except ValueError:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Invalid date format for '{key}', correct format: 'YYYY-MM-DD HH:MM'",
-            }
-            return make_response(jsonify(response), 400)
-
-    _start = dates.get("start") if dates.get("start") else schedule.start
-    _end = dates.get("end") if dates.get("end") else schedule.end
-    _build_start = (
-        dates.get("build_start") if dates.get("build_start") else schedule.build_start
-    )
-    _build_end = (
-        dates.get("build_end") if dates.get("build_end") else schedule.build_end
-    )
-
-    if _start > _end:
+    if start and end and _start > _end:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": "Invalid date range for 'start' or 'end', 'start' must be before 'end'",
-        }
-        return make_response(jsonify(response), 400)
-    if _build_end and _build_start and _build_start > _build_end:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date range for 'build_start' or 'build_end', 'build_start' must be before 'build_end'",
-        }
-        return make_response(jsonify(response), 400)
-    if _build_start and _start > _build_start:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date range for 'start' or 'build_start', 'start' must be before 'build_start'",
-        }
-        return make_response(jsonify(response), 400)
-    if _build_end and _build_end > _end:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date range for 'end' or 'build_end', 'build_end' must be before 'end'",
+            "message": "Invalid date range for start or end, start must be before end",
         }
         return make_response(jsonify(response), 400)
 
-    schedule.start = _start
-    schedule.end = _end
-    schedule.build_start = _build_start
-    schedule.build_end = _build_end
-    db.session.commit()
-    return jsonify(schedule.as_dict())
+    if build_start and build_end and _build_start > _build_end:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date range for build_start or build_end, build_start must be before build_end",
+        }
+        return make_response(jsonify(response), 400)
+
+    if start and build_start and _start > _build_start:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date range for start or build_start, start must be before build_start",
+        }
+        return make_response(jsonify(response), 400)
+
+    if end and build_end and _end < _build_end:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date range for end or build_end, build_end must be before end",
+        }
+        return make_response(jsonify(response), 400)
+
+    updated_schedule = ScheduleDao.update_schedule(int(schedule_id), **data)
+
+    return jsonify(updated_schedule.as_dict())
 
 
 @schedule_bp.route("/<schedule_id>", methods=["DELETE"])
@@ -267,7 +266,7 @@ def delete_schedule(schedule_id: int) -> Response:
         return make_response(jsonify(response), 400)
 
     db.session.delete(_schedule)
-    db.session.commit()
+    BaseDao.safe_commit()
     response = {
         "status_code": 200,
         "message": "Schedule deleted",
