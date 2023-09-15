@@ -5,7 +5,10 @@ import json
 
 from jsonpath_ng import parse
 
+from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
+from quads.server.dao.memory import MemoryDao
+from quads.server.dao.processor import ProcessorDao
 
 MD_DIR = "/var/www/html/lshw"
 DISK_TYPES = {"nvme": "nvm", "sata": "ata", "scsi": "scsi"}
@@ -49,7 +52,6 @@ for _d, _, _files in os.walk(MD_DIR):
                                     host_interface.speed = speed
                                     host_obj.save()
                     # disks
-                    Host.objects(name=host_obj.name).update_one(unset__disks=1)
                     for child in [
                         child for child in children if child.value["class"] == "disk"
                     ]:
@@ -59,20 +61,23 @@ for _d, _, _files in os.walk(MD_DIR):
                                 if child.value["description"].lower().startswith(sub):
                                     disk_type = dt
                             disk_size = b2g(int(child.value["size"]), True)
-                            disk = Disk(disk_type=disk_type, size_gb=disk_size, count=1)
-                            host = Host.objects(
-                                name=host_obj.name,
-                                disks__disk_type=disk_type,
-                                disks__size_gb=disk_size,
-                            )
+                            filters = {
+                                "name": host_obj.name,
+                                "disks__disk_type": disk_type,
+                                "disks__size_gb": disk_size,
+                            }
+                            host = HostDao.filter_hosts_dict(filters)
                             if host:
-                                host.update_one(inc__disks__S__count=1)
+                                for disk in host[0].disks:
+                                    if disk.disk_type == disk_type and disk.disk_size == disk_size:
+                                        disk.count += 1
                             else:
-                                Host.objects(name=host_obj.name).update_one(
-                                    push__disks=disk
-                                )
+                                disk = DiskDao.create_disk(hostname=host_obj.name, disk_type=disk_type,
+                                                           size_gb=disk_size, count=1)
+
                     # memory
-                    Host.objects(name=host_obj.name).update_one(unset__memory=1)
+                    for memory in host_obj.memory:
+                        MemoryDao.delete_memory(memory.id)
                     for child in [
                         child
                         for child in children
@@ -84,28 +89,26 @@ for _d, _, _files in os.walk(MD_DIR):
                             and child.value.get("handle")
                             and "cache" not in child.value["id"]
                         ):
-                            memory = Memory(
+                            MemoryDao.create_memory(
+                                hostname,
                                 handle=child.value.get("handle"),
                                 size_gb=b2g(int(child.value["size"])),
                             )
-                            Host.objects(name=host_obj.name).update_one(
-                                push__memory=memory
-                            )
+
                     # processor
-                    Host.objects(name=host_obj.name).update_one(unset__processors=1)
+                    for processor in host_obj.processors:
+                        ProcessorDao.delete_processor(processor.id)
                     for child in [
                         child
                         for child in children
                         if child.value["class"] == "processor"
                     ]:
                         configuration = child.value.get("configuration")
-                        processor = Processor(
+                        processor = ProcessorDao.create_processor(
+                            hostname,
                             handle=child.value.get("handle"),
                             vendor=child.value.get("vendor"),
                             product=child.value.get("product"),
                             cores=int(configuration.get("cores", 0)),
                             threads=int(configuration.get("threads", 0)),
-                        )
-                        Host.objects(name=host_obj.name).update_one(
-                            push__processors=processor
                         )

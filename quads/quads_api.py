@@ -42,7 +42,9 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
-        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
+        self.auth = HTTPBasicAuth(
+            self.config.get("quads_api_username"), self.config.get("quads_api_password")
+        )
 
     # Base functions
     def get(self, endpoint: str) -> Response:
@@ -61,7 +63,10 @@ class QuadsApi:
 
     def post(self, endpoint, data) -> Response:
         _response = self.session.post(
-            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
+            os.path.join(self.base_url, endpoint),
+            json=data,
+            verify=False,
+            auth=self.auth,
         )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
@@ -72,7 +77,10 @@ class QuadsApi:
 
     def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
-            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
+            os.path.join(self.base_url, endpoint),
+            json=data,
+            verify=False,
+            auth=self.auth,
         )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
@@ -332,7 +340,7 @@ class QuadsApi:
         return self.post("vlans", data)
 
     def get_summary(self) -> Response:
-        return self.get("summary")
+        return self.get("clouds/summary")
 
     def get_version(self) -> Response:
         return self.get("version")

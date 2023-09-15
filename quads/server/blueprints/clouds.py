@@ -1,9 +1,13 @@
 import json
+from datetime import datetime
 
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.blueprints import check_access
+from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
+from quads.server.dao.host import HostDao
+from quads.server.dao.schedule import ScheduleDao
 
 cloud_bp = Blueprint("clouds", __name__)
 
@@ -109,3 +113,51 @@ def delete_cloud(cloud: str) -> Response:
         "message": f"Cloud {cloud} deleted",
     }
     return jsonify(response)
+
+
+@cloud_bp.route("/summary/")
+@check_access("admin")
+def get_summary() -> Response:
+    """
+    Gets a cloud summary.
+
+    :param date: str: A date in the past for a time-bound summary
+    :return: A response object with a 200 status code
+    """
+
+    data = request.args.to_dict()
+    _date = data.get("date")
+    clouds_summary = []
+    total_count = 0
+    _clouds = CloudDao.get_clouds()
+    schedules = None
+    for _cloud in _clouds:
+        if _cloud.name == "cloud01":
+            hosts = HostDao.filter_hosts(cloud=_cloud, retired=False, broken=False)
+            count = len(hosts)
+        else:
+            date = (
+                datetime.strptime(_date, "%Y-%m-%dT%H:%M:%S")
+                if _date
+                else datetime.now()
+            )
+            schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
+            count = len(schedules)
+            total_count += count
+
+        clouds_summary.append(
+            {
+                "name": _cloud.name,
+                "count": count,
+                "description": schedules[0].assignment.description if schedules else "",
+                "owner": schedules[0].assignment.owner if schedules else "",
+                "ticket": schedules[0].assignment.ticket if schedules else "",
+                "ccuser": schedules[0].assignment.ccuser if schedules else "",
+                "provisioned": schedules[0].assignment.provisioned
+                if schedules
+                else False,
+                "validated": schedules[0].assignment.validated if schedules else False,
+            }
+        )
+
+    return jsonify(clouds_summary)

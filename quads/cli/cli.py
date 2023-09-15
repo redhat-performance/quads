@@ -2140,9 +2140,9 @@ class QuadsCli:
             raise CliException(
                 "Could not connect to the quads-server, verify service is up and running."
             )
-
-        for cloud in summary:
-            if self.cli_args["fullsummary"] or cloud["count"] > 0:
+        summary_json = summary.json()
+        for cloud in summary_json:
+            if self.cli_args["all"] or cloud["count"] > 0:
                 if self.cli_args["detail"]:
                     self.logger.info(
                         "%s (%s): %s (%s) - %s"

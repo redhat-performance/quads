@@ -25,6 +25,14 @@ class ProcessorDao(BaseDao):
         db.session.commit()
         return _processor
 
+    @classmethod
+    def delete_processor(cls, processor_id: int) -> None:
+        _processor = cls.get_processor(processor_id)
+        if not _processor:
+            raise EntryNotFound
+        db.session.delete(_processor)
+        return
+
     @staticmethod
     def get_processors() -> List[Processor]:
         processors = db.session.query(Processor).all()
