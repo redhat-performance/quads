@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
+from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
 from quads.server.models import Disk, db, Host
@@ -84,7 +85,7 @@ def create_disks(hostname: str) -> Response:
         disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id
     )
     db.session.add(_disk_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_disk_obj.as_dict())
 
 
@@ -115,7 +116,7 @@ def update_disk(hostname: str) -> Response:
         if value:
             _disk[field] = value
 
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_disk.as_dict())
 
 
@@ -144,7 +145,7 @@ def delete_disk(hostname) -> Response:
         return make_response(jsonify(response), 400)
 
     db.session.delete(_disk_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     response = {
         "status_code": 200,
         "message": f"Disk deleted",

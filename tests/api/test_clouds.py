@@ -117,10 +117,7 @@ class TestReadClouds:
         auth_header = auth.get_auth_header()
         cloud_name = "cloud11"
         response = unwrap_json(
-            test_client.get(
-                f"/api/v3/clouds/{cloud_name}",
-                headers=auth_header
-            )
+            test_client.get(f"/api/v3/clouds/{cloud_name}", headers=auth_header)
         )
         assert response.json == {}
 
@@ -136,10 +133,7 @@ class TestDeleteClouds:
         cloud_id = 1
         cloud_name = f"cloud{str(cloud_id).zfill(2)}"
         response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/clouds/{cloud_name}",
-                headers=auth_header
-            )
+            test_client.delete(f"/api/v3/clouds/{cloud_name}", headers=auth_header)
         )
         assert response.status_code == 200
         assert response.json["message"] == f"Cloud {cloud_name} deleted"
@@ -152,10 +146,7 @@ class TestDeleteClouds:
         """
         auth_header = auth.get_auth_header()
         response = unwrap_json(
-            test_client.delete(
-                "/api/v3/clouds/",
-                headers=auth_header
-            )
+            test_client.delete("/api/v3/clouds/", headers=auth_header)
         )
         assert response.status_code == 405
 

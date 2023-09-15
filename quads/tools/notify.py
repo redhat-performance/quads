@@ -200,11 +200,6 @@ def main():
     ]
     _validated_clouds = [_cloud for _cloud in _active_clouds if _cloud.validated]
 
-    if not os.path.exists(os.path.join(Config["data_dir"], "report")):
-        Path(os.path.join(Config["data_dir"], "report")).mkdir(
-            parents=True, exist_ok=True
-        )
-
     for cloud in _validated_clouds:
         current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
         cloud_info = "%s: %s (%s)" % (
