@@ -1,6 +1,4 @@
-from sqlalchemy import and_, or_
-
-from quads.server.models import db, Interface, Disk, Memory, Processor, Host
+from quads.server.models import Interface, Disk, Memory, Processor, Host, db
 from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -48,6 +46,10 @@ class InvalidArgument(Exception):
     pass
 
 
+class SQLError(Exception):
+    pass
+
+
 class BaseDao:
     @staticmethod
     def safe_commit() -> bool:
@@ -57,7 +59,6 @@ class BaseDao:
         """
         try:
             db.session.commit()
-            current_app.logger.info("SQL Safely Committed")
             return True
         except SQLAlchemyError as error:
             db.session.rollback()

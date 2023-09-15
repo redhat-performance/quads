@@ -21,7 +21,7 @@ class CloudDao(BaseDao):
             raise EntryExisting
         _cloud = Cloud(name=name)
         db.session.add(_cloud)
-        db.session.commit()
+        cls.safe_commit()
         return _cloud
 
     @classmethod
@@ -30,7 +30,7 @@ class CloudDao(BaseDao):
         if not _cloud_obj:
             raise EntryNotFound
         db.session.delete(_cloud_obj)
-        db.session.commit()
+        cls.safe_commit()
         return
 
     @staticmethod
