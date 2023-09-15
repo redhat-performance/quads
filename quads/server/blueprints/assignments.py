@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import Assignment, Notification, db
@@ -187,7 +187,7 @@ def create_assignment() -> Response:
         notification=notification,
     )
     db.session.add(_assignment_obj)
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(_assignment_obj.as_dict())
 
 
@@ -262,7 +262,7 @@ def update_assignment(assignment_id: str) -> Response:
     for key, value in update_fields.items():
         setattr(assignment_obj, key, value)
 
-    db.session.commit()
+    BaseDao.safe_commit()
     return jsonify(assignment_obj.as_dict())
 
 

@@ -441,7 +441,7 @@ class TestUpdateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"hostname not found: {invalid_hostname}"
+        assert response.json["message"] == f"Host not found: {invalid_hostname}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_date_format(self, test_client, auth, prefill):
@@ -464,7 +464,7 @@ class TestUpdateSchedule:
         assert response.json["error"] == "Bad Request"
         assert (
             response.json["message"]
-            == f"Invalid date format for '{date_type}', correct format: 'YYYY-MM-DD HH:MM'"
+            == f"Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'"
         )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
@@ -482,10 +482,10 @@ class TestUpdateSchedule:
             {"end": "2037-01-01 00:00", "build_end": "2038-01-01 00:00"},
         ]
         resp_messages = [
-            "Invalid date range for 'start' or 'end', 'start' must be before 'end'",
-            "Invalid date range for 'build_start' or 'build_end', 'build_start' must be before 'build_end'",
-            "Invalid date range for 'start' or 'build_start', 'start' must be before 'build_start'",
-            "Invalid date range for 'end' or 'build_end', 'build_end' must be before 'end'",
+            "Invalid date range for start or end, start must be before end",
+            "Invalid date range for build_start or build_end, build_start must be before build_end",
+            "Invalid date range for start or build_start, start must be before build_start",
+            "Invalid date range for end or build_end, build_end must be before end",
         ]
         for req, resp_message in zip(reqs, resp_messages):
             response = unwrap_json(

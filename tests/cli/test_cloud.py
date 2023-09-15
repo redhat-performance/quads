@@ -101,8 +101,13 @@ class TestCloud(TestBase):
         assert assignment
         assert assignment.description == new_description
 
-    def test_ls_cloud(self, remove_fixture):
-        self.quads_cli_call("cloud")
+    def test_ls_no_clouds(self):
+        self.quads_cli_call("ls_clouds")
+
+        assert self._caplog.messages[0] == "No clouds found."
+
+    def test_ls_clouds(self, remove_fixture):
+        self.quads_cli_call("ls_clouds")
 
         assert self._caplog.messages[0] == CLOUD
 

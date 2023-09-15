@@ -5,7 +5,6 @@ from quads.server.dao.baseDao import (
     EntryNotFound,
     InvalidArgument,
     OPERATORS,
-    MAP_HOST_META,
 )
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
@@ -15,8 +14,9 @@ from sqlalchemy.orm import RelationshipProperty, Relationship
 
 
 class AssignmentDao(BaseDao):
-    @staticmethod
+    @classmethod
     def create_assignment(
+        cls,
         description: str,
         owner: str,
         ticket: str,
@@ -44,7 +44,7 @@ class AssignmentDao(BaseDao):
         except Exception as ex:
             print(ex)
         db.session.add(_assignment_obj)
-        db.session.commit()
+        cls.safe_commit()
 
         return _assignment_obj
 
@@ -91,7 +91,7 @@ class AssignmentDao(BaseDao):
             else:
                 raise InvalidArgument
 
-        db.session.commit()
+        cls.safe_commit()
 
         return assignment
 
@@ -114,7 +114,7 @@ class AssignmentDao(BaseDao):
         if not _assignments_obj:
             raise EntryNotFound
         db.session.delete(_assignments_obj)
-        db.session.commit()
+        cls.safe_commit()
         return
 
     @staticmethod
@@ -203,8 +203,8 @@ class AssignmentDao(BaseDao):
         )
         return assignments
 
-    @staticmethod
-    def delete_assignment(assignment_id: int):
+    @classmethod
+    def delete_assignment(cls, assignment_id: int):
         _assignment_obj = (
             db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
         )
@@ -213,4 +213,4 @@ class AssignmentDao(BaseDao):
             raise EntryNotFound(f"Could not find assignment with id: {assignment_id}")
 
         db.session.delete(_assignment_obj)
-        db.session.commit()
+        cls.safe_commit()

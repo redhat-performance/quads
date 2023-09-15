@@ -6,8 +6,9 @@ from quads.server.models import db, Disk, Interface
 
 
 class InterfaceDao(BaseDao):
-    @staticmethod
+    @classmethod
     def create_interface(
+        cls,
         hostname: str,
         name: str,
         bios_id: str,
@@ -35,7 +36,7 @@ class InterfaceDao(BaseDao):
             host_id=_host_obj.id,
         )
         db.session.add(_interface)
-        db.session.commit()
+        cls.safe_commit()
         return _interface
 
     @staticmethod

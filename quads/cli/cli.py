@@ -266,9 +266,7 @@ class QuadsCli:
             )
 
         try:
-            host = self.quads.get_host(hostname)
-            if not host:
-                raise CliException(f"Host {hostname} does not exist")
+            self.quads.get_host(hostname)
 
             data = self.quads.get_host_interface(hostname)
         except (APIServerException, APIBadRequest) as ex:
@@ -289,42 +287,44 @@ class QuadsCli:
             self.logger.error(f"No interfaces defined for {hostname}")
 
     def action_memory(self):
-        hostname = self.cli_args["host"]
+        hostname = self.cli_args.get("host")
         if hostname is None:
             raise CliException(
-                "Missing option. --host option is required for --ls-memory:"
+                "Missing option. --host option is required for --ls-memory."
             )
 
         try:
             host = self.quads.get_host(hostname)
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
-        if not host:
-            raise CliException(f"Host {hostname} does not exist")
 
-        for i, memory in enumerate(host.memory):
-            self.logger.info(f"memory: {memory.handle}")
-            self.logger.info(f"  size: {memory.size_gb}")
+        if host.memory:
+            for i, memory in enumerate(host.memory):
+                self.logger.info(f"memory: {memory.handle}")
+                self.logger.info(f"  size: {memory.size_gb}")
+        else:
+            self.logger.error(f"No memory defined for {hostname}")
 
     def action_disks(self):
-        hostname = self.cli_args["host"]
+        hostname = self.cli_args.get("host")
         if hostname is None:
             raise CliException(
-                "Missing option. --host option is required for --ls-disks:"
+                "Missing option. --host option is required for --ls-disks."
             )
 
         try:
             host = self.quads.get_host(hostname)
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
-        if not host:
-            raise CliException(f"Host {hostname} does not exist")
 
-        for i, disk in enumerate(host.disks):
-            self.logger.info(f"disk{i}:")
-            self.logger.info(f"  type: {disk.disk_type}")
-            self.logger.info(f"  size: {disk.size_gb}")
-            self.logger.info(f"  count: {disk.count}")
+        if host.disks:
+            for i, disk in enumerate(host.disks):
+                self.logger.info(f"disk{i}:")
+                self.logger.info(f"  type: {disk.disk_type}")
+                self.logger.info(f"  size: {disk.size_gb}")
+                self.logger.info(f"  count: {disk.count}")
+        else:
+            self.logger.error(f"No disks defined for {hostname}")
 
     def action_processors(self):
         hostname = self.cli_args["host"]
@@ -338,15 +338,15 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
-        if not host:
-            raise CliException(f"Host {hostname} does not exist")
-
-        for i, processor in enumerate(host.processors):
-            self.logger.info(f"processor: {processor.handle}")
-            self.logger.info(f"  vendor: {processor.vendor}")
-            self.logger.info(f"  product: {processor.product}")
-            self.logger.info(f"  cores: {processor.cores}")
-            self.logger.info(f"  threads: {processor.threads}")
+        if host.processors:
+            for i, processor in enumerate(host.processors):
+                self.logger.info(f"processor: {processor.handle}")
+                self.logger.info(f"  vendor: {processor.vendor}")
+                self.logger.info(f"  product: {processor.product}")
+                self.logger.info(f"  cores: {processor.cores}")
+                self.logger.info(f"  threads: {processor.threads}")
+        else:
+            self.logger.error(f"No processors defined for {hostname}")
 
     def action_ls_vlan(self):
         # TODO: check this
@@ -387,9 +387,7 @@ class QuadsCli:
                 _current_cloud = _current_schedule[0].assignment.cloud.name
                 if _current_cloud != _host.default_cloud.name:
                     self.logger.info("Current cloud: %s" % _current_cloud)
-                    self.logger.info(
-                        "Current schedule: %s" % _current_schedule[0].index
-                    )
+                    self.logger.info("Current schedule: %s" % _current_schedule[0].id)
                 else:
                     self.logger.info("Current cloud: %s" % _host.default_cloud.name)
             else:
@@ -443,18 +441,6 @@ class QuadsCli:
                         raise CliException(str(ex))
                     for host in _hosts:
                         self.logger.info(host.name)
-
-    def action_cloud(self):
-        try:
-            entries = self.quads.get_clouds()
-        except (APIServerException, APIBadRequest) as ex:
-            raise CliException(str(ex))
-
-        if entries and "result" not in entries:
-            for entry in sorted(entries, key=lambda k: k.name):
-                self.logger.info(entry.name)
-        elif "result" in entries:
-            self.logger.info(entries["result"])
 
     def action_ls_hosts(self):
         kwargs = {"retired": False}
@@ -1564,34 +1550,30 @@ class QuadsCli:
         return 0
 
     def action_modschedule(self):
-        if self.cli_args["host"] is None:
-            raise CliException("Missing option. Need --host when using --mod-schedule")
-
-        if (
-            self.cli_args["schedstart"] is None
-            and self.cli_args["schedend"] is None
-            and self.cli_args["schedcloud"] is None
-        ):
+        if not self.cli_args.get("schedstart") and not self.cli_args.get("schedend"):
             raise CliException(
                 "\n".join(
                     (
                         "Missing option. At least one these options are required for --mod-schedule:",
                         "\t--schedule-start",
                         "\t--schedule-end",
-                        "\t--schedule-cloud",
                     )
                 )
             )
 
-        data = {
-            "index": self.cli_args["modschedule"],
-            "start": self.cli_args["schedstart"],
-            "end": self.cli_args["schedend"],
-            "cloud": self.cli_args["schedcloud"],
-            "hostname": self.cli_args["host"],
+        mapping = {
+            "start": "schedstart",
+            "end": "schedend",
+            "hostname": "host",
         }
+        data = {}
+        for k, v in mapping.items():
+            value = self.cli_args.get(v)
+            if value:
+                data[k] = value
         try:
-            self.logger.info(self.quads.insert_schedule(data))
+            self.quads.update_schedule(self.cli_args.get("schedid"), data)
+            self.logger.info("Schedule updated successfully.")
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
@@ -2140,9 +2122,9 @@ class QuadsCli:
             raise CliException(
                 "Could not connect to the quads-server, verify service is up and running."
             )
-
-        for cloud in summary:
-            if self.cli_args["fullsummary"] or cloud["count"] > 0:
+        summary_json = summary.json()
+        for cloud in summary_json:
+            if self.cli_args["all"] or cloud["count"] > 0:
                 if self.cli_args["detail"]:
                     self.logger.info(
                         "%s (%s): %s (%s) - %s"

@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
 
 import pytest
+import time
 
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
 from quads.server.dao.vlan import VlanDao
+from quads.server.models import db
 from tests.cli.config import HOST, CLOUD
 from tests.cli.test_base import TestBase
 
@@ -94,8 +96,27 @@ class TestSchedule(TestBase):
         self.cli_args["host"] = HOST
 
         self.quads_cli_call("rmschedule")
-        schedule = ScheduleDao.get_schedule(self.cli_args["schedid"])
+        schedule = ScheduleDao.get_schedule(int(self.cli_args["schedid"]))
         assert not schedule
+
+    def test_mod_schedule(self, remove_fixture):
+        host = HostDao.get_host(HOST)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+        atomorrow = today + timedelta(days=2)
+
+        self.cli_args["schedid"] = _schedule[0].id
+        self.cli_args["schedend"] = atomorrow.strftime("%Y-%m-%d %H:%M")
+
+        self.quads_cli_call("modschedule")
+        schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
+        db.session.refresh(schedule_obj)
+
+        assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") == atomorrow.strftime(
+            "%Y-%m-%d %H:%M"
+        )
 
     def test_ls_schedule(self, remove_fixture):
         self.cli_args["host"] = HOST
