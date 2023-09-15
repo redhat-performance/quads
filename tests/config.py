@@ -531,7 +531,6 @@ SCHEDULE_1_RESPONSE = {
     },
     "host_id": 2,
     "id": 1,
-    "index": None,
     "start": "Sat, 04 Feb 2023 22:00:00 GMT",
 }
 SCHEDULE_2_REQUEST = {
@@ -614,12 +613,11 @@ SCHEDULE_2_RESPONSE = {
     },
     "host_id": 3,
     "id": 2,
-    "index": None,
     "start": "Sat, 04 Feb 2023 22:00:00 GMT",
 }
 SCHEDULE_1_UPDATE_REQUEST = {
-    "start": "2023-02-04 22:00",
-    "end": "2032-02-04 22:00",
-    "build_start": "2024-02-04 22:00",
-    "build_end": "2024-02-05 22:00",
+    "start": "2023-02-04T22:00",
+    "end": "2032-02-04T22:00",
+    "build_start": "2024-02-04T22:00",
+    "build_end": "2024-02-05T22:00",
 }
