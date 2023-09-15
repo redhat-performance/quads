@@ -3,29 +3,67 @@ from typing import List, Type
 from sqlalchemy import and_
 
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
 
 class ScheduleDao(BaseDao):
-    @staticmethod
+    @classmethod
     def create_schedule(
-        start: datetime, end: datetime, assignment: Assignment, host: Host
+        cls, start: datetime, end: datetime, assignment: Assignment, host: Host
     ) -> Schedule:
         _schedule_obj = Schedule(start=start, end=end, assignment=assignment, host=host)
         db.session.add(_schedule_obj)
-        db.session.commit()
+        cls.safe_commit()
         return _schedule_obj
 
     @classmethod
-    def remove_schedule(cls, schedule_id) -> None:
+    def update_schedule(cls, sched_id: int, **kwargs) -> Schedule:
+        """
+        Updates a host in the database.
+
+        :param sched_id: str: Identify the schedule to be updated to
+        :param hostname: str: Identify the host to be updated to
+        :param start: datetime: Pass a string with the schedule start date
+        :param end: datetime: Pass a string with the schedule end date
+        :param build_start: datetime: Pass a string with the schedule start build date
+        :param build_end: datetime: Pass a string with the schedule end build date
+
+        :return: The updated schedule
+        """
+        schedule = cls.get_schedule(sched_id)
+        if not schedule:
+            raise EntryNotFound
+
+        for key, value in kwargs.items():
+            if key == "hostname":
+                host = HostDao.get_host(value)
+                if not host:
+                    raise EntryNotFound
+                setattr(schedule, key, host)
+                continue
+
+            if hasattr(schedule, key):
+                setattr(schedule, key, value)
+            else:
+                raise InvalidArgument
+
+        result = cls.safe_commit()
+
+        if not result:
+            raise SQLError("Failed to update schedule")
+
+        return schedule
+
+    @classmethod
+    def remove_schedule(cls, schedule_id: int) -> None:
         _schedule_obj = cls.get_schedule(schedule_id)
         if not _schedule_obj:
             raise EntryNotFound
         db.session.delete(_schedule_obj)
-        db.session.commit()
+        cls.safe_commit()
         return
 
     @staticmethod
@@ -34,11 +72,9 @@ class ScheduleDao(BaseDao):
         return schedules
 
     @staticmethod
-    def get_schedule(schedule_id) -> Schedule:
-        schedules = (
-            db.session.query(Schedule).filter(Schedule.id == schedule_id).first()
-        )
-        return schedules
+    def get_schedule(schedule_id: int) -> Schedule:
+        schedule = db.session.query(Schedule).filter(Schedule.id == schedule_id).first()
+        return schedule
 
     @staticmethod
     def get_future_schedules(host: Host = None, cloud: Cloud = None) -> List[Schedule]:
@@ -51,7 +87,8 @@ class ScheduleDao(BaseDao):
             # TODO: check or_ construction
 
             query = query.filter(Schedule.assignment.in_(assignments))
-        return query.all()
+        future_schedules = query.all()
+        return future_schedules
 
     @staticmethod
     def filter_schedules(
@@ -78,7 +115,8 @@ class ScheduleDao(BaseDao):
                 raise InvalidArgument("cloud argument must be a str object")
             cloud_obj = CloudDao.get_cloud(cloud)
             query = query.filter(Schedule.assignment.has(cloud_id=cloud_obj.id))
-        return query.all()
+        filter_schedules = query.all()
+        return filter_schedules
 
     @staticmethod
     def get_current_schedule(
@@ -97,7 +135,8 @@ class ScheduleDao(BaseDao):
             return [
                 schedule for schedule in result if schedule.assignment.cloud == cloud
             ]
-        return query.all()
+        current_schedule = query.all()
+        return current_schedule
 
     @staticmethod
     def is_host_available(hostname, start, end, exclude=None) -> bool:
@@ -110,7 +149,7 @@ class ScheduleDao(BaseDao):
         query = db.session.query(Schedule)
         query = query.filter(Schedule.host == _host)
         if exclude:
-            query = query.filter(Schedule.index != exclude)
+            query = query.filter(Schedule.id != exclude)
         results = query.all()
         for result in results:
             if result.start <= start < result.end:

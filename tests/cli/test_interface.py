@@ -46,6 +46,14 @@ def mod_fixture(request):
     )
 
 
+@pytest.fixture
+def noiface_fixture(request):
+    request.addfinalizer(finalizer)
+
+    CloudDao.create_cloud(CLOUD)
+    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
+
+
 class TestInterface(TestBase):
     def test_define_interface_no_params(self, remove_fixture):
         try:
@@ -146,3 +154,24 @@ class TestInterface(TestBase):
         assert self._caplog.messages[6] == f"  vendor: {IFVENDOR}"
         assert self._caplog.messages[7] == "  pxe_boot: True"
         assert self._caplog.messages[8] == "  maintenance: False"
+
+    def test_ls_interface_missing_host(self, remove_fixture):
+        if self.cli_args.get("host"):
+            self.cli_args.pop("host")
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("interface")
+        assert (
+            str(ex.value)
+            == "Missing option. --host option is required for --ls-interface."
+        )
+
+    def test_ls_interface_bad_host(self, remove_fixture):
+        self.cli_args["host"] = "BADHOST"
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("interface")
+        assert str(ex.value) == "Host not found: BADHOST"
+
+    def test_ls_interface_noiface_host(self, noiface_fixture):
+        self.cli_args["host"] = HOST
+        self.quads_cli_call("interface")
+        assert self._caplog.messages[0] == f"No interfaces defined for {HOST}"
