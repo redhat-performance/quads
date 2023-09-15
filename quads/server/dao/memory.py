@@ -20,6 +20,14 @@ class MemoryDao(BaseDao):
         db.session.commit()
         return _memory
 
+    @classmethod
+    def delete_memory(cls, memory_id: int) -> None:
+        _memory = cls.get_memory(memory_id)
+        if not _memory:
+            raise EntryNotFound
+        db.session.delete(_memory)
+        return
+
     @staticmethod
     def get_memories() -> List[Memory]:
         memories = db.session.query(Memory).all()

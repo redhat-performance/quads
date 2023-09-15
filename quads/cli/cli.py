@@ -2142,7 +2142,7 @@ class QuadsCli:
             )
 
         for cloud in summary:
-            if self.cli_args["fullsummary"] or cloud["count"] > 0:
+            if self.cli_args["all"] or cloud["count"] > 0:
                 if self.cli_args["detail"]:
                     self.logger.info(
                         "%s (%s): %s (%s) - %s"
