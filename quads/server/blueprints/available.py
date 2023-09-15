@@ -43,7 +43,7 @@ def get_available() -> Response:
     return jsonify(available)
 
 
-@available_bp.route("/<hostname>", methods=["GET"])
+@available_bp.route("/<hostname>")
 def is_available(hostname) -> Response:
     """
     Used to determine if a host is available for a given time period.

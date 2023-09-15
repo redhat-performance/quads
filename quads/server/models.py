@@ -22,6 +22,7 @@ from jwt import encode, decode, ExpiredSignatureError, InvalidTokenError
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship, backref
+
 try:
     from sqlalchemy.orm import declarative_base
 except ImportError:
@@ -38,10 +39,12 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 Base = declarative_base(metadata=metadata)
 db = SQLAlchemy()
-Base.query = db.session.query_property()
 migrate = Migrate()
-SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres@quads_db:5432/quads")
+SQLALCHEMY_DATABASE_URI = os.getenv(
+    "SQLALCHEMY_DATABASE_URI", "postgresql://postgres:postgres@quads_db:5432/quads"
+)
 Engine = create_engine(SQLALCHEMY_DATABASE_URI)
+Base.query = db.session.query_property()
 
 
 def engine_from_config(config):
@@ -382,7 +385,7 @@ class Assignment(Serialize, TimestampMixin, Base):
     ccuser = Column(MutableList.as_mutable(PickleType), default=[])
 
     # many-to-one parent
-    cloud_id = Column(Integer, ForeignKey("clouds.id", ondelete='SET NULL'))
+    cloud_id = Column(Integer, ForeignKey("clouds.id", ondelete="SET NULL"))
     cloud = relationship("Cloud", foreign_keys=[cloud_id])
 
     # one-to-one parent
@@ -559,7 +562,6 @@ class Schedule(Serialize, TimestampMixin, Base):
     end = Column(DateTime)
     build_start = Column(DateTime)
     build_end = Column(DateTime)
-    index = Column(Integer)
 
     # many-to-one parent
     assignment_id = Column(Integer, ForeignKey("assignments.id"))

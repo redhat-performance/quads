@@ -88,7 +88,6 @@ def main():
             end=schedule.end,
             build_start=schedule.build_start,
             build_end=schedule.build_end,
-            index=schedule.index,
             host=_host,
         )
         db.session.add(_schedule)
