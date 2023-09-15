@@ -1,8 +1,5 @@
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-from quads.server.models import Base, Engine, db, Role, engine_from_config
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
+from quads.server.models import Base, Role, engine_from_config, db
 
 
 def init_db(config=None):

@@ -83,7 +83,7 @@ class _Config(_ConfigBase):
     FPING_TIMEOUT = 10000
 
     QUADSVERSION = "1.1.7"
-    QUADSCODENAME = "gaúcho"
+    QUADSCODENAME = "gaucho"
 
     SUPPORTED = [
         "fc640",

@@ -6,7 +6,6 @@
 # spare pool name. e.g. where your unused systems rest
 spare_pool_name: cloud01
 
-install_dir: /opt/quads
 data_dir: .
 # display name for QUADS email notifications
 mail_display_name: "QUADS Scheduler"
