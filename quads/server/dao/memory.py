@@ -6,8 +6,8 @@ from quads.server.models import db, Memory
 
 
 class MemoryDao(BaseDao):
-    @staticmethod
-    def create_memory(hostname: str, handle: str, size_gb: int) -> Memory:
+    @classmethod
+    def create_memory(cls, hostname: str, handle: str, size_gb: int) -> Memory:
         _host_obj = HostDao.get_host(hostname)
         if not _host_obj:
             raise EntryNotFound
@@ -17,8 +17,16 @@ class MemoryDao(BaseDao):
             host_id=_host_obj.id,
         )
         db.session.add(_memory)
-        db.session.commit()
+        cls.safe_commit()
         return _memory
+
+    @classmethod
+    def delete_memory(cls, memory_id: int) -> None:
+        _memory = cls.get_memory(memory_id)
+        if not _memory:
+            raise EntryNotFound
+        db.session.delete(_memory)
+        return
 
     @staticmethod
     def get_memories() -> List[Memory]:

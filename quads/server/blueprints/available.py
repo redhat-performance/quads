@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -21,10 +21,19 @@ def get_available() -> Response:
     _params = request.args.to_dict()
     _start = _end = datetime.now()
     _cloud = _params.get("cloud")
-    if _params.get("start"):
-        _start = datetime.strptime(_params.get("start"), "%Y-%m-%d %H:%M")
-    if _params.get("end"):
-        _end = datetime.strptime(_params.get("end"), "%Y-%m-%d %H:%M")
+    try:
+        if _params.get("start"):
+            _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M")
+        if _params.get("end"):
+            _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
+    except ValueError:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'",
+        }
+        return make_response(jsonify(response), 400)
+
     if _start > _end:
         _end = _start + timedelta(minutes=1)
 
@@ -43,7 +52,7 @@ def get_available() -> Response:
     return jsonify(available)
 
 
-@available_bp.route("/<hostname>", methods=["GET"])
+@available_bp.route("/<hostname>")
 def is_available(hostname) -> Response:
     """
     Used to determine if a host is available for a given time period.

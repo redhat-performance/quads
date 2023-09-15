@@ -16,9 +16,9 @@ _logger.propagate = True
 
 
 class TestBase:
-    cli_args = {"datearg": None, "filter": None, "force": 'False'}
+    cli_args = {"datearg": None, "filter": None, "force": "False"}
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture
     def test_client(self):
         """
         | Creates a test client for the app from the testing config.

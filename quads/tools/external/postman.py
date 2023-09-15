@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import logging
-import smtplib
+from smtplib import SMTPException, SMTP
 
 from email.message import EmailMessage
 from quads.config import Config
@@ -16,24 +16,32 @@ class Postman(object):
         self.cc = cc
         self.content = content
 
-    def send_email(self):
-        msg = EmailMessage()
-        msg["Subject"] = self.subject
-        msg["From"] = "%s <%s>" % (
+    def compose(self):
+        self.reply_to = "dev-null@%s" % Config["domain"]
+        self.user_agent = Config["mail_user_agent"]
+        self.from_address = "%s <%s>" % (
             Config["mail_display_name"],
             "@".join(["quads", Config["domain"]]),
         )
+        msg = EmailMessage()
+        msg["Subject"] = self.subject
+        msg["From"] = self.from_address
         msg["To"] = "@".join([self.to, Config["domain"]])
         msg["Cc"] = ",".join(self.cc)
-        msg.add_header("Reply-To", "dev-null@%s" % Config["domain"])
-        msg.add_header("User-Agent", Config["mail_user_agent"])
+        msg.add_header("Reply-To", self.reply_to)
+        msg.add_header("User-Agent", self.user_agent)
         msg.set_content(self.content)
+
+        return msg
+
+    def send_email(self):
+        msg = self.compose()
         email_host = Config["email_host"]
-        with smtplib.SMTP(email_host) as s:
+        with SMTP(email_host) as s:
             try:
                 logger.debug(msg)
                 s.send_message(msg)
-            except smtplib.SMTPException as ex:
+            except SMTPException as ex:
                 logger.debug(ex)
                 logger.error("Postman got bit by a dog, woof! woof!")
                 return False

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, jsonify, Response, make_response, request
+from flask import Blueprint, jsonify, Response, make_response, request, abort
 
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -9,7 +9,7 @@ from quads.server.dao.schedule import ScheduleDao
 moves_bp = Blueprint("moves", __name__)
 
 
-@moves_bp.route("/", methods=["GET"])
+@moves_bp.route("/")
 def get_moves() -> Response:
     """
     Returns a list of hosts that need to be moved from one cloud to another.
@@ -23,20 +23,26 @@ def get_moves() -> Response:
     _params = request.args.to_dict()
     result = []
     if _params.get("date"):
-        _date = datetime.strptime(_params.get("date"), "%Y-%m-%d %H:%M")
+        _date = datetime.strptime(_params.get("date"), "%Y-%m-%dT%H:%M")
     try:
         _hosts = HostDao.get_hosts()
         for host in _hosts:
             _current_schedule = ScheduleDao.get_current_schedule(host=host, date=_date)
             _host_current_cloud = host.cloud
-            _new_cloud = _current_schedule[0].assignment.cloud if _current_schedule else host.default_cloud
+            _new_cloud = (
+                _current_schedule[0].assignment.cloud
+                if _current_schedule
+                else host.default_cloud
+            )
             if _new_cloud == _host_current_cloud:
                 continue
-            result.append({
-                "host": host.name,
-                "new": _new_cloud.name,
-                "current": _host_current_cloud.name,
-            })
+            result.append(
+                {
+                    "host": host.name,
+                    "new": _new_cloud.name,
+                    "current": _host_current_cloud.name,
+                }
+            )
     except (IndexError, AttributeError):
         response = {
             "status_code": 500,

@@ -17,14 +17,19 @@ class TestReadAvailable:
         """
         auth_header = auth.get_auth_header()
         responses = [
-            ["host1.example.com", "host2.example.com", "host4.example.com", "host5.example.com"],
+            [
+                "host1.example.com",
+                "host2.example.com",
+                "host4.example.com",
+                "host5.example.com",
+            ],
             ["host1.example.com", "host4.example.com", "host5.example.com"],
-            ["host3.example.com"]
+            ["host3.example.com"],
         ]
         requests = [
-            {"start": "2043-03-20 00:00"},
-            {"start": "2035-01-01 00:00", "end": "2040-01-01 00:00"},
-            {"start": "2045-01-01 00:00", "cloud": "cloud03"},
+            {"start": "2043-03-20T00:00"},
+            {"start": "2035-01-01T00:00", "end": "2040-01-01T00:00"},
+            {"start": "2045-01-01T00:00", "cloud": "cloud03"},
         ]
         for i, (req, resp) in enumerate(zip(requests, responses)):
             api_resp = unwrap_json(
