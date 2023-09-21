@@ -1,105 +1,110 @@
 {% extends "base.html" %}
 
-    {% block title %}QUADS Available Hosts{% endblock %}
+{% block title %}QUADS Available Hosts{% endblock %}
 
-    {% block styles %}
+{% block styles %}
     {{ super() }}
-    {% endblock %}
-
-    {% block scripts %}
-    {{ super() }}
-    <script>
-    $(document).ready( function () {
-        var table = $('#results').DataTable({
-            dom: 'Blfrtip',
-            lengthChange: true,
-            lengthMenu: [ 10, 25, 50, 75, 100 ],
-            pageLength: 25,
-            buttons: [
-                'selectAll',
-                'selectNone',
-                {
-                    extend: 'copy',
-                    title: null,
-                    header: false,
-                    exportOptions: {columns: [1, ':selected']}
-                }
-            ],
-            select: {
-                style: 'multi'
-            }
-        });
-    } );
-    </script>
-    <script>
-    $(document).ready( function () {
-        now = new Date();
-        sunday = new Date();
-        future = new Date();
-        days_till_next_sunday = 7 - now.getDay();
-        sunday.setDate(now.getDate() + days_till_next_sunday);
-        $("#start").datepicker({
-            minDate: 0,
-            onSelect: function(selected){
-                $("#end").datepicker("option","minDate", selected);
-            }
-        });
-        $("#start").datepicker("setDate", sunday);
-        future.setDate(sunday.getDate() + 14);
-        if (sunday.getDate() < now.getDate()) {
-            future.setMonth(future.getMonth() + 1);
+    <style>
+        #search {
+            padding-right: 20px;
+            padding-bottom: 30px;
         }
-        $("#end").datepicker({ minDate: 0 });
-        $("#end").datepicker("setDate", future);
-    });
-    </script>
-    {% endblock %}
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+        .dt-buttons {
+            margin-bottom: 1em;
+        }
+        .dtpick {
+            width: 100%;
+        }
+    </style>
+{% endblock %}
 
-    {% block page_content %}
-        <h2>QUADS Available Hosts</h2>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-3">
-                    {% from "_formhelpers.html" import render_field %}
-                    <form method="post" id="search">
-                        {{ render_field(form.model) }}
-                        <br/>
-                        <br/>
-                        {{ form.start.label }}: {{ form.start(class_="dtpick") }}
-                        <br/>
-                        <br/>
-                        {{ form.end.label }}:   {{ form.end(class_="dtpick") }}
-                        <br/>
-                        <br/>
-                        <input type="submit" value="Search">
-                    </form>
-                </div>
-                <div class="col-md-9">
-                    <table class="table" id="results">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Hostname</th>
-                                <th scope="col">Cloud</th>
-                                <th scope="col">Model</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for host in available_hosts.json %}
-                            {% if host["current"] %}
-                            <tr class="warning">
-                            {% else %}
-                            <tr>
-                            {% endif %}
-                                <th scope="row">{{ loop.index }}</th>
-                                <td>{{ host["name"] }}</td>
-                                <td>{{ host["cloud"] }}</td>
-                                <td>{{ host["model"] }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+{% block page_content %}
+    <h2>QUADS Available Hosts</h2>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <form method="post" id="search" autocomplete="off">
+                    {{ form.model.label }} <br> {{ form.model(class_="dtpick") }}
+                    <br>
+                    <br>
+                    {{ form.date_range.label }} <br> {{ form.date_range(class_="dtpick") }}
+                    <br>
+                    <br>
+                    <input type="submit" value="Search">
+                </form>
+            </div>
+            <div class="col-md-9">
+                <table class="table" id="results">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Hostname</th>
+                            <th scope="col">Cloud</th>
+                            <th scope="col">Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for host in available_hosts.json %}
+                        {% if host["current"] %}
+                        <tr class="warning">
+                        {% else %}
+                        <tr>
+                        {% endif %}
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ host["name"] }}</td>
+                            <td>{{ host["cloud"] }}</td>
+                            <td>{{ host["model"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    {% endblock %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready( function () {
+            $('#date_range').prop('readonly', true);
+            const table = $('#results').DataTable({
+                dom: 'Blfrtip',
+                lengthChange: true,
+                lengthMenu: [10, 25, 50, 75, 100],
+                pageLength: 25,
+                buttons: [
+                    'selectAll',
+                    'selectNone',
+                    {
+                        extend: 'copy',
+                        title: null,
+                        header: false,
+                        exportOptions: {columns: [1, ':selected']}
+                    }
+                ],
+                select: {
+                    style: 'multi'
+                }
+            });
+            const today = new Date();
+            const picker = new Litepicker({
+                element: document.getElementById('date_range'),
+                singleMode: false,
+                minDate: new Date(),
+                startDate: new moment().day(7).toDate(),
+                endDate: new moment().day(21).toDate(),
+                dropdowns: {
+                    "minYear": new moment().get('year'),
+                    "maxYear": 2050,
+                    "months": true,
+                    "years": true,
+                },
+            });
+        });
+    </script>
+{% endblock %}
