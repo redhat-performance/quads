@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cab88bd8_aa18c243",
+        "filename": "quads/server/blueprints/schedules.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-09-21T07:40:07Z",
+      "side": 1,
+      "message": "I don\u0027t see this one being used. Could we remove?",
+      "revId": "139c6829f248cd5f3b9593981f5ec6eab8c0e067",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
