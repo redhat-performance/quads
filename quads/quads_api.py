@@ -1,12 +1,12 @@
 import os
-from json import JSONDecodeError
-
 import requests
 
+from json import JSONDecodeError
 from typing import Optional, List
 from requests import Response
 from requests.auth import HTTPBasicAuth
 from urllib import parse as url_parse
+from urllib.parse import urlencode
 
 from quads.config import Config
 from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
@@ -194,10 +194,10 @@ class QuadsApi:
         return schedules
 
     def get_current_schedules(self, data: dict = None) -> List[Schedule]:
-        url_params = url_parse.urlencode(data)
         endpoint = os.path.join("schedules", "current")
         url = f"{endpoint}"
         if data:
+            url_params = url_parse.urlencode(data)
             url = f"{endpoint}?{url_params}"
         response = self.get(url)
         schedules = []
@@ -238,10 +238,11 @@ class QuadsApi:
         return hosts
 
     def filter_available(self, data) -> List[Host]:
-        response = self.get("available", **data)
+        response = self.get(f"available?{urlencode(data)}")
         hosts = []
         for host in response.json():
-            hosts.append(Host(**host))
+            host_resp = self.get(f"hosts/{host}").json()
+            hosts.append(Host().from_dict(host_resp))
         return hosts
 
     # Assignments
