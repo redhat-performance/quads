@@ -42,7 +42,9 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
-        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
+        self.auth = HTTPBasicAuth(
+            self.config.get("quads_api_username"), self.config.get("quads_api_password")
+        )
 
     # Base functions
     def get(self, endpoint: str) -> Response:
@@ -61,7 +63,10 @@ class QuadsApi:
 
     def post(self, endpoint, data) -> Response:
         _response = self.session.post(
-            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
+            os.path.join(self.base_url, endpoint),
+            json=data,
+            verify=False,
+            auth=self.auth,
         )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
@@ -72,7 +77,10 @@ class QuadsApi:
 
     def patch(self, endpoint, data) -> Response:
         _response = self.session.patch(
-            os.path.join(self.base_url, endpoint), json=data, verify=False, auth=self.auth
+            os.path.join(self.base_url, endpoint),
+            json=data,
+            verify=False,
+            auth=self.auth,
         )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
@@ -149,8 +157,11 @@ class QuadsApi:
     def remove_host(self, hostname) -> Response:
         return self.delete(os.path.join("hosts", hostname))
 
-    def is_available(self, hostname, data) -> Response:
-        return self.post(os.path.join("available", hostname), data)
+    def is_available(self, hostname, data) -> bool:
+        url_params = url_parse.urlencode(data)
+        uri = os.path.join("available", hostname)
+        response = self.get(f"{uri}?{url_params}")
+        return True if "true" in response.text.lower() else False
 
     # Clouds
     def get_clouds(self) -> List[Cloud]:
@@ -206,14 +217,19 @@ class QuadsApi:
         return schedules
 
     def get_future_schedules(self, data) -> List[Schedule]:
-        response = self.post(os.path.join("schedules", "future"), data)
+        url_params = url_parse.urlencode(data)
+        endpoint = os.path.join("schedules", "current")
+        url = f"{endpoint}"
+        if data:
+            url = f"{endpoint}?{url_params}"
+        response = self.get(url)
         schedules = []
         for schedule in response.json():
             schedules.append(Schedule(**schedule))
         return schedules
 
     def update_schedule(self, schedule_id, data) -> Response:
-        return self.post(os.path.join("schedules", schedule_id), data)
+        return self.patch(os.path.join("schedules", str(schedule_id)), data)
 
     def remove_schedule(self, schedule_id) -> Response:
         return self.delete(os.path.join("schedules", str(schedule_id)))
@@ -333,7 +349,7 @@ class QuadsApi:
         return self.post("vlans", data)
 
     def get_summary(self) -> Response:
-        return self.get("summary")
+        return self.get("clouds/summary")
 
     def get_version(self) -> Response:
         return self.get("version")

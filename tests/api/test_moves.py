@@ -21,7 +21,7 @@ def quads_cli_call(action):
         "filter": None,
         "force": "False",
         "dryrun": None,
-        "movecommand": "/quads/quads/tools/move_and_rebuild.py"
+        "movecommand": "/quads/quads/tools/move_and_rebuild.py",
     }
     Config.load_from_yaml(DEFAULT_CONF_PATH)
     quads = QuadsApi(config=Config)
@@ -80,7 +80,7 @@ class TestReadMoves:
         | THEN: User should be able to get the list of hosts with information where they need to moved
         """
         auth_header = auth.get_auth_header()
-        req = {"date": "2055-01-01 00:00"}
+        req = {"date": "2055-01-01T00:00"}
         resp = [
             {"current": "cloud02", "host": "host2.example.com", "new": "cloud01"},
             {"current": "cloud03", "host": "host3.example.com", "new": "cloud01"},

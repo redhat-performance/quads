@@ -10,7 +10,7 @@ class TestReadVersion:
         | THEN: User should be able to get the version
         """
         auth_header = auth.get_auth_header()
-        resp = {"result": f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"}
+        resp = f"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"
         api_resp = unwrap_json(
             test_client.get(
                 "/api/v3/version",
@@ -19,4 +19,3 @@ class TestReadVersion:
         )
         assert api_resp.status_code == 200
         assert api_resp.json == resp
-
