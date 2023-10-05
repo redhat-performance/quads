@@ -99,11 +99,27 @@ class ScheduleDao(BaseDao):
     ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if start:
-            if not isinstance(start, datetime):
+            if isinstance(start, str):
+                try:
+                    start_date = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+                    start = start_date
+                except ValueError:
+                    raise InvalidArgument(
+                        "start argument must be a datetime object or a correct datetime format string"
+                    )
+            elif not isinstance(start, datetime):
                 raise InvalidArgument("start argument must be a datetime object")
             query = query.filter(Schedule.start >= start)
         if end:
-            if not isinstance(end, datetime):
+            if isinstance(end, str):
+                try:
+                    end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M")
+                    end = end_date
+                except ValueError:
+                    raise InvalidArgument(
+                        "end argument must be a datetime object or a correct datetime format string"
+                    )
+            elif not isinstance(end, datetime):
                 raise InvalidArgument("end argument must be a datetime object")
             query = query.filter(Schedule.end <= end)
         if host:

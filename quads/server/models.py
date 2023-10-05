@@ -138,7 +138,10 @@ class Serialize:
         obj_attrs = inspect(self).mapper.attrs
         for i, attr in enumerate(obj_attrs):
             if attr.key in ["cloud", "default_cloud"]:
-                value = data.get(attr.key)
+                if type(data) == dict:
+                    value = data.get(attr.key)
+                else:
+                    value = getattr(data, attr.key)
                 if value:
                     cloud = Cloud().from_dict(value)
                     setattr(self, attr.key, cloud)
@@ -150,19 +153,28 @@ class Serialize:
                     setattr(self, attr.key, host)
                 continue
             if attr.key == "vlan":
-                value = data.get(attr.key)
+                if type(data) == dict:
+                    value = data.get(attr.key)
+                else:
+                    value = getattr(data, attr.key)
                 if value:
                     vlan = Vlan().from_dict(value)
                     setattr(self, attr.key, vlan)
                 continue
             if attr.key == "assignment":
-                value = data.get(attr.key)
+                if type(data) == dict:
+                    value = data.get(attr.key)
+                else:
+                    value = getattr(data, attr.key)
                 if value:
                     assignment = Assignment().from_dict(value)
                     setattr(self, attr.key, assignment)
                 continue
             if attr.key == "notification":
-                value = data.get(attr.key)
+                if type(data) == dict:
+                    value = data.get(attr.key)
+                else:
+                    value = getattr(data, attr.key)
                 if value:
                     notification = Notification().from_dict(value)
                     setattr(self, attr.key, notification)
@@ -203,10 +215,14 @@ class Serialize:
                         processor_list.append(processor_obj)
                     setattr(self, attr.key, processor_list)
                 continue
-            value = data.get(attr.key)
+            if type(data) == dict:
+                value = data.get(attr.key)
+            else:
+                value = getattr(data, attr.key)
             if value is not None:
                 if type(attr.columns[0].type) == DateTime:
-                    value = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
+                    if type(value) != datetime:
+                        value = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S GMT")
                 setattr(self, attr.key, value)
         return self
 

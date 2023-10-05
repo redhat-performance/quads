@@ -5,6 +5,8 @@ from xmlrpc.client import ProtocolError
 
 from quads.server.dao.schedule import ScheduleDao
 from quads.server.dao.vlan import VlanDao
+from quads.server.dao.cloud import CloudDao
+from quads.server.dao.assignment import AssignmentDao
 from quads.tools.external.wiki import Wiki
 from quads.config import Config
 from tempfile import NamedTemporaryFile
@@ -35,17 +37,21 @@ def render_vlans(markdown):
     lines = []
     vlans = VlanDao.get_vlans()
     for vlan in vlans:
-        # TODO: filter cloud by vlan
-        cloud_obj = Cloud.objects(vlan=vlan).first()
+        assignment_obj = AssignmentDao.filter_assignments({"vlan_id": vlan.vlan_id})
+        assignment_obj = assignment_obj[0] if assignment_obj else None
+        if assignment_obj is None:
+            continue
+        cloud_obj = CloudDao.filter_clouds_dict({"id": assignment_obj.cloud_id})
+        cloud_obj = cloud_obj[0] if cloud_obj else None
         vlan_id = vlan.vlan_id
         ip_range = vlan.ip_range
         netmask = vlan.netmask
         gateway = vlan.gateway
         ip_free = vlan.ip_free
         cloud_current_count = len(ScheduleDao.get_current_schedule(cloud=cloud_obj))
-        if cloud_obj and cloud_current_count > 0:
-            owner = cloud_obj.owner
-            ticket = cloud_obj.ticket
+        if assignment_obj and cloud_current_count > 0 and cloud_obj:
+            owner = assignment_obj.owner
+            ticket = assignment_obj.ticket
             cloud_name = cloud_obj.name
         else:
             owner = "nobody"

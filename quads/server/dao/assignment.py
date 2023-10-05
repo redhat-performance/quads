@@ -23,24 +23,27 @@ class AssignmentDao(BaseDao):
         qinq: int,
         wipe: bool,
         ccuser: List[str],
-        vlan_id: int,
         cloud: str,
+        vlan_id: int = None,
     ) -> Assignment:
-        vlan = VlanDao.get_vlan(vlan_id)
         cloud = CloudDao.get_cloud(cloud)
         notification = Notification()
+        kwargs = {
+            "description": description,
+            "owner": owner,
+            "ticket": ticket,
+            "qinq": qinq,
+            "wipe": wipe,
+            "ccuser": ccuser,
+            "cloud": cloud,
+            "notification": notification,
+        }
+        if vlan_id:
+            vlan = VlanDao.get_vlan(vlan_id)
+            if vlan:
+                kwargs["vlan"] = vlan
         try:
-            _assignment_obj = Assignment(
-                description=description,
-                owner=owner,
-                ticket=ticket,
-                qinq=qinq,
-                wipe=wipe,
-                ccuser=ccuser,
-                vlan=vlan,
-                cloud=cloud,
-                notification=notification,
-            )
+            _assignment_obj = Assignment(**kwargs)
         except Exception as ex:
             print(ex)
         db.session.add(_assignment_obj)
@@ -97,15 +100,9 @@ class AssignmentDao(BaseDao):
 
     @staticmethod
     def get_assignment(assignment_id: int) -> Assignment:
-        assignment = (
-            db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
-        )
+        assignment = db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
         if assignment and not assignment.notification:
-            assignment.notification = (
-                db.session.query(Notification)
-                .filter(Assignment.id == assignment_id)
-                .first()
-            )
+            assignment.notification = db.session.query(Notification).filter(Assignment.id == assignment_id).first()
         return assignment
 
     @classmethod
@@ -123,11 +120,7 @@ class AssignmentDao(BaseDao):
         if assignment:
             for a in assignment:
                 if not a.notification:
-                    a.notification = (
-                        db.session.query(Notification)
-                        .filter(Assignment.id == a.id)
-                        .first()
-                    )
+                    a.notification = db.session.query(Notification).filter(Assignment.id == a.id).first()
         return assignment
 
     @staticmethod
@@ -158,7 +151,7 @@ class AssignmentDao(BaseDao):
                 and type(field) != Relationship
                 and type(field.columns[0].type) == Boolean
             ):
-                value = value.lower() in ["true", "y", 1, "yes"]
+                value = str(value).lower() in ["true", "y", 1, "yes"]
             else:
                 if first_field in ["cloud"]:
                     cloud = CloudDao.get_cloud(value)
@@ -173,41 +166,31 @@ class AssignmentDao(BaseDao):
                 )
             )
         if filter_tuples:
-            _hosts = AssignmentDao.create_query_select(
-                Assignment, filters=filter_tuples
-            )
+            _hosts = AssignmentDao.create_query_select(Assignment, filters=filter_tuples)
         else:
             _hosts = AssignmentDao.get_assignments()
         return _hosts
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:
-        assignments = (
-            db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
-        )
+        assignments = db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
         return assignments
 
     @staticmethod
     def get_active_cloud_assignment(cloud: Cloud) -> Assignment:
         assignment = (
-            db.session.query(Assignment)
-            .filter(and_(Assignment.cloud == cloud, Assignment.active == True))
-            .first()
+            db.session.query(Assignment).filter(and_(Assignment.cloud == cloud, Assignment.active == True)).first()
         )
         return assignment
 
     @staticmethod
     def get_active_assignments() -> List[Assignment]:
-        assignments = (
-            db.session.query(Assignment).filter(Assignment.active == True).all()
-        )
+        assignments = db.session.query(Assignment).filter(Assignment.active == True).all()
         return assignments
 
     @classmethod
     def delete_assignment(cls, assignment_id: int):
-        _assignment_obj = (
-            db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
-        )
+        _assignment_obj = db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
 
         if not _assignment_obj:
             raise EntryNotFound(f"Could not find assignment with id: {assignment_id}")

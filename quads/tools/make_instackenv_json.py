@@ -17,7 +17,7 @@ from quads.tools.external.foreman import Foreman
 from quads.config import Config
 
 
-def make_env_json(filename):
+async def make_env_json(filename):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     foreman = Foreman(
@@ -35,10 +35,7 @@ def make_env_json(filename):
     now = time.time()
     old_jsons = [file for file in os.listdir(Config["json_web_path"]) if ":" in file]
     for file in old_jsons:
-        if (
-            os.stat(os.path.join(Config["json_web_path"], file)).st_mtime
-            < now - Config["json_retention_days"] * 86400
-        ):
+        if os.stat(os.path.join(Config["json_web_path"], file)).st_mtime < now - Config["json_retention_days"] * 86400:
             os.remove(os.path.join(Config["json_web_path"], file))
 
     for cloud in cloud_list:
@@ -53,9 +50,7 @@ def make_env_json(filename):
             if Config["foreman_unavailable"]:
                 overcloud = {"result": "true"}
             else:
-                overcloud = loop.run_until_complete(
-                    foreman.get_host_param(host.name, "overcloud")
-                )
+                overcloud = loop.run_until_complete(foreman.get_host_param(host.name, "overcloud"))
 
             if not overcloud:
                 overcloud = {"result": "true"}
@@ -72,16 +67,11 @@ def make_env_json(filename):
             if "result" in overcloud and _overcloud_result:
                 mac = []
                 if filename == "instackenv":
-                    for interface in sorted(host.interfaces, key=lambda k: k["name"]):
+                    for interface in sorted(host.interfaces, key=lambda k: k.name):
                         if interface.pxe_boot:
                             mac.append(interface.mac_address)
                 if filename == "ocpinventory":
-                    mac = [
-                        interface.mac_address
-                        for interface in sorted(
-                            host.interfaces, key=lambda k: k["name"]
-                        )
-                    ]
+                    mac = [interface.mac_address for interface in sorted(host.interfaces, key=lambda k: k.name)]
                 data["nodes"].append(
                     {
                         "name": host.name,
@@ -107,21 +97,21 @@ def make_env_json(filename):
             Config["json_web_path"],
             "%s_%s.json_%s" % (cloud.name, filename, now.strftime("%Y-%m-%d_%H:%M:%S")),
         )
-        json_file = os.path.join(
-            Config["json_web_path"], "%s_%s.json" % (cloud.name, filename)
-        )
+        json_file = os.path.join(Config["json_web_path"], "%s_%s.json" % (cloud.name, filename))
         with open(new_json_file, "w+") as _json_file:
             _json_file.seek(0)
             _json_file.write(content)
         os.chmod(new_json_file, 0o644)
         copyfile(new_json_file, json_file)
 
+    await foreman.session.close()
+
 
 def main():
     if Config["openstack_management"]:
-        make_env_json("instackenv")
+        asyncio.get_event_loop().run_until_complete(make_env_json("instackenv"))
     if Config["openshift_management"]:
-        make_env_json("ocpinventory")
+        asyncio.get_event_loop().run_until_complete(make_env_json("ocpinventory"))
 
 
 if __name__ == "__main__":
