@@ -1,89 +1,80 @@
 import pytest
 
-from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
-from tests.cli.config import CLOUD, HOST
+from quads.server.models import db
+from tests.cli.config import HOST1
 from tests.cli.test_base import TestBase
 
 
 def finalizer():
-    host = HostDao.get_host(HOST)
-    if host:
-        HostDao.remove_host(HOST)
-    cloud = CloudDao.get_cloud(CLOUD)
-    if cloud:
-        CloudDao.remove_cloud(name=CLOUD)
+    HostDao.update_host(HOST1, retired=False)
 
 
 @pytest.fixture
-def mb_fixture(request):
+def unretire(request):
     request.addfinalizer(finalizer)
-
-    cloud = CloudDao.create_cloud(CLOUD)
-    host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
 
 
 @pytest.fixture
-def mr_fixture(request):
+def retire(request):
     request.addfinalizer(finalizer)
-
-    cloud = CloudDao.create_cloud(CLOUD)
-    host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-    assert HostDao.update_host(name=HOST, retired=True)
+    HostDao.update_host(HOST1, retired=True)
 
 
 class TestRetired(TestBase):
-    def test_mark_retired(self, mb_fixture):
-        self.cli_args["host"] = HOST
+    def test_mark_retired(self, unretire):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("retire")
 
-        assert self._caplog.messages[0] == f"Host {HOST} is now marked as retired"
+        assert self._caplog.messages[0] == f"Host {HOST1} is now marked as retired"
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST1)
+        db.session.refresh(host)
         assert host.retired
 
-    def test_mark_retired_already(self, mr_fixture):
-        self.cli_args["host"] = HOST
+    def test_mark_retired_already(self, retire):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("retire")
 
         assert (
             self._caplog.messages[0]
-            == f"Host {HOST} has already been marked as retired"
+            == f"Host {HOST1} has already been marked as retired"
         )
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST1)
         assert host.retired
 
-    def test_mark_unretired(self, mr_fixture):
-        self.cli_args["host"] = HOST
+    def test_mark_unretired(self, retire):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("unretire")
 
-        assert self._caplog.messages[0] == f"Host {HOST} is now marked as unretired"
+        assert self._caplog.messages[0] == f"Host {HOST1} is now marked as unretired"
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST1)
         assert not host.retired
 
-    def test_mark_unretired_already(self, mb_fixture):
-        self.cli_args["host"] = HOST
+    def test_mark_unretired_already(self):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("unretire")
 
         assert (
-            self._caplog.messages[0] == f"Host {HOST} has already been marked unretired"
+            self._caplog.messages[0]
+            == f"Host {HOST1} has already been marked unretired"
         )
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST1)
         assert not host.retired
 
-    def test_ls_retired(self, mr_fixture):
-        self.cli_args["host"] = HOST
+    def test_ls_retired(self, retire):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("ls_retired")
 
-        assert self._caplog.messages[0] == HOST
+        assert self._caplog.messages[0] == HOST1
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST1)
         assert host.retired

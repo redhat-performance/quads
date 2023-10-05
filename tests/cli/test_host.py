@@ -1,72 +1,55 @@
 import pytest
 
 from quads.exceptions import CliException
-from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
-from quads.server.dao.interface import InterfaceDao
-from quads.server.dao.memory import MemoryDao
-from quads.server.dao.processor import ProcessorDao
+from quads.server.models import db
 from tests.cli.config import (
-    HOST,
     CLOUD,
-    MODEL,
     HOST_TYPE,
-    IFNAME,
-    IFBIOSID,
-    IFMAC,
-    IFIP,
-    IFPORT,
-    IFSPEED,
-    IFVENDOR,
+    DEFINE_HOST,
+    MODEL1,
+    HOST1,
+    IFIP1,
+    HOST2,
 )
 from tests.cli.test_base import TestBase
 
 
 def finalizer():
-    host = HostDao.get_host(HOST)
+    host = HostDao.get_host(DEFINE_HOST)
     if host:
-        HostDao.remove_host(name=HOST)
-    cloud = CloudDao.get_cloud(CLOUD)
-    if cloud:
-        CloudDao.remove_cloud(CLOUD)
+        HostDao.remove_host(name=DEFINE_HOST)
 
 
 @pytest.fixture
-def define_fixture(request):
+def remove_host(request):
+    finalizer()
     request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
 
 
 @pytest.fixture
-def remove_fixture(request):
-    request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, MODEL, HOST_TYPE, CLOUD)
-    HostDao.create_host("NEWHOST.example.com", "NEWMODEL", HOST_TYPE, CLOUD)
-    InterfaceDao.create_interface(
-        HOST, IFNAME, IFBIOSID, IFMAC, IFIP, IFPORT, IFSPEED, IFVENDOR, True, False
-    )
+def add_host(request):
+    host = HostDao.create_host(DEFINE_HOST, MODEL1, HOST_TYPE, CLOUD)
+    assert host
 
 
 class TestHost(TestBase):
-    def test_define_host(self, define_fixture):
-        self.cli_args["hostresource"] = HOST
+    def test_define_host(self, remove_host):
+        self.cli_args["hostresource"] = DEFINE_HOST
         self.cli_args["hostcloud"] = CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
-        self.cli_args["model"] = MODEL
+        self.cli_args["model"] = MODEL1
 
         self.quads_cli_call("hostresource")
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(DEFINE_HOST)
         assert host is not None
-        assert host.name == HOST
+        assert host.name == DEFINE_HOST
 
-        assert self._caplog.messages[0] == HOST
+        assert self._caplog.messages[0] == DEFINE_HOST
 
-    def test_define_host_missing_model(self, define_fixture):
-        self.cli_args["hostresource"] = HOST
+    def test_define_host_missing_model(self, remove_host):
+        self.cli_args["hostresource"] = DEFINE_HOST
         self.cli_args["hostcloud"] = CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
 
@@ -75,39 +58,39 @@ class TestHost(TestBase):
         except CliException as ex:
             assert str(ex) == "Missing argument: model"
 
-    def test_remove_host(self, remove_fixture):
-        self.cli_args["host"] = HOST
+    def test_remove_host(self, add_host):
+        self.cli_args["host"] = DEFINE_HOST
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(DEFINE_HOST)
         assert host is not None
-        assert host.name == HOST
+        assert host.name == DEFINE_HOST
 
         self.quads_cli_call("rmhost")
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(DEFINE_HOST)
         assert not host
 
-    def test_ls_host(self, remove_fixture):
+    def test_ls_host(self):
         self.quads_cli_call("ls_hosts")
 
-        assert self._caplog.messages[0] == "NEWHOST.example.com"
-        assert self._caplog.messages[1] == HOST
+        assert self._caplog.messages[0] == HOST1
+        assert self._caplog.messages[1] == HOST2
 
-    def test_ls_host_filter(self, remove_fixture):
-        self.cli_args["filter"] = f"model=={MODEL}"
+    def test_ls_host_filter(self):
+        self.cli_args["filter"] = f"model=={MODEL1}"
         self.quads_cli_call("ls_hosts")
 
-        assert self._caplog.messages[0] == HOST
+        assert self._caplog.messages[0] == HOST1
         assert len(self._caplog.messages) == 1
 
-    def test_ls_host_filter_interface(self, remove_fixture):
-        self.cli_args["filter"] = f"interfaces.switch_ip=={IFIP}"
+    def test_ls_host_filter_interface(self):
+        self.cli_args["filter"] = f"interfaces.switch_ip=={IFIP1}"
         self.quads_cli_call("ls_hosts")
 
-        assert self._caplog.messages[0] == HOST
+        assert self._caplog.messages[0] == HOST1
         assert len(self._caplog.messages) == 1
 
-    def test_ls_host_filter_bad_interface(self, remove_fixture):
+    def test_ls_host_filter_bad_interface(self):
         self.cli_args["filter"] = f"interfaces.switch_ip==10.99.99.5"
         self.quads_cli_call("ls_hosts")
 
@@ -118,9 +101,8 @@ class TestHost(TestBase):
 
         assert self._caplog.messages[0] == "No hosts found."
 
-    def test_ls_processors(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        ProcessorDao.create_processor(HOST, "P1", "Intel", "i7", 2, 4)
+    def test_ls_processors(self):
+        self.cli_args["host"] = HOST1
         self.quads_cli_call("processors")
 
         assert self._caplog.messages[0] == "processor: P1"
@@ -129,7 +111,7 @@ class TestHost(TestBase):
         assert self._caplog.messages[3] == "  cores: 2"
         assert self._caplog.messages[4] == "  threads: 4"
 
-    def test_ls_processors_no_host(self, remove_fixture):
+    def test_ls_processors_no_host(self):
         if self.cli_args.get("host"):
             self.cli_args.pop("host")
         with pytest.raises(CliException) as ex:
@@ -140,19 +122,17 @@ class TestHost(TestBase):
             == "Missing option. --host option is required for --ls-processors."
         )
 
-    def test_ls_processors_no_processor(self, remove_fixture):
-        self.cli_args["host"] = HOST
+    def test_ls_processors_no_processor(self):
+        self.cli_args["host"] = HOST2
         self.quads_cli_call("processors")
 
-        assert self._caplog.messages[0] == f"No processors defined for {HOST}"
+        assert self._caplog.messages[0] == f"No processors defined for {HOST2}"
 
-    def test_ls_memory(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        MemoryDao.create_memory(HOST, "DIMM1", 2000)
-        MemoryDao.create_memory(HOST, "DIMM2", 2000)
+    def test_ls_memory(self):
+        self.cli_args["host"] = HOST1
         self.quads_cli_call("memory")
 
         assert self._caplog.messages[0] == "memory: DIMM1"
-        assert self._caplog.messages[1] == "  size: 2000"
+        assert self._caplog.messages[1] == "  size: 2048"
         assert self._caplog.messages[2] == "memory: DIMM2"
-        assert self._caplog.messages[3] == "  size: 2000"
+        assert self._caplog.messages[3] == "  size: 2048"
