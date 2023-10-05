@@ -119,7 +119,9 @@ class TestReadClouds:
         response = unwrap_json(
             test_client.get(f"/api/v3/clouds/{cloud_name}", headers=auth_header)
         )
-        assert response.json == {}
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Cloud not found: cloud11"
 
     def test_invalid_filter(self, test_client, auth):
         """
@@ -129,10 +131,7 @@ class TestReadClouds:
         """
         auth_header = auth.get_auth_header()
         response = unwrap_json(
-            test_client.get(
-                "/api/v3/clouds?NOT_A_FIELD=invalid",
-                headers=auth_header
-            )
+            test_client.get("/api/v3/clouds?NOT_A_FIELD=invalid", headers=auth_header)
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
@@ -146,10 +145,7 @@ class TestReadClouds:
         """
         auth_header = auth.get_auth_header()
         response = unwrap_json(
-            test_client.get(
-                "/api/v3/clouds?id=1",
-                headers=auth_header
-            )
+            test_client.get("/api/v3/clouds?id=1", headers=auth_header)
         )
         assert response.status_code == 200
         assert len(response.json) == 1

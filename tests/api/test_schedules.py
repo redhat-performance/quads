@@ -395,7 +395,9 @@ class TestReadSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"start argument must be a datetime object"
+        assert response.json["message"] == (
+                "start argument must be a datetime object or a correct datetime format string"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_filter(self, test_client, auth, prefill):

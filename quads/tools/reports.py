@@ -38,7 +38,8 @@ def report_available(_logger, _start, _end):
     schedules = ScheduleDao.get_future_schedules()
     total = timedelta()
     for schedule in schedules:
-        total += schedule.build_end - schedule.build_start
+        if schedule.build_end and schedule.build_start:
+            total += schedule.build_end - schedule.build_start
     if schedules:
         average_build = total / len(schedules)
         _logger.info(f"Average build delta: {average_build}")
@@ -69,13 +70,17 @@ def report_available(_logger, _start, _end):
                 scheduled_count += 1
 
             two_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=2)
+                hostname=host.name,
+                start=next_sunday,
+                end=next_sunday + timedelta(weeks=2),
             )
             if two_weeks_availability:
                 two_weeks_availability_count += 1
 
             four_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=4)
+                hostname=host.name,
+                start=next_sunday,
+                end=next_sunday + timedelta(weeks=4),
             )
             if four_weeks_availability:
                 four_weeks_availability_count += 1
@@ -118,7 +123,7 @@ def process_scheduled(_logger, month, now):
     end = last_day_month(_date)
 
     scheduled = len(ScheduleDao.filter_schedules(start, end))
-    hosts = len(HostDao.filter_hosts(**{"created_at__gt": start}))
+    hosts = len(HostDao.filter_hosts(retired=False, broken=False))
 
     days = 0
     scheduled_count = 0
@@ -164,14 +169,14 @@ def report_detailed(_logger, _start, _end):
     for schedule in schedules:
         if schedule:
             delta = schedule.end - schedule.start
-            description = schedule.assignment.cloud.description[: len(headers[3])]
+            description = schedule.assignment.description[: len(headers[3])]
             _logger.info(
                 f"{schedule.assignment.owner:<9}| "
                 f"{schedule.assignment.ticket:>9}| "
-                f"{schedule.assignment.name:>8}| "
+                f"{schedule.assignment.cloud.name:>8}| "
                 f"{description:>11}| "
-                f"{schedule.count():>7}| "
-                f"{str(schedule[0].start)[:10]:>9}| "
+                f"{len(schedules):>7}| "
+                f"{str(schedule.start)[:10]:>9}| "
                 f"{delta.days:>8}| "
             )
 

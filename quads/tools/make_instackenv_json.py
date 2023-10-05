@@ -17,7 +17,7 @@ from quads.tools.external.foreman import Foreman
 from quads.config import Config
 
 
-def make_env_json(filename):
+async def make_env_json(filename):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     foreman = Foreman(
@@ -116,12 +116,14 @@ def make_env_json(filename):
         os.chmod(new_json_file, 0o644)
         copyfile(new_json_file, json_file)
 
+    await foreman.session.close()
+
 
 def main():
     if Config["openstack_management"]:
-        make_env_json("instackenv")
+        asyncio.get_event_loop().run_until_complete(make_env_json("instackenv"))
     if Config["openshift_management"]:
-        make_env_json("ocpinventory")
+        asyncio.get_event_loop().run_until_complete(make_env_json("ocpinventory"))
 
 
 if __name__ == "__main__":

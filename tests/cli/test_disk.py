@@ -2,62 +2,18 @@ import pytest
 
 from quads.exceptions import CliException
 from quads.server.dao.cloud import CloudDao
-from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
-from quads.server.dao.interface import InterfaceDao
-from quads.server.dao.memory import MemoryDao
 from tests.cli.config import (
-    HOST,
     CLOUD,
-    IFNAME,
-    IFMAC,
-    IFIP,
-    IFPORT,
-    IFBIOSID,
-    IFSPEED,
-    IFVENDOR,
+    HOST1,
+    HOST2,
 )
 from tests.cli.test_base import TestBase
 
 
-def finalizer():
-    host = HostDao.get_host(HOST)
-    if host:
-        HostDao.remove_host(name=HOST)
-    cloud = CloudDao.get_cloud(CLOUD)
-    if cloud:
-        CloudDao.remove_cloud(CLOUD)
-
-
-@pytest.fixture
-def remove_fixture(request):
-    request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-
-
-@pytest.fixture
-def mod_fixture(request):
-    request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-    DiskDao.create_disk(HOST, "NVME", 4096, 10)
-    DiskDao.create_disk(HOST, "SATA", 4096, 5)
-
-
-@pytest.fixture
-def nodisk_fixture(request):
-    request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-
-
 class TestDisk(TestBase):
-    def test_ls_disk(self, mod_fixture):
-        self.cli_args["host"] = HOST
+    def test_ls_disk(self):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("disks")
 
@@ -70,7 +26,7 @@ class TestDisk(TestBase):
         assert self._caplog.messages[6] == f"  size: 4096"
         assert self._caplog.messages[7] == f"  count: 5"
 
-    def test_ls_disk_missing_host(self, remove_fixture):
+    def test_ls_disk_missing_host(self):
         if self.cli_args.get("host"):
             self.cli_args.pop("host")
         with pytest.raises(CliException) as ex:
@@ -79,13 +35,13 @@ class TestDisk(TestBase):
             str(ex.value) == "Missing option. --host option is required for --ls-disks."
         )
 
-    def test_ls_disk_bad_host(self, remove_fixture):
+    def test_ls_disk_bad_host(self):
         self.cli_args["host"] = "BADHOST"
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("disks")
         assert str(ex.value) == "Host not found: BADHOST"
 
-    def test_ls_disk_nodisk_host(self, nodisk_fixture):
-        self.cli_args["host"] = HOST
+    def test_ls_disk_nodisk_host(self):
+        self.cli_args["host"] = HOST2
         self.quads_cli_call("disks")
-        assert self._caplog.messages[0] == f"No disks defined for {HOST}"
+        assert self._caplog.messages[0] == f"No disks defined for {HOST2}"
