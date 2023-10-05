@@ -26,6 +26,7 @@ class MemoryDao(BaseDao):
         if not _memory:
             raise EntryNotFound
         db.session.delete(_memory)
+        cls.safe_commit()
         return
 
     @staticmethod

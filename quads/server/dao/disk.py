@@ -36,3 +36,12 @@ class DiskDao(BaseDao):
     def get_disk(disk_id: int) -> Disk:
         disk = db.session.query(Disk).filter(Disk.id == disk_id).first()
         return disk
+
+    @classmethod
+    def delete_disk(cls, disk_id) -> None:
+        _disk_obj = cls.get_disk(disk_id)
+        if not _disk_obj:
+            raise EntryNotFound
+        db.session.delete(_disk_obj)
+        cls.safe_commit()
+        return

@@ -117,7 +117,6 @@ def create_assignment() -> Response:
     """
     data = request.get_json()
 
-    notification = Notification()
     _cloud = None
     _vlan = None
     cloud_name = data.get("cloud")
@@ -175,19 +174,18 @@ def create_assignment() -> Response:
             }
             return make_response(jsonify(response), 400)
 
-    _assignment_obj = Assignment(
-        description=description,
-        owner=owner,
-        ticket=ticket,
-        qinq=qinq,
-        wipe=wipe,
-        ccuser=cc_user,
-        vlan=_vlan,
-        cloud=_cloud,
-        notification=notification,
-    )
-    db.session.add(_assignment_obj)
-    BaseDao.safe_commit()
+    kwargs = {
+        "description": description,
+        "owner": owner,
+        "ticket": ticket,
+        "qinq": qinq,
+        "wipe": wipe,
+        "ccuser": cc_user,
+        "cloud": cloud_name,
+    }
+    if _vlan:
+        kwargs["vlan_id"] = int(vlan)
+    _assignment_obj = AssignmentDao.create_assignment(**kwargs)
     return jsonify(_assignment_obj.as_dict())
 
 
