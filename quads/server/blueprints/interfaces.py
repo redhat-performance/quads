@@ -157,9 +157,9 @@ def update_interface(hostname: str) -> Response:
     return jsonify(interface_obj.as_dict())
 
 
-@interface_bp.route("/<hostname>", methods=["DELETE"])
+@interface_bp.route("/<hostname>/<if_name>", methods=["DELETE"])
 @check_access("admin")
-def delete_interface(hostname: str) -> Response:
+def delete_interface(hostname: str, if_name: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
         response = {
@@ -169,30 +169,19 @@ def delete_interface(hostname: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    data = request.get_json()
+    for interface in _host.interfaces:
+        if interface.name == if_name:
+            db.session.delete(interface)
+            BaseDao.safe_commit()
+            response = {
+                "status_code": 200,
+                "message": "Interface deleted",
+            }
+            return jsonify(response)
 
-    interface_id = data.get("id")
-    if not interface_id:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: id",
-        }
-        return make_response(jsonify(response), 400)
-
-    _interface_obj = InterfaceDao.get_interface(interface_id)
-    if not _interface_obj:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Interface not found: {interface_id}",
-        }
-        return make_response(jsonify(response), 400)
-
-    db.session.delete(_interface_obj)
-    BaseDao.safe_commit()
     response = {
-        "status_code": 200,
-        "message": "Interface deleted",
+        "status_code": 400,
+        "error": "Bad Request",
+        "message": f"Interface not found: {if_name}",
     }
-    return jsonify(response)
+    return make_response(jsonify(response), 400)

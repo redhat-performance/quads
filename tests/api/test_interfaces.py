@@ -266,33 +266,13 @@ class TestDeleteInterfaces:
         host_name = "invalid_host"
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/interfaces/{host_name}",
-                json=INTERFACE_1_REQUEST[0],
+                f"/api/v3/interfaces/{host_name}/{INTERFACE_1_REQUEST[0]['name']}",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_missing_id(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds and hosts
-        | WHEN: User tries to delete an interface without specifying an ID for the interface.
-        | THEN: Interface should not be deleted
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-                json={},
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: id"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_wrong_id(self, test_client, auth, prefill):
@@ -305,8 +285,7 @@ class TestDeleteInterfaces:
         invalid_id = 42
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-                json={"id": invalid_id},
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}/{invalid_id}",
                 headers=auth_header,
             )
         )
@@ -324,8 +303,7 @@ class TestDeleteInterfaces:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-                json={"id": INTERFACE_1_RESPONSE["id"]},
+                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}/{INTERFACE_1_RESPONSE['name']}",
                 headers=auth_header,
             )
         )

@@ -11,9 +11,7 @@ from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
 class ScheduleDao(BaseDao):
     @classmethod
-    def create_schedule(
-        cls, start: datetime, end: datetime, assignment: Assignment, host: Host
-    ) -> Schedule:
+    def create_schedule(cls, start: datetime, end: datetime, assignment: Assignment, host: Host) -> Schedule:
         _schedule_obj = Schedule(start=start, end=end, assignment=assignment, host=host)
         db.session.add(_schedule_obj)
         cls.safe_commit()
@@ -99,11 +97,25 @@ class ScheduleDao(BaseDao):
     ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if start:
-            if not isinstance(start, datetime):
+            if isinstance(start, str):
+                try:
+                    start_date = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+                    start = start_date
+                except ValueError:
+                    raise InvalidArgument(
+                        "start argument must be a datetime object or a correct datetime format string"
+                    )
+            elif not isinstance(start, datetime):
                 raise InvalidArgument("start argument must be a datetime object")
             query = query.filter(Schedule.start >= start)
         if end:
-            if not isinstance(end, datetime):
+            if isinstance(end, str):
+                try:
+                    end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M")
+                    end = end_date
+                except ValueError:
+                    raise InvalidArgument("end argument must be a datetime object or a correct datetime format string")
+            elif not isinstance(end, datetime):
                 raise InvalidArgument("end argument must be a datetime object")
             query = query.filter(Schedule.end <= end)
         if host:
@@ -119,22 +131,17 @@ class ScheduleDao(BaseDao):
         return filter_schedules
 
     @staticmethod
-    def get_current_schedule(
-        date: datetime = None, host: Host = None, cloud: Cloud = None
-    ) -> List[Type[Schedule]]:
+    def get_current_schedule(date: datetime = None, host: Host = None, cloud: Cloud = None) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
+        if cloud:
+            query = query.join(Assignment).filter(Assignment.cloud == cloud)
         if not date:
             date = datetime.now()
         query = query.filter(and_(Schedule.start <= date, Schedule.end >= date))
 
         if host:
             query = query.filter(Schedule.host == host)
-        # TODO: check assignment cloud schedule relationship
-        if cloud:
-            result = query.all()
-            return [
-                schedule for schedule in result if schedule.assignment.cloud == cloud
-            ]
+
         current_schedule = query.all()
         return current_schedule
 
