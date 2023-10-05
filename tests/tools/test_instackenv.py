@@ -10,13 +10,13 @@ from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
 from quads.server.dao.vlan import VlanDao
 from quads.tools.make_instackenv_json import main
-from tests.cli.config import CLOUD, HOST
+from tests.cli.config import CLOUD, HOST1
 from tests.tools.test_base import TestBase
 import pytest
 
 
 def finalizer():
-    host = HostDao.get_host(HOST)
+    host = HostDao.get_host(HOST1)
     cloud = CloudDao.get_cloud(CLOUD)
     schedules = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
 
@@ -29,7 +29,7 @@ def finalizer():
         AssignmentDao.remove_assignment(ass.id)
 
     if host:
-        HostDao.remove_host(name=HOST)
+        HostDao.remove_host(name=HOST1)
 
     if cloud:
         CloudDao.remove_cloud(CLOUD)
@@ -45,12 +45,12 @@ def ie_fixture(request):
     tomorrow = today + timedelta(days=1)
 
     cloud = CloudDao.create_cloud(CLOUD)
-    host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
+    host = HostDao.create_host(HOST1, "r640", "scalelab", CLOUD)
     vlan = VlanDao.create_vlan(
         "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
     )
     assignment = AssignmentDao.create_assignment(
-        "test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name
+        "test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id
     )
     schedule = ScheduleDao.create_schedule(
         today,

@@ -38,7 +38,8 @@ def report_available(_logger, _start, _end):
     schedules = ScheduleDao.get_future_schedules()
     total = timedelta()
     for schedule in schedules:
-        total += schedule.build_end - schedule.build_start
+        if schedule.build_end and schedule.build_start:
+            total += schedule.build_end - schedule.build_start
     if schedules:
         average_build = total / len(schedules)
         _logger.info(f"Average build delta: {average_build}")
@@ -69,13 +70,17 @@ def report_available(_logger, _start, _end):
                 scheduled_count += 1
 
             two_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=2)
+                hostname=host.name,
+                start=next_sunday,
+                end=next_sunday + timedelta(weeks=2),
             )
             if two_weeks_availability:
                 two_weeks_availability_count += 1
 
             four_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name, start=next_sunday, end=next_sunday + timedelta(weeks=4)
+                hostname=host.name,
+                start=next_sunday,
+                end=next_sunday + timedelta(weeks=4),
             )
             if four_weeks_availability:
                 four_weeks_availability_count += 1

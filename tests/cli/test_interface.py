@@ -1,61 +1,60 @@
 import pytest
 
 from quads.exceptions import CliException
-from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
+from quads.server.models import db
 from tests.cli.config import (
-    HOST,
-    CLOUD,
-    IFNAME,
-    IFMAC,
-    IFIP,
-    IFPORT,
-    IFBIOSID,
     IFSPEED,
-    IFVENDOR,
+    HOST2,
+    IFNAME2,
+    IFMAC2,
+    IFIP2,
+    IFPORT2,
+    IFBIOSID2,
+    IFVENDOR2,
+    HOST1,
+    IFNAME1,
+    IFBIOSID1,
+    IFMAC1,
+    IFIP1,
+    IFPORT1,
+    IFVENDOR1,
 )
 from tests.cli.test_base import TestBase
 
 
 def finalizer():
-    host = HostDao.get_host(HOST)
+    host = HostDao.get_host(HOST2)
     if host:
-        HostDao.remove_host(name=HOST)
-    cloud = CloudDao.get_cloud(CLOUD)
-    if cloud:
-        CloudDao.remove_cloud(CLOUD)
+        for interface in host.interfaces:
+            InterfaceDao.delete_interface(interface.id)
 
 
 @pytest.fixture
-def remove_fixture(request):
+def remove_interface(request):
     request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
 
 
 @pytest.fixture
-def mod_fixture(request):
+def mod_interface(request):
     request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
     InterfaceDao.create_interface(
-        HOST, IFNAME, IFBIOSID, IFMAC, IFIP, IFPORT, IFSPEED, IFVENDOR, True, False
+        HOST2,
+        IFNAME2,
+        IFBIOSID2,
+        IFMAC2,
+        IFIP2,
+        IFPORT2,
+        IFSPEED,
+        IFVENDOR2,
+        False,
+        False,
     )
 
 
-@pytest.fixture
-def noiface_fixture(request):
-    request.addfinalizer(finalizer)
-
-    CloudDao.create_cloud(CLOUD)
-    HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
-
-
 class TestInterface(TestBase):
-    def test_define_interface_no_params(self, remove_fixture):
+    def test_define_interface_no_params(self):
         try:
             self.quads_cli_call("addinterface")
         except CliException as ex:
@@ -68,94 +67,104 @@ class TestInterface(TestBase):
                 "\t--interface-port"
             )
 
-    def test_define_interface_missing_bios_id(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        self.cli_args["ifname"] = IFNAME
-        self.cli_args["ifmac"] = IFMAC
-        self.cli_args["ifip"] = IFIP
-        self.cli_args["ifport"] = IFPORT
+    def test_define_interface_missing_bios_id(self):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
+        self.cli_args["ifmac"] = IFMAC2
+        self.cli_args["ifip"] = IFIP2
+        self.cli_args["ifport"] = IFPORT2
         try:
             self.quads_cli_call("addinterface")
         except CliException as ex:
             assert "Missing argument: bios_id" == str(ex)
 
-    def test_define_interface_missing_speed(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        self.cli_args["ifname"] = IFNAME
-        self.cli_args["ifmac"] = IFMAC
-        self.cli_args["ifip"] = IFIP
-        self.cli_args["ifport"] = IFPORT
-        self.cli_args["ifbiosid"] = IFBIOSID
+    def test_define_interface_missing_speed(self):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
+        self.cli_args["ifmac"] = IFMAC2
+        self.cli_args["ifip"] = IFIP2
+        self.cli_args["ifport"] = IFPORT2
+        self.cli_args["ifbiosid"] = IFBIOSID2
         try:
             self.quads_cli_call("addinterface")
         except CliException as ex:
             assert "Missing argument: speed" == str(ex)
 
-    def test_define_interface_missing_vendor(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        self.cli_args["ifname"] = IFNAME
-        self.cli_args["ifmac"] = IFMAC
-        self.cli_args["ifip"] = IFIP
-        self.cli_args["ifport"] = IFPORT
-        self.cli_args["ifbiosid"] = IFBIOSID
+    def test_define_interface_missing_vendor(self):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
+        self.cli_args["ifmac"] = IFMAC2
+        self.cli_args["ifip"] = IFIP2
+        self.cli_args["ifport"] = IFPORT2
+        self.cli_args["ifbiosid"] = IFBIOSID2
         self.cli_args["ifspeed"] = IFSPEED
         try:
             self.quads_cli_call("addinterface")
         except CliException as ex:
             assert "Missing argument: vendor" == str(ex)
 
-    def test_define_interface(self, remove_fixture):
-        self.cli_args["host"] = HOST
-        self.cli_args["ifname"] = IFNAME
-        self.cli_args["ifmac"] = IFMAC
-        self.cli_args["ifip"] = IFIP
-        self.cli_args["ifport"] = IFPORT
-        self.cli_args["ifbiosid"] = IFBIOSID
+    def test_define_interface(self, remove_interface):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
+        self.cli_args["ifmac"] = IFMAC2
+        self.cli_args["ifip"] = IFIP2
+        self.cli_args["ifport"] = IFPORT2
+        self.cli_args["ifbiosid"] = IFBIOSID2
         self.cli_args["ifspeed"] = IFSPEED
-        self.cli_args["ifvendor"] = IFVENDOR
+        self.cli_args["ifvendor"] = IFVENDOR2
 
         self.quads_cli_call("addinterface")
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST2)
         assert len(host.interfaces) == 1
-        assert host.interfaces[0].name == IFNAME
-        assert host.interfaces[0].mac_address == IFMAC
-        assert host.interfaces[0].switch_ip == IFIP
-        assert host.interfaces[0].switch_port == IFPORT
-        assert host.interfaces[0].bios_id == IFBIOSID
+        assert host.interfaces[0].name == IFNAME2
+        assert host.interfaces[0].mac_address == IFMAC2
+        assert host.interfaces[0].switch_ip == IFIP2
+        assert host.interfaces[0].switch_port == IFPORT2
+        assert host.interfaces[0].bios_id == IFBIOSID2
         assert host.interfaces[0].speed == IFSPEED
-        assert host.interfaces[0].vendor == IFVENDOR
-        assert not host.interfaces[0].pxe_boot
+        assert host.interfaces[0].vendor == IFVENDOR2
+        assert host.interfaces[0].pxe_boot
         assert not host.interfaces[0].maintenance
 
-    def test_mod_interface(self, mod_fixture):
-        self.cli_args["host"] = HOST
-        self.cli_args["ifname"] = IFNAME
+    def test_mod_interface(self, mod_interface):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
         self.cli_args["ifip"] = "192.168.0.1"
 
         self.quads_cli_call("modinterface")
 
-        host = HostDao.get_host(HOST)
+        host = HostDao.get_host(HOST2)
         assert len(host.interfaces) == 1
-        assert host.interfaces[0].name == IFNAME
+        assert host.interfaces[0].name == IFNAME2
         assert host.interfaces[0].switch_ip == "192.168.0.1"
 
-    def test_ls_interface(self, mod_fixture):
-        self.cli_args["host"] = HOST
+    def test_rm_interface(self, mod_interface):
+        self.cli_args["host"] = HOST2
+        self.cli_args["ifname"] = IFNAME2
+
+        self.quads_cli_call("rminterface")
+
+        host = HostDao.get_host(HOST2)
+        db.session.refresh(host)
+        assert len(host.interfaces) == 0
+
+    def test_ls_interface(self):
+        self.cli_args["host"] = HOST1
 
         self.quads_cli_call("interface")
 
-        assert self._caplog.messages[0] == f"interface: {IFNAME}"
-        assert self._caplog.messages[1] == f"  bios id: {IFBIOSID}"
-        assert self._caplog.messages[2] == f"  mac address: {IFMAC}"
-        assert self._caplog.messages[3] == f"  switch ip: {IFIP}"
-        assert self._caplog.messages[4] == f"  port: {IFPORT}"
+        assert self._caplog.messages[0] == f"interface: {IFNAME1}"
+        assert self._caplog.messages[1] == f"  bios id: {IFBIOSID1}"
+        assert self._caplog.messages[2] == f"  mac address: {IFMAC1}"
+        assert self._caplog.messages[3] == f"  switch ip: {IFIP1}"
+        assert self._caplog.messages[4] == f"  port: {IFPORT1}"
         assert self._caplog.messages[5] == f"  speed: {IFSPEED}"
-        assert self._caplog.messages[6] == f"  vendor: {IFVENDOR}"
+        assert self._caplog.messages[6] == f"  vendor: {IFVENDOR1}"
         assert self._caplog.messages[7] == "  pxe_boot: True"
         assert self._caplog.messages[8] == "  maintenance: False"
 
-    def test_ls_interface_missing_host(self, remove_fixture):
+    def test_ls_interface_missing_host(self):
         if self.cli_args.get("host"):
             self.cli_args.pop("host")
         with pytest.raises(CliException) as ex:
@@ -165,13 +174,13 @@ class TestInterface(TestBase):
             == "Missing option. --host option is required for --ls-interface."
         )
 
-    def test_ls_interface_bad_host(self, remove_fixture):
+    def test_ls_interface_bad_host(self):
         self.cli_args["host"] = "BADHOST"
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("interface")
         assert str(ex.value) == "Host not found: BADHOST"
 
-    def test_ls_interface_noiface_host(self, noiface_fixture):
-        self.cli_args["host"] = HOST
+    def test_ls_interface_noiface_host(self):
+        self.cli_args["host"] = HOST2
         self.quads_cli_call("interface")
-        assert self._caplog.messages[0] == f"No interfaces defined for {HOST}"
+        assert self._caplog.messages[0] == f"No interfaces defined for {HOST2}"

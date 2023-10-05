@@ -1,0 +1,48 @@
+- broken: false
+  default_cloud: cloud99
+  host_type: scalelab
+  last_build: null
+  model: R930
+  name: host2.example.com
+  retired: false
+- broken: false
+  default_cloud: cloud99
+  disks:
+  - count: 10
+    disk_type: NVME
+    size_gb: 4096
+  - count: 5
+    disk_type: SATA
+    size_gb: 4096
+  host_type: scalelab
+  interfaces:
+  - mac_address: A0:B1:C2:D3:E4:F5
+    maintenance: false
+    name: em1
+    pxe_boot: true
+    speed: 1000
+    switch_ip: 10.0.0.1
+    switch_port: et-4/0/0
+    vendor: Intel
+  last_build: null
+  memory:
+  - handle: DIMM1
+    size_gb: 2048
+  - handle: DIMM2
+    size_gb: 2048
+  model: R640
+  name: host1.example.com
+  processors:
+  - cores: 2
+    handle: P1
+    product: i7
+    threads: 4
+    vendor: Intel
+  retired: false
+- broken: false
+  default_cloud: cloud99
+  host_type: scalelab
+  last_build: null
+  model: R640
+  name: imported.example.com
+  retired: false

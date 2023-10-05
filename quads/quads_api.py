@@ -169,7 +169,7 @@ class QuadsApi:
         clouds = []
         for cloud in response.json():
             clouds.append(Cloud(**cloud))
-        return clouds
+        return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
 
     def filter_clouds(self, data) -> List[Cloud]:
         response = self.get("clouds", **data)
@@ -268,8 +268,15 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
-    def get_active_cloud_assignment(self, cloud_name) -> Response:
-        return self.get(os.path.join("assignments/active", cloud_name))
+    def get_active_cloud_assignment(self, cloud_name) -> List[Assignment]:
+        response = self.get(os.path.join("assignments/active", cloud_name))
+        data = response.json()
+        assignments = []
+        if data:
+            ass_object = Assignment().from_dict(data)
+            assignments.append(ass_object)
+
+        return assignments
 
     def get_active_assignments(self) -> List[Assignment]:
         response = self.get("assignments/active")
@@ -301,8 +308,8 @@ class QuadsApi:
     def update_interface(self, hostname, data) -> Response:
         return self.patch(os.path.join("interfaces", hostname), data)
 
-    def remove_interface(self, interface_id) -> Response:
-        return self.delete(os.path.join("interfaces", interface_id))
+    def remove_interface(self, hostname, if_name) -> Response:
+        return self.delete(os.path.join("interfaces", hostname, if_name))
 
     def create_interface(self, hostname, data) -> Response:
         return self.post(os.path.join("interfaces", hostname), data)
@@ -341,15 +348,21 @@ class QuadsApi:
     def get_vlan(self, vlan_id) -> Response:
         return self.get(os.path.join("vlans", str(vlan_id)))
 
-    def update_vlan(self, vlan_id, data) -> Response:
+    def update_vlan(self, vlan_id, data: dict) -> Response:
         return self.patch(os.path.join("vlans", str(vlan_id)), data)
 
     # Processor
-    def create_vlan(self, data) -> Response:
+    def create_vlan(self, data: dict) -> Response:
         return self.post("vlans", data)
 
-    def get_summary(self) -> Response:
-        return self.get("clouds/summary")
+    def get_summary(self, data: dict) -> Response:
+        url_params = url_parse.urlencode(data)
+        endpoint = os.path.join("clouds", "summary")
+        url = f"{endpoint}"
+        if data:
+            url = f"{endpoint}?{url_params}"
+        response = self.get(url)
+        return response
 
     def get_version(self) -> Response:
         return self.get("version")
