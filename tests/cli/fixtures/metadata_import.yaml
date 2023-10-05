@@ -1,0 +1,27 @@
+- broken: true
+  default_cloud: cloud42
+  disks:
+  - count: 10
+    disk_type: NVME
+    size_gb: 4096
+  - count: 5
+    disk_type: SATA
+    size_gb: 4096
+  host_type: imported
+  interfaces:
+  - mac_address: A0:B1:C2:D3:E4:F5
+    maintenance: false
+    name: em1
+    pxe_boot: true
+    speed: 1000
+    switch_ip: 10.0.0.1
+    switch_port: et-4:0/0
+    vendor: Intel
+    bios_id: NIC.Intel.1
+  last_build: null
+  memory:
+  - handle: DIMM1
+    size_gb: 4096
+  model: IMPORTED
+  name: imported.example.com
+  retired: true

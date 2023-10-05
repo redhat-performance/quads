@@ -117,3 +117,5 @@ data_db/
 wiki_db/
 wordpress_data/
 codecov
+tests/cli/artifacts/*
+tests/tools/artifacts/*

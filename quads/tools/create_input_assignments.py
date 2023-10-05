@@ -286,7 +286,7 @@ def main():
         "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
     )
 
-    broken_hosts = Host.objects(broken=True)
+    broken_hosts = HostDao.filter_hosts(broken=False)
     domain_broken_hosts = [
         host for host in broken_hosts if Config["domain"] in host.name
     ]

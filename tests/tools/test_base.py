@@ -18,7 +18,7 @@ _logger.propagate = True
 class TestBase:
     cli_args = {"datearg": None, "filter": None, "force": "False"}
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture(autouse=True, scope="session")
     def test_client(self):
         """
         | Creates a test client for the app from the testing config.
@@ -36,6 +36,7 @@ class TestBase:
 
     @pytest.fixture(autouse=True)
     def inject_fixtures(self, caplog):
+        caplog.set_level(logging.DEBUG)
         self._caplog = caplog
 
     @pytest.fixture(autouse=True)

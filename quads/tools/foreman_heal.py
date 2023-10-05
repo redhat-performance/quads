@@ -3,6 +3,7 @@
 from quads.config import Config
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.schedule import ScheduleDao
+from quads.server.dao.assignment import AssignmentDao
 from quads.tools.external.foreman import Foreman
 
 import asyncio
@@ -15,7 +16,11 @@ logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def main():
+def main(_logger=None):
+    global logger
+    if _logger:
+        logger = _logger
+
     loop = asyncio.get_event_loop()
 
     foreman_admin = Foreman(
@@ -30,8 +35,9 @@ def main():
         ignore.extend(Config.foreman_rbac_exclude.split("|"))
     clouds = CloudDao.get_clouds()
     for cloud in clouds:
-
-        infra_pass = f"{Config['infra_location']}@{cloud.ticket}"
+        assignment_obj = AssignmentDao.filter_assignments({"cloud_id": cloud.id})
+        assignment_obj = assignment_obj[0] if assignment_obj else None
+        infra_pass = f"{Config['infra_location']}@{assignment_obj.ticket}"
         loop.run_until_complete(
             foreman_admin.update_user_password(cloud.name, infra_pass)
         )
