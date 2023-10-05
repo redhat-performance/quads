@@ -399,3 +399,5 @@ class Foreman(object):
     async def get_user_roles_ids(self, user_id):
         result = await self.get_user_roles(user_id)
         return [role["id"] for _, role in result.items()]
+    
+    
