@@ -636,6 +636,69 @@ parser.add_argument(
     default=None,
     help="Filter search by host metadata",
 )
+action_group.add_argument(
+    "--regen-instack",
+    dest="action",
+    action="store_const",
+    const="regen_instack",
+    help="Regenerate instack JSON",
+)
+action_group.add_argument(
+    "--regen-heatmap",
+    dest="action",
+    action="store_const",
+    const="regen_heatmap",
+    help="Regenerate web table heatmap",
+)
+action_group.add_argument(
+    "--regen-wiki",
+    dest="action",
+    action="store_const",
+    const="regen_wiki",
+    help="Regenerate wiki",
+)
+action_group.add_argument(
+    "--foreman-rbac",
+    dest="action",
+    action="store_const",
+    const="foreman_rbac",
+    help="Regenerate foreman RBAC",
+)
+action_group.add_argument(
+    "--notify",
+    dest="action",
+    action="store_const",
+    const="notify",
+    help="Send notifications for cloud assignments",
+)
+action_group.add_argument(
+    "--validate-env",
+    dest="action",
+    action="store_const",
+    const="validate_env",
+    help="Validate Quads assignments",
+)
+parser.add_argument(
+    "--skip-system",
+    dest="skip_system",
+    action="store_true",
+    default=False,
+    help="Skip system tests, when validating Quads assignments",
+)
+parser.add_argument(
+    "--skip-network",
+    dest="skip_network  ",
+    action="store_true",
+    default=False,
+    help="Skip network tests, when validating Quads assignments",
+)
+parser.add_argument(
+    "--skip-hosts",
+    dest="skip_hosts",
+    action='append',
+    nargs='*',
+    help="Skip specific hosts, when validating Quads assignments",
+)
 
 
 if __name__ == "__main__":

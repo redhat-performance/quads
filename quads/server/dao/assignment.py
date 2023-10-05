@@ -23,24 +23,27 @@ class AssignmentDao(BaseDao):
         qinq: int,
         wipe: bool,
         ccuser: List[str],
-        vlan_id: int,
         cloud: str,
+        vlan_id: int = None,
     ) -> Assignment:
-        vlan = VlanDao.get_vlan(vlan_id)
         cloud = CloudDao.get_cloud(cloud)
         notification = Notification()
+        kwargs = {
+            "description": description,
+            "owner": owner,
+            "ticket": ticket,
+            "qinq": qinq,
+            "wipe": wipe,
+            "ccuser": ccuser,
+            "cloud": cloud,
+            "notification": notification,
+        }
+        if vlan_id:
+            vlan = VlanDao.get_vlan(vlan_id)
+            if vlan:
+                kwargs["vlan"] = vlan
         try:
-            _assignment_obj = Assignment(
-                description=description,
-                owner=owner,
-                ticket=ticket,
-                qinq=qinq,
-                wipe=wipe,
-                ccuser=ccuser,
-                vlan=vlan,
-                cloud=cloud,
-                notification=notification,
-            )
+            _assignment_obj = Assignment(**kwargs)
         except Exception as ex:
             print(ex)
         db.session.add(_assignment_obj)

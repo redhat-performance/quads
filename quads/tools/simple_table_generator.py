@@ -50,7 +50,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             schedules = quads.get_current_schedules(payload)
             if schedules:
                 schedule = schedules[0]
-                chosen_color = schedule.cloud.name[5:]
+                chosen_color = schedule.assignment.cloud.name[5:]
             else:
                 non_allocated_count += 1
                 chosen_color = "01"
@@ -64,10 +64,10 @@ def generator(_host_file, _days, _month, _year, _gentime):
             }
 
             if schedule:
-                cloud = schedule.assignment.cloud
-                _day["display_description"] = cloud.description
-                _day["display_owner"] = cloud.owner
-                _day["display_ticket"] = cloud.ticket
+                assignment = schedule.assignment
+                _day["display_description"] = assignment.description
+                _day["display_owner"] = assignment.owner
+                _day["display_ticket"] = assignment.ticket
             __days.append(_day)
 
         line["days"] = __days
