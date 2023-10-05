@@ -2,7 +2,9 @@
 source = quads/cli/cli.py
 
 [run]
-omit = tests/*
+omit =
+    tests/*
+    quads/tools/external/badfish.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -24,5 +26,7 @@ exclude_lines =
 
     # Don't complain about abstract methods, they aren't run:
     @(abc\.)?abstractmethod
+    except (APIServerException, APIBadRequest) as ex:
+    raise CliException(str(ex))
 
 ignore_errors = True

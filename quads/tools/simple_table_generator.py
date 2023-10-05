@@ -45,12 +45,14 @@ def generator(_host_file, _days, _month, _year, _gentime):
         for j in range(1, _days + 1):
             cell_date = "%s-%.2d-%.2d 01:00" % (_year, _month, j)
             cell_time = datetime.strptime(cell_date, "%Y-%m-%d %H:%M")
-            payload = {"host": host, "date": cell_time}
+            datearg_iso = cell_time.isoformat()
+            date_str = ":".join(datearg_iso.split(":")[:-1])
+            payload = {"host": host, "date": date_str}
             schedule = None
             schedules = quads.get_current_schedules(payload)
             if schedules:
                 schedule = schedules[0]
-                chosen_color = schedule.cloud.name[5:]
+                chosen_color = schedule.assignment.cloud.name[5:]
             else:
                 non_allocated_count += 1
                 chosen_color = "01"
@@ -64,10 +66,10 @@ def generator(_host_file, _days, _month, _year, _gentime):
             }
 
             if schedule:
-                cloud = schedule.assignment.cloud
-                _day["display_description"] = cloud.description
-                _day["display_owner"] = cloud.owner
-                _day["display_ticket"] = cloud.ticket
+                assignment = schedule.assignment
+                _day["display_description"] = assignment.description
+                _day["display_owner"] = assignment.owner
+                _day["display_ticket"] = assignment.ticket
             __days.append(_day)
 
         line["days"] = __days

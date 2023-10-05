@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import asyncio
+import json
 import logging
 import os
 import re
@@ -12,8 +13,11 @@ from paramiko import SSHException
 from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import Config
+from quads.exceptions import CliException
 from quads.helpers import is_supported
-from quads.quads_api import QuadsApi
+from quads.quads_api import QuadsApi, APIServerException, APIBadRequest
+from quads.server.dao.assignment import AssignmentDao
+from quads.server.dao.baseDao import BaseDao
 from quads.server.models import Assignment
 from quads.tools.external.badfish import BadfishException, badfish_factory
 from quads.tools.external.foreman import Foreman
@@ -28,18 +32,15 @@ quads = QuadsApi(Config)
 
 
 class Validator(object):
-    def __init__(self, cloud, _args, _loop=None):
+    def __init__(self, cloud, assignment, _args, _loop=None):
         self.cloud = cloud
+        self.assignment = assignment
         self.report = ""
         self.args = _args
-        self.hosts = quads.filter_hosts({"cloud": self.cloud.name, "validated": False})
-        self.hosts = [
-            host
-            for host in self.hosts
-            if quads.get_current_schedules({"host": host.name})
-        ]
-        if self.args.skip_hosts:
-            self.hosts = [host for host in self.hosts if host.name not in self.args.skip_hosts]
+        self.hosts = quads.filter_hosts({"cloud": self.cloud, "validated": False})
+        self.hosts = [host for host in self.hosts if quads.get_current_schedules({"host": host.name})]
+        if self.args.get("skip_hosts"):
+            self.hosts = [host for host in self.hosts if host.name not in self.args.get("skip_hosts")]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -47,16 +48,14 @@ class Validator(object):
         with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
-            "cloud": self.cloud.name,
-            "owner": self.cloud.owner,
-            "ticket": self.cloud.ticket,
+            "cloud": self.cloud,
+            "owner": self.assignment.owner,
+            "ticket": self.assignment.ticket,
             "report": self.report,
         }
         content = template.render(**parameters)
 
-        subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(
-            **parameters
-        )
+        subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(**parameters)
         _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
@@ -66,15 +65,13 @@ class Validator(object):
         with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         parameters = {
-            "cloud": self.cloud.name,
-            "owner": self.cloud.owner,
-            "ticket": self.cloud.ticket,
+            "cloud": self.cloud,
+            "owner": self.assignment.owner,
+            "ticket": self.assignment.ticket,
         }
         content = template.render(**parameters)
 
-        subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(
-            **parameters
-        )
+        subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(**parameters)
         _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
@@ -82,61 +79,50 @@ class Validator(object):
     def env_allocation_time_exceeded(self):
         now = datetime.now()
         data = {
-            "cloud": self.cloud.name,
+            "cloud": self.cloud,
         }
-        # TODO: Check return from get below
         schedules = quads.get_current_schedules(data)
         if schedules:
             time_delta = now - schedules[0].start
-            if time_delta.seconds // 60 > Config["validation_grace_period"]:
+            if time_delta.total_seconds() // 60 > Config["validation_grace_period"]:
                 return True
             logger.warning(
-                "You're still within the configurable validation grace period. Skipping validation for %s."
-                % self.cloud.name
+                "You're still within the configurable validation grace period. Skipping validation for %s." % self.cloud
             )
         return False
 
     async def post_system_test(self):
-        password = f"{Config['infra_location']}@{self.cloud.ticket}"
+        password = f"{Config['infra_location']}@{self.assignment.ticket}"
         foreman = Foreman(
             Config["foreman_api_url"],
-            self.cloud.name,
+            self.cloud,
             password,
             loop=self.loop,
         )
 
         valid_creds = await foreman.verify_credentials()
         if not valid_creds:
-            logger.error("Unable to query Foreman for cloud: %s" % self.cloud.name)
+            logger.error("Unable to query Foreman for cloud: %s" % self.cloud)
             logger.error("Verify Foreman password is correct: %s" % password)
-            self.report = (
-                    self.report
-                    + "Unable to query Foreman for cloud: %s\n" % self.cloud.name
-            )
-            self.report = (
-                    self.report + "Verify Foreman password is correct: %s\n" % password
-            )
+            self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud
+            self.report = self.report + "Verify Foreman password is correct: %s\n" % password
             return False
 
         build_hosts = await foreman.get_build_hosts()
 
         pending = []
-        data = {"cloud": self.cloud.name}
+        data = {"cloud": self.cloud}
         schedules = quads.get_current_schedules(data)
         if schedules:
             for schedule in schedules:
                 if schedule.host and schedule.host.name in build_hosts:
                     pending.append(schedule.host.name)
 
-            pending = [host for host in pending if host not in self.args.skip_hosts]
+            pending = [host for host in pending if host not in self.args.get("skip_hosts")]
 
             if pending:
-                logger.info(
-                    "The following hosts are marked for build and will now be rebooted:"
-                )
-                self.report = (
-                        self.report + "The following hosts are marked for build:\n"
-                )
+                logger.info("The following hosts are marked for build and will now be rebooted:")
+                self.report = self.report + "The following hosts are marked for build:\n"
                 for host in pending:
                     logger.info(host)
                     try:
@@ -176,9 +162,7 @@ class Validator(object):
                             )
                             await badfish.reboot_server()
                         else:
-                            logger.error(
-                                f"Could not initiate Badfish instance for: {host}"
-                            )
+                            logger.error(f"Could not initiate Badfish instance for: {host}")
 
                     self.report = self.report + "%s\n" % host
                 return False
@@ -210,15 +194,16 @@ class Validator(object):
         for host in self.hosts:
             if not host.switch_config_applied:
                 data = {"host": host.name, "cloud": host.cloud.name}
-                current_schedule = quads.get_current_schedules(data)
+                current_schedule = quads.get_current_schedules(data)[0]
                 previous_cloud = host.default_cloud.name
-                data = {'host': host, 'end': current_schedule.start}
+                data = {"host": host.name, "end": current_schedule.start.strftime("%Y-%m-%dT%H:%M")}
                 previous_schedule = quads.get_schedules(data=data)
                 if previous_schedule:
-                    previous_cloud = previous_schedule.cloud.name
+                    previous_cloud = previous_schedule[0].cloud.name
                 result = switch_config(host.name, previous_cloud, host.cloud.name)
                 if result:
-                    host.update(switch_config_applied=True)
+                    setattr(host, "switch_config_applied", True)
+                    BaseDao.safe_commit()
                 else:
                     switch_config_missing.append(host.name)
             try:
@@ -232,9 +217,7 @@ class Validator(object):
                 test_host = host
 
         if hosts_down:
-            logger.error(
-                "The following hosts appear to be down or with no ssh connection:"
-            )
+            logger.error("The following hosts appear to be down or with no ssh connection:")
             for i in hosts_down:
                 logger.error(i)
             return False
@@ -248,15 +231,15 @@ class Validator(object):
         failed_ssh = False
         try:
             ssh_helper = SSHHelper(test_host.name)
-        except (SSHHelperException, SSHException, NoValidConnectionsError, socket.timeout) as ex:
+        except (
+            SSHHelperException,
+            SSHException,
+            NoValidConnectionsError,
+            socket.timeout,
+        ) as ex:
             logger.error(str(ex))
-            logger.error(
-                "Could not establish connection with host: %s." % test_host.name
-            )
-            self.report = (
-                    self.report
-                    + "Could not establish connection with host: %s.\n" % test_host.name
-            )
+            logger.error("Could not establish connection with host: %s." % test_host.name)
+            self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             failed_ssh = True
 
         if failed_ssh:
@@ -264,9 +247,7 @@ class Validator(object):
 
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd(
-            f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {host_list}"
-        )
+        result, output = ssh_helper.run_cmd(f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {host_list}")
         if not result:
             return False
 
@@ -281,7 +262,7 @@ class Validator(object):
                 _host_obj = host["host"]
                 _interfaces = Config.INTERFACES[interface]
                 last_nic = i == len(_host_obj.interfaces) - 1
-                if last_nic and self.cloud.vlan:
+                if last_nic and self.assignment.vlan:
                     continue
                 for value in _interfaces:
                     ip_apart = host["ip"].split(".")
@@ -292,9 +273,7 @@ class Validator(object):
 
             if new_ips:
                 all_ips = " ".join(new_ips)
-                result, output = ssh_helper.run_cmd(
-                    f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {all_ips}"
-                )
+                result, output = ssh_helper.run_cmd(f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {all_ips}")
                 if not result:
                     pattern = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
                     hosts = []
@@ -313,19 +292,19 @@ class Validator(object):
         return True
 
     async def validate_env(self):
-        logger.info(f"Validating {self.cloud.name}")
+        logger.info(f"Validating {self.cloud}")
         failed = False
-        assignment_json = quads.get_active_cloud_assignment(self.cloud.name)
-        assignment = Assignment().from_dict(assignment_json)
+        assignment = quads.get_active_cloud_assignment(self.cloud)
+        assignment = assignment[0] if assignment else None
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                if not self.args.skip_system:
+                if not self.args.get("skip_system"):
                     result_pst = await self.post_system_test()
                     if not result_pst:
                         failed = True
 
-                if not self.args.skip_network:
+                if not self.args.get("skip_network"):
                     result_pnt = await self.post_network_test()
                     if not failed and not result_pnt:
                         failed = True
@@ -337,56 +316,58 @@ class Validator(object):
             if not failed:
                 if not assignment.notification.success:
                     self.notify_success()
-                    # TODO: fix update
-                    assignment.notification.success = True
-                    assignment.notification.fail = False
-                    assignment.save()
+                    setattr(assignment.notification, "success", True)
+                    setattr(assignment.notification, "fail", False)
+                    BaseDao.safe_commit()
 
                 for host in self.hosts:
-                    # TODO: fix update
-                    host.validated = True
-                    host.save()
-                # TODO: fix update
-                self.cloud.validated = True
+                    setattr(host, "validated", True)
+                    BaseDao.safe_commit()
+                setattr(self.assignment, "validated", True)
+                BaseDao.safe_commit()
 
         if failed and not assignment.notification.fail:
             self.notify_failure()
-            # TODO: fix update
-            assignment.notification.fail = True
-            assignment.save()
+            setattr(assignment.notification, "fail", True)
+            BaseDao.safe_commit()
 
         return
 
 
-def main(_args, _loop):
-    _filter = {"validated": False, "provisioned": True, "name__ne": "cloud01"}
-    # TODO: verify name__ne
-    clouds = quads.filter_clouds(_filter)
+def main(_args, _loop, _logger=None):
+    global logger
+    if _logger:
+        logger = _logger
 
-    if _args.cloud:
-        clouds = [cloud for cloud in clouds if cloud.name == _args.cloud]
-        if len(clouds) == 0:
-            logger.error("No cloud with this name.")
+    _filter = {"validated": False, "provisioned": True, "cloud__ne": "cloud01"}
+    assignments = quads.filter_assignments(_filter)
 
-    if _args.skip_hosts:
+    if _args.get("cloud"):
+        try:
+            cloud = quads.get_cloud(_args.get("cloud"))
+        except (APIServerException, APIBadRequest) as ex:
+            raise CliException(ex)
+
+    if _args.get("skip_hosts"):
         hosts = []
-        for hostname in _args.skip_hosts:
-            host = quads.get_host(hostname)
-            if not host:
-                logger.error(f"Host not found: {hostname}")
-            else:
-                hosts.append(host)
+        for hostname in _args.get("skip_hosts"):
+            try:
+                host = quads.get_host(hostname)
+            except (APIServerException, APIBadRequest) as ex:
+                raise CliException(ex)
+            hosts.append(host)
 
-    for _cloud in clouds:
-        _schedules = quads.get_current_schedules(data={'cloud': _cloud})
+    for ass in assignments:
+        _schedules = quads.get_current_schedules(data={"cloud": ass.cloud.name})
         _schedule_count = len(_schedules)
-        if _schedule_count and _cloud.wipe:
-            validator = Validator(_cloud, _args, _loop=_loop)
+        _assignment = AssignmentDao.get_active_cloud_assignment(ass.cloud)
+        if _schedule_count and _assignment.wipe:
+            validator = Validator(ass.cloud.name, _assignment, _args, _loop=_loop)
             try:
                 _loop.run_until_complete(validator.validate_env())
             except Exception as ex:
                 logger.debug(ex)
-                logger.info("Failed validation for %s" % _cloud.name)
+                logger.info("Failed validation for %s" % ass.cloud.name)
 
 
 if __name__ == "__main__":
@@ -405,8 +386,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--skip-hosts",
-        action='append',
-        nargs='*',
+        action="append",
+        nargs="*",
         help="Skip specific hosts.",
     )
     parser.add_argument(
@@ -415,9 +396,7 @@ if __name__ == "__main__":
         default=False,
         help="Show debugging information.",
     )
-    parser.add_argument(
-        "--cloud", default="", help="Run validation only on specified cloud."
-    )
+    parser.add_argument("--cloud", default="", help="Run validation only on specified cloud.")
     args = parser.parse_args()
 
     level = logging.INFO

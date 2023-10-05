@@ -39,7 +39,7 @@ class CloudDao(BaseDao):
         return cloud
 
     @staticmethod
-    def get_clouds() -> List[Type[Cloud]]:
+    def get_clouds() -> List[Cloud]:
         clouds = db.session.query(Cloud).all()
         return clouds
 

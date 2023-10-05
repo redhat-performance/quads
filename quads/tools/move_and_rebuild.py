@@ -329,7 +329,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
             "build_start": build_start,
             "build_end": datetime.now(),
         }
-        quads.update_schedule(schedule.id, data)
+        quads.update_schedule(schedule[0].id, data)
     logger.debug("Updating host: %s")
     data = {
         "cloud": _target_cloud.name,

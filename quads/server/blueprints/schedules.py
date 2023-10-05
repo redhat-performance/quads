@@ -49,9 +49,16 @@ def get_current_schedule() -> Response:
     date = data.get("date")
     hostname = data.get("host")
     cloud_name = data.get("cloud")
-    host = HostDao.get_host(hostname)
-    cloud = CloudDao.get_cloud(cloud_name)
-    _schedules = ScheduleDao.get_current_schedule(date, host, cloud)
+    _kwargs = {}
+    if date:
+        _kwargs["date"] = datetime.strptime(date, "%Y-%m-%dT%H:%M")
+    if hostname:
+        host = HostDao.get_host(hostname)
+        _kwargs["host"] = host
+    if cloud_name:
+        cloud = CloudDao.get_cloud(cloud_name)
+        _kwargs["cloud"] = cloud
+    _schedules = ScheduleDao.get_current_schedule(**_kwargs)
     return jsonify([_schedule.as_dict() for _schedule in _schedules])
 
 

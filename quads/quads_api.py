@@ -12,11 +12,6 @@ from quads.config import Config
 from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
 
 
-class MessengerDTO:
-    def __init__(self, response):
-        self.__dict__ = response.json()
-
-
 class APIServerException(Exception):
     pass
 
@@ -42,15 +37,11 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
-        self.auth = HTTPBasicAuth(
-            self.config.get("quads_api_username"), self.config.get("quads_api_password")
-        )
+        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
     def get(self, endpoint: str) -> Response:
-        _response = self.session.get(
-            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
-        )
+        _response = self.session.get(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -90,9 +81,7 @@ class QuadsApi:
         return _response
 
     def delete(self, endpoint) -> Response:
-        _response = self.session.delete(
-            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
-        )
+        _response = self.session.delete(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -133,8 +122,8 @@ class QuadsApi:
         response = self.get(f"assignments?{url_params}")
         assignments = []
         for ass in response.json():
-            host_obj = Assignment().from_dict(data=ass)
-            assignments.append(host_obj)
+            ass_obj = Assignment().from_dict(data=ass)
+            assignments.append(ass_obj)
         return assignments
 
     def get_host(self, hostname) -> Optional[Host]:
@@ -169,7 +158,7 @@ class QuadsApi:
         clouds = []
         for cloud in response.json():
             clouds.append(Cloud(**cloud))
-        return clouds
+        return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
 
     def filter_clouds(self, data) -> List[Cloud]:
         response = self.get("clouds", **data)
@@ -246,12 +235,14 @@ class QuadsApi:
         return hosts
 
     # Available
-    def get_moves(self) -> List:
-        response = self.get("moves")
-        hosts = []
-        for host in response.json():
-            hosts.append(Host(**host))
-        return hosts
+    def get_moves(self, date=None) -> List:
+        url = "moves"
+        if date:
+            url_params = url_parse.urlencode({"date": date})
+            url = f"moves?{url_params}"
+        response = self.get(url)
+        data = response.json()
+        return data
 
     def filter_available(self, data) -> List[Host]:
         response = self.get(f"available?{urlencode(data)}")
@@ -268,8 +259,15 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
-    def get_active_cloud_assignment(self, cloud_name) -> Response:
-        return self.get(os.path.join("assignments/active", cloud_name))
+    def get_active_cloud_assignment(self, cloud_name) -> List[Assignment]:
+        response = self.get(os.path.join("assignments/active", cloud_name))
+        data = response.json()
+        assignments = []
+        if data:
+            ass_object = Assignment().from_dict(data)
+            assignments.append(ass_object)
+
+        return assignments
 
     def get_active_assignments(self) -> List[Assignment]:
         response = self.get("assignments/active")
@@ -301,8 +299,8 @@ class QuadsApi:
     def update_interface(self, hostname, data) -> Response:
         return self.patch(os.path.join("interfaces", hostname), data)
 
-    def remove_interface(self, interface_id) -> Response:
-        return self.delete(os.path.join("interfaces", interface_id))
+    def remove_interface(self, hostname, if_name) -> Response:
+        return self.delete(os.path.join("interfaces", hostname, if_name))
 
     def create_interface(self, hostname, data) -> Response:
         return self.post(os.path.join("interfaces", hostname), data)
@@ -341,15 +339,21 @@ class QuadsApi:
     def get_vlan(self, vlan_id) -> Response:
         return self.get(os.path.join("vlans", str(vlan_id)))
 
-    def update_vlan(self, vlan_id, data) -> Response:
+    def update_vlan(self, vlan_id, data: dict) -> Response:
         return self.patch(os.path.join("vlans", str(vlan_id)), data)
 
     # Processor
-    def create_vlan(self, data) -> Response:
+    def create_vlan(self, data: dict) -> Response:
         return self.post("vlans", data)
 
-    def get_summary(self) -> Response:
-        return self.get("clouds/summary")
+    def get_summary(self, data: dict) -> Response:
+        url_params = url_parse.urlencode(data)
+        endpoint = os.path.join("clouds", "summary")
+        url = f"{endpoint}"
+        if data:
+            url = f"{endpoint}?{url_params}"
+        response = self.get(url)
+        return response
 
     def get_version(self) -> Response:
         return self.get("version")

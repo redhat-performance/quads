@@ -5,7 +5,6 @@ from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
-from quads.server.models import Assignment, Notification, db
 
 assignment_bp = Blueprint("assignments", __name__)
 
@@ -49,7 +48,7 @@ def get_assignment(assignment_id: str) -> Response:
     :param assignment_id: Get the assignment from the database
     :return: The assignment as a json object
     """
-    _assignment = AssignmentDao.get_assignment(assignment_id)
+    _assignment = AssignmentDao.get_assignment(int(assignment_id))
     if not _assignment:
         response = {
             "status_code": 400,
@@ -117,7 +116,6 @@ def create_assignment() -> Response:
     """
     data = request.get_json()
 
-    notification = Notification()
     _cloud = None
     _vlan = None
     cloud_name = data.get("cloud")
@@ -175,19 +173,18 @@ def create_assignment() -> Response:
             }
             return make_response(jsonify(response), 400)
 
-    _assignment_obj = Assignment(
-        description=description,
-        owner=owner,
-        ticket=ticket,
-        qinq=qinq,
-        wipe=wipe,
-        ccuser=cc_user,
-        vlan=_vlan,
-        cloud=_cloud,
-        notification=notification,
-    )
-    db.session.add(_assignment_obj)
-    BaseDao.safe_commit()
+    kwargs = {
+        "description": description,
+        "owner": owner,
+        "ticket": ticket,
+        "qinq": qinq,
+        "wipe": wipe,
+        "ccuser": cc_user,
+        "cloud": cloud_name,
+    }
+    if _vlan:
+        kwargs["vlan_id"] = int(vlan)
+    _assignment_obj = AssignmentDao.create_assignment(**kwargs)
     return jsonify(_assignment_obj.as_dict())
 
 

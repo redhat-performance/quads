@@ -50,3 +50,12 @@ class InterfaceDao(BaseDao):
             db.session.query(Interface).filter(Interface.id == interface_id).first()
         )
         return interface
+
+    @classmethod
+    def delete_interface(cls, interface_id: int) -> None:
+        _interface = InterfaceDao.get_interface(interface_id)
+        if not _interface:
+            raise EntryNotFound
+        db.session.delete(_interface)
+        cls.safe_commit()
+        return

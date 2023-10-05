@@ -23,7 +23,14 @@ def get_cloud(cloud: str) -> Response:
     :return: A response object that contains the json representation of the cloud
     """
     _cloud = CloudDao.get_cloud(cloud)
-    return jsonify(_cloud.as_dict() if _cloud else {})
+    if not _cloud:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Cloud not found: {cloud}",
+        }
+        return make_response(jsonify(response), 400)
+    return jsonify(_cloud.as_dict())
 
 
 @cloud_bp.route("/")
@@ -136,9 +143,7 @@ def get_summary() -> Response:
             count = len(hosts)
         else:
             date = (
-                datetime.strptime(_date, "%Y-%m-%dT%H:%M:%S")
-                if _date
-                else datetime.now()
+                datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
             )
             schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
             count = len(schedules)

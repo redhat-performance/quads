@@ -21,7 +21,11 @@ wp_wiki_git_repo_path = Config["wp_wiki_git_repo_path"]
 
 logger = logging.getLogger(__name__)
 
-if __name__ == "__main__":
+
+def main(_logger=None):
+    global logger
+    if _logger:
+        logger = _logger
 
     create_input.main()
     main_md = os.path.join(wp_wiki_git_repo_path, "main.md")
@@ -79,3 +83,7 @@ if __name__ == "__main__":
         logger.error(ex.errmsg)
 
     regenerate_vlans_wiki()
+
+
+if __name__ == "__main__":
+    main()

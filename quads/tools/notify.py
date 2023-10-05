@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 
 from jinja2 import Template
-from pathlib import Path
 from quads.config import Config
+from quads.server.dao.assignment import AssignmentDao
+from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.schedule import ScheduleDao
 from quads.tools.external.netcat import Netcat
@@ -61,16 +62,13 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     if Config["irc_notify"]:
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
-                message = (
-                    "%s QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
-                    % (
-                        irc_bot_channel,
-                        cloud_info,
-                        Config["wp_wiki"],
-                        cloud,
-                        real_owner,
-                        Config["report_cc"],
-                    )
+                message = "%s QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
+                    irc_bot_channel,
+                    cloud_info,
+                    Config["wp_wiki"],
+                    cloud,
+                    real_owner,
+                    Config["report_cc"],
                 )
                 await nc.write(bytes(message.encode("utf-8")))
         except (TypeError, BrokenPipeError) as ex:
@@ -79,15 +77,12 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
     if Config["webhook_notify"]:
         try:
-            message = (
-                "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
-                % (
-                    cloud_info,
-                    Config["wp_wiki"],
-                    cloud,
-                    real_owner,
-                    Config["report_cc"],
-                )
+            message = "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
+                cloud_info,
+                Config["wp_wiki"],
+                cloud,
+                real_owner,
+                Config["report_cc"],
             )
             requests.post(
                 webhook_url,
@@ -101,15 +96,16 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
 
 def create_message(
     cloud_obj,
+    assignment_obj,
     day,
     cloud_info,
     host_list_expire,
 ):
     template_file = "message"
     cloud = cloud_obj.name
-    real_owner = cloud_obj.owner
-    ticket = cloud_obj.ticket
-    cc = cloud_obj.ccuser
+    real_owner = assignment_obj.owner
+    ticket = assignment_obj.ticket
+    cc = assignment_obj.ccuser
 
     cc_users = Config["report_cc"].split(",")
     for user in cc:
@@ -136,12 +132,12 @@ def create_message(
     postman.send_email()
 
 
-def create_future_initial_message(cloud_obj, cloud_info):
+def create_future_initial_message(cloud_obj, assignment_obj, cloud_info):
     template_file = "future_initial_message"
     cloud = cloud_obj.name
-    ticket = cloud_obj.ticket
+    ticket = assignment_obj.ticket
     cc_users = Config["report_cc"].split(",")
-    for user in cloud_obj.ccuser:
+    for user in assignment_obj.ccuser:
         cc_users.append("%s@%s" % (user, Config["domain"]))
     with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
         template = Template(_file.read())
@@ -151,7 +147,7 @@ def create_future_initial_message(cloud_obj, cloud_info):
     )
     postman = Postman(
         "New QUADS Assignment Defined for the Future: %s - %s" % (cloud, ticket),
-        cloud_obj.owner,
+        assignment_obj.owner,
         cc_users,
         content,
     )
@@ -160,13 +156,14 @@ def create_future_initial_message(cloud_obj, cloud_info):
 
 def create_future_message(
     cloud_obj,
+    assignment_obj,
     future_days,
     cloud_info,
     host_list_expire,
 ):
     cc_users = Config["report_cc"].split(",")
-    ticket = cloud_obj.ticket
-    for user in cloud_obj.ccuser:
+    ticket = assignment_obj.ticket
+    for user in assignment_obj.ccuser:
         cc_users.append("%s@%s" % (user, Config["domain"]))
     template_file = "future_message"
     with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
@@ -180,46 +177,44 @@ def create_future_message(
     )
     postman = Postman(
         "QUADS upcoming assignment notification - %s - %s" % (cloud_obj.name, ticket),
-        cloud_obj.owner,
+        assignment_obj.owner,
         cc_users,
         content,
     )
     postman.send_email()
 
 
-def main():
+def main(_logger=None):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    future_days = 7
+
+    global logger
+    if _logger:
+        logger = _logger
 
     _all_clouds = CloudDao.get_clouds()
-    _active_clouds = [
-        _cloud
-        for _cloud in _all_clouds
-        if len(ScheduleDao.get_current_schedule(cloud=_cloud)) > 0
-    ]
-    _validated_clouds = [_cloud for _cloud in _active_clouds if _cloud.validated]
+    _assignments = AssignmentDao.filter_assignments({"active": True, "validated": True})
 
-    for cloud in _validated_clouds:
-        current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
+    for ass in _assignments:
+        current_hosts = ScheduleDao.get_current_schedule(cloud=ass.cloud)
         cloud_info = "%s: %s (%s)" % (
-            cloud.name,
+            ass.cloud.name,
             len(current_hosts),
-            cloud.description,
+            ass.description,
         )
-        notification_obj = current_hosts[0].assignment.notification
-        if not notification_obj.initial:
+        if not ass.notification.initial:
             logger.info("=============== Initial Message")
             loop.run_until_complete(
                 create_initial_message(
-                    cloud.owner,
-                    cloud.name,
+                    ass.owner,
+                    ass.cloud.name,
                     cloud_info,
-                    cloud.ticket,
-                    cloud.ccuser,
+                    ass.ticket,
+                    ass.ccuser,
                 )
             )
-            notification_obj.update(initial=True)
+            ass.notification.initial = True
+            BaseDao.safe_commit()
 
         for day in Days:
             future = datetime.now() + timedelta(days=day.value)
@@ -229,45 +224,50 @@ def main():
                 future.day,
             )
             future_hosts = ScheduleDao.get_current_schedule(
-                cloud=cloud, date=datetime.strptime(future_date, "%Y-%m-%d %H:%M")
+                cloud=ass.cloud, date=datetime.strptime(future_date, "%Y-%m-%d %H:%M")
             )
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future > current_hosts[0].end:
-                if not notification_obj[day.name.lower()] and Config["email_notify"]:
+                if not getattr(ass.notification, day.name.lower()) and Config["email_notify"]:
                     logger.info("=============== Additional Message")
                     host_list = [schedule.host.name for schedule in diff]
                     create_message(
-                        cloud,
+                        ass.cloud,
+                        ass.notification,
                         day.value,
                         cloud_info,
                         host_list,
                     )
-                    kwargs = {day.name.lower(): True}
-                    notification_obj.update(**kwargs)
+                    setattr(ass.notification, day.name.lower(), True)
+                    BaseDao.safe_commit()
                     break
 
     for cloud in _all_clouds:
-        if cloud.name != "cloud01" and cloud.owner not in ["quads", None]:
+        ass = AssignmentDao.get_active_cloud_assignment(cloud)
+        if not ass:
+            continue
+        if cloud.name != Config["spare_pool_name"] and ass.owner not in ["quads", None]:
             current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
-            notification_obj = current_hosts[0].assignment.notification
             cloud_info = "%s: %s (%s)" % (
                 cloud.name,
                 len(current_hosts),
-                cloud.description,
+                ass.description,
             )
 
-            if not notification_obj.pre_initial and Config["email_notify"]:
+            if not ass.notification.pre_initial and Config["email_notify"]:
                 logger.info("=============== Future Initial Message")
                 create_future_initial_message(
                     cloud,
+                    ass,
                     cloud_info,
                 )
-                notification_obj.update(pre_initial=True)
+                setattr(ass.notification, "pre_initial", True)
+                BaseDao.safe_commit()
 
-            for day in range(1, future_days + 1):
-                if not notification_obj.pre and cloud.validated:
-                    future = datetime.now() + timedelta(days=day)
+            for day in Days:
+                if not ass.notification.pre and ass.validated:
+                    future = datetime.now() + timedelta(days=day.value)
                     future_date = "%4d-%.2d-%.2d 22:00" % (
                         future.year,
                         future.month,
@@ -285,11 +285,13 @@ def main():
                             logger.info("=============== Additional Message")
                             create_future_message(
                                 cloud,
+                                ass,
                                 day,
                                 cloud_info,
                                 host_list,
                             )
-                            notification_obj.update(pre=True)
+                            setattr(ass.notification, "pre", True)
+                            BaseDao.safe_commit()
                             break
 
 

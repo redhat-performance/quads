@@ -57,9 +57,7 @@ class TestCreateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"] == f"Cloud not found: {schedule_request['cloud']}"
-        )
+        assert response.json["message"] == f"Cloud not found: {schedule_request['cloud']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_cloud_no_assignment(self, test_client, auth, prefill):
@@ -80,10 +78,7 @@ class TestCreateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"No active assignment for cloud: {schedule_request['cloud']}"
-        )
+        assert response.json["message"] == f"No active assignment for cloud: {schedule_request['cloud']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_missing_hostname(self, test_client, auth, prefill):
@@ -125,10 +120,7 @@ class TestCreateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"Host not found: {schedule_request['hostname']}"
-        )
+        assert response.json["message"] == f"Host not found: {schedule_request['hostname']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_missing_dates(self, test_client, auth, prefill):
@@ -170,10 +162,7 @@ class TestCreateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == "Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'"
-        )
+        assert response.json["message"] == "Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_date_range(self, test_client, auth, prefill):
@@ -195,10 +184,7 @@ class TestCreateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == "Invalid date range for start or end, start must be before end"
-        )
+        assert response.json["message"] == "Invalid date range for start or end, start must be before end"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -210,9 +196,7 @@ class TestCreateSchedule:
         auth_header = auth.get_auth_header()
         schedule_requests = [SCHEDULE_1_REQUEST.copy(), SCHEDULE_2_REQUEST.copy()]
         schedule_responses = [SCHEDULE_1_RESPONSE.copy(), SCHEDULE_2_RESPONSE.copy()]
-        schedule_requests[1]["start"] = (datetime.now() + timedelta(6 * 30)).strftime(
-            "%Y-%m-%d %H:%M"
-        )
+        schedule_requests[1]["start"] = (datetime.now() + timedelta(6 * 30)).strftime("%Y-%m-%d %H:%M")
         for req, resp in zip(schedule_requests, schedule_responses):
             response = unwrap_json(
                 test_client.post(
@@ -221,18 +205,12 @@ class TestCreateSchedule:
                     headers=auth_header,
                 )
             )
-            resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"][
-                "cloud"
-            ]["last_redefined"]
+            resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"]["cloud"]["last_redefined"]
             resp["assignment"]["created_at"] = response.json["assignment"]["created_at"]
             resp["created_at"] = response.json["created_at"]
             resp["host"]["created_at"] = response.json["host"]["created_at"]
-            resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"][
-                "last_redefined"
-            ]
-            resp["host"]["default_cloud"]["last_redefined"] = response.json["host"][
-                "default_cloud"
-            ]["last_redefined"]
+            resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"]["last_redefined"]
+            resp["host"]["default_cloud"]["last_redefined"] = response.json["host"]["default_cloud"]["last_redefined"]
             resp["start"] = response.json["start"]
             assert response.status_code == 200
             assert response.json == resp
@@ -256,20 +234,14 @@ class TestReadSchedule:
         response.json.sort(key=lambda x: x["id"])
         schedule_responses = [SCHEDULE_1_RESPONSE.copy(), SCHEDULE_2_RESPONSE.copy()]
         for i, resp in enumerate(schedule_responses):
-            resp["assignment"]["cloud"]["last_redefined"] = response.json[i][
-                "assignment"
-            ]["cloud"]["last_redefined"]
-            resp["assignment"]["created_at"] = response.json[i]["assignment"][
-                "created_at"
-            ]
+            resp["assignment"]["cloud"]["last_redefined"] = response.json[i]["assignment"]["cloud"]["last_redefined"]
+            resp["assignment"]["created_at"] = response.json[i]["assignment"]["created_at"]
             resp["created_at"] = response.json[i]["created_at"]
             resp["host"]["created_at"] = response.json[i]["host"]["created_at"]
-            resp["host"]["cloud"]["last_redefined"] = response.json[i]["host"]["cloud"][
+            resp["host"]["cloud"]["last_redefined"] = response.json[i]["host"]["cloud"]["last_redefined"]
+            resp["host"]["default_cloud"]["last_redefined"] = response.json[i]["host"]["default_cloud"][
                 "last_redefined"
             ]
-            resp["host"]["default_cloud"]["last_redefined"] = response.json[i]["host"][
-                "default_cloud"
-            ]["last_redefined"]
             resp["start"] = response.json[i]["start"]
         assert response.status_code == 200
         assert response.json == schedule_responses
@@ -308,18 +280,12 @@ class TestReadSchedule:
                 headers=auth_header,
             )
         )
-        resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"][
-            "cloud"
-        ]["last_redefined"]
+        resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"]["cloud"]["last_redefined"]
         resp["assignment"]["created_at"] = response.json["assignment"]["created_at"]
         resp["created_at"] = response.json["created_at"]
         resp["host"]["created_at"] = response.json["host"]["created_at"]
-        resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"][
-            "last_redefined"
-        ]
-        resp["host"]["default_cloud"]["last_redefined"] = response.json["host"][
-            "default_cloud"
-        ]["last_redefined"]
+        resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"]["last_redefined"]
+        resp["host"]["default_cloud"]["last_redefined"] = response.json["host"]["default_cloud"]["last_redefined"]
         resp["start"] = response.json["start"]
         assert response.status_code == 200
         assert response.json == resp
@@ -340,17 +306,15 @@ class TestReadSchedule:
         ]
         requests = [
             {"host": schedule_responses[0][0]["host"]["name"]},
-            {"date": "2043-01-01"},
-            {"cloud": "cloud02", "date": "2040-01-01"},
+            {"date": "2043-01-01T22:00"},
+            {"cloud": "cloud02", "date": "2040-01-01T22:00"},
             {
                 "cloud": "cloud04",
                 "host": schedule_responses[0][0]["host"]["name"],
-                "date": "2050-01-01",
+                "date": "2050-01-01T22:00",
             },
         ]
-        for i, resp, req in zip(
-            range(len(schedule_responses)), schedule_responses, requests
-        ):
+        for i, resp, req in zip(range(len(schedule_responses)), schedule_responses, requests):
             response = unwrap_json(
                 test_client.get(
                     f"/api/v3/schedules/current/?{urlencode(req)}",
@@ -361,20 +325,14 @@ class TestReadSchedule:
                 assert response.status_code == 200
                 assert response.json == resp
                 continue
-            resp[0]["assignment"]["cloud"]["last_redefined"] = response.json[0][
-                "assignment"
-            ]["cloud"]["last_redefined"]
-            resp[0]["assignment"]["created_at"] = response.json[0]["assignment"][
-                "created_at"
-            ]
+            resp[0]["assignment"]["cloud"]["last_redefined"] = response.json[0]["assignment"]["cloud"]["last_redefined"]
+            resp[0]["assignment"]["created_at"] = response.json[0]["assignment"]["created_at"]
             resp[0]["created_at"] = response.json[0]["created_at"]
             resp[0]["host"]["created_at"] = response.json[0]["host"]["created_at"]
-            resp[0]["host"]["cloud"]["last_redefined"] = response.json[0]["host"][
-                "cloud"
-            ]["last_redefined"]
-            resp[0]["host"]["default_cloud"]["last_redefined"] = response.json[0][
-                "host"
-            ]["default_cloud"]["last_redefined"]
+            resp[0]["host"]["cloud"]["last_redefined"] = response.json[0]["host"]["cloud"]["last_redefined"]
+            resp[0]["host"]["default_cloud"]["last_redefined"] = response.json[0]["host"]["default_cloud"][
+                "last_redefined"
+            ]
             resp[0]["start"] = response.json[0]["start"]
             assert response.status_code == 200
             assert response.json == resp
@@ -395,7 +353,9 @@ class TestReadSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"start argument must be a datetime object"
+        assert response.json["message"] == (
+            "start argument must be a datetime object or a correct datetime format string"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_filter(self, test_client, auth, prefill):
@@ -480,8 +440,7 @@ class TestUpdateSchedule:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert (
-            response.json["message"]
-            == "Missing argument: start, end, build_start or build_end (specify at least "
+            response.json["message"] == "Missing argument: start, end, build_start or build_end (specify at least "
             "one)"
         )
 
@@ -524,10 +483,7 @@ class TestUpdateSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'"
-        )
+        assert response.json["message"] == f"Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_date_ranges(self, test_client, auth, prefill):
@@ -577,18 +533,12 @@ class TestUpdateSchedule:
                 headers=auth_header,
             )
         )
-        resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"][
-            "cloud"
-        ]["last_redefined"]
+        resp["assignment"]["cloud"]["last_redefined"] = response.json["assignment"]["cloud"]["last_redefined"]
         resp["assignment"]["created_at"] = response.json["assignment"]["created_at"]
         resp["created_at"] = response.json["created_at"]
         resp["host"]["created_at"] = response.json["host"]["created_at"]
-        resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"][
-            "last_redefined"
-        ]
-        resp["host"]["default_cloud"]["last_redefined"] = response.json["host"][
-            "default_cloud"
-        ]["last_redefined"]
+        resp["host"]["cloud"]["last_redefined"] = response.json["host"]["cloud"]["last_redefined"]
+        resp["host"]["default_cloud"]["last_redefined"] = response.json["host"]["default_cloud"]["last_redefined"]
         resp["start"] = response.json["start"]
         resp["end"] = response.json["end"]
         resp["build_start"] = response.json["build_start"]
