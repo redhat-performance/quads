@@ -4,18 +4,10 @@ from quads.exceptions import CliException
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
-from quads.server.dao.interface import InterfaceDao
 from quads.server.dao.memory import MemoryDao
 from tests.cli.config import (
     HOST,
     CLOUD,
-    IFNAME,
-    IFMAC,
-    IFIP,
-    IFPORT,
-    IFBIOSID,
-    IFSPEED,
-    IFVENDOR,
 )
 from tests.cli.test_base import TestBase
 
@@ -45,6 +37,8 @@ def mod_fixture(request):
     HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
     DiskDao.create_disk(HOST, "NVME", 4096, 10)
     DiskDao.create_disk(HOST, "SATA", 4096, 5)
+    MemoryDao.create_memory(HOST, "DIMM1", 2048)
+    MemoryDao.create_memory(HOST, "DIMM2", 2048)
 
 
 @pytest.fixture

@@ -136,9 +136,7 @@ def get_summary() -> Response:
             count = len(hosts)
         else:
             date = (
-                datetime.strptime(_date, "%Y-%m-%dT%H:%M:%S")
-                if _date
-                else datetime.now()
+                datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
             )
             schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
             count = len(schedules)

@@ -1,10 +1,7 @@
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 import pytest
 
-from quads.config import Config
-from quads.exceptions import CliException
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
@@ -39,11 +36,25 @@ def finalizer():
 
 
 @pytest.fixture
+def define_fixture(request):
+    request.addfinalizer(finalizer)
+
+    cloud = CloudDao.create_cloud(CLOUD)
+    host = HostDao.create_host(HOST, "r640", "scalelab", CLOUD)
+    vlan = VlanDao.create_vlan(
+        "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+    )
+    AssignmentDao.create_assignment(
+        "test", "test", "1234", 0, False, [""], vlan.vlan_id, cloud.name
+    )
+
+
+@pytest.fixture
 def remove_fixture(request):
     request.addfinalizer(finalizer)
 
     today = datetime.now()
-    tomorrow = today + timedelta(days=1)
+    tomorrow = today + timedelta(weeks=2)
 
     cloud = CloudDao.create_cloud(CLOUD)
     default_cloud = CloudDao.create_cloud("cloud01")
@@ -63,30 +74,16 @@ def remove_fixture(request):
     assert schedule
 
 
-class TestQuads(TestBase):
-    def test_default_action(self, remove_fixture):
-
-        # TODO: Check host duplication here
-        self.quads_cli_call(None)
-        assert self._caplog.messages[0] == f"{CLOUD}:"
-        assert self._caplog.messages[1] == f"  - host.example.com"
-
-    @patch("quads.quads_api.requests.Session.get")
-    def test_default_action_500_exception(self, mock_get, remove_fixture):
-        mock_get.return_value.status_code = 500
-        with pytest.raises(CliException) as ex:
-            self.quads_cli_call(None)
-        assert str(ex.value) == "Check the flask server logs"
-
-    @patch("quads.quads_api.requests.Session.get")
-    def test_default_action_400_exception(self, mock_get, remove_fixture):
-        mock_get.return_value.status_code = 400
-        with pytest.raises(CliException) as ex:
-            self.quads_cli_call(None)
-
-    def test_version(self, remove_fixture):
-        self.quads_cli_call("version")
+class TestReport(TestBase):
+    def test_report_available(self, define_fixture):
+        self.quads_cli_call("report_available")
+        assert self._caplog.messages[0].startswith("QUADS report for ")
+        assert self._caplog.messages[1] == "Percentage Utilized: 0%"
         assert (
-            self._caplog.messages[0]
-            == f'"QUADS version {Config.QUADSVERSION} {Config.QUADSCODENAME}"\n'
+            self._caplog.messages[2]
+            == "Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks"
+        )
+        assert (
+            self._caplog.messages[3]
+            == "host        |     1|     1|        0%|       1|       1"
         )

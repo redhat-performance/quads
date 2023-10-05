@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import pytest
 
+from quads.config import Config
 from quads.exceptions import CliException
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
@@ -56,7 +58,7 @@ def remove_fixture(request):
     request.addfinalizer(finalizer)
 
     today = datetime.now()
-    tomorrow = today + timedelta(days=1)
+    tomorrow = today + timedelta(weeks=2)
 
     cloud = CloudDao.create_cloud(CLOUD)
     default_cloud = CloudDao.create_cloud("cloud01")
@@ -104,6 +106,22 @@ class TestSchedule(TestBase):
         schedule = ScheduleDao.get_schedule(int(self.cli_args["schedid"]))
         assert not schedule
 
+    @patch.object(
+        Config,
+        "spare_pool_name",
+        CLOUD,
+    )
+    def test_available(self, define_fixture):
+        self.cli_args["schedstart"] = None
+        self.cli_args["schedend"] = None
+        self.cli_args["schedcloud"] = None
+        self.cli_args["host"] = HOST
+        self.cli_args["omitcloud"] = None
+        self.cli_args["filter"] = None
+
+        self.quads_cli_call("available")
+        assert self._caplog.messages[0] == f"{HOST}"
+
     def test_mod_schedule(self, remove_fixture):
         host = HostDao.get_host(HOST)
         cloud = CloudDao.get_cloud(CLOUD)
@@ -130,6 +148,11 @@ class TestSchedule(TestBase):
         assert self._caplog.messages[1] == f"Current cloud: {CLOUD}"
         assert self._caplog.messages[2].startswith("1| start=")
 
+    def test_host(self, remove_fixture):
+        self.cli_args["host"] = HOST
+        self.quads_cli_call("host")
+        assert self._caplog.messages[0] == f"{CLOUD}"
+
     def test_ls_schedule_bad_host(self, remove_fixture):
         self.cli_args["host"] = "BADHOST"
         with pytest.raises(CliException) as ex:
@@ -152,12 +175,35 @@ class TestExtend(TestBase):
         _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
 
         today = datetime.now()
-        atomorrow = today + timedelta(weeks=2) + timedelta(days=1)
+        atomorrow = today + timedelta(weeks=4)
 
         self.cli_args["weeks"] = 2
         self.cli_args["host"] = HOST
 
         self.quads_cli_call("extend")
+        schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
+        db.session.refresh(schedule_obj)
+
+        assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") == atomorrow.strftime(
+            "%Y-%m-%d %H:%M"
+        )
+
+
+class TestShrink(TestBase):
+    @patch("quads.cli.cli.input")
+    def test_shrink_schedule(self, mock_input, remove_fixture):
+        mock_input.return_value = "y"
+        host = HostDao.get_host(HOST)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+        atomorrow = today + timedelta(weeks=1)
+
+        self.cli_args["weeks"] = 1
+        self.cli_args["host"] = HOST
+
+        self.quads_cli_call("shrink")
         schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
         db.session.refresh(schedule_obj)
 

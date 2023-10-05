@@ -4,6 +4,7 @@ from quads.exceptions import CliException
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
+from quads.server.models import db
 from tests.cli.config import (
     HOST,
     CLOUD,
@@ -139,6 +140,16 @@ class TestInterface(TestBase):
         assert len(host.interfaces) == 1
         assert host.interfaces[0].name == IFNAME
         assert host.interfaces[0].switch_ip == "192.168.0.1"
+
+    def test_rm_interface(self, mod_fixture):
+        self.cli_args["host"] = HOST
+        self.cli_args["ifname"] = IFNAME
+
+        self.quads_cli_call("rminterface")
+
+        host = HostDao.get_host(HOST)
+        db.session.refresh(host)
+        assert len(host.interfaces) == 0
 
     def test_ls_interface(self, mod_fixture):
         self.cli_args["host"] = HOST

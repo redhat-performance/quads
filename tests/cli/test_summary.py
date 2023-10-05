@@ -73,3 +73,13 @@ class TestSummary(TestBase):
 
         assert len(self._caplog.messages) == 1
         assert self._caplog.messages[0] == "cloud99: 1 (test)"
+
+    def test_summary(self, remove_fixture):
+        today = datetime.now().strftime("%Y-%m-%d %H:%M")
+        self.cli_args["datearg"] = today
+        self.cli_args["all"] = False
+        self.cli_args["detail"] = False
+        self.quads_cli_call("summary")
+
+        assert len(self._caplog.messages) == 1
+        assert self._caplog.messages[0] == "cloud99: 1 (test)"

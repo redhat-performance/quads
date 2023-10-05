@@ -2,7 +2,9 @@
 source = quads/cli/cli.py
 
 [run]
-omit = tests/*
+omit =
+    tests/*
+    quads/tools/external/badfish.py
 
 [report]
 # Regexes for lines to exclude from consideration
