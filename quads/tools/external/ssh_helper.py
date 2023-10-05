@@ -29,8 +29,10 @@ class SSHHelper(object):
     def connect(self):
         ssh = SSHClient()
         config = SSHConfig()
-        with open(os.path.expanduser("~/.ssh/config")) as _file:
-            config.parse(_file)
+        config_path = os.path.expanduser("~/.ssh/config")
+        if os.path.exists(config_path):
+            with open(config_path) as _file:
+                config.parse(_file)
         host_config = config.lookup(self.host)
         ssh.set_missing_host_key_policy(AutoAddPolicy())
         ssh.load_system_host_keys()

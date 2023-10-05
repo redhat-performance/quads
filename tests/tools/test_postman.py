@@ -33,9 +33,7 @@ class TestPostman(TestBase):
 
     @patch("quads.tools.external.postman.SMTP")
     def test_smtp_exception_raised(self, mocked_smtp):
-        mocked_smtp.return_value.__enter__.return_value.send_message.side_effect = (
-            smtplib.SMTPException
-        )
+        mocked_smtp.return_value.__enter__.return_value.send_message.side_effect = smtplib.SMTPException
         postman = Postman("Test Subject", "test", [], "Test Content")
         assert postman.send_email() is False
 
