@@ -33,6 +33,24 @@
       "message": "Wonder if we should be more explicit here for logger, like \"Foreman RBAC repaired\"",
       "revId": "ec535fc9e9c74741e010dfecb43cc38334dc4858",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1962c06_300497a9",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 1808,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-10-17T11:20:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d57e2b23_bb1304ad",
+      "revId": "ec535fc9e9c74741e010dfecb43cc38334dc4858",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
