@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fafa7c2f_dc49885f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2023-10-17T10:18:39Z",
+      "side": 1,
+      "message": "Looks great, tremendous work just one minor comment about logger",
+      "revId": "ec535fc9e9c74741e010dfecb43cc38334dc4858",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d57e2b23_bb1304ad",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 1808,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2023-10-17T10:18:39Z",
+      "side": 1,
+      "message": "Wonder if we should be more explicit here for logger, like \"Foreman RBAC repaired\"",
+      "revId": "ec535fc9e9c74741e010dfecb43cc38334dc4858",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
