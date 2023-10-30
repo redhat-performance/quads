@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17cee792_217400fc",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-10-30T11:16:49Z",
+      "side": 1,
+      "message": "```_hosts \u003d Host.objects(broken\u003dTrue, retired\u003dFalse).order_by(\"name\").all()```",
+      "range": {
+        "startLine": 199,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 63
+      },
+      "revId": "da1497b1dc4fb6386001e4b4ddd8be2968d765d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ffaaff0_fc68b3e1",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-10-30T11:16:49Z",
+      "side": 1,
+      "message": "revert this line as it\u0027d be already sorted by `order_by`",
+      "revId": "da1497b1dc4fb6386001e4b4ddd8be2968d765d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bab7f807_d5faab49",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1770,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-10-30T11:16:49Z",
+      "side": 1,
+      "message": "Change my mind: I believe `--cloud-only` should return all  host on the cloud regardless their state and it\u0027s up to the user to be using `--filter` if anything. \n\nOpen to the change though if everyone else agrees.",
+      "revId": "da1497b1dc4fb6386001e4b4ddd8be2968d765d7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
