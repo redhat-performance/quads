@@ -196,13 +196,13 @@ class QuadsCli:
         self.logger.info(self.quads.get_version())
 
     def action_ls_broken(self):
-        _hosts = Host.objects(broken=True, retired=False)
-        for host in _hosts:
+        _hosts = Host.objects(broken=True, retired=False).all()
+        for host in sorted(_hosts, key=lambda k: k["name"]):
             self.logger.info(host.name)
 
     def action_ls_retired(self):
-        _hosts = Host.objects(retired=True)
-        for host in _hosts:
+        _hosts = Host.objects(retired=True).all()
+        for host in sorted(_hosts, key=lambda k: k["name"]):
             self.logger.info(host.name)
 
     def _call_api_action(self, action: str):
@@ -1767,7 +1767,7 @@ class QuadsCli:
                 if self.cli_args["filter"]:
                     filter_args = self._filter_kwargs(self.cli_args["filter"])
                     _kwargs.update(filter_args)
-                _hosts = Host.objects(**_kwargs).all()
+                _hosts = Host.objects(**_kwargs, retired=False).all()
                 for host in sorted(_hosts, key=lambda k: k["name"]):
                     self.logger.info(host.name)
 
