@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.7
+%define version 1.1.8
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -129,6 +129,15 @@ fi;
 :;
 
 %changelog
+
+* Tue Oct 31 2023 Will Foster <wfoster@redhat.com>
+- 1.1.8 release
+- added --cloud filter to --ls-available
+- added argparse for ommitting systems validation
+- added better host build checks
+- quads-cli --host now shows the host environment
+- host metadata export now writes a file copy to disk
+- many bug fixes
 
 * Wed Feb 08 2023 Will Foster <wfoster@redhat.com>
 - 1.1.7 release
