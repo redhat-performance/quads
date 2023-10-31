@@ -1319,7 +1319,7 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 
 * In `QUADS 1.1.8` you can skip past both systems and network checks per host via:
 
-``
+```
 /opt/quads/quads/tools/validate_env.py --skip-hosts host01.example.com host02.example.com
 ```
 
