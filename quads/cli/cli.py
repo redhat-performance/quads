@@ -6,6 +6,7 @@ import os
 import subprocess
 from collections import defaultdict
 from datetime import datetime, timedelta
+from tempfile import NamedTemporaryFile
 from json import JSONDecodeError
 from typing import Tuple, Optional
 
@@ -82,6 +83,11 @@ class QuadsCli:
         _date = datetime.now()
         if self.cli_args.get("datearg"):
             _date = datetime.strptime(self.cli_args["datearg"], "%Y-%m-%d %H:%M")
+        if self.cli_args.get("host"):
+            host = Host.objects(name=self.cli_args.get("host")).first()
+            self.logger.info(host.cloud.name)
+            return 0
+
         for cloud in clouds:
             if cloud.name == "cloud01":
                 available = []
@@ -196,12 +202,12 @@ class QuadsCli:
         self.logger.info(self.quads.get_version())
 
     def action_ls_broken(self):
-        _hosts = Host.objects(broken=True, retired=False)
+        _hosts = Host.objects(broken=True, retired=False).order_by("name").all()
         for host in _hosts:
             self.logger.info(host.name)
 
     def action_ls_retired(self):
-        _hosts = Host.objects(retired=True)
+        _hosts = Host.objects(retired=True).order_by("name").all()
         for host in _hosts:
             self.logger.info(host.name)
 
@@ -1102,8 +1108,9 @@ class QuadsCli:
             content.append(host_meta)
 
         try:
-            with open(self.cli_args["host_metadata_export"], "w") as _file:
-                yaml.dump(content, _file)
+            with NamedTemporaryFile("w", delete=False) as temp:
+                yaml.dump(content, temp)
+                self.logger.info(f"Metadata successfully exported to {temp.name}.")
         except Exception as ಠ益ಠ:
             self.logger.debug(ಠ益ಠ, exc_info=ಠ益ಠ)
             raise BaseQuadsException(
