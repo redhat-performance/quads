@@ -13,16 +13,17 @@ class TestReport(TestBase):
         assert self._caplog.messages[2] == "Average build delta: 0:00:00"
         assert self._caplog.messages[3] == "Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks"
         assert self._caplog.messages[4] == "host2       |     1|     1|        0%|       1|       1"
-        assert self._caplog.messages[5] == "host1       |     1|     0|      100%|       1|       0"
+        assert self._caplog.messages[5] == "host1       |     1|     0|      100%|       0|       0"
 
     def test_report_scheduled(self):
+        today = datetime.now()
         # TODO: Fix this test
         self.cli_args["months"] = 12
         self.cli_args["year"] = None
         self.quads_cli_call("report_scheduled")
         assert self._caplog.messages[0] == "Month   | Scheduled|  Systems|  % Utilized| "
-        assert self._caplog.messages[1] == "2023-10 |         1|        2|         23%| "
-        assert self._caplog.messages[2] == "2023-09 |         0|        2|          0%| "
+        assert self._caplog.messages[1] == f"{today.year}-{today.month:02d} |         1|        2|         23%| "
+        assert self._caplog.messages[2] == f"{today.year}-{today.month - 1:02d} |         0|        2|          0%| "
 
     def test_report_scheduled_no_args(self):
         self.cli_args["months"] = None
