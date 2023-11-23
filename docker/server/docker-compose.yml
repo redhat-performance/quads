@@ -22,7 +22,9 @@ services:
     depends_on:
       quads-db:
         condition: service_healthy
-    build: .
+    build:
+      context: .
+      network: host
     container_name: quads_api
     ports:
       - 5000:5000
