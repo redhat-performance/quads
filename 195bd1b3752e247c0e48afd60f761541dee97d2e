@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f9b2cc6_ec705591",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2023-12-13T23:21:31Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "195bd1b3752e247c0e48afd60f761541dee97d2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0dedef6b_d8568028",
+        "filename": "quads/server/dao/host.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2023-12-13T23:21:31Z",
+      "side": 1,
+      "message": "saved the query, query is not the mutable object.",
+      "revId": "195bd1b3752e247c0e48afd60f761541dee97d2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9018845d_8e05f1dc",
+        "filename": "tests/cli/conftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2023-12-13T23:21:31Z",
+      "side": 1,
+      "message": "Changed the dateformat to macth the tetst_cloud_summary date_format.",
+      "revId": "195bd1b3752e247c0e48afd60f761541dee97d2e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
