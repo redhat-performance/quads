@@ -3,6 +3,7 @@ import asyncio
 import logging
 import sys
 
+from quads.server.dao.assignment import AssignmentDao
 from quads.tools.external.jira import Jira, JiraException
 from quads.config import Config
 from quads.server.dao.cloud import CloudDao
@@ -31,9 +32,9 @@ async def main(_loop):
         if parent is None:
             jira_ticket_keys.append(ticket_key)
 
-    clouds = CloudDao.get_clouds()
-    cloud_ticket_keys = [cloud.ticket for cloud in clouds]
-    expired_keys = [key for key in jira_ticket_keys if key not in cloud_ticket_keys]
+    assignments = AssignmentDao.get_active_assignments()
+    assignment_ticket_keys = [assignment.ticket for assignment in assignments]
+    expired_keys = [key for key in jira_ticket_keys if key not in assignment_ticket_keys]
 
     for ticket_key in expired_keys:
         transitions = await jira.get_transitions(ticket_key)
