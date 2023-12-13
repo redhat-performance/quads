@@ -4,6 +4,7 @@ import os
 import pathlib
 import re
 
+from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.host import HostDao
 from quads.tools.external.foreman import Foreman
 from quads.config import Config
@@ -54,7 +55,7 @@ def render_row(host_obj, _properties):
         host_obj.cloud.name,
         host_obj.cloud.name,
     )
-
+    assignment = AssignmentDao.get_active_cloud_assignment(host_obj.cloud)
     row = [
         u_loc,
         host_obj.name.split(".")[0],
@@ -65,7 +66,7 @@ def render_row(host_obj, _properties):
         "<a href=http://mgmt-%s/ target=_blank>console</a>" % host_obj.name,
         str(_properties["mac"]),
         cloud,
-        host_obj.cloud.owner,
+        assignment.owner,
     ]
     return "| %s |\n" % " | ".join(row)
 
@@ -118,6 +119,7 @@ def main():
         _f.seek(0)
         for rack in Config["racks"].split():
             if rack_has_hosts(rack, hosts):
+
                 _f.write(render_header(rack))
 
                 for host, properties in hosts.items():
