@@ -160,22 +160,22 @@ class HostDao(BaseDao):
         # TODO: Add children filters for interfaces, disk, memory and processor
         query = db.session.query(Host)
         if model:
-            query.filter(Host.model == model)
+            query = query.filter(Host.model == model)
         if host_type:
-            query.filter(Host.host_type == host_type)
+            query = query.filter(Host.host_type == host_type)
         if build is not None:
-            query.filter(Host.build == build)
+            query = query.filter(Host.build == build)
         if validated is not None:
-            query.filter(Host.validated == validated)
+            query = query.filter(Host.validated == validated)
         if switch_config_applied is not None:
-            query.filter(Host.switch_config_applied == switch_config_applied)
+            query = query.filter(Host.switch_config_applied == switch_config_applied)
         if broken is not None:
-            query.filter(Host.broken == broken)
+            query = query.filter(Host.broken == broken)
         if retired is not None:
-            query.filter(Host.retired == retired)
+            query = query.filter(Host.retired == retired)
         if cloud:
-            query.filter(Host.cloud == cloud)
+            query = query.filter(Host.cloud == cloud)
         if default_cloud:
-            query.filter(Host.default_cloud == default_cloud)
+            query = query.filter(Host.default_cloud == default_cloud)
         hosts = query.all()
         return hosts
