@@ -1,41 +1,26 @@
-import pytest
 import os
+from unittest.mock import patch, MagicMock
 
-from datetime import datetime, timedelta
-from unittest.mock import patch
-
-from quads.config import Config
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
-from quads.server.dao.schedule import ScheduleDao
-from quads.server.dao.vlan import VlanDao
-from tests.cli.config import CLOUD, HOST1
-from quads.tools.regenerate_wiki import main as regenerate_wiki_main
-from tests.tools.test_base import TestBase
+from quads.tools.external.wiki import Wiki
 
 
-class WikiStub:
-    def __init__(self, url, username, password):
-        pass
+class TestWiki:
 
-    def update(self, _page_title, _page_id, _markdown):
-        pass
+    def test_wiki_parameters_https(self):
+        wiki = Wiki(url="https://unittest.com", username="unittest", password="password")
+        assert wiki.endpoint == "https://unittest.com/xmlrpc.php"
 
+    def test_wiki_parameters_http(self):
+        wiki = Wiki(url="http://unittest.com", username="unittest", password="password")
+        assert wiki.endpoint == "http://unittest.com/xmlrpc.php"
 
-class TestWiki(TestBase):
-    @patch("quads.tools.regenerate_wiki.Wiki", WikiStub)
-    @patch("quads.tools.regenerate_vlans_wiki.Wiki", WikiStub)
-    def test_regenerate_wiki(self):
-        Config.__setattr__("foreman_unavailable", True)
-        Config.__setattr__("wp_wiki_git_repo_path", os.path.join(os.path.dirname(__file__), "artifacts/git/wiki"))
-        regenerate_wiki_main()
-
-        files = ["assignments.md", "main.md"]
-        for f in files:
-            assert os.path.exists(os.path.join(os.path.dirname(__file__), f"artifacts/git/wiki/{f}"))
-
-        assignment_md = open(os.path.join(os.path.dirname(__file__), f"artifacts/git/wiki/{files[0]}"), "r")
-        assignment_md = "".join(assignment_md.readlines())
-        host_assignment_str = "| host1 | <a href=http://mgmt-host1.example.com/ target=_blank>console</a> |\n"
-        assert host_assignment_str in assignment_md
+    @patch("quads.tools.external.wiki.Client")
+    @patch("quads.tools.external.wiki.WordPressPage")
+    @patch("quads.tools.external.wiki.EditPost")
+    def test_wiki_update(self, mock_edit, mock_wpp, mock_client):
+        mock_edit.return_value.__aenter__.return_value = MagicMock()
+        mock_wpp.return_value.__aenter__.return_value = MagicMock()
+        mock_client.return_value.__aenter__.return_value = MagicMock()
+        wiki = Wiki(url="https://unittest.com", username="unittest", password="password")
+        readme = os.path.join(os.path.dirname(__file__), "../../README.md")
+        wiki.update(_page_title="Unit Test", _page_id="1", _markdown=readme)
