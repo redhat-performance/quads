@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fec0affb_52921c58",
+        "filename": "tests/cli/test_schedule.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70561598_2c0c592c",
+        "filename": "tests/cli/test_summary.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40f9c90d_c23f2d26",
+        "filename": "tests/tools/test_create_input.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "just to keep consistency with the other test, please place all this methods inside a class",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b642ab0_343b9839",
+        "filename": "tests/tools/test_create_input.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "Place variables as consts on `tests/tools/config.py` like we do on `tests/cli/config.py`",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ce8095f_160a576c",
+        "filename": "tests/tools/test_jira_watchers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "Place variables as consts on `tests/tools/config.py` like we do on `tests/cli/config.py`",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4d5ed90_4c654aaa",
+        "filename": "tests/tools/test_jira_workflow.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "Place variables as consts on `tests/tools/config.py` like we do on `tests/cli/config.py`",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2b23b9d_83ea9f44",
+        "filename": "tests/tools/test_ls_switch_conf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "just to keep consistency with the other test, please place all this methods inside a class",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3da7cb89_780c1ff6",
+        "filename": "tests/tools/test_lshw.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "just to keep consistency with the other test, please place all this methods inside a class",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9daafc8_314ec926",
+        "filename": "tests/tools/test_modify_switch_conf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "just to keep consistency with the other test, please place all this methods inside a class",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97bbee89_afd9d77a",
+        "filename": "tests/tools/test_modify_switch_conf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "Place variables as consts on `tests/tools/config.py` like we do on `tests/cli/config.py`",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7b81ac9_3ee3f8bd",
+        "filename": "tests/tools/test_modify_switch_conf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "if this doesn\u0027t work just remove it.",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cda0898_28a8bf17",
+        "filename": "tests/tools/test_vlan_yaml_to_db.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2023-12-21T11:27:58Z",
+      "side": 1,
+      "message": "just to keep consistency with the other test, please place all this methods inside a class",
+      "revId": "737ebd41247f4645dabbbea70bf636b789f0e2da",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
