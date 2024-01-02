@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from quads.config import Config
 from tests.cli.test_base import TestBase
-from tests.tools.test_wiki import WikiStub
+from tests.tools.test_regenerate_wiki import WikiStub
 
 
 class TestRegen(TestBase):

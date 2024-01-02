@@ -39,8 +39,8 @@ def main() -> None:
         if os.path.exists(file_path):
             if os.path.getsize(file_path) < 1:
                 run_lshw(host.name, file_path)
-        else:
-            run_lshw(host.name, file_path)
+            else:
+                run_lshw(host.name, file_path)
 
 
 if __name__ == "__main__":
