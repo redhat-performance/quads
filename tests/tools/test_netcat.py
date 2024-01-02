@@ -15,6 +15,7 @@ class TestNetcat:
     @pytest.mark.asyncio
     async def test__aenter__(self):
         netcat = Netcat(ip="10.0.0.9")
+        netcat.loop = AsyncMock()
         response = await netcat.__aenter__()
         assert response
 
@@ -27,6 +28,7 @@ class TestNetcat:
     @pytest.mark.asyncio
     async def test_health_check(self):
         netcat = Netcat(ip="10.0.0.9")
+        netcat.loop = AsyncMock()
         response = await netcat.health_check()
         assert response
 

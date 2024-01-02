@@ -1,0 +1,5 @@
+HOST_E20 = "e20-h17-6029p.example.com"
+HOST_C02 = "c02-h17-r620.example.com"
+HOST_C08 = "c08-h05-r930.example.com"
+HOST_C01 = "c01-h17-r620.example.com"
+CLOUD_NOT_EXISTS = "cloud_not_exists"
