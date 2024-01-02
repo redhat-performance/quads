@@ -1,6 +1,6 @@
 import calendar
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from quads.config import Config
 
 
@@ -53,22 +53,11 @@ def date_span(start, end, delta=timedelta(days=1)):
 
 
 def month_delta_past(date, months):
-    years = months // 12
-    year = date.year - years
-    month_delta = months % 12
-    if not month_delta:
-        return date.replace(year=year)
-    if month_delta > date.month:
-        year -= 1
-        month = 12 - month_delta
-        day = min(date.day, calendar.monthrange(year, month)[1])
-        return date.replace(year=year, month=month, day=day)
-    else:
-        month = date.month - month_delta
-        if month:
-            day = min(date.day, calendar.monthrange(year, month)[1])
-            return date.replace(year=year, month=month, day=day)
-        return date.replace(year=year)
+    month = date.month - 1 - months
+    year = date.year + month // 12
+    month = month % 12 + 1
+    _, last_day = calendar.monthrange(year, month)
+    return datetime(year, month, last_day)
 
 
 def last_day_month(date):
@@ -78,4 +67,3 @@ def last_day_month(date):
 
 def first_day_month(date):
     return date - timedelta(days=date.day - 1)
-
