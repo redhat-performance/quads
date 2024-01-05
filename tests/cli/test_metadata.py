@@ -50,12 +50,16 @@ class TestExport(TestBase):
                     f.write(i)
             f.truncate()
 
-        assert list(open(filename)) == list(open(os.path.join(os.path.dirname(__file__), "fixtures/metadata")))
+        assert list(open(filename)) == list(
+            open(os.path.join(os.path.dirname(__file__), "fixtures/metadata"))
+        )
 
 
 class TestImport(TestBase):
     def test_import(self, define_fixture):
-        self.cli_args["metadata"] = os.path.join(os.path.dirname(__file__), "fixtures/metadata_import.yaml")
+        self.cli_args["metadata"] = os.path.join(
+            os.path.dirname(__file__), "fixtures/metadata_import.yaml"
+        )
 
         self.quads_cli_call("define_host_metadata")
 
@@ -95,7 +99,9 @@ class TestImport(TestBase):
         assert str(ex.value) == "Missing option --metadata"
 
     def test_import_bad_host(self, define_fixture):
-        self.cli_args["metadata"] = os.path.join(os.path.dirname(__file__), "fixtures/badhost_metadata_import.yaml")
+        self.cli_args["metadata"] = os.path.join(
+            os.path.dirname(__file__), "fixtures/badhost_metadata_import.yaml"
+        )
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("define_host_metadata")
@@ -111,8 +117,13 @@ class TestImport(TestBase):
     @patch("quads.cli.cli.open")
     def test_import_io_error(self, mock_load, define_fixture):
         mock_load.side_effect = IOError("IOError")
-        self.cli_args["metadata"] = os.path.join(os.path.dirname(__file__), "fixtures/metadata_import.yaml")
+        self.cli_args["metadata"] = os.path.join(
+            os.path.dirname(__file__), "fixtures/metadata_import.yaml"
+        )
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("define_host_metadata")
-        assert str(ex.value) == f"There was something wrong reading from {self.cli_args['metadata']}"
+        assert (
+            str(ex.value)
+            == f"There was something wrong reading from {self.cli_args['metadata']}"
+        )

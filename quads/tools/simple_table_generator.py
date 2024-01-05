@@ -47,7 +47,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
             cell_time = datetime.strptime(cell_date, "%Y-%m-%d %H:%M")
             datearg_iso = cell_time.isoformat()
             date_str = ":".join(datearg_iso.split(":")[:-1])
-            payload = {"host": host, "date": date_str}
+            payload = {"host": host.name, "date": date_str}
             schedule = None
             schedules = quads.get_current_schedules(payload)
             if schedules:

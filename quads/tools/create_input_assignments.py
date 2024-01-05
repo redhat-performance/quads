@@ -49,7 +49,7 @@ def print_summary():
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
 
-    _cloud_response = requests.get(os.path.join(Config.API_URL, "summary"))
+    _cloud_response = requests.get(os.path.join(Config.API_URL, "clouds/summary"))
     _cloud_summary = []
     if _cloud_response.status_code == 200:
         _cloud_summary = _cloud_response.json()
@@ -70,13 +70,9 @@ def print_summary():
         style_tag_end = "</span>"
         if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(
-                Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
-            )
+            instack_link = os.path.join(Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
-            ocpinv_link = os.path.join(
-                Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
-            )
+            ocpinv_link = os.path.join(Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
             ocpinv_text = "download"
             status = (
                 '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" '
@@ -114,8 +110,7 @@ def print_summary():
                 status = (
                     '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
                     'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
-                    'class="%s">%.0f%%</span></span>'
-                    % (percent, percent, " ".join(classes), percent)
+                    'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
                 )
 
         _data = [
@@ -142,9 +137,7 @@ def print_summary():
                 )
             else:
                 factstyle_tag_start = '<span style="color:red">'
-                ansible_facts_link = os.path.join(
-                    Config["quads_url"], "underconstruction"
-                )
+                ansible_facts_link = os.path.join(Config["quads_url"], "underconstruction")
             if cloud_name == "cloud01":
                 _data.append("")
                 _data.append("")
@@ -152,12 +145,10 @@ def print_summary():
                 _data.append("")
             else:
                 _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (instack_link, style_tag_start, instack_text, style_tag_end)
+                    "<a href=%s target=_blank>%s%s%s</a>" % (instack_link, style_tag_start, instack_text, style_tag_end)
                 )
                 _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
+                    "<a href=%s target=_blank>%s%s%s</a>" % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
                 )
                 _data.append(status)
                 _data.append(
@@ -209,10 +200,7 @@ def print_unmanaged(hosts):
         host_obj = HostDao.get_host(real_host)
         if not host_obj:
             short_host = real_host.split(".")[0]
-            lines.append(
-                "| %s | <a href=http://%s/ target=_blank>console</a> |\n"
-                % (short_host, host)
-            )
+            lines.append("| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host))
     return lines
 
 
@@ -223,10 +211,7 @@ def print_faulty(broken_hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host in broken_hosts:
         short_host = host.name.split(".")[0]
-        lines.append(
-            "| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n"
-            % (short_host, host.name)
-        )
+        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host.name))
     return lines
 
 
@@ -282,14 +267,10 @@ def main():
 
     lines = []
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
-    blacklist = re.compile(
-        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
-    )
+    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
 
     broken_hosts = HostDao.filter_hosts(broken=False)
-    domain_broken_hosts = [
-        host for host in broken_hosts if Config["domain"] in host.name
-    ]
+    domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -306,7 +287,7 @@ def main():
     lines.extend(_summary)
     details_header = ["\n", "### **DETAILS**\n", "\n"]
     lines.extend(details_header)
-    summary_response = requests.get(os.path.join(Config.API_URL, "summary"))
+    summary_response = requests.get(os.path.join(Config.API_URL, "clouds/summary"))
     _cloud_summary = []
     if summary_response.status_code == 200:
         _cloud_summary = summary_response.json()
@@ -314,10 +295,7 @@ def main():
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append(
-            "### **%s : %s (%s) -- %s**\n\n"
-            % (name.strip(), cloud["count"], cloud["description"], owner)
-        )
+        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
         lines.extend(print_header())
         _cloud_obj = CloudDao.get_cloud(name)
         _hosts = sorted(
