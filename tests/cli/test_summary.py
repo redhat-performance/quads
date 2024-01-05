@@ -21,6 +21,7 @@ class TestSummary(TestBase):
         assert "cloud99" in self._caplog.messages[0]
 
     def test_summary_date(self):
+        # Fix this
         today = datetime.now().strftime("%Y-%m-%d %H:%M")
 
         self.cli_args["datearg"] = today
@@ -29,4 +30,4 @@ class TestSummary(TestBase):
         self.quads_cli_call("summary")
 
         assert len(self._caplog.messages) == 1
-        assert "cloud99" in self._caplog.messages[0]
+        assert self._caplog.messages[0] == "cloud99: 2 (test)"

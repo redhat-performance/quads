@@ -1,9 +1,11 @@
+from datetime import datetime
 from unittest.mock import patch
 
 from quads.exceptions import CliException
 from quads.quads_api import APIServerException
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
+from quads.server.models import db
 from tests.cli.config import (
     CLOUD,
     HOST1,
@@ -327,5 +329,23 @@ class TestCloud(TestBase):
 class TestCloudOnly(TestBase):
     def test_cloud_only(self):
         self.cli_args["cloud"] = CLOUD
+        self.quads_cli_call("cloudonly")
+        assert self._caplog.messages[0] == f"{HOST1}"
+
+    def test_cloud_not_found(self):
+        self.cli_args["cloud"] = "BADCLOUD"
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("cloudonly")
+            assert str(ex) == f"Cloud not found: BADCLOUD"
+
+    def test_cloud_date(self):
+        date = datetime.now().strftime("%Y-%m-%d")
+        self.cli_args["cloud"] = CLOUD
+        self.cli_args["datearg"] = f"{date} 22:00"
+        self.quads_cli_call("cloudonly")
+        assert self._caplog.messages[0] == f"{HOST1}"
+
+    def test_cloud_no_schedule(self):
+        self.cli_args["cloud"] = MOD_CLOUD
         self.quads_cli_call("cloudonly")
         assert self._caplog.messages[0] == f"{HOST1}"

@@ -7,6 +7,7 @@ from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
+from quads.server.models import db
 
 cloud_bp = Blueprint("clouds", __name__)
 
@@ -122,7 +123,6 @@ def delete_cloud(cloud: str) -> Response:
 
 
 @cloud_bp.route("/summary/")
-@check_access("admin")
 def get_summary() -> Response:
     """
     Gets a cloud summary.
@@ -142,9 +142,7 @@ def get_summary() -> Response:
             hosts = HostDao.filter_hosts(cloud=_cloud, retired=False, broken=False)
             count = len(hosts)
         else:
-            date = (
-                datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
-            )
+            date = datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
             schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
             count = len(schedules)
             total_count += count
@@ -157,9 +155,7 @@ def get_summary() -> Response:
                 "owner": schedules[0].assignment.owner if schedules else "",
                 "ticket": schedules[0].assignment.ticket if schedules else "",
                 "ccuser": schedules[0].assignment.ccuser if schedules else "",
-                "provisioned": schedules[0].assignment.provisioned
-                if schedules
-                else False,
+                "provisioned": schedules[0].assignment.provisioned if schedules else False,
                 "validated": schedules[0].assignment.validated if schedules else False,
             }
         )

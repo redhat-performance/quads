@@ -35,7 +35,9 @@ def validate_fixture(request):
     ass.wipe = True
     BaseDao.safe_commit()
     host = HostDao.get_host(HOST1)
-    schedule = ScheduleDao.create_schedule(start=yesterday, end=tomorrow, assignment=ass, host=host)
+    schedule = ScheduleDao.create_schedule(
+        start=yesterday, end=tomorrow, assignment=ass, host=host
+    )
     assert schedule
 
 
