@@ -12,7 +12,15 @@ from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db
-from tests.cli.config import CLOUD, HOST2, HOST1, DEFAULT_CLOUD, MOD_CLOUD, MODEL2, DEFINE_HOST
+from tests.cli.config import (
+    CLOUD,
+    HOST2,
+    HOST1,
+    DEFAULT_CLOUD,
+    MOD_CLOUD,
+    MODEL2,
+    DEFINE_HOST,
+)
 from tests.cli.test_base import TestBase
 
 
@@ -210,6 +218,14 @@ class TestSchedule(TestBase):
 
     def test_host(self, remove_fixture):
         self.cli_args["host"] = HOST2
+        self.cli_args["datearg"] = None
+        self.quads_cli_call("host")
+        assert self._caplog.messages[0] == f"{CLOUD}"
+
+    def test_host_date(self, remove_fixture):
+        date = datetime.now().strftime("%Y-%m-%d")
+        self.cli_args["host"] = HOST2
+        self.cli_args["datearg"] = f"{date} 22:00"
         self.quads_cli_call("host")
         assert self._caplog.messages[0] == f"{CLOUD}"
 
@@ -237,7 +253,9 @@ class TestExtend(TestBase):
         atomorrow = today + timedelta(weeks=4)
 
         self.cli_args["weeks"] = 2
+        self.cli_args["datearg"] = None
         self.cli_args["host"] = HOST2
+        self.cli_args["cloud"] = None
 
         self.quads_cli_call("extend")
         schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
@@ -316,6 +334,27 @@ class TestShrink(TestBase):
         assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") == atomorrow.strftime("%Y-%m-%d %H:%M")
 
     @patch("quads.cli.cli.input")
+    def test_shrink_schedule_check(self, mock_input, remove_fixture):
+        mock_input.return_value = "y"
+        host = HostDao.get_host(HOST2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+        atomorrow = today + timedelta(weeks=1)
+
+        self.cli_args["weeks"] = 1
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = True
+
+        self.quads_cli_call("shrink")
+        assert self._caplog.messages[0].startswith(f"Host {HOST2} can be shrunk for 1 week[s] to")
+        schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
+        db.session.refresh(schedule_obj)
+
+        assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") != atomorrow.strftime("%Y-%m-%d %H:%M")
+
+    @patch("quads.cli.cli.input")
     def test_shrink_date(self, mock_input, remove_fixture):
         mock_input.return_value = "y"
         host = HostDao.get_host(HOST2)
@@ -326,13 +365,35 @@ class TestShrink(TestBase):
         atomorrow = today + timedelta(weeks=1)
 
         self.cli_args["datearg"] = atomorrow.strftime("%Y-%m-%d %H:%M")
+        self.cli_args["weeks"] = None
         self.cli_args["host"] = HOST2
+        self.cli_args["check"] = False
 
         self.quads_cli_call("shrink")
         schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
         db.session.refresh(schedule_obj)
 
         assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") == atomorrow.strftime("%Y-%m-%d %H:%M")
+
+    def test_shrink_date_check(self, remove_fixture):
+        host = HostDao.get_host(HOST2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+        atomorrow = today + timedelta(weeks=1)
+
+        self.cli_args["datearg"] = atomorrow.strftime("%Y-%m-%d %H:%M")
+        self.cli_args["weeks"] = None
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = True
+
+        self.quads_cli_call("shrink")
+        assert self._caplog.messages[0].startswith(f"Host {HOST2} can be shrunk to")
+        schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
+        db.session.refresh(schedule_obj)
+
+        assert schedule_obj.end.strftime("%Y-%m-%d %H:%M") != atomorrow.strftime("%Y-%m-%d %H:%M")
 
     @patch("quads.cli.cli.input")
     def test_shrink_now(self, mock_input, remove_fixture):
@@ -347,6 +408,7 @@ class TestShrink(TestBase):
         self.cli_args["weeks"] = None
         self.cli_args["now"] = True
         self.cli_args["host"] = HOST2
+        self.cli_args["check"] = False
 
         self.quads_cli_call("shrink")
         schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
@@ -354,12 +416,72 @@ class TestShrink(TestBase):
 
         assert schedule_obj.end.strftime("%Y-%m-%d") == today.strftime("%Y-%m-%d")
 
+    def test_shrink_now_check(self, remove_fixture):
+        host = HostDao.get_host(HOST2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+
+        self.cli_args["datearg"] = None
+        self.cli_args["weeks"] = None
+        self.cli_args["now"] = True
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = True
+
+        self.quads_cli_call("shrink")
+        assert self._caplog.messages[0] == f"Host {HOST2} can be terminated now"
+
+    @patch("quads.cli.cli.input")
+    def test_shrink_now_no(self, mock_input, remove_fixture):
+        mock_input.return_value = "n"
+        host = HostDao.get_host(HOST2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+
+        self.cli_args["datearg"] = None
+        self.cli_args["weeks"] = None
+        self.cli_args["now"] = True
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = False
+
+        self.quads_cli_call("shrink")
+        schedule_obj = ScheduleDao.get_schedule(_schedule[0].id)
+        db.session.refresh(schedule_obj)
+
+        assert schedule_obj.end.strftime("%Y-%m-%d") != today.strftime("%Y-%m-%d")
+
+    def test_shrink_past_end(self, remove_fixture):
+        host = HostDao.get_host(HOST2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        _schedule = ScheduleDao.get_current_schedule(host=host, cloud=cloud)
+
+        today = datetime.now()
+        atomorrow = today + timedelta(weeks=3)
+
+        self.cli_args["datearg"] = atomorrow.strftime("%Y-%m-%d %H:%M")
+        self.cli_args["weeks"] = None
+        self.cli_args["now"] = True
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = False
+
+        self.quads_cli_call("shrink")
+        assert (
+            self._caplog.messages[0]
+            == f"The following hosts cannot be shrunk past it's start date, target date means an extension or target date is earlier than 1 hour from now:"
+        )
+        assert self._caplog.messages[1] == HOST2
+        assert len(self._caplog.messages) == 2
+
     def test_shrink_no_dates(self):
         self.cli_args["weeks"] = None
         self.cli_args["datearg"] = None
         self.cli_args["now"] = False
         self.cli_args["host"] = HOST2
         self.cli_args["cloud"] = None
+        self.cli_args["check"] = False
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("shrink")
@@ -370,6 +492,7 @@ class TestShrink(TestBase):
         self.cli_args["datearg"] = None
         self.cli_args["cloud"] = None
         self.cli_args["host"] = None
+        self.cli_args["check"] = False
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("shrink")
@@ -380,6 +503,7 @@ class TestShrink(TestBase):
         self.cli_args["datearg"] = None
         self.cli_args["host"] = HOST2
         self.cli_args["cloud"] = None
+        self.cli_args["check"] = False
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("shrink")
@@ -390,10 +514,22 @@ class TestShrink(TestBase):
         self.cli_args["datearg"] = None
         self.cli_args["cloud"] = None
         self.cli_args["host"] = "BADHOST"
+        self.cli_args["check"] = False
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("shrink")
         assert str(ex.value) == "Host not found: BADHOST"
+
+    def test_shrink_no_schedules(self):
+        self.cli_args["weeks"] = 2
+        self.cli_args["datearg"] = None
+        self.cli_args["cloud"] = None
+        self.cli_args["host"] = HOST2
+        self.cli_args["check"] = False
+
+        self.quads_cli_call("shrink")
+        assert self._caplog.messages[0] == f"The selected host does not have any active schedules"
+        assert len(self._caplog.messages) == 1
 
 
 class TestAvailable(TestBase):
@@ -462,3 +598,38 @@ class TestAvailable(TestBase):
             self.quads_cli_call("available")
 
         assert str(ex.value) == "Connection Error"
+
+    @patch.object(
+        Config,
+        "spare_pool_name",
+        CLOUD,
+    )
+    @patch("quads.quads_api.QuadsApi.filter_hosts")
+    def test_available_omit(self, mock_filter, define_fixture):
+        # TODO: expand this
+        today = datetime.now().strftime("%Y-%m-%d")
+        self.cli_args["schedstart"] = f"{today} 22:00"
+        self.cli_args["schedend"] = f"{today} 22:00"
+        self.cli_args["omitcloud"] = MOD_CLOUD
+        self.cli_args["filter"] = None
+
+        self.quads_cli_call("available")
+        assert len(self._caplog.messages) == 0
+
+    @patch.object(
+        Config,
+        "spare_pool_name",
+        CLOUD,
+    )
+    @patch("quads.quads_api.QuadsApi.filter_hosts")
+    def test_available_omit_bad_cloud(self, mock_filter, define_fixture):
+        today = datetime.now().strftime("%Y-%m-%d")
+        self.cli_args["schedstart"] = f"{today} 22:00"
+        self.cli_args["schedend"] = f"{today} 22:00"
+        self.cli_args["omitcloud"] = "BADCLOUD"
+        self.cli_args["filter"] = None
+
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("available")
+
+        assert str(ex.value) == "Cloud not found: BADCLOUD"

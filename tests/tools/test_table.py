@@ -1,8 +1,6 @@
-import pytest
 import os
-import glob
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from quads.config import Config
 from quads.tools.simple_table_web import main as web_main

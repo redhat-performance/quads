@@ -92,7 +92,7 @@ class QuadsCli:
                         self.logger.info(f"  - {host.name}")
             else:
                 date_str = ":".join(_date.isoformat().split(":")[:-1])
-                payload = {"cloud": cloud, "date": date_str}
+                payload = {"cloud": cloud.name, "date": date_str}
                 try:
                     schedules = self.quads.get_current_schedules(payload)
                 except (APIServerException, APIBadRequest) as ex:
@@ -1688,7 +1688,7 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
-        _kwargs = {"host": host}
+        _kwargs = {"host": host.name}
         if self.cli_args.get("datearg"):
             datetime_obj = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M")
             datearg_iso = datetime_obj.isoformat()
@@ -1710,9 +1710,9 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
-        _kwargs = {"cloud": _cloud}
+        _kwargs = {"cloud": _cloud.name}
         if self.cli_args.get("datearg"):
-            _kwargs["date"] = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()
+            _kwargs["date"] = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()[:-3]
         schedules = self.quads.get_current_schedules(_kwargs)
         if schedules:
             host_kwargs = {"retired": False}
@@ -1752,7 +1752,7 @@ class QuadsCli:
                     if host in _hosts:
                         self.logger.info(host)
             else:
-                host_kwargs = {"cloud": _cloud}
+                host_kwargs = {"cloud": _cloud.name}
                 if self.cli_args.get("filter"):
                     filter_args = self._filter_kwargs(self.cli_args.get("filter"))
                     host_kwargs.update(filter_args)
