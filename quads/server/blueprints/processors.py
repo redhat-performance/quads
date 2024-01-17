@@ -1,5 +1,3 @@
-import json
-
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
@@ -11,18 +9,24 @@ from quads.server.models import db, Processor
 processor_bp = Blueprint("processors", __name__)
 
 
-@processor_bp.route("/<hostname>")
-def get_processors(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
+@processor_bp.route("/")
+def get_all_processors() -> Response:
+    _processors = ProcessorDao.get_processors()
+    return jsonify([_processor.as_dict() for _processor in _processors])
+
+
+@processor_bp.route("/<processor_id>")
+def get_processor(processor_id: int) -> Response:
+    _processor = ProcessorDao.get_processor(processor_id)
+    if not _processor:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
+            "message": f"Processor not found: {processor_id}",
         }
         return make_response(jsonify(response), 400)
 
-    return jsonify([_processor.as_dict() for _processor in _host.processors])
+    return jsonify(_processor.as_dict())
 
 
 @processor_bp.route("/<hostname>", methods=["POST"])
@@ -98,29 +102,9 @@ def create_processor(hostname: str) -> Response:
     return jsonify(_processor_obj.as_dict())
 
 
-@processor_bp.route("/<hostname>", methods=["DELETE"])
+@processor_bp.route("/<processor_id>", methods=["DELETE"])
 @check_access("admin")
-def delete_processor(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
-        }
-        return make_response(jsonify(response), 400)
-
-    data = request.get_json()
-
-    processor_id = data.get("id")
-    if not processor_id:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: id",
-        }
-        return make_response(jsonify(response), 400)
-
+def delete_processor(processor_id: int) -> Response:
     _processor_obj = ProcessorDao.get_processor(processor_id)
     if not _processor_obj:
         response = {

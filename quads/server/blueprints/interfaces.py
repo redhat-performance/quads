@@ -9,18 +9,24 @@ from quads.server.models import Interface, db
 interface_bp = Blueprint("interfaces", __name__)
 
 
-@interface_bp.route("/<hostname>")
-def get_interfaces(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
+@interface_bp.route("/")
+def get_all_interfaces() -> Response:
+    _interfaces = InterfaceDao.get_interfaces()
+    return jsonify([_interface.as_dict() for _interface in _interfaces])
+
+
+@interface_bp.route("/<interface_id>")
+def get_interfaces(interface_id: int) -> Response:
+    _interface = InterfaceDao.get_interface(interface_id)
+    if not _interface:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
+            "message": f"Interface not found: {interface_id}",
         }
         return make_response(jsonify(response), 400)
 
-    return jsonify([_interface.as_dict() for _interface in _host.interfaces])
+    return jsonify(_interface.as_dict())
 
 
 @interface_bp.route("/<hostname>", methods=["POST"])
@@ -49,11 +55,9 @@ def create_interface(hostname: str) -> Response:
 
     required = [
         "name",
-        "bios_id",
         "mac_address",
         "switch_ip",
         "switch_port",
-        "speed",
         "vendor",
     ]
     for key in required:

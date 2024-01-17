@@ -14,6 +14,7 @@ from tests.cli.config import (
     HOST1,
     IFIP1,
     HOST2,
+    DEFAULT_CLOUD,
 )
 from tests.cli.test_base import TestBase
 
@@ -55,8 +56,8 @@ def mark_host_broken(request):
 
 class TestHost(TestBase):
     def test_define_host(self, remove_host):
-        self.cli_args["hostresource"] = DEFINE_HOST
-        self.cli_args["hostcloud"] = CLOUD
+        self.cli_args["host"] = DEFINE_HOST
+        self.cli_args["defaultcloud"] = DEFAULT_CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
         self.cli_args["model"] = MODEL1
 
@@ -71,8 +72,8 @@ class TestHost(TestBase):
     @patch("quads.quads_api.QuadsApi.create_host")
     def test_define_host_exception(self, mock_create, remove_host):
         mock_create.side_effect = APIServerException("Connection Error")
-        self.cli_args["hostresource"] = DEFINE_HOST
-        self.cli_args["hostcloud"] = CLOUD
+        self.cli_args["host"] = DEFINE_HOST
+        self.cli_args["defaultcloud"] = DEFAULT_CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
         self.cli_args["model"] = MODEL1
 
@@ -82,8 +83,8 @@ class TestHost(TestBase):
         assert str(ex.value) == "Connection Error"
 
     def test_define_host_missing_model(self, remove_host):
-        self.cli_args["hostresource"] = DEFINE_HOST
-        self.cli_args["hostcloud"] = CLOUD
+        self.cli_args["host"] = DEFINE_HOST
+        self.cli_args["defaultcloud"] = DEFAULT_CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
         self.cli_args["model"] = None
 
@@ -93,18 +94,18 @@ class TestHost(TestBase):
         assert str(ex.value) == "Missing argument: model"
 
     def test_define_host_no_cloud(self, remove_host):
-        self.cli_args["hostresource"] = DEFINE_HOST
-        self.cli_args["hostcloud"] = None
+        self.cli_args["host"] = DEFINE_HOST
+        self.cli_args["defaultcloud"] = None
         self.cli_args["hosttype"] = HOST_TYPE
         self.cli_args["model"] = MODEL1
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("hostresource")
 
-        assert str(ex.value) == "Missing option --default-cloud"
+        assert str(ex.value) == "Missing parameter --default-cloud"
 
     def test_define_host_missing_model(self, remove_host):
-        self.cli_args["hostresource"] = DEFINE_HOST
+        self.cli_args["host"] = DEFINE_HOST
         self.cli_args["hostcloud"] = CLOUD
         self.cli_args["hosttype"] = HOST_TYPE
 
@@ -182,10 +183,7 @@ class TestHost(TestBase):
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("ls_hosts")
-        assert (
-            str(ex.value)
-            == "A filter was defined but not parsed correctly. Check filter operator."
-        )
+        assert str(ex.value) == "A filter was defined but not parsed correctly. Check filter operator."
 
     def test_ls_host_filter_bad_param(self):
         self.cli_args["filter"] = f"badparam==badvalue"
@@ -237,10 +235,7 @@ class TestHost(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("processors")
 
-        assert (
-            str(ex.value)
-            == "Missing option. --host option is required for --ls-processors."
-        )
+        assert str(ex.value) == "Missing option. --host option is required for --ls-processors."
 
     def test_ls_processors_no_processor(self):
         self.cli_args["host"] = HOST2

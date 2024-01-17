@@ -32,17 +32,24 @@ def is_supported(_host_name):
     return False
 
 
-def get_vlan(cloud_obj, index, last_nic=False):
-    if cloud_obj.vlan and last_nic:
-        return int(cloud_obj.vlan.vlan_id)
+def get_vlan(ass_obj, index, last_nic=False):
+    if ass_obj and ass_obj.vlan and last_nic:
+        return int(ass_obj.vlan.vlan_id)
     else:
-        vlan_first = int(Config.sw_vlan_first) - 10
-        cloud_offset = int(cloud_obj.name[5:]) * 10
-        base_vlan = vlan_first + cloud_offset
-        if cloud_obj.qinq == 1:
-            index = 0
-        vlan = base_vlan + list(Config.OFFSETS.values())[index]
-        return vlan
+        if ass_obj:
+            return calculate_vlan(ass_obj.cloud.id, ass_obj.qinq, index)
+        else:
+            return calculate_vlan(1, 0, index)
+
+
+def calculate_vlan(cloud_id, qinq, index):
+    vlan_first = int(Config.sw_vlan_first) - 10
+    cloud_offset = cloud_id * 10
+    base_vlan = vlan_first + cloud_offset
+    if qinq == 1:
+        index = 0
+    vlan = base_vlan + list(Config.OFFSETS.values())[index]
+    return vlan
 
 
 def date_span(start, end, delta=timedelta(days=1)):

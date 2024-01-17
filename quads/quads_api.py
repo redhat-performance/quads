@@ -259,15 +259,14 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
-    def get_active_cloud_assignment(self, cloud_name) -> List[Assignment]:
+    def get_active_cloud_assignment(self, cloud_name) -> Assignment:
         response = self.get(os.path.join("assignments/active", cloud_name))
         data = response.json()
-        assignments = []
+        assignment = None
         if data:
-            ass_object = Assignment().from_dict(data)
-            assignments.append(ass_object)
+            assignment = Assignment().from_dict(data)
 
-        return assignments
+        return assignment
 
     def get_active_assignments(self) -> List[Assignment]:
         response = self.get("assignments/active")
@@ -285,7 +284,7 @@ class QuadsApi:
 
     # Interfaces
     def get_host_interface(self, hostname) -> List[Interface]:
-        response = self.get(os.path.join("interfaces", hostname))
+        response = self.get(os.path.join("hosts", hostname, "interfaces"))
         data = response.json()
         interfaces = []
         for interface in data:
@@ -316,8 +315,8 @@ class QuadsApi:
     def create_disk(self, hostname, data) -> Response:
         return self.post(os.path.join("disks", hostname), data)
 
-    def remove_disk(self, disk_id) -> Response:
-        return self.delete(os.path.join("disks", disk_id))
+    def remove_disk(self, hostname, disk_id) -> Response:
+        return self.delete(os.path.join("disks", hostname), {"id": disk_id})
 
     # Processor
     def create_processor(self, hostname, data) -> Response:
