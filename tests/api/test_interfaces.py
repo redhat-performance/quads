@@ -95,6 +95,40 @@ class TestCreateInterfaces:
 
 class TestReadInterfaces:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_id(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts
+        | WHEN: User tries to read interfaces for a valid host
+        | THEN: Interface should be read
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/interfaces/{INTERFACE_1_RESPONSE['id']}",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == INTERFACE_1_RESPONSE
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_host(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds and hosts
+        | WHEN: User tries to read interfaces for a valid host
+        | THEN: Interface should be read
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/hosts/{INTERFACE_1_REQUEST[1]}/interfaces",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == [INTERFACE_1_RESPONSE]
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_host(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds and hosts
@@ -105,30 +139,13 @@ class TestReadInterfaces:
         host_name = "invalid_host"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/interfaces/{host_name}",
+                f"/api/v3/hosts/{host_name}/interfaces",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {host_name}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds and hosts
-        | WHEN: User tries to read interfaces for a valid host
-        | THEN: Interface should be read
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.get(
-                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 200
-        assert response.json == [INTERFACE_1_RESPONSE]
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_no_interfaces(self, test_client, auth, prefill):
@@ -141,12 +158,29 @@ class TestReadInterfaces:
         host_name = "host2.example.com"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/interfaces/{host_name}",
+                f"/api/v3/hosts/{host_name}/interfaces",
                 headers=auth_header,
             )
         )
         assert response.status_code == 200
         assert response.json == []
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_get_all(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateInterfaces
+        | WHEN: User tries to read interfaces for all hosts
+        | THEN: User should be able to read interfaces
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/interfaces",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == [INTERFACE_1_RESPONSE]
 
 
 class TestUpdateInterfaces:
@@ -210,9 +244,7 @@ class TestUpdateInterfaces:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"] == f"Interface not found: {update_request['id']}"
-        )
+        assert response.json["message"] == f"Interface not found: {update_request['id']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):

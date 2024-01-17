@@ -6,22 +6,28 @@ from quads.server.blueprints import check_access
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
-from quads.server.models import Disk, db, Host
+from quads.server.models import Disk, db
 
 disk_bp = Blueprint("disks", __name__)
 
 
-@disk_bp.route("/<hostname>")
-def get_disks(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
+@disk_bp.route("/")
+def get_all_disks() -> Response:
+    _disks = DiskDao.get_disks()
+    return jsonify([_disk.as_dict() for _disk in _disks])
+
+
+@disk_bp.route("/<disk_id>")
+def get_disk(disk_id: int) -> Response:
+    _disk = DiskDao.get_disk(disk_id)
+    if not _disk:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
+            "message": f"Disk not found: {disk_id}",
         }
         return make_response(jsonify(response), 400)
-    return jsonify([_disks.as_dict() for _disks in _host.disks])
+    return jsonify(_disk.as_dict())
 
 
 @disk_bp.route("/<hostname>", methods=["POST"])
@@ -81,9 +87,7 @@ def create_disks(hostname: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    _disk_obj = Disk(
-        disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id
-    )
+    _disk_obj = Disk(disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id)
     db.session.add(_disk_obj)
     BaseDao.safe_commit()
     return jsonify(_disk_obj.as_dict())
@@ -140,21 +144,9 @@ def update_disk(hostname: str) -> Response:
     return jsonify(disk_object.as_dict())
 
 
-@disk_bp.route("/<hostname>", methods=["DELETE"])
+@disk_bp.route("/<disk_id>", methods=["DELETE"])
 @check_access("admin")
-def delete_disk(hostname) -> Response:
-    _host = db.session.query(Host).filter(Host.name == hostname).first()
-    if not _host:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
-        }
-        return make_response(jsonify(response), 400)
-
-    data = request.get_json()
-
-    disk_id = data.get("id")
+def delete_disk(disk_id: int) -> Response:
     _disk_obj = DiskDao.get_disk(disk_id)
     if not _disk_obj:
         response = {

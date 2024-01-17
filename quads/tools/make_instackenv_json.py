@@ -104,8 +104,6 @@ async def make_env_json(filename):
         os.chmod(new_json_file, 0o644)
         copyfile(new_json_file, json_file)
 
-    await foreman.session.close()
-
 
 def main():
     if Config["openstack_management"]:

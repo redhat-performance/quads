@@ -107,7 +107,6 @@ class QuadsCli:
     def clear_field(self, host, key):
         dispatch_remove = {
             "disks": self.quads.remove_disk,
-            "interfaces": self.quads.remove_interface,
             "memory": self.quads.remove_memory,
             "processors": self.quads.remove_processor,
         }
@@ -116,9 +115,12 @@ class QuadsCli:
             raise CliException("{key} is not a Host property")
 
         for obj in field:
-            remove_func = dispatch_remove.get(key)
             try:
-                remove_func(obj.get("id"))
+                if key == "interfaces":
+                    self.quads.remove_interface(host.name, obj.name)
+                else:
+                    remove_func = dispatch_remove.get(key)
+                    remove_func(str(obj.id))
             except (APIServerException, APIBadRequest) as ex:
                 raise CliException(str(ex))
 
@@ -897,12 +899,12 @@ class QuadsCli:
         if self.cli_args.get("cloudticket"):
             payload = {"ticket": self.cli_args.get("cloudticket")}
             try:
-                self.quads.update_assignment(assignment[0].id, payload)
+                self.quads.update_assignment(assignment.id, payload)
             except (APIServerException, APIBadRequest) as ex:
                 raise CliException(str(ex))
 
         try:
-            self.quads.update_assignment(assignment[0].id, clean_data)
+            self.quads.update_assignment(assignment.id, clean_data)
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
@@ -936,12 +938,14 @@ class QuadsCli:
         self._output_json_result(_response, {"host": self.cli_args.get("host")})
 
     def action_hostresource(self):
-        if not self.cli_args.get("hostcloud"):
-            raise CliException("Missing option --default-cloud")
+        if not self.cli_args.get("host"):
+            raise CliException("Missing parameter --host")
+        if not self.cli_args.get("defaultcloud"):
+            raise CliException("Missing parameter --default-cloud")
 
         data = {
-            "name": self.cli_args.get("hostresource"),
-            "default_cloud": self.cli_args.get("hostcloud"),
+            "name": self.cli_args.get("host"),
+            "default_cloud": self.cli_args.get("defaultcloud"),
             "host_type": self.cli_args.get("hosttype"),
             "model": self.cli_args.get("model"),
             "force": self.cli_args.get("force"),
@@ -1171,8 +1175,8 @@ class QuadsCli:
                     is_available = self.quads.is_available(
                         hostname=host,
                         data={
-                            "start": _sched_start,
-                            "end": _sched_end,
+                            "start": _sched_start.isoformat()[:-3],
+                            "end": _sched_end.isoformat()[:-3],
                         },
                     )
                     host_obj = self.quads.get_host(host)
@@ -1214,6 +1218,7 @@ class QuadsCli:
                 raise CliException(str(ex))
             jira_docs_links = conf["jira_docs_links"].split(",")
             jira_vlans_docs_links = conf["jira_vlans_docs_links"].split(",")
+            ass = self.quads.get_active_cloud_assignment(self.cli_args.get("schedcloud"))
             comment = template.render(
                 schedule_start=self.cli_args.get("schedstart"),
                 schedule_end=self.cli_args.get("schedend"),
@@ -1221,7 +1226,7 @@ class QuadsCli:
                 jira_docs_links=jira_docs_links,
                 jira_vlans_docs_links=jira_vlans_docs_links,
                 host_list=host_list_stream,
-                vlan=_cloud.vlan,
+                vlan=ass.vlan,
             )
 
             loop = asyncio.get_event_loop()
@@ -1233,17 +1238,17 @@ class QuadsCli:
             except JiraException as ex:
                 self.logger.error(ex)
                 exit(1)
-            result = loop.run_until_complete(jira.post_comment(_cloud.ticket, comment))
+            result = loop.run_until_complete(jira.post_comment(ass.ticket, comment))
             if not result:
                 self.logger.warning("Failed to update Jira ticket")
 
-            transitions = loop.run_until_complete(jira.get_transitions(_cloud.ticket))
+            transitions = loop.run_until_complete(jira.get_transitions(ass.ticket))
             transition_result = False
             for transition in transitions:
                 t_name = transition.get("name")
                 if t_name and t_name.lower() == "scheduled":
                     transition_id = transition.get("id")
-                    transition_result = loop.run_until_complete(jira.post_transition(_cloud.ticket, transition_id))
+                    transition_result = loop.run_until_complete(jira.post_transition(ass.ticket, transition_id))
                     break
 
             if not transition_result:
@@ -1471,12 +1476,12 @@ class QuadsCli:
                     new = result["new"]
                     try:
                         cloud = self.quads.get_cloud(new)
-                        data = self.quads.get_active_cloud_assignment(cloud.name)
+                        assignment = self.quads.get_active_cloud_assignment(cloud.name)
                     except (APIServerException, APIBadRequest) as ex:
                         raise CliException(str(ex))
                     target_assignment = None
-                    if data:
-                        target_assignment = Assignment().from_dict(data=data[0])
+                    if assignment:
+                        target_assignment = Assignment().from_dict(data=assignment)
                     wipe = target_assignment.wipe if target_assignment else False
 
                     self.logger.info(f"Moving {host} from {current} to {new}, wipe = {wipe}")
@@ -1496,12 +1501,12 @@ class QuadsCli:
                                 has_active_schedule = self.quads.get_current_schedules({"cloud": f"{cloud.name}"})
                                 if has_active_schedule and wipe:
                                     assignment = self.quads.get_active_cloud_assignment(cloud.name)
-                                    self.quads.update_assignment(assignment[0].id, {"validated": False})
+                                    self.quads.update_assignment(assignment.id, {"validated": False})
                             except (APIServerException, APIBadRequest) as ex:
                                 raise CliException(str(ex))
                         try:
                             if self.cli_args.get("movecommand") == default_move_command:
-                                fn = functools.partial(move_and_rebuild, host, new, semaphore, cloud.wipe)
+                                fn = functools.partial(move_and_rebuild, host, new, semaphore, wipe)
                                 tasks.append(fn)
                                 omits = conf.get("omit_network_move")
                                 omit = False
@@ -1541,9 +1546,10 @@ class QuadsCli:
                         old_cloud_schedule = self.quads.get_current_schedules({"cloud": _old_cloud_obj.name})
 
                         if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                            assignment = self.quads.get_active_cloud_assignment(_old_cloud_obj.name)
-                            payload = {"active": False}
-                            self.quads.update_assignment(assignment[0].id, payload)
+                            _old_ass_cloud_obj = self.quads.get_active_cloud_assignment(_old_cloud_obj.name)
+                            if _old_ass_cloud_obj:
+                                payload = {"active": False}
+                                self.quads.update_assignment(_old_ass_cloud_obj.id, payload)
                     except (APIServerException, APIBadRequest) as ex:
                         raise CliException(str(ex))
 
@@ -1598,8 +1604,7 @@ class QuadsCli:
                     if provisioned:
                         try:
                             _new_cloud_obj = self.quads.get_cloud(_cloud)
-                            resp_assignment = self.quads.get_active_cloud_assignment(_new_cloud_obj.name)
-                            assignment = Assignment().from_dict(data=json.loads(resp_assignment.text))
+                            assignment = self.quads.get_active_cloud_assignment(_new_cloud_obj.name)
                             validate = assignment.wipe
                             self.quads.update_assignment(
                                 assignment.id,

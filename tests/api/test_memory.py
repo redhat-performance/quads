@@ -13,7 +13,7 @@ prefill_settings = ["clouds, hosts"]
 
 class TestCreateMemory:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_host_not_found(self, test_client, auth, prefill):
+    def test_invalid_host(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds and hosts
         | WHEN: User tries to create memory for non-existing host
@@ -140,34 +140,14 @@ class TestCreateMemory:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert (
-            response.json["message"]
-            == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already "
+            response.json["message"] == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already "
             "exists for this host."
         )
 
 
 class TestReadMemory:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_host_not_found(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
-        | WHEN: User tries to read memory for non-existing host
-        | THEN: User should not be able to read memory
-        """
-        auth_header = auth.get_auth_header()
-        host_name = "invalid_host"
-        response = unwrap_json(
-            test_client.get(
-                f"/api/v3/memory/{host_name}",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host not found: {host_name}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid(self, test_client, auth, prefill):
+    def test_valid_id(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
         | WHEN: User tries to read memory for existing host that has memory
@@ -176,7 +156,24 @@ class TestReadMemory:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
+                f"/api/v3/memory/{MEMORY_1_RESPONSE['id']}",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert response.json == MEMORY_1_RESPONSE
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_host(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
+        | WHEN: User tries to read memory for existing host that has memory
+        | THEN: User should be able to read memory
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/hosts/{MEMORY_1_REQUEST[1]}/memory",
                 headers=auth_header,
             )
         )
@@ -184,22 +181,23 @@ class TestReadMemory:
         assert response.json == [MEMORY_1_RESPONSE]
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid_empty(self, test_client, auth, prefill):
+    def test_invalid_host(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
-        | WHEN: User tries to read memory for existing host that has no memory
-        | THEN: User should be able to read memory
+        | WHEN: User tries to read memory for an invalid host
+        | THEN: User should be able to see an error message
         """
         auth_header = auth.get_auth_header()
-        host_with_no_memory = "host3.example.com"
+        host_name = "invalid_host"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/memory/{host_with_no_memory}",
+                f"/api/v3/hosts/{host_name}/memory",
                 headers=auth_header,
             )
         )
-        assert response.status_code == 200
-        assert response.json == []
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == f"Host not found: {host_name}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_get_all(self, test_client, auth, prefill):
@@ -221,25 +219,6 @@ class TestReadMemory:
 
 class TestDeleteMemory:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_host_not_found(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
-        | WHEN: User tries to delete memory for non-existing host
-        | THEN: User should not be able to delete memory
-        """
-        auth_header = auth.get_auth_header()
-        host_name = "invalid_host"
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/memory/{host_name}",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host not found: {host_name}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_memory_not_found(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
@@ -250,33 +229,13 @@ class TestDeleteMemory:
         invalid_memory_id = 42
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-                json={"id": invalid_memory_id},
+                f"/api/v3/memory/{invalid_memory_id}",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Memory not found: {invalid_memory_id}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_missing_id(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds, hosts and memory from TestCreateMemory
-        | WHEN: User tries to delete memory for existing host without specifying memory id
-        | THEN: User should not be able to delete memory
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-                json={},
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: id"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -288,8 +247,7 @@ class TestDeleteMemory:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/memory/{MEMORY_1_REQUEST[1]}",
-                json={"id": MEMORY_1_RESPONSE["id"]},
+                f"/api/v3/memory/{MEMORY_1_RESPONSE['id']}",
                 headers=auth_header,
             )
         )
