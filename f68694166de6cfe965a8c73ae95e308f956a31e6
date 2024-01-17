@@ -39,6 +39,30 @@
       },
       "revId": "f68694166de6cfe965a8c73ae95e308f956a31e6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6525b9ce_590b02fb",
+        "filename": "tests/api/test_memory.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-01-17T18:39:58Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "0ba2392a_462d6af0",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 17
+      },
+      "revId": "f68694166de6cfe965a8c73ae95e308f956a31e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
