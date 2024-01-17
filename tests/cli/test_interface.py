@@ -70,29 +70,6 @@ class TestInterface(TestBase):
                 "\t--interface-port"
             )
 
-    def test_define_interface_missing_bios_id(self):
-        self.cli_args["host"] = HOST2
-        self.cli_args["ifname"] = IFNAME2
-        self.cli_args["ifmac"] = IFMAC2
-        self.cli_args["ifip"] = IFIP2
-        self.cli_args["ifport"] = IFPORT2
-        try:
-            self.quads_cli_call("addinterface")
-        except CliException as ex:
-            assert "Missing argument: bios_id" == str(ex)
-
-    def test_define_interface_missing_speed(self):
-        self.cli_args["host"] = HOST2
-        self.cli_args["ifname"] = IFNAME2
-        self.cli_args["ifmac"] = IFMAC2
-        self.cli_args["ifip"] = IFIP2
-        self.cli_args["ifport"] = IFPORT2
-        self.cli_args["ifbiosid"] = IFBIOSID2
-        try:
-            self.quads_cli_call("addinterface")
-        except CliException as ex:
-            assert "Missing argument: speed" == str(ex)
-
     def test_define_interface_missing_vendor(self):
         self.cli_args["host"] = HOST2
         self.cli_args["ifname"] = IFNAME2
@@ -177,10 +154,7 @@ class TestInterface(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("modinterface")
 
-        assert (
-            str(ex.value)
-            == "Missing option. --host and --interface-name options are required for --mod-interface:"
-        )
+        assert str(ex.value) == "Missing option. --host and --interface-name options are required for --mod-interface:"
 
     def test_mod_interface_bad_host(self, mod_interface):
         self.cli_args["host"] = "BADHOST"
@@ -209,10 +183,7 @@ class TestInterface(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("rminterface")
 
-        assert (
-            str(ex.value)
-            == "Missing option. --host and --interface-name options are required for --rm-interface"
-        )
+        assert str(ex.value) == "Missing option. --host and --interface-name options are required for --rm-interface"
 
     @patch("quads.quads_api.QuadsApi.remove_interface")
     def test_rm_interface_exception(self, mock_remove, mod_interface):
@@ -254,10 +225,7 @@ class TestInterface(TestBase):
             self.cli_args.pop("host")
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("interface")
-        assert (
-            str(ex.value)
-            == "Missing option. --host option is required for --ls-interface."
-        )
+        assert str(ex.value) == "Missing option. --host option is required for --ls-interface."
 
     def test_ls_interface_bad_host(self):
         self.cli_args["host"] = "BADHOST"

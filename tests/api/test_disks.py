@@ -179,23 +179,23 @@ class TestCreateDisks:
 
 class TestReadDisks:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_host(self, test_client, auth, prefill):
+    def test_invalid_id(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
         | WHEN: User tries to read disks for an invalid host
         | THEN: Disks should not be read
         """
         auth_header = auth.get_auth_header()
-        host_name = "invalid_host"
+        invalid_id = 42
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/disks/{host_name}",
+                f"/api/v3/disks/{invalid_id}",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host not found: {host_name}"
+        assert response.json["message"] == f"Disk not found: {invalid_id}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -207,12 +207,12 @@ class TestReadDisks:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
+                f"/api/v3/disks/{DISK_1_RESPONSE['id']}",
                 headers=auth_header,
             )
         )
         assert response.status_code == 200
-        assert response.json == [DISK_1_RESPONSE, DISK_2_RESPONSE]
+        assert response.json == DISK_1_RESPONSE
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_empty(self, test_client, auth, prefill):
@@ -224,7 +224,7 @@ class TestReadDisks:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/disks/{DISK_3_REQUEST[1]}",
+                f"/api/v3/hosts/{DISK_3_REQUEST[1]}/disks",
                 headers=auth_header,
             )
         )
@@ -262,16 +262,18 @@ class TestUpdateDisks:
         """
         auth_header = auth.get_auth_header()
         invalid_id = 42
+        update_request = DISK_1_UPDATE_REQUEST[0].copy()
+        update_request["disk_id"] = invalid_id
         response = unwrap_json(
             test_client.patch(
-                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-                json=dict({"disk_id": invalid_id}),
+                f"/api/v3/disks/{DISK_1_UPDATE_REQUEST[1]}",
+                json=dict(update_request),
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Disk not found for {DISK_1_REQUEST[1]}: {invalid_id}"
+        assert response.json["message"] == f"Disk not found for {DISK_1_UPDATE_REQUEST[1]}: {invalid_id}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -338,25 +340,6 @@ class TestUpdateDisks:
 
 class TestDeleteDisks:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_host(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
-        | WHEN: User tries to delete disks for an invalid host
-        | THEN: Disks should not be deleted
-        """
-        auth_header = auth.get_auth_header()
-        host_name = "invalid_host"
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/disks/{host_name}",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host not found: {host_name}"
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token, clouds and hosts and disks from TestCreateDisks
@@ -366,8 +349,7 @@ class TestDeleteDisks:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-                json={"id": DISK_1_RESPONSE["id"]},
+                f"/api/v3/disks/{DISK_1_RESPONSE['id']}",
                 headers=auth_header,
             )
         )
@@ -385,8 +367,7 @@ class TestDeleteDisks:
         invalid_id = 42
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/disks/{DISK_1_REQUEST[1]}",
-                json={"id": invalid_id},
+                f"/api/v3/disks/{invalid_id}",
                 headers=auth_header,
             )
         )

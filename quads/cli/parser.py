@@ -275,7 +275,7 @@ action_group.add_argument(
     "--ls-clouds",
     dest="action",
     action="store_const",
-    const="cloud",
+    const="ls_clouds",
     help="List all clouds",
 )
 action_group.add_argument(
@@ -442,14 +442,21 @@ parser.add_argument(
     dest="description",
     type=str,
     default=None,
-    help="Defined description of cloud",
+    help="Define description of cloud",
 )
 parser.add_argument(
     "--default-cloud",
     dest="defaultcloud",
     type=str,
     default=None,
-    help="Defined default cloud for a host",
+    help="Define default cloud for a host",
+)
+parser.add_argument(
+    "--model",
+    dest="model",
+    type=str,
+    default=None,
+    help="Define host model",
 )
 parser.add_argument(
     "--summary",
@@ -695,8 +702,8 @@ parser.add_argument(
 parser.add_argument(
     "--skip-hosts",
     dest="skip_hosts",
-    action='append',
-    nargs='*',
+    action="append",
+    nargs="*",
     help="Skip specific hosts, when validating Quads assignments",
 )
 

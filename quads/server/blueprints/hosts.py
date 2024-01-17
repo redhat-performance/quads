@@ -40,6 +40,58 @@ def get_host(hostname: str) -> Response:
     return jsonify(_host.as_dict())
 
 
+@host_bp.route("/<hostname>/memory")
+def get_host_memory(hostname: str) -> Response:
+    _host = HostDao.get_host(hostname)
+    if not _host:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Host not found: {hostname}",
+        }
+        return make_response(jsonify(response), 400)
+    return jsonify([_memory.as_dict() for _memory in _host.memory])
+
+
+@host_bp.route("/<hostname>/processors")
+def get_host_processors(hostname: str) -> Response:
+    _host = HostDao.get_host(hostname)
+    if not _host:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Host not found: {hostname}",
+        }
+        return make_response(jsonify(response), 400)
+    return jsonify([_processors.as_dict() for _processors in _host.processors])
+
+
+@host_bp.route("/<hostname>/disks")
+def get_host_disks(hostname: str) -> Response:
+    _host = HostDao.get_host(hostname)
+    if not _host:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Host not found: {hostname}",
+        }
+        return make_response(jsonify(response), 400)
+    return jsonify([_disks.as_dict() for _disks in _host.disks])
+
+
+@host_bp.route("/<hostname>/interfaces")
+def get_host_interfaces(hostname: str) -> Response:
+    _host = HostDao.get_host(hostname)
+    if not _host:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Host not found: {hostname}",
+        }
+        return make_response(jsonify(response), 400)
+    return jsonify([_interface.as_dict() for _interface in _host.interfaces])
+
+
 @host_bp.route("/<hostname>", methods=["PATCH"])
 @check_access("admin")
 def update_host(hostname: str) -> Response:
