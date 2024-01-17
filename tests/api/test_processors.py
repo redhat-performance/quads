@@ -151,8 +151,7 @@ class TestCreateProcessors:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert (
-            response.json["message"]
-            == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already "
+            response.json["message"] == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already "
             "exists for this host."
         )
 
@@ -169,7 +168,7 @@ class TestReadProcessors:
         host_name = "invalid_host"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/processors/{host_name}",
+                f"/api/v3/hosts/{host_name}/processors",
                 headers=auth_header,
             )
         )
@@ -187,7 +186,7 @@ class TestReadProcessors:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
+                f"/api/v3/hosts/{PROCESSOR_1_REQUEST[1]}/processors",
                 headers=auth_header,
             )
         )
@@ -204,7 +203,7 @@ class TestReadProcessors:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/processors/{PROCESSOR_3_REQUEST[1]}",
+                f"/api/v3/hosts/{PROCESSOR_3_REQUEST[1]}/processors",
                 headers=auth_header,
             )
         )
@@ -213,24 +212,6 @@ class TestReadProcessors:
 
 
 class TestDeleteProcessors:
-    def test_invalid_host_not_found(self, test_client, auth):
-        """
-        | GIVEN: Defaults, auth token, clouds and hosts and processors from TestCreateProcessors
-        | WHEN: User tries to delete processors for non-existing host
-        | THEN: User should not be able to delete processors
-        """
-        auth_header = auth.get_auth_header()
-        host_name = "invalid_host"
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/processors/{host_name}",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Host not found: {host_name}"
-
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_processor_not_found(self, test_client, auth, prefill):
         """
@@ -242,35 +223,13 @@ class TestDeleteProcessors:
         invalid_processor_id = 42
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-                json={"id": invalid_processor_id},
+                f"/api/v3/processors/{invalid_processor_id}",
                 headers=auth_header,
             )
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"] == f"Processor not found: {invalid_processor_id}"
-        )
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_invalid_missing_id_arg(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth token, clouds and hosts and processors from TestCreateProcessors
-        | WHEN: User tries to delete processor for valid host without passing the ID argument
-        | THEN: User should not be able to delete processor
-        """
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.delete(
-                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-                json={},
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 400
-        assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Missing argument: id"
+        assert response.json["message"] == f"Processor not found: {invalid_processor_id}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
@@ -282,8 +241,7 @@ class TestDeleteProcessors:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.delete(
-                f"/api/v3/processors/{PROCESSOR_1_REQUEST[1]}",
-                json={"id": PROCESSOR_1_RESPONSE["id"]},
+                f"/api/v3/processors/{PROCESSOR_1_RESPONSE['id']}",
                 headers=auth_header,
             )
         )
