@@ -15,18 +15,18 @@ def get_all_memory() -> Response:
     return jsonify([_memory.as_dict() for _memory in _memories])
 
 
-@memory_bp.route("/<hostname>")
-def get_memory(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
+@memory_bp.route("/<memory_id>")
+def get_memory(memory_id: int) -> Response:
+    _memory = MemoryDao.get_memory(memory_id)
+    if not _memory:
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
+            "message": f"Memory not found: {memory_id}",
         }
         return make_response(jsonify(response), 400)
 
-    return jsonify([_memory.as_dict() for _memory in _host.memory])
+    return jsonify(_memory.as_dict())
 
 
 @memory_bp.route("/<hostname>", methods=["POST"])
@@ -85,29 +85,9 @@ def create_memory(hostname: str) -> Response:
     return jsonify(_memory_obj.as_dict())
 
 
-@memory_bp.route("/<hostname>", methods=["DELETE"])
+@memory_bp.route("/<memory_id>", methods=["DELETE"])
 @check_access("admin")
-def delete_memory(hostname: str) -> Response:
-    _host = HostDao.get_host(hostname)
-    if not _host:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Host not found: {hostname}",
-        }
-        return make_response(jsonify(response), 400)
-
-    data = request.get_json()
-
-    memory_id = data.get("id")
-    if not memory_id:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: id",
-        }
-        return make_response(jsonify(response), 400)
-
+def delete_memory(memory_id: int) -> Response:
     _memory_obj = MemoryDao.get_memory(memory_id)
     if not _memory_obj:
         response = {

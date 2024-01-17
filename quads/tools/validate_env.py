@@ -295,7 +295,6 @@ class Validator(object):
         logger.info(f"Validating {self.cloud}")
         failed = False
         assignment = quads.get_active_cloud_assignment(self.cloud)
-        assignment = assignment[0] if assignment else None
 
         if self.env_allocation_time_exceeded():
             if self.hosts:

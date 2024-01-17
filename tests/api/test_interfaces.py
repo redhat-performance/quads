@@ -105,7 +105,7 @@ class TestReadInterfaces:
         host_name = "invalid_host"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/interfaces/{host_name}",
+                f"/api/v3/hosts/{host_name}/interfaces",
                 headers=auth_header,
             )
         )
@@ -123,7 +123,7 @@ class TestReadInterfaces:
         auth_header = auth.get_auth_header()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/interfaces/{INTERFACE_1_REQUEST[1]}",
+                f"/api/v3/hosts/{INTERFACE_1_REQUEST[1]}/interfaces",
                 headers=auth_header,
             )
         )
@@ -141,7 +141,7 @@ class TestReadInterfaces:
         host_name = "host2.example.com"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/interfaces/{host_name}",
+                f"/api/v3/hosts/{host_name}/interfaces",
                 headers=auth_header,
             )
         )
@@ -210,9 +210,7 @@ class TestUpdateInterfaces:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"] == f"Interface not found: {update_request['id']}"
-        )
+        assert response.json["message"] == f"Interface not found: {update_request['id']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):
