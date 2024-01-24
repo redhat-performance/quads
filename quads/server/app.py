@@ -76,6 +76,7 @@ def register_extensions(app):
 def register_blueprints(app):
     from quads.server.blueprints.moves import moves_bp
     from quads.server.blueprints.assignments import assignment_bp
+    from quads.server.blueprints.notifications import notification_bp
     from quads.server.blueprints.auth import auth_bp
     from quads.server.blueprints.available import available_bp
     from quads.server.blueprints.clouds import cloud_bp
@@ -95,6 +96,7 @@ def register_blueprints(app):
     api_bp.register_blueprint(version_bp, url_prefix="/version")
     api_bp.register_blueprint(available_bp, url_prefix="/available")
     api_bp.register_blueprint(assignment_bp, url_prefix="/assignments")
+    api_bp.register_blueprint(notification_bp, url_prefix="/notifications")
     api_bp.register_blueprint(host_bp, url_prefix="/hosts")
     api_bp.register_blueprint(cloud_bp, url_prefix="/clouds")
     api_bp.register_blueprint(interface_bp, url_prefix="/interfaces")

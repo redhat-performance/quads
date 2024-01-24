@@ -259,6 +259,9 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
+    def update_notification(self, notification_id, data) -> Response:
+        return self.patch(os.path.join("notifications", str(notification_id)), data)
+
     def get_active_cloud_assignment(self, cloud_name) -> Assignment:
         response = self.get(os.path.join("assignments/active", cloud_name))
         data = response.json()

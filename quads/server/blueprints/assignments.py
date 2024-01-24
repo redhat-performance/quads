@@ -5,6 +5,8 @@ from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
+from quads.server.models import Assignment
+from sqlalchemy import inspect
 
 assignment_bp = Blueprint("assignments", __name__)
 
@@ -206,7 +208,7 @@ def update_assignment(assignment_id: str) -> Response:
     :return: A json object containing the updated assignment
     """
     data = request.get_json()
-    assignment_obj = AssignmentDao.get_assignment(assignment_id)
+    assignment_obj = AssignmentDao.get_assignment(int(assignment_id))
     if not assignment_obj:
         response = {
             "status_code": 400,
@@ -215,24 +217,15 @@ def update_assignment(assignment_id: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    keys = [
-        "cloud",
-        "vlan",
-        "description",
-        "owner",
-        "ticket",
-        "qinq",
-        "wipe",
-        "ccuser",
-    ]
+    obj_attrs = inspect(Assignment).mapper.attrs
     update_fields = {}
-    for key in keys:
-        value = data.get(key)
+    for attr in obj_attrs:
+        value = data.get(attr.key)
         if value:
-            if key == "ccuser":
+            if attr.key == "ccuser":
                 value = value.split(",")
                 value = [user.strip() for user in value]
-            if key == "cloud":
+            if attr.key == "cloud":
                 _cloud = CloudDao.get_cloud(value)
                 if not _cloud:
                     response = {
@@ -242,7 +235,7 @@ def update_assignment(assignment_id: str) -> Response:
                     }
                     return make_response(jsonify(response), 400)
                 value = _cloud
-            if key == "vlan":
+            if attr.key == "vlan":
                 _vlan = VlanDao.get_vlan(value)
                 if not _vlan:
                     response = {
@@ -252,10 +245,10 @@ def update_assignment(assignment_id: str) -> Response:
                     }
                     return make_response(jsonify(response), 400)
                 value = _vlan
-            if type(value) == str:
+            if type(value) is str:
                 if value.lower() in ["true", "false"]:
                     value = eval(value.lower().capitalize())
-            update_fields[key] = value
+            update_fields[attr.key] = value
     for key, value in update_fields.items():
         setattr(assignment_obj, key, value)
 

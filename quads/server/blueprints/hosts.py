@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request, Response, make_response
+from sqlalchemy import inspect
+
 from quads.config import Config
 from quads.server.blueprints import check_access
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
@@ -96,12 +98,6 @@ def get_host_interfaces(hostname: str) -> Response:
 @check_access("admin")
 def update_host(hostname: str) -> Response:
     data = request.get_json()
-    cloud_name = data.get("cloud")
-    default_cloud = data.get("default_cloud")
-    host_type = data.get("host_type")
-    model = data.get("model")
-    broken = data.get("broken")
-    retired = data.get("retired")
 
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -112,42 +108,31 @@ def update_host(hostname: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    if default_cloud:
-        _default_cloud = CloudDao.get_cloud(default_cloud)
-        if not _default_cloud:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Default Cloud not found: {default_cloud}",
-            }
-            return make_response(jsonify(response), 400)
+    obj_attrs = inspect(Host).mapper.attrs
+    update_fields = {}
+    for attr in obj_attrs:
+        value = data.get(attr.key)
+        if value:
+            if attr.key.lower() in ["cloud", "default_cloud"]:
+                _cloud = CloudDao.get_cloud(value)
+                if not _cloud:
+                    response = {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": f"Cloud not found: {value}",
+                    }
+                    return make_response(jsonify(response), 400)
 
-        else:
-            _host.default_cloud = _default_cloud
+                value = _cloud
+            if attr.key.lower() == "model":
+                _host.model = value.upper()
+            if type(value) is str:
+                if value.lower() in ["true", "false"]:
+                    value = eval(value.lower().capitalize())
+            update_fields[attr.key] = value
 
-    if cloud_name:
-        _cloud = CloudDao.get_cloud(cloud_name)
-        if not _cloud:
-            response = {
-                "status_code": 400,
-                "error": "Bad Request",
-                "message": f"Cloud not found: {cloud_name}",
-            }
-            return make_response(jsonify(response), 400)
-        else:
-            _host.cloud = _cloud
-
-    if host_type:
-        _host.host_type = host_type
-
-    if model:
-        _host.model = model.upper()
-
-    if isinstance(broken, bool):
-        _host.broken = broken
-
-    if isinstance(retired, bool):
-        _host.retired = retired
+    for key, value in update_fields.items():
+        setattr(_host, key, value)
 
     BaseDao.safe_commit()
 
