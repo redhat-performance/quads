@@ -37,11 +37,15 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
-        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
+        self.auth = HTTPBasicAuth(
+            self.config.get("quads_api_username"), self.config.get("quads_api_password")
+        )
 
     # Base functions
     def get(self, endpoint: str) -> Response:
-        _response = self.session.get(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
+        _response = self.session.get(
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
+        )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -81,7 +85,9 @@ class QuadsApi:
         return _response
 
     def delete(self, endpoint) -> Response:
-        _response = self.session.delete(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
+        _response = self.session.delete(
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
+        )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -159,13 +165,6 @@ class QuadsApi:
         for cloud in response.json():
             clouds.append(Cloud(**cloud))
         return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
-
-    def filter_clouds(self, data) -> List[Cloud]:
-        response = self.get("clouds", **data)
-        clouds = []
-        for cloud in response.json():
-            clouds.append(Cloud(**cloud))
-        return clouds
 
     def get_cloud(self, cloud_name) -> Optional[Cloud]:
         cloud_obj = None
@@ -259,6 +258,9 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
+    def update_notification(self, notification_id, data) -> Response:
+        return self.patch(os.path.join("notifications", str(notification_id)), data)
+
     def get_active_cloud_assignment(self, cloud_name) -> Assignment:
         response = self.get(os.path.join("assignments/active", cloud_name))
         data = response.json()
@@ -277,10 +279,6 @@ class QuadsApi:
             assignments.append(ass_object)
 
         return assignments
-
-    def get_assignment(self, **kwargs) -> Response:
-        # TODO:fix this
-        return self.get("assignments", **kwargs)
 
     # Interfaces
     def get_host_interface(self, hostname) -> List[Interface]:

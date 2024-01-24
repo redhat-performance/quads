@@ -11,7 +11,9 @@ from quads.server.models import db, Host, Schedule, Cloud, Assignment
 
 class ScheduleDao(BaseDao):
     @classmethod
-    def create_schedule(cls, start: datetime, end: datetime, assignment: Assignment, host: Host) -> Schedule:
+    def create_schedule(
+        cls, start: datetime, end: datetime, assignment: Assignment, host: Host
+    ) -> Schedule:
         _schedule_obj = Schedule(start=start, end=end, assignment=assignment, host=host)
         db.session.add(_schedule_obj)
         cls.safe_commit()
@@ -114,7 +116,9 @@ class ScheduleDao(BaseDao):
                     end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M")
                     end = end_date
                 except ValueError:
-                    raise InvalidArgument("end argument must be a datetime object or a correct datetime format string")
+                    raise InvalidArgument(
+                        "end argument must be a datetime object or a correct datetime format string"
+                    )
             elif not isinstance(end, datetime):
                 raise InvalidArgument("end argument must be a datetime object")
             query = query.filter(Schedule.end <= end)
@@ -131,7 +135,9 @@ class ScheduleDao(BaseDao):
         return filter_schedules
 
     @staticmethod
-    def get_current_schedule(date: datetime = None, host: Host = None, cloud: Cloud = None) -> List[Type[Schedule]]:
+    def get_current_schedule(
+        date: datetime = None, host: Host = None, cloud: Cloud = None
+    ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if cloud:
             query = query.join(Assignment).filter(Assignment.cloud == cloud)

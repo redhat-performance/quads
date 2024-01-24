@@ -146,7 +146,10 @@ class TestCheckAccess:
         )
         assert response.status_code == 403
         assert response.json["error"] == "Forbidden"
-        assert response.json["message"] == "You don't have the permission to access the requested resource"
+        assert (
+            response.json["message"]
+            == "You don't have the permission to access the requested resource"
+        )
 
     @patch("quads.server.models.User", UserClassStub)
     def test_invalid_no_user_token(self, test_client):
@@ -174,11 +177,10 @@ class TestCheckAccess:
         | WHEN: User tries to access an endpoint while his status is set as inactive
         | THEN: User should not be able to access the endpoint
         """
-        db_session.query.return_value.filter.return_value.first.return_value = UserClassStub(
-            id=1,
-            email="test@redhat.com",
-            password="password",
-            active=False
+        db_session.query.return_value.filter.return_value.first.return_value = (
+            UserClassStub(
+                id=1, email="test@redhat.com", password="password", active=False
+            )
         )
         response = unwrap_json(
             test_client.post(
@@ -189,7 +191,10 @@ class TestCheckAccess:
         )
         assert response.status_code == 403
         assert response.json["error"] == "Forbidden"
-        assert response.json["message"] == "You don't have the permission to access the requested resource"
+        assert (
+            response.json["message"]
+            == "You don't have the permission to access the requested resource"
+        )
 
 
 class TestRegistration:

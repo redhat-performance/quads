@@ -1,8 +1,10 @@
 import os
 
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
+from quads.config import Config
+from quads.quads_api import QuadsApi
 from quads.tools.external.ssh_helper import SSHHelper
+
+quads = QuadsApi(Config)
 
 LSHW_OUTPUT_DIR = "/var/www/html/lshw/"
 
@@ -31,8 +33,8 @@ def main() -> None:
     Main function
     :return: None
     """
-    cloud = CloudDao.get_cloud("cloud01")
-    hosts = HostDao.filter_hosts(cloud=cloud, retired=False, broken=False)
+    cloud = quads.get_cloud("cloud01")
+    hosts = quads.filter_hosts({"cloud": cloud.name, "retired": False, "broken": False})
     for host in hosts:
         file_name = f"{host.name}.xml"
         file_path = os.path.join(LSHW_OUTPUT_DIR, file_name)

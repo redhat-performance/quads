@@ -140,7 +140,8 @@ class TestCreateMemory:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert (
-            response.json["message"] == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already "
+            response.json["message"]
+            == f"Memory with this handle ({MEMORY_1_REQUEST[0]['handle']}) already "
             "exists for this host."
         )
 

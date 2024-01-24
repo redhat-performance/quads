@@ -54,7 +54,9 @@ def test_client():
 @pytest.fixture(autouse=True, scope="package")
 def populate_db():
 
-    today = datetime.strptime(datetime.now().strftime("%Y-%m-%d %H:%M"), "%Y-%m-%d %H:%M")
+    today = datetime.strptime(
+        datetime.now().strftime("%Y-%m-%d %H:%M"), "%Y-%m-%d %H:%M"
+    )
     tomorrow = today + timedelta(weeks=2)
 
     cloud = CloudDao.create_cloud(CLOUD)

@@ -10,7 +10,6 @@ from tests.cli.config import CLOUD, DEFAULT_CLOUD
 
 
 class TestJiraWorkflow(object):
-
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
     @patch("quads.tools.external.jira.aiohttp.ClientSession.get")
     @pytest.mark.asyncio
@@ -18,37 +17,47 @@ class TestJiraWorkflow(object):
         cloud_name = CLOUD
         resp = AsyncMock()
         resp.json.side_effect = [
-            [{"statuses": [{"name": "In Progress", "id": "1"}, {"name": "In Progress", "id": "2"}]}],
-            {"issues": [
+            [
                 {
-                    "name": "unitest", "key": "1",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
-                                       "more time to make unittests",
-                        "parent": {
-                            "key": "5"
-                        },
-                        "labels": ["EXTENSION"],
-                        "status": "In Progress"
-                    },
-                },
-                {
-                    "name": "unitest3", "key": "4",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
-                                       "more time to make unittests",
-                        "labels": ["EXPANSION"],
-                        "status": "In Progress"
-                    }
-                },
-                {
-                    "name": "unitest3", "key": "5",
-                    "fields": {
-                        "description": "Submitted by: unittest@gmail.com\n",
-                        "labels": ["EXPANSION"]
-                    }
+                    "statuses": [
+                        {"name": "In Progress", "id": "1"},
+                        {"name": "In Progress", "id": "2"},
+                    ]
                 }
-            ]},
+            ],
+            {
+                "issues": [
+                    {
+                        "name": "unitest",
+                        "key": "1",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
+                            "more time to make unittests",
+                            "parent": {"key": "5"},
+                            "labels": ["EXTENSION"],
+                            "status": "In Progress",
+                        },
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "4",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
+                            "more time to make unittests",
+                            "labels": ["EXPANSION"],
+                            "status": "In Progress",
+                        },
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "5",
+                        "fields": {
+                            "description": "Submitted by: unittest@gmail.com\n",
+                            "labels": ["EXPANSION"],
+                        },
+                    },
+                ]
+            },
             {"transitions": [{"name": "done", "id": "1"}]},
             {"transitions": [{"name": "New", "id": "2"}]},
         ]

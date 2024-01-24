@@ -244,7 +244,9 @@ class TestUpdateInterfaces:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Interface not found: {update_request['id']}"
+        assert (
+            response.json["message"] == f"Interface not found: {update_request['id']}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):

@@ -32,7 +32,8 @@ def available(search):
     models = search.data["model"]
     try:
         start, end = [
-            datetime.strptime(date, "%Y-%m-%d").date() for date in search.data["date_range"].split(" - ")
+            datetime.strptime(date, "%Y-%m-%d").date()
+            for date in search.data["date_range"].split(" - ")
         ]
         start = datetime.combine(start, time(hour=22)).strftime("%Y-%m-%d %H:%M")
         end = datetime.combine(end, time(hour=22)).strftime("%Y-%m-%d %H:%M")
@@ -46,10 +47,17 @@ def available(search):
             hosts = [host for host in hosts if host.model in models]
 
         available_hosts = []
-        currently_scheduled = [schedule.host_id for schedule in quads.get_current_schedules()]
+        currently_scheduled = [
+            schedule.host_id for schedule in quads.get_current_schedules()
+        ]
         for host in hosts:
             current = True if host.id in currently_scheduled else False
-            host_dict = {"name": host.name, "cloud": host.cloud.name, "model": host.model, "current": current}
+            host_dict = {
+                "name": host.name,
+                "cloud": host.cloud.name,
+                "model": host.model,
+                "current": current,
+            }
             available_hosts.append(host_dict)
     except (APIBadRequest, APIServerException):
         return jsonify({})

@@ -6,7 +6,6 @@ from quads.tools.external.netcat import Netcat
 
 
 class TestNetcat:
-
     @pytest.mark.asyncio
     async def test_parameters_init(self):
         netcat = Netcat(ip="10.0.0.9")
@@ -72,4 +71,3 @@ class TestNetcat:
         await netcat.close()
         netcat.socket = False
         assert not netcat.socket
-

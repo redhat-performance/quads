@@ -63,7 +63,7 @@ class Serialize:
     def as_dict(self):
         obj_attrs = inspect(self).mapper.attrs
         result = {}
-        for i, attr in enumerate(obj_attrs):
+        for attr in obj_attrs:
             if attr.key == "cloud":
                 cloud = getattr(self, attr.key)
                 if cloud:
@@ -136,7 +136,7 @@ class Serialize:
 
     def from_dict(self, data):
         obj_attrs = inspect(self).mapper.attrs
-        for i, attr in enumerate(obj_attrs):
+        for attr in obj_attrs:
             if attr.key in ["cloud", "default_cloud"]:
                 if type(data) == dict:
                     value = data.get(attr.key)

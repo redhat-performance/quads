@@ -19,31 +19,41 @@ class TestJira(object):
         assert jira.password == self.password
 
     def test_class_object_parameters_with_loop(self):
-        Config.jira_auth = 'token'
-        Config.jira_token = 'token'
+        Config.jira_auth = "token"
+        Config.jira_token = "token"
         jira = Jira(url=self.url, loop=self.loop, semaphore=self.semaphore)
         assert jira.headers == {"Authorization": "Bearer: token"}
 
     def test_class_object_parameters_raise_error(self):
         with pytest.raises(JiraException) as err:
-            Config.jira_auth = 'basic'
+            Config.jira_auth = "basic"
             Jira(url=self.url, loop=self.loop, semaphore=self.semaphore)
 
     def test_class_object_token_error(self):
         with pytest.raises(JiraException) as err:
-            Config.jira_auth = 'token'
-            Config.jira_token = ''
+            Config.jira_auth = "token"
+            Config.jira_token = ""
             Jira(url=self.url, loop=self.loop, semaphore=self.semaphore)
 
     def test_exit_closed(self):
-        Config.jira_auth = 'basic'
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        Config.jira_auth = "basic"
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         jira.__exit__()
         assert jira.loop.is_closed()
 
     def test_exit_running(self):
-        Config.jira_auth = 'basic'
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        Config.jira_auth = "basic"
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         jira.new_loop = False
         jira.__exit__()
         assert not jira.loop.is_closed()
@@ -55,15 +65,25 @@ class TestJira(object):
         resp.json.return_value = {"test": "mock_result"}
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_request("/test")
-        assert response == {'test': 'mock_result'}
+        assert response == {"test": "mock_result"}
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.get")
     @pytest.mark.asyncio
     async def test_get_request_exception(self, mock_get):
         mock_get.side_effect = Exception("Unittest Exception Raised")
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_request("/test")
         assert not response
 
@@ -75,7 +95,12 @@ class TestJira(object):
         resp.json.return_value = {"test": "mock_result"}
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_request("/test")
         assert not response
 
@@ -87,16 +112,30 @@ class TestJira(object):
         resp.status = 200
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.post_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.post_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
     @pytest.mark.asyncio
     async def test_post_request_exception(self, mock_post):
         mock_post.side_effect = Exception("Unittest Exception Raised")
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.post_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.post_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
@@ -107,8 +146,15 @@ class TestJira(object):
         resp.json.return_value = {"test": "mock_result"}
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.post_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.post_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
@@ -118,8 +164,15 @@ class TestJira(object):
         resp.json.return_value = {}
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.post_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.post_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.put")
@@ -130,16 +183,30 @@ class TestJira(object):
         resp.status = 200
         mock_put.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.put_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.put_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.put")
     @pytest.mark.asyncio
     async def test_put_request_exception(self, mock_put):
         mock_put.side_effect = Exception("Unittest Exception Raised")
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.put_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.put_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.put")
@@ -150,8 +217,15 @@ class TestJira(object):
         resp.json.return_value = {"test": "mock_result"}
         mock_put.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.put_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.put_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.put")
@@ -161,8 +235,15 @@ class TestJira(object):
         resp.json.return_value = {}
         mock_put.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
-        response = await jira.put_request(endpoint="/test", payload={"test": "mock_result"})
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
+        response = await jira.put_request(
+            endpoint="/test", payload={"test": "mock_result"}
+        )
         assert not response
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
@@ -173,7 +254,12 @@ class TestJira(object):
         resp.status = 200
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.add_watcher(ticket=123, watcher="unitest@gmail.com")
         assert response
 
@@ -185,7 +271,12 @@ class TestJira(object):
         resp.status = 200
         mock_put.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.add_label(ticket=123, label="unitest")
         assert response
 
@@ -197,7 +288,12 @@ class TestJira(object):
         resp.status = 200
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.post_comment(ticket=123, comment="This is unitest")
         assert response
 
@@ -209,7 +305,12 @@ class TestJira(object):
         resp.status = 200
         mock_post.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.post_transition(ticket=123, transition="Closed")
         assert response
 
@@ -221,7 +322,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_transitions(ticket=123)
         assert response == ["Closed"]
 
@@ -233,7 +339,12 @@ class TestJira(object):
         resp.status = 404
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_transitions(ticket=123)
         assert len(response) == 0
 
@@ -245,7 +356,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_transitions(ticket=123)
         assert len(response) == 0
 
@@ -257,7 +373,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_project_transitions()
         assert response == ["New", "Open"]
 
@@ -269,7 +390,12 @@ class TestJira(object):
         resp.status = 404
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_project_transitions()
         assert len(response) == 0
 
@@ -281,7 +407,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_project_transitions()
         assert len(response) == 0
 
@@ -289,11 +420,18 @@ class TestJira(object):
     @pytest.mark.asyncio
     async def test_get_transition_id(self, mock_get):
         resp = AsyncMock()
-        resp.json.return_value = [{"statuses": [{"name": "Closed", "id": "2"}, {"name": "New", "id": "1"}]}]
+        resp.json.return_value = [
+            {"statuses": [{"name": "Closed", "id": "2"}, {"name": "New", "id": "1"}]}
+        ]
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_transition_id(status="New")
         assert response == "1"
 
@@ -305,7 +443,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_transition_id(status="New")
         assert not response
 
@@ -317,7 +460,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_ticket(ticket="1")
         assert response == {"key": "1"}
 
@@ -329,7 +477,12 @@ class TestJira(object):
         resp.status = 404
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_ticket(ticket="1")
         assert not response
 
@@ -341,7 +494,12 @@ class TestJira(object):
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_watchers(ticket="1")
         assert response == {"watchers": ["unittest@gmail.com"]}
 
@@ -353,7 +511,12 @@ class TestJira(object):
         resp.status = 404
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_watchers(ticket="1")
         assert not response
 
@@ -374,13 +537,25 @@ class TestJira(object):
     @pytest.mark.asyncio
     async def test_get_all_pending_tickets(self, mock_get):
         resp = AsyncMock()
-        resp.json.side_effect = [[{"statuses": [{"name": "In Progress", "id": "1"},
-                                                {"name": "Closed", "id": "2"}]}],
-                                 [{"name": "unitest", "key": "1"}]
-                                 ]
+        resp.json.side_effect = [
+            [
+                {
+                    "statuses": [
+                        {"name": "In Progress", "id": "1"},
+                        {"name": "Closed", "id": "2"},
+                    ]
+                }
+            ],
+            [{"name": "unitest", "key": "1"}],
+        ]
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_all_pending_tickets()
         assert response == [{"name": "unitest", "key": "1"}]
 
@@ -388,12 +563,24 @@ class TestJira(object):
     @pytest.mark.asyncio
     async def test_get_all_pending_tickets_empty(self, mock_get):
         resp = AsyncMock()
-        resp.json.side_effect = [[{"statuses": [{"name": "In Progress", "id": "1"},
-                                                {"name": "Closed", "id": "2"}]}]
-                                 ]
+        resp.json.side_effect = [
+            [
+                {
+                    "statuses": [
+                        {"name": "In Progress", "id": "1"},
+                        {"name": "Closed", "id": "2"},
+                    ]
+                }
+            ]
+        ]
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_all_pending_tickets()
         assert not response
 
@@ -402,14 +589,52 @@ class TestJira(object):
     async def test_get_pending_tickets(self, mock_get):
         resp = AsyncMock()
         resp.json.side_effect = [
-            {"issues": [{"name": "unitest", "key": "1", "statusCategory": 4, "labels": "EXPANSION"}]},
-            {"issues": [{"statusCategory": 4, "labels": "EXTENSION", "name": "unitest", "key": "1"}]}
+            {
+                "issues": [
+                    {
+                        "name": "unitest",
+                        "key": "1",
+                        "statusCategory": 4,
+                        "labels": "EXPANSION",
+                    }
+                ]
+            },
+            {
+                "issues": [
+                    {
+                        "statusCategory": 4,
+                        "labels": "EXTENSION",
+                        "name": "unitest",
+                        "key": "1",
+                    }
+                ]
+            },
         ]
         mock_get.return_value.__aenter__.return_value = resp
 
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.get_pending_tickets()
-        assert response == {'issues': [{'name': 'unitest', 'key': '1', 'statusCategory': 4, 'labels': 'EXPANSION'}, {'statusCategory': 4, 'labels': 'EXTENSION', 'name': 'unitest', 'key': '1'}]}
+        assert response == {
+            "issues": [
+                {
+                    "name": "unitest",
+                    "key": "1",
+                    "statusCategory": 4,
+                    "labels": "EXPANSION",
+                },
+                {
+                    "statusCategory": 4,
+                    "labels": "EXTENSION",
+                    "name": "unitest",
+                    "key": "1",
+                },
+            ]
+        }
 
     @patch("quads.tools.external.jira.aiohttp.ClientSession.get")
     @pytest.mark.asyncio
@@ -418,7 +643,12 @@ class TestJira(object):
         resp.json.return_value = [{"name": "unitest", "key": "1"}]
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.search_tickets()
         assert response == [{"name": "unitest", "key": "1"}]
 
@@ -429,7 +659,12 @@ class TestJira(object):
         resp.json.return_value = [{"name": "unitest", "key": "1"}]
         resp.status = 200
         mock_get.return_value.__aenter__.return_value = resp
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.search_tickets(query={"key": "1"})
         assert response == [{"name": "unitest", "key": "1"}]
 
@@ -440,6 +675,11 @@ class TestJira(object):
         resp.json.return_value = {}
         resp.status = 404
         mock_get.return_value.__aenter__.return_value = resp
-        jira = Jira(url=self.url, username=self.username, password=self.password, semaphore=self.semaphore)
+        jira = Jira(
+            url=self.url,
+            username=self.username,
+            password=self.password,
+            semaphore=self.semaphore,
+        )
         response = await jira.search_tickets()
         assert not response

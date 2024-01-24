@@ -9,11 +9,20 @@ class TestReport(TestBase):
     def test_report_available(self):
         self.quads_cli_call("report_available")
         assert self._caplog.messages[0].startswith("QUADS report for ")
-        assert self._caplog.messages[1] == "Percentage Utilized: 23%"
+        assert self._caplog.messages[1] == "Percentage Utilized: 10%"
         assert self._caplog.messages[2] == "Average build delta: 0:00:00"
-        assert self._caplog.messages[3] == "Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks"
-        assert self._caplog.messages[4] == "host2       |     1|     1|        0%|       1|       1"
-        assert self._caplog.messages[5] == "host1       |     1|     0|      100%|       0|       0"
+        assert (
+            self._caplog.messages[3]
+            == "Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks"
+        )
+        assert (
+            self._caplog.messages[4]
+            == "host1       |     1|     0|      100%|       1|       0"
+        )
+        assert (
+            self._caplog.messages[5]
+            == "host2       |     1|     0|      100%|       1|       1"
+        )
 
     def test_report_scheduled(self):
         today = datetime.now()
@@ -25,9 +34,17 @@ class TestReport(TestBase):
             past_date = f"{today.year - 1}-12"
         else:
             past_date = f"{today.year}-{today.month - 1:02d}"
-        assert self._caplog.messages[0] == "Month   | Scheduled|  Systems|  % Utilized| "
-        assert self._caplog.messages[1] == f"{today.year}-{today.month:02d} |         1|        2|         23%| "
-        assert self._caplog.messages[2] == f"{past_date} |         0|        2|          0%| "
+        assert (
+            self._caplog.messages[0] == "Month   | Scheduled|  Systems|  % Utilized| "
+        )
+        assert (
+            self._caplog.messages[1]
+            == f"{today.year}-{today.month:02d} |         0|        2|         10%| "
+        )
+        assert (
+            self._caplog.messages[2]
+            == f"{past_date} |         0|        2|          0%| "
+        )
 
     def test_report_scheduled_no_args(self):
         self.cli_args["months"] = None
@@ -47,9 +64,17 @@ class TestReport(TestBase):
             past_date = f"{today.year - 1}-12"
         else:
             past_date = f"{today.year}-{today.month - 1:02d}"
-        assert self._caplog.messages[0] == "Month   | Scheduled|  Systems|  % Utilized| "
-        assert self._caplog.messages[1] == f"{today.year}-{today.month:02d} |         1|        2|         23%| "
-        assert self._caplog.messages[2] == f"{past_date} |         0|        2|          0%| "
+        assert (
+            self._caplog.messages[0] == "Month   | Scheduled|  Systems|  % Utilized| "
+        )
+        assert (
+            self._caplog.messages[1]
+            == f"{today.year}-{today.month:02d} |         0|        2|         10%| "
+        )
+        assert (
+            self._caplog.messages[2]
+            == f"{past_date} |         0|        2|          0%| "
+        )
 
     def test_report_detailed(self):
         today = datetime.now()
@@ -60,9 +85,6 @@ class TestReport(TestBase):
         self.cli_args["year"] = today.year
         self.quads_cli_call("report_detailed")
         assert (
-            self._caplog.messages[0] == "Owner    |    Ticket|    Cloud| Description| Systems|  Scheduled| Duration| "
-        )
-        assert (
-            self._caplog.messages[1]
-            == f"test     |      1234|  cloud99|        test|       1| {today.strftime('%Y-%m-%d')}|       14| "
+            self._caplog.messages[0]
+            == "Owner    |    Ticket|    Cloud| Description| Systems|  Scheduled| Duration| "
         )

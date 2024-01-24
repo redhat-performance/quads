@@ -5,9 +5,10 @@ from quads.tools.external.wiki import Wiki
 
 
 class TestWiki:
-
     def test_wiki_parameters_https(self):
-        wiki = Wiki(url="https://unittest.com", username="unittest", password="password")
+        wiki = Wiki(
+            url="https://unittest.com", username="unittest", password="password"
+        )
         assert wiki.endpoint == "https://unittest.com/xmlrpc.php"
 
     def test_wiki_parameters_http(self):
@@ -21,6 +22,8 @@ class TestWiki:
         mock_edit.return_value.__aenter__.return_value = MagicMock()
         mock_wpp.return_value.__aenter__.return_value = MagicMock()
         mock_client.return_value.__aenter__.return_value = MagicMock()
-        wiki = Wiki(url="https://unittest.com", username="unittest", password="password")
+        wiki = Wiki(
+            url="https://unittest.com", username="unittest", password="password"
+        )
         readme = os.path.join(os.path.dirname(__file__), "../../README.md")
         wiki.update(_page_title="Unit Test", _page_id="1", _markdown=readme)

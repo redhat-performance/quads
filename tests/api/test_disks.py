@@ -273,7 +273,10 @@ class TestUpdateDisks:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Disk not found for {DISK_1_UPDATE_REQUEST[1]}: {invalid_id}"
+        assert (
+            response.json["message"]
+            == f"Disk not found for {DISK_1_UPDATE_REQUEST[1]}: {invalid_id}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):

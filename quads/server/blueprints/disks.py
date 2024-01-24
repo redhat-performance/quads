@@ -87,7 +87,9 @@ def create_disks(hostname: str) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    _disk_obj = Disk(disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id)
+    _disk_obj = Disk(
+        disk_type=disk_type, size_gb=size_gb, count=count, host_id=_host.id
+    )
     db.session.add(_disk_obj)
     BaseDao.safe_commit()
     return jsonify(_disk_obj.as_dict())

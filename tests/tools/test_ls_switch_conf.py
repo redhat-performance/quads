@@ -10,8 +10,9 @@ from tests.cli.config import CLOUD, HOST1, DEFAULT_CLOUD, DEFINE_HOST
 
 
 class TestLsSwitchConf(object):
-
-    def test_verify_ls_switch_conf_not_present(self, ):
+    def test_verify_ls_switch_conf_not_present(
+        self,
+    ):
         cloud_name = DEFAULT_CLOUD
 
         class Args:
@@ -25,9 +26,11 @@ class TestLsSwitchConf(object):
     def test_verify_ls_switch_conf(self, mock_client, mock_config, mock_logger):
         mock_config.return_value = MagicMock()
         stdout_mock = MagicMock()
-        stdout_mock.readlines.side_effect = [['set vlans vlan1130 interface et-0/0/10:1.0\n'],
-                                             [],
-                                             ['apply-groups QinQ_vl1134;\n']]
+        stdout_mock.readlines.side_effect = [
+            ["set vlans vlan1130 interface et-0/0/10:1.0\n"],
+            [],
+            ["apply-groups QinQ_vl1134;\n"],
+        ]
         stdout_mock.channel.recv_exit_status.side_effect = [0, 0, 0]
         stderr_mock = MagicMock()
         stderr_mock.readlines.return_value = False
@@ -38,26 +41,30 @@ class TestLsSwitchConf(object):
         )
         cloud_name = CLOUD
         host_name = HOST1
-        interface1 = InterfaceDao.create_interface(hostname=host_name,
-                                      name="em2",
-                                      bios_id="NIC.Integrated.2",
-                                      mac_address="00:d3:00:e4:00:c3",
-                                      switch_ip="192.168.1.2",
-                                      switch_port="et-0/0/0:2",
-                                      speed=1000,
-                                      vendor="Mellanox",
-                                      pxe_boot=False,
-                                      maintenance=False)
-        interface2 = InterfaceDao.create_interface(hostname=host_name,
-                                      name="em3",
-                                      bios_id="NIC.Integrated.3",
-                                      mac_address="00:d3:00:e4:00:c4",
-                                      switch_ip="192.168.1.2",
-                                      switch_port="et-0/0/0:2",
-                                      speed=1000,
-                                      vendor="Mellanox",
-                                      pxe_boot=False,
-                                      maintenance=False)
+        interface1 = InterfaceDao.create_interface(
+            hostname=host_name,
+            name="em2",
+            bios_id="NIC.Integrated.2",
+            mac_address="00:d3:00:e4:00:c3",
+            switch_ip="192.168.1.2",
+            switch_port="et-0/0/0:2",
+            speed=1000,
+            vendor="Mellanox",
+            pxe_boot=False,
+            maintenance=False,
+        )
+        interface2 = InterfaceDao.create_interface(
+            hostname=host_name,
+            name="em3",
+            bios_id="NIC.Integrated.3",
+            mac_address="00:d3:00:e4:00:c4",
+            switch_ip="192.168.1.2",
+            switch_port="et-0/0/0:2",
+            speed=1000,
+            vendor="Mellanox",
+            pxe_boot=False,
+            maintenance=False,
+        )
 
         class Args:
             cloud = cloud_name
@@ -66,13 +73,17 @@ class TestLsSwitchConf(object):
         verify(Args())
         info = [info[0][0] for info in mock_logger.info.call_args_list]
         assert "Interface em1 appears to be a member of VLAN 1130" in info
-        assert "Could not determine the previous VLAN member for em2, switch 192.168.1.2, switch port et-0/0/0:2 " in [
-            warn[0][0] for warn in mock_logger.warning.call_args_list]
+        assert (
+            "Could not determine the previous VLAN member for em2, switch 192.168.1.2, switch port et-0/0/0:2 "
+            in [warn[0][0] for warn in mock_logger.warning.call_args_list]
+        )
         assert "Interface em3 appears to be a member of VLAN 1134" in info
         InterfaceDao.delete_interface(interface1.id)
         InterfaceDao.delete_interface(interface2.id)
 
-    def test_verify_ls_switch_conf_empty_hosts(self, ):
+    def test_verify_ls_switch_conf_empty_hosts(
+        self,
+    ):
         cloud_name = DEFAULT_CLOUD
 
         class Args:
@@ -87,8 +98,12 @@ class TestLsSwitchConf(object):
         host_name = DEFINE_HOST
         cloud = CloudDao.get_cloud(cloud_name)
         HostDao.create_host(host_name, "r640", "unittest", cloud_name)
-        vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
-        AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id)
+        vlan = VlanDao.create_vlan(
+            "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+        )
+        AssignmentDao.create_assignment(
+            "test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id
+        )
 
         class Args:
             cloud = cloud_name
@@ -101,10 +116,16 @@ class TestLsSwitchConf(object):
     @patch("quads.tools.ls_switch_conf.logger")
     @patch("quads.tools.external.ssh_helper.SSHConfig")
     @patch("quads.tools.external.ssh_helper.SSHClient")
-    def test_verify_ls_switch_conf_one_interface(self, mock_client, mock_config, mock_logger):
+    def test_verify_ls_switch_conf_one_interface(
+        self, mock_client, mock_config, mock_logger
+    ):
         mock_config.return_value = MagicMock()
         stdout_mock = MagicMock()
-        stdout_mock.readlines.side_effect = [['set vlans vlan1130 interface et-0/0/10:1.0\n'], [], []]
+        stdout_mock.readlines.side_effect = [
+            ["set vlans vlan1130 interface et-0/0/10:1.0\n"],
+            [],
+            [],
+        ]
         stdout_mock.channel.recv_exit_status.side_effect = [0, 0, 0]
         stderr_mock = MagicMock()
         stderr_mock.readlines.return_value = False

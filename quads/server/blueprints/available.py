@@ -43,7 +43,9 @@ def get_available() -> Response:
         if ScheduleDao.is_host_available(host.name, _start, _end):
             if _cloud:
                 _sched_cloud = ScheduleDao.get_current_schedule(host=host)
-                _sched_cloud = _sched_cloud[0].assignment.cloud.name if _sched_cloud else None
+                _sched_cloud = (
+                    _sched_cloud[0].assignment.cloud.name if _sched_cloud else None
+                )
                 if _cloud != _sched_cloud:
                     continue
             available.append(host.name)
@@ -67,7 +69,9 @@ def is_available(hostname) -> Response:
     _params = request.args.to_dict()
     _start = _end = datetime.now()
     if _params.get("start"):
-        _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(minutes=1)
+        _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(
+            minutes=1
+        )
     if _params.get("end"):
         _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
     if _start > _end:

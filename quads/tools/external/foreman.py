@@ -52,7 +52,9 @@ class Foreman(object):
         response_json = await self.get(endpoint)
         objects = {}
         if "results" in response_json:
-            objects = {_object[identifier]: _object for _object in response_json["results"]}
+            objects = {
+                _object[identifier]: _object for _object in response_json["results"]
+            }
         return objects
 
     async def set_host_parameter(self, host_name, name, value):
@@ -220,7 +222,9 @@ class Foreman(object):
                 break
         if param_id:
             success = await self.put_parameter(host, "%s_id" % put_name, param_id)
-            success = await self.put_parameter(host, "%s_name" % put_name, value) and success
+            success = (
+                await self.put_parameter(host, "%s_name" % put_name, value) and success
+            )
             return success
         return False
 
@@ -330,7 +334,11 @@ class Foreman(object):
     async def get_host_extraneous_interfaces(self, host_id):
         endpoint = "/hosts/%s/interfaces" % host_id
         response_json = await self.get(endpoint)
-        extraneous_interfaces = [i for i in response_json["results"] if i["identifier"] != "mgmt" and not i["primary"]]
+        extraneous_interfaces = [
+            i
+            for i in response_json["results"]
+            if i["identifier"] != "mgmt" and not i["primary"]
+        ]
         return extraneous_interfaces
 
     async def remove_extraneous_interfaces(self, host):

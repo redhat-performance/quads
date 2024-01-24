@@ -392,7 +392,7 @@ class TestUpdateHosts:
         assert response.status_code == 200
         assert response.json["id"] == 1
         assert response.json["name"] == host_request["name"]
-        assert response.json["model"] == host_request["model"].upper()
+        assert response.json["model"] == host_request["model"]
         assert response.json["host_type"] == host_request["host_type"]
         assert response.json["default_cloud_id"] == response.json["cloud_id"]
 
@@ -439,7 +439,7 @@ class TestUpdateHosts:
         assert response.json["error"] == "Bad Request"
         assert (
             response.json["message"]
-            == f"Default Cloud not found: {host_request['default_cloud']}"
+            == f"Cloud not found: {host_request['default_cloud']}"
         )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)

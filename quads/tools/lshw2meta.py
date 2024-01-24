@@ -5,10 +5,10 @@ import json
 
 from jsonpath_ng import parse
 
-from quads.server.dao.disk import DiskDao
-from quads.server.dao.host import HostDao
-from quads.server.dao.memory import MemoryDao
-from quads.server.dao.processor import ProcessorDao
+from quads.config import Config
+from quads.quads_api import QuadsApi
+
+quads = QuadsApi(Config)
 
 MD_DIR = "/var/www/html/lshw"
 DISK_TYPES = {"nvme": "nvm", "sata": "ata", "scsi": "scsi"}
@@ -31,7 +31,7 @@ for _d, _, _files in os.walk(MD_DIR):
                     data = json.load(_f)
                     children = parse("$..children[*]").find(data)
                     hostname = parse("$.id").find(data)[0].value
-                    host_obj = HostDao.get_host(hostname)
+                    host_obj = quads.get_host(hostname)
                     if not host_obj:
                         print(f"Host not found: {hostname}")
                         break
@@ -66,18 +66,25 @@ for _d, _, _files in os.walk(MD_DIR):
                                 "disks__disk_type": disk_type,
                                 "disks__size_gb": disk_size,
                             }
-                            host = HostDao.filter_hosts_dict(filters)
+                            host = quads.filter_hosts(filters)
                             if host:
                                 for disk in host[0].disks:
-                                    if disk.disk_type == disk_type and disk.disk_size == disk_size:
+                                    if (
+                                        disk.disk_type == disk_type
+                                        and disk.disk_size == disk_size
+                                    ):
                                         disk.count += 1
                             else:
-                                disk = DiskDao.create_disk(hostname=host_obj.name, disk_type=disk_type,
-                                                           size_gb=disk_size, count=1)
+                                data = {
+                                    "disk_type": disk_type,
+                                    "size_gb": disk_size,
+                                    "count": 1,
+                                }
+                                disk = quads.create_disk(host_obj.name, data)
 
                     # memory
                     for memory in host_obj.memory:
-                        MemoryDao.delete_memory(memory.id)
+                        quads.remove_memory(memory.id)
                     for child in [
                         child
                         for child in children
@@ -89,26 +96,32 @@ for _d, _, _files in os.walk(MD_DIR):
                             and child.value.get("handle")
                             and "cache" not in child.value["id"]
                         ):
-                            MemoryDao.create_memory(
+                            data = {
+                                "handle": child.value.get("handle"),
+                                "size_gb": b2g(int(child.value["size"])),
+                            }
+                            quads.create_memory(
                                 hostname,
-                                handle=child.value.get("handle"),
-                                size_gb=b2g(int(child.value["size"])),
+                                data,
                             )
 
                     # processor
                     for processor in host_obj.processors:
-                        ProcessorDao.delete_processor(processor.id)
+                        quads.remove_processor(processor.id)
                     for child in [
                         child
                         for child in children
                         if child.value["class"] == "processor"
                     ]:
                         configuration = child.value.get("configuration")
-                        processor = ProcessorDao.create_processor(
+                        data = {
+                            "handle": child.value.get("handle"),
+                            "vendor": child.value.get("vendor"),
+                            "product": child.value.get("product"),
+                            "cores": int(configuration.get("cores", 0)),
+                            "threads": int(configuration.get("threads", 0)),
+                        }
+                        processor = quads.create_processor(
                             hostname,
-                            handle=child.value.get("handle"),
-                            vendor=child.value.get("vendor"),
-                            product=child.value.get("product"),
-                            cores=int(configuration.get("cores", 0)),
-                            threads=int(configuration.get("threads", 0)),
+                            data,
                         )

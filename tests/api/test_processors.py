@@ -151,7 +151,8 @@ class TestCreateProcessors:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert (
-            response.json["message"] == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already "
+            response.json["message"]
+            == f"Processor with this handle ({PROCESSOR_1_REQUEST[0]['handle']}) already "
             "exists for this host."
         )
 
@@ -229,7 +230,9 @@ class TestDeleteProcessors:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == f"Processor not found: {invalid_processor_id}"
+        assert (
+            response.json["message"] == f"Processor not found: {invalid_processor_id}"
+        )
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid(self, test_client, auth, prefill):

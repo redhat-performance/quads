@@ -183,7 +183,10 @@ class TestHost(TestBase):
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("ls_hosts")
-        assert str(ex.value) == "A filter was defined but not parsed correctly. Check filter operator."
+        assert (
+            str(ex.value)
+            == "A filter was defined but not parsed correctly. Check filter operator."
+        )
 
     def test_ls_host_filter_bad_param(self):
         self.cli_args["filter"] = f"badparam==badvalue"
@@ -235,7 +238,10 @@ class TestHost(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("processors")
 
-        assert str(ex.value) == "Missing option. --host option is required for --ls-processors."
+        assert (
+            str(ex.value)
+            == "Missing option. --host option is required for --ls-processors."
+        )
 
     def test_ls_processors_no_processor(self):
         self.cli_args["host"] = HOST2

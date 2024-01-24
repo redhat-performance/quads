@@ -6,7 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from quads.server.models import Base
 
-SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres@localhost:5432/quads")
+SQLALCHEMY_DATABASE_URI = os.getenv(
+    "SQLALCHEMY_DATABASE_URI", "postgresql://postgres@localhost:5432/quads"
+)
 ENGINE = create_engine(SQLALCHEMY_DATABASE_URI)
 
 Base.metadata.bind = ENGINE

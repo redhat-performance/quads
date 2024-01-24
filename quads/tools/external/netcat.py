@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import socket
 
 from quads.tools.helpers import get_running_loop

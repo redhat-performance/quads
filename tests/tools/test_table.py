@@ -10,9 +10,13 @@ from tests.tools.test_base import TestBase
 class TestTable(TestBase):
     def test_simple_table_web(self):
         Config.__setattr__("foreman_unavailable", True)
-        Config.__setattr__("visual_web_dir", os.path.join(os.path.dirname(__file__), "artifacts/"))
+        Config.__setattr__(
+            "visual_web_dir", os.path.join(os.path.dirname(__file__), "artifacts/")
+        )
         web_main()
-        current = open(os.path.join(os.path.dirname(__file__), "artifacts/current.html"), "r")
+        current = open(
+            os.path.join(os.path.dirname(__file__), "artifacts/current.html"), "r"
+        )
         current = [n for n in current.readlines() if "Emoji" not in n]
         current = "".join(current)
         response = f"""title=

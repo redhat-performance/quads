@@ -76,12 +76,13 @@ DISK_4_REQUEST = (
     {"disk_type": "scsi", "size_gb": 1000, "count": 2},
     "host3.example.com",
 )
-DISK_1_UPDATE_REQUEST = [{
-    "disk_id": 1,
-    "disk_type": "scsi",
-    "size_gb": 1000,
-    "count": 4,
-},
+DISK_1_UPDATE_REQUEST = [
+    {
+        "disk_id": 1,
+        "disk_type": "scsi",
+        "size_gb": 1000,
+        "count": 4,
+    },
     "host1.example.com",
 ]
 DISK_1_UPDATE_RESPONSE = {

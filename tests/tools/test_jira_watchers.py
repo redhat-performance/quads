@@ -16,7 +16,6 @@ from tests.cli.config import CLOUD, HOST1, DEFAULT_CLOUD
 
 
 class TestJiraWatchers(object):
-
     @patch("quads.tools.external.postman.SMTP")
     @patch("quads.tools.external.jira.aiohttp.ClientSession.put")
     @patch("quads.tools.external.jira.aiohttp.ClientSession.post")
@@ -29,39 +28,51 @@ class TestJiraWatchers(object):
         host_name = HOST1
         host = HostDao.get_host(host_name)
         cloud = CloudDao.get_cloud(cloud_name)
-        vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
-        assignment = AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id)
-        ScheduleDao.create_schedule(today.strftime("%Y-%m-%d %H:%M"), tomorrow.strftime("%Y-%m-%d %H:%M"),
-                                    assignment, host)
+        vlan = VlanDao.create_vlan(
+            "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+        )
+        assignment = AssignmentDao.create_assignment(
+            "test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id
+        )
+        ScheduleDao.create_schedule(
+            today.strftime("%Y-%m-%d %H:%M"),
+            tomorrow.strftime("%Y-%m-%d %H:%M"),
+            assignment,
+            host,
+        )
         resp = AsyncMock()
         resp.json.side_effect = [
-            {"issues": [
-                {
-                    "name": "unitest", "key": "1",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
-                                       "more time to make unittests",
-                        "parent": {
-                            "key": "5"
+            {
+                "issues": [
+                    {
+                        "name": "unitest",
+                        "key": "1",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
+                            "more time to make unittests",
+                            "parent": {"key": "5"},
+                            "labels": ["EXTENSION"],
                         },
-                        "labels": ["EXTENSION"]}
-                },
-                {
-                    "name": "unitest3", "key": "4",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
-                                       "more time to make unittests",
-                        "labels": ["EXPANSION"]
-                    }
-                },
-                {
-                    "name": "unitest3", "key": "4",
-                    "fields": {
-                        "description": "Submitted by: unittest@gmail.com\n",
-                        "labels": ["EXPANSION"]
-                    }
-                }
-            ]},
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "4",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
+                            "more time to make unittests",
+                            "labels": ["EXPANSION"],
+                        },
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "4",
+                        "fields": {
+                            "description": "Submitted by: unittest@gmail.com\n",
+                            "labels": ["EXPANSION"],
+                        },
+                    },
+                ]
+            },
             {"issues": [{"statusCategory": 4, "name": "unitest", "key": "2"}]},
             {"watchers": [{"key": "1"}]},
         ]
@@ -96,39 +107,51 @@ class TestJiraWatchers(object):
         host_name = HOST1
         host = HostDao.get_host(host_name)
         cloud = CloudDao.get_cloud(cloud_name)
-        vlan = VlanDao.create_vlan("192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1)
-        assignment = AssignmentDao.create_assignment("test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id)
-        ScheduleDao.create_schedule(today.strftime("%Y-%m-%d %H:%M"), tomorrow.strftime("%Y-%m-%d %H:%M"),
-                                    assignment, host)
+        vlan = VlanDao.create_vlan(
+            "192.168.1.1", 122, "192.168.1.1/22", "255.255.255.255", 1
+        )
+        assignment = AssignmentDao.create_assignment(
+            "test", "test", "1234", 0, False, [""], cloud.name, vlan.vlan_id
+        )
+        ScheduleDao.create_schedule(
+            today.strftime("%Y-%m-%d %H:%M"),
+            tomorrow.strftime("%Y-%m-%d %H:%M"),
+            assignment,
+            host,
+        )
         resp = AsyncMock()
         resp.json.side_effect = [
-            {"issues": [
-                {
-                    "name": "unitest", "key": "1",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
-                                       "more time to make unittests",
-                        "parent": {
-                            "key": "5"
+            {
+                "issues": [
+                    {
+                        "name": "unitest",
+                        "key": "1",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {cloud_name}\nJustification: Need "
+                            "more time to make unittests",
+                            "parent": {"key": "5"},
+                            "labels": ["EXTENSION"],
                         },
-                        "labels": ["EXTENSION"]}
-                },
-                {
-                    "name": "unitest3", "key": "4",
-                    "fields": {
-                        "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
-                                       "more time to make unittests",
-                        "labels": ["EXPANSION"]
-                    }
-                },
-                {
-                    "name": "unitest3", "key": "4",
-                    "fields": {
-                        "description": "Submitted by: unittest@gmail.com\n",
-                        "labels": ["EXPANSION"]
-                    }
-                }
-            ]},
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "4",
+                        "fields": {
+                            "description": f"Submitted by: unittest@gmail.com\nCloud to extend: {DEFAULT_CLOUD}\nJustification: Need "
+                            "more time to make unittests",
+                            "labels": ["EXPANSION"],
+                        },
+                    },
+                    {
+                        "name": "unitest3",
+                        "key": "4",
+                        "fields": {
+                            "description": "Submitted by: unittest@gmail.com\n",
+                            "labels": ["EXPANSION"],
+                        },
+                    },
+                ]
+            },
             {"issues": [{"statusCategory": 4, "name": "unitest", "key": "2"}]},
             {"watchers": [{"key": "1"}]},
         ]
@@ -155,10 +178,7 @@ class TestJiraWatchers(object):
     @pytest.mark.asyncio
     async def test_main_empty(self, mock_get):
         resp = AsyncMock()
-        resp.json.side_effect = [
-            {"issues": []},
-            {"issues": []}
-        ]
+        resp.json.side_effect = [{"issues": []}, {"issues": []}]
         mock_get.return_value.__aenter__.return_value = resp
         Config.jira_url = "https://mock_jira.com"
         Config.jira_auth = "token"

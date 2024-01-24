@@ -12,7 +12,6 @@ from tests.cli.config import CLOUD
 
 
 class TestLshw(object):
-
     @patch("quads.tools.external.ssh_helper.SSHConfig")
     @patch("quads.tools.external.ssh_helper.SSHClient")
     def test_run_lshw(self, mock_client, mock_config):
@@ -64,7 +63,9 @@ class TestLshw(object):
     def test_main(self, mock_client, mock_config):
         mock_config.return_value = MagicMock()
         mock_client.return_value.exec_command.return_value = [
-            MagicMock(), MagicMock(), MagicMock()
+            MagicMock(),
+            MagicMock(),
+            MagicMock(),
         ]
 
         lshw_main()

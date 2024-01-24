@@ -1,6 +1,7 @@
 import logging
 import sys
 
+from quads.config import Config
 from quads.helpers import (
     date_span,
     first_day_month,
@@ -8,13 +9,14 @@ from quads.helpers import (
     month_delta_past,
 )
 from datetime import datetime, timedelta
-from quads.server.dao.host import HostDao
-from quads.server.dao.schedule import ScheduleDao
+
+from quads.quads_api import QuadsApi
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+quads = QuadsApi(Config)
 
 
 def report_available(_logger, _start, _end):
@@ -22,7 +24,7 @@ def report_available(_logger, _start, _end):
     end = _end.replace(hour=22, minute=0, second=0)
     next_sunday = start + timedelta(days=(6 - start.weekday()))
 
-    hosts = HostDao.filter_hosts(retired=False, broken=False)
+    hosts = quads.filter_hosts({"retired": False, "broken": False})
 
     _logger.info(f"QUADS report for {start.date()} to {end.date()}:")
 
@@ -30,12 +32,15 @@ def report_available(_logger, _start, _end):
     total_allocated_month = 0
     total_hosts = len(hosts)
     for _date in date_span(start, end):
-        total_allocated_month += len(ScheduleDao.get_current_schedule(date=_date))
+        total_allocated_month += len(
+            quads.get_current_schedules({"date": _date.strftime("%Y-%m-%dT%H:%M")})
+        )
         days += 1
     utilized = total_allocated_month * 100 // (total_hosts * days)
     _logger.info(f"Percentage Utilized: {utilized}%")
 
-    schedules = ScheduleDao.get_future_schedules()
+    # TODO: This should return future schedules as well
+    schedules = quads.get_current_schedules()
     total = timedelta()
     for schedule in schedules:
         if schedule.build_end and schedule.build_start:
@@ -65,22 +70,25 @@ def report_available(_logger, _start, _end):
         two_weeks_availability_count = 0
         four_weeks_availability_count = 0
         for host in _hosts:
-            schedule = ScheduleDao.get_current_schedule(host=host)
+            schedule = quads.get_current_schedules({"host": host})
             if schedule:
                 scheduled_count += 1
-
-            two_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name,
-                start=next_sunday,
-                end=next_sunday + timedelta(weeks=2),
-            )
+            future_end = next_sunday + timedelta(weeks=2)
+            data = {
+                "start": next_sunday.strftime("%Y-%m-%dT%H:%M"),
+                "end": future_end.strftime("%Y-%m-%dT%H:%M"),
+            }
+            two_weeks_availability = quads.is_available(host.name, data)
             if two_weeks_availability:
                 two_weeks_availability_count += 1
 
-            four_weeks_availability = ScheduleDao.is_host_available(
-                hostname=host.name,
-                start=next_sunday,
-                end=next_sunday + timedelta(weeks=4),
+            payload = {
+                "start": next_sunday.strftime("%Y-%m-%dT%H:%M"),
+                "end": (next_sunday + timedelta(weeks=4)).strftime("%Y-%m-%dT%H:%M"),
+            }
+            four_weeks_availability = quads.is_available(
+                host.name,
+                payload,
             )
             if four_weeks_availability:
                 four_weeks_availability_count += 1
@@ -121,16 +129,21 @@ def process_scheduled(_logger, month, now):
         _date = month_delta_past(now, month)
     start = first_day_month(_date)
     end = last_day_month(_date)
-
-    scheduled = len(ScheduleDao.filter_schedules(start, end))
-    hosts = len(HostDao.filter_hosts(retired=False, broken=False))
+    payload = {
+        "start": start.strftime("%Y-%m-%dT%H:%M"),
+        "end": end.strftime("%Y-%m-%dT%H:%M"),
+    }
+    scheduled = len(quads.get_schedules(payload))
+    hosts = len(quads.filter_hosts({"retired": False, "broken": False}))
 
     days = 0
     scheduled_count = 0
     utilization = 0
     for date in date_span(start, end):
         days += 1
-        scheduled_count += len(ScheduleDao.get_current_schedule(date=date))
+        scheduled_count += len(
+            quads.get_current_schedules({"date": date.strftime("%Y-%m-%dT%H:%M")})
+        )
     if hosts and days:
         utilization = scheduled_count * 100 // (days * hosts)
     f_month = f"{start.month:02}"
@@ -145,7 +158,11 @@ def process_scheduled(_logger, month, now):
 def report_detailed(_logger, _start, _end):
     start = _start.replace(hour=21, minute=59, second=0)
     end = _end.replace(hour=22, minute=1, second=0)
-    schedules = ScheduleDao.filter_schedules(start=start, end=end)
+    payload = {
+        "start": start.strftime("%Y-%m-%dT%H:%M"),
+        "end": end.strftime("%Y-%m-%dT%H:%M"),
+    }
+    schedules = quads.get_schedules(payload)
 
     headers = [
         "Owner",

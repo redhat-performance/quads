@@ -3,13 +3,13 @@ import asyncio
 import logging
 import sys
 
-from quads.server.dao.assignment import AssignmentDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.jira import Jira, JiraException
 from quads.config import Config
-from quads.server.dao.cloud import CloudDao
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+quads = QuadsApi(Config)
 
 
 async def main(_loop):
@@ -32,7 +32,7 @@ async def main(_loop):
         if parent is None:
             jira_ticket_keys.append(ticket_key)
 
-    assignments = AssignmentDao.get_active_assignments()
+    assignments = quads.get_active_assignments()
     cloud_ticket_keys = [assignment.ticket for assignment in assignments]
     expired_keys = [key for key in jira_ticket_keys if key not in cloud_ticket_keys]
 
@@ -43,11 +43,15 @@ async def main(_loop):
             t_name = transition.get("name")
             if t_name and t_name.lower() == "done":
                 transition_id = transition.get("id")
-                transition_result = await jira.post_transition(ticket_key, transition_id)
+                transition_result = await jira.post_transition(
+                    ticket_key, transition_id
+                )
                 break
 
         if not transition_result:
-            logger.warning(f"Failed to update ticket status, ticket key {ticket_key}, SKIPPING.")
+            logger.warning(
+                f"Failed to update ticket status, ticket key {ticket_key}, SKIPPING."
+            )
 
     return 0
 
