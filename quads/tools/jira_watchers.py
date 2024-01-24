@@ -7,14 +7,15 @@ import sys
 from datetime import timedelta
 from jinja2 import Template
 from quads.config import Config
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.schedule import ScheduleDao
+from quads.quads_api import QuadsApi
 
 from quads.tools.external.jira import Jira, JiraException
 from quads.tools.external.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+
+quads = QuadsApi(Config)
 
 
 async def main(_loop):
@@ -46,14 +47,15 @@ async def main(_loop):
                 continue
 
             if "EXTENSION" in fields.get("labels"):
-                cloud_obj = CloudDao.get_cloud(cloud)
-                schedules = ScheduleDao.get_current_schedule(cloud=cloud_obj)
+                schedules = quads.get_current_schedules({"cloud": cloud})
                 conflict = False
                 for schedule in schedules:
                     end_date = schedule.end + timedelta(weeks=2)
-                    available = ScheduleDao.is_host_available(
-                        hostname=schedule.host.name, start=schedule.end, end=end_date
-                    )
+                    data = {
+                        "start": schedule.end.strftime("%Y-%m-%dT%H:%M"),
+                        "end": end_date.strftime("%Y-%m-%dT%H:%M"),
+                    }
+                    available = quads.is_available(schedule.host.name, data)
                     if not available:
                         conflict = True
                         await jira.add_label(ticket_key, no_extend_label)

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import logging
@@ -46,14 +46,16 @@ def verify(_cloud_name, _host_name, change=False):
         )
         logger.warning("!!!!! Be certain this is what you want to do. !!!!!")
 
+    _assignment = quads.get_active_cloud_assignment(_cloud_obj.name)
+
     for _host_obj in hosts:
         logger.info(f"Host: {_host_obj.name}")
         if _host_obj.interfaces:
-            interfaces = sorted(_host_obj.interfaces, key=lambda k: k["name"])
+            interfaces = sorted(_host_obj.interfaces, key=lambda k: k.name)
             for i, interface in enumerate(interfaces):
                 ssh_helper = SSHHelper(interface.switch_ip, Config["junos_username"])
                 last_nic = i == len(_host_obj.interfaces) - 1
-                vlan = get_vlan(_cloud_obj, i, last_nic)
+                vlan = get_vlan(_assignment, i, last_nic)
 
                 try:
                     _, old_vlan_out = ssh_helper.run_cmd(

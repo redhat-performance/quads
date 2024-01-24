@@ -40,9 +40,7 @@ metadata = MetaData(naming_convention=convention)
 Base = declarative_base(metadata=metadata)
 db = SQLAlchemy()
 migrate = Migrate()
-SQLALCHEMY_DATABASE_URI = os.getenv(
-    "SQLALCHEMY_DATABASE_URI", "postgresql://postgres:postgres@quads_db:5432/quads"
-)
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres:postgres@quads_db:5432/quads")
 Engine = create_engine(SQLALCHEMY_DATABASE_URI)
 Base.query = db.session.query_property()
 
@@ -63,7 +61,7 @@ class Serialize:
     def as_dict(self):
         obj_attrs = inspect(self).mapper.attrs
         result = {}
-        for i, attr in enumerate(obj_attrs):
+        for attr in obj_attrs:
             if attr.key == "cloud":
                 cloud = getattr(self, attr.key)
                 if cloud:
@@ -136,7 +134,7 @@ class Serialize:
 
     def from_dict(self, data):
         obj_attrs = inspect(self).mapper.attrs
-        for i, attr in enumerate(obj_attrs):
+        for attr in obj_attrs:
             if attr.key in ["cloud", "default_cloud"]:
                 if type(data) == dict:
                     value = data.get(attr.key)
@@ -278,18 +276,14 @@ class User(Base, UserMixin):
                 "iat": datetime.utcnow(),
                 "sub": user_email,
             }
-            return encode(
-                payload, current_app.config.get("SECRET_KEY"), algorithm="HS256"
-            )
+            return encode(payload, current_app.config.get("SECRET_KEY"), algorithm="HS256")
         except Exception as e:
             return e
 
     @staticmethod
     def decode_auth_token(auth_token):
         try:
-            payload = decode(
-                auth_token, current_app.config.get("SECRET_KEY"), algorithms="HS256"
-            )
+            payload = decode(auth_token, current_app.config.get("SECRET_KEY"), algorithms="HS256")
             is_token_blacklisted = TokenBlackList.check_blacklist(auth_token)
             if is_token_blacklisted:
                 return "Token blacklisted. Please log in again."
@@ -382,9 +376,7 @@ class Cloud(Serialize, Base):
     last_redefined = Column(DateTime, default=func.now())
 
     def __repr__(self):
-        return "<Cloud(id='{}', name='{}', last_redefined='{}')>".format(
-            self.id, self.name, self.last_redefined
-        )
+        return "<Cloud(id='{}', name='{}', last_redefined='{}')>".format(self.id, self.name, self.last_redefined)
 
 
 class Assignment(Serialize, TimestampMixin, Base):
@@ -405,9 +397,7 @@ class Assignment(Serialize, TimestampMixin, Base):
     cloud = relationship("Cloud", foreign_keys=[cloud_id])
 
     # one-to-one parent
-    notification = relationship(
-        "Notification", cascade="all, delete-orphan", uselist=False
-    )
+    notification = relationship("Notification", cascade="all, delete-orphan", uselist=False)
 
     # one-to-one parent
     vlan_id = Column(Integer, ForeignKey("vlans.id"))
@@ -457,9 +447,7 @@ class Memory(Serialize, Base):
     host_id = Column(Integer, ForeignKey("hosts.id"))
 
     def __repr__(self):
-        return "<Memory(id='{}', handle='{}', size_gb='{}')>".format(
-            self.id, self.handle, self.size_gb
-        )
+        return "<Memory(id='{}', handle='{}', size_gb='{}')>".format(self.id, self.handle, self.size_gb)
 
 
 class Processor(Serialize, Base):

@@ -160,13 +160,6 @@ class QuadsApi:
             clouds.append(Cloud(**cloud))
         return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
 
-    def filter_clouds(self, data) -> List[Cloud]:
-        response = self.get("clouds", **data)
-        clouds = []
-        for cloud in response.json():
-            clouds.append(Cloud(**cloud))
-        return clouds
-
     def get_cloud(self, cloud_name) -> Optional[Cloud]:
         cloud_obj = None
         response = self.get(os.path.join("clouds", cloud_name))
@@ -259,6 +252,9 @@ class QuadsApi:
     def update_assignment(self, assignment_id, data) -> Response:
         return self.patch(os.path.join("assignments", str(assignment_id)), data)
 
+    def update_notification(self, notification_id, data) -> Response:
+        return self.patch(os.path.join("notifications", str(notification_id)), data)
+
     def get_active_cloud_assignment(self, cloud_name) -> Assignment:
         response = self.get(os.path.join("assignments/active", cloud_name))
         data = response.json()
@@ -277,10 +273,6 @@ class QuadsApi:
             assignments.append(ass_object)
 
         return assignments
-
-    def get_assignment(self, **kwargs) -> Response:
-        # TODO:fix this
-        return self.get("assignments", **kwargs)
 
     # Interfaces
     def get_host_interface(self, hostname) -> List[Interface]:

@@ -14,7 +14,9 @@ from quads.tools.external.juniper import Juniper
 from quads.tools.external.ssh_helper import SSHHelper, SSHHelperException
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 quads = QuadsApi(Config)
 
 
@@ -43,7 +45,9 @@ def switch_config(host, old_cloud, new_cloud):
                 ssh_helper.disconnect()
                 switch_ip = interface.switch_ip
                 ssh_helper = SSHHelper(switch_ip, Config["junos_username"])
-        result, old_vlan_out = ssh_helper.run_cmd("show configuration interfaces %s" % interface.switch_port)
+        result, old_vlan_out = ssh_helper.run_cmd(
+            "show configuration interfaces %s" % interface.switch_port
+        )
         old_vlan = None
         if result and old_vlan_out:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
@@ -77,19 +81,27 @@ def switch_config(host, old_cloud, new_cloud):
                 if success:
                     logger.info("Successfully updated switch settings.")
                 else:
-                    logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
+                    logger.error(
+                        "There was something wrong updating switch for %s:%s"
+                        % (host, interface.name)
+                    )
                     if ssh_helper:
                         ssh_helper.disconnect()
                     return False
         else:
             if int(old_vlan) != int(new_vlan):
-                juniper = Juniper(interface.switch_ip, interface.switch_port, old_vlan, new_vlan)
+                juniper = Juniper(
+                    interface.switch_ip, interface.switch_port, old_vlan, new_vlan
+                )
                 success = juniper.set_port()
 
                 if success:
                     logger.info("Successfully updated switch settings.")
                 else:
-                    logger.error("There was something wrong updating switch for %s:%s" % (host, interface.name))
+                    logger.error(
+                        "There was something wrong updating switch for %s:%s"
+                        % (host, interface.name)
+                    )
                     if ssh_helper:
                         ssh_helper.disconnect()
                     return False
@@ -115,7 +127,9 @@ async def execute_ipmi(host, arguments, semaphore):
     logger.debug("Executing IPMI with argmuents: %s" % arguments)
     cmd = ipmi_cmd + arguments
     async with semaphore:
-        process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
+        process = await asyncio.create_subprocess_exec(
+            *cmd, stdout=asyncio.subprocess.PIPE
+        )
         stdout, stderr = await process.communicate()
         logger.debug(f"{stdout.decode().strip()}")
 
@@ -152,8 +166,10 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     ticket = ""
     _assignment = quads.get_active_cloud_assignment(_target_cloud.name)
     if _assignment:
-        ticket = _assignment[0].ticket
-    ipmi_new_pass = f"{Config['infra_location']}@{ticket}" if ticket else Config["ipmi_password"]
+        ticket = _assignment.ticket
+    ipmi_new_pass = (
+        f"{Config['infra_location']}@{ticket}" if ticket else Config["ipmi_password"]
+    )
 
     ipmi_set_pass = [
         "user",
@@ -183,12 +199,16 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                 propagate=True,
             )
         except BadfishException:
-            logger.error(f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}.")
+            logger.error(
+                f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
+            )
             return False
 
         if is_supported(host):
             try:
-                interfaces_path = os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml")
+                interfaces_path = os.path.join(
+                    os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"
+                )
                 await badfish.change_boot("director", interfaces_path)
 
                 # wait 10 minutes for the boot order job to complete
@@ -237,13 +257,17 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
         for result in foreman_results:
             if isinstance(result, Exception) or not result:
-                logger.error("There was something wrong setting Foreman host parameters.")
+                logger.error(
+                    "There was something wrong setting Foreman host parameters."
+                )
                 return False
         if is_supported(host):
             try:
                 await badfish.boot_to_type(
                     "foreman",
-                    os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"),
+                    os.path.join(
+                        os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"
+                    ),
                 )
                 await badfish.reboot_server(graceful=False)
             except BadfishException:
@@ -266,11 +290,15 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     "pxe",
                     "options=persistent",
                 ]
-                await execute_ipmi(host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore)
+                await execute_ipmi(
+                    host, arguments=ipmi_pxe_persistent, semaphore=new_semaphore
+                )
                 await ipmi_reset(host, new_semaphore)
             except Exception as ex:
                 logger.debug(ex)
-                logger.error(f"There was something wrong setting PXE flag or resetting IPMI on {host}.")
+                logger.error(
+                    f"There was something wrong setting PXE flag or resetting IPMI on {host}."
+                )
 
     if _target_cloud.name == _host_obj.default_cloud.name:
         if not badfish:
@@ -282,7 +310,9 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
                     propagate=True,
                 )
             except BadfishException:
-                logger.error(f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}.")
+                logger.error(
+                    f"Could not initialize Badfish. Verify ipmi credentials for mgmt-{host}."
+                )
                 return False
 
         await badfish.set_power_state("off")
@@ -291,15 +321,15 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     schedule = quads.get_current_schedules(data)
     if schedule:
         data = {
-            "build_start": build_start.isoformat()[:-3],
-            "build_end": datetime.now().isoformat()[:-3],
+            "build_start": build_start.strftime("%Y-%m-%dT%H:%M"),
+            "build_end": datetime.now().strftime("%Y-%m-%dT%H:%M"),
         }
         quads.update_schedule(schedule[0].id, data)
     logger.debug("Updating host: %s")
     data = {
         "cloud": _target_cloud.name,
-        "build": False,
-        "last_build": datetime.now().isoformat()[:-3],
+        "build": True,
+        "last_build": datetime.now().strftime("%Y-%m-%dT%H:%M"),
         "validated": False,
     }
     quads.update_host(_host_obj.name, data)

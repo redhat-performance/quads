@@ -4,10 +4,11 @@ import os
 import pathlib
 import re
 
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.host import HostDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.foreman import Foreman
 from quads.config import Config
+
+quads = QuadsApi(Config)
 
 HEADERS = [
     "U",
@@ -55,7 +56,7 @@ def render_row(host_obj, _properties):
         host_obj.cloud.name,
         host_obj.cloud.name,
     )
-    assignment = AssignmentDao.get_active_cloud_assignment(host_obj.cloud)
+    assignment = quads.get_active_cloud_assignment(host_obj.cloud.name)
     row = [
         u_loc,
         host_obj.name.split(".")[0],
@@ -124,7 +125,7 @@ def main():
 
                 for host, properties in hosts.items():
                     if rack in host:
-                        host_obj = HostDao.get_host(host)
+                        host_obj = quads.get_host(host)
                         if host_obj and not host_obj.retired:
                             _f.write(render_row(host_obj, properties))
                 _f.write("\n")

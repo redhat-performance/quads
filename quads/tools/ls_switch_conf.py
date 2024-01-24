@@ -4,25 +4,23 @@ import argparse
 import logging
 
 from quads.config import Config
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.ssh_helper import SSHHelper
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+quads = QuadsApi(Config)
 
 
 def verify(args):
-    _cloud_obj = CloudDao.get_cloud(args.cloud)
-    _assignment = AssignmentDao.get_active_cloud_assignment(_cloud_obj)
+    _assignment = quads.get_active_cloud_assignment(args.cloud)
 
     if not _assignment:
         logger.error("Cloud not found.")
         return
     logger.info(f"Cloud qinq: {_assignment.qinq}")
 
-    hosts = HostDao.filter_hosts(cloud=_cloud_obj)
+    hosts = quads.filter_hosts({"cloud": args.cloud})
     if args.all:
         hosts = [hosts[0]]
 

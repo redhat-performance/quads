@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import asyncio
 import json
@@ -10,11 +10,11 @@ from distutils.util import strtobool
 from datetime import datetime
 from shutil import copyfile
 
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.foreman import Foreman
 from quads.config import Config
+
+quads = QuadsApi(Config)
 
 
 async def make_env_json(filename):
@@ -27,7 +27,7 @@ async def make_env_json(filename):
         loop=loop,
     )
 
-    cloud_list = CloudDao.get_clouds()
+    cloud_list = quads.get_clouds()
 
     if not os.path.exists(Config["json_web_path"]):
         os.makedirs(Config["json_web_path"])
@@ -35,12 +35,15 @@ async def make_env_json(filename):
     now = time.time()
     old_jsons = [file for file in os.listdir(Config["json_web_path"]) if ":" in file]
     for file in old_jsons:
-        if os.stat(os.path.join(Config["json_web_path"], file)).st_mtime < now - Config["json_retention_days"] * 86400:
+        if (
+            os.stat(os.path.join(Config["json_web_path"], file)).st_mtime
+            < now - Config["json_retention_days"] * 86400
+        ):
             os.remove(os.path.join(Config["json_web_path"], file))
 
     for cloud in cloud_list:
-        host_list = HostDao.filter_hosts(cloud=cloud)
-        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+        host_list = quads.filter_hosts({"cloud": cloud.name})
+        assignment = quads.get_active_cloud_assignment(cloud.name)
         foreman_password = Config["ipmi_password"]
         if assignment and assignment.ticket:
             foreman_password = f"{Config['infra_location']}@{assignment.ticket}"
@@ -50,7 +53,9 @@ async def make_env_json(filename):
             if Config["foreman_unavailable"]:
                 overcloud = {"result": "true"}
             else:
-                overcloud = loop.run_until_complete(foreman.get_host_param(host.name, "overcloud"))
+                overcloud = loop.run_until_complete(
+                    foreman.get_host_param(host.name, "overcloud")
+                )
 
             if not overcloud:
                 overcloud = {"result": "true"}
@@ -71,7 +76,10 @@ async def make_env_json(filename):
                         if interface.pxe_boot:
                             mac.append(interface.mac_address)
                 if filename == "ocpinventory":
-                    mac = [interface.mac_address for interface in sorted(host.interfaces, key=lambda k: k.name)]
+                    mac = [
+                        interface.mac_address
+                        for interface in sorted(host.interfaces, key=lambda k: k.name)
+                    ]
                 data["nodes"].append(
                     {
                         "name": host.name,
@@ -97,7 +105,9 @@ async def make_env_json(filename):
             Config["json_web_path"],
             "%s_%s.json_%s" % (cloud.name, filename, now.strftime("%Y-%m-%d_%H:%M:%S")),
         )
-        json_file = os.path.join(Config["json_web_path"], "%s_%s.json" % (cloud.name, filename))
+        json_file = os.path.join(
+            Config["json_web_path"], "%s_%s.json" % (cloud.name, filename)
+        )
         with open(new_json_file, "w+") as _json_file:
             _json_file.seek(0)
             _json_file.write(content)

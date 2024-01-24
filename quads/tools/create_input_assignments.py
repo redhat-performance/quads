@@ -7,10 +7,10 @@ import requests
 
 from datetime import datetime
 from quads.config import Config
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
-from quads.server.dao.schedule import ScheduleDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.foreman import Foreman
+
+quads = QuadsApi(Config)
 
 HEADERS = [
     "ServerHostnamePublic",
@@ -70,18 +70,24 @@ def print_summary():
         style_tag_end = "</span>"
         if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
+            instack_link = os.path.join(
+                Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
+            )
             instack_text = "download"
-            ocpinv_link = os.path.join(Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
+            ocpinv_link = os.path.join(
+                Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
+            )
             ocpinv_text = "download"
             status = (
                 '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" '
                 'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
             )
         else:
-            cloud_obj = CloudDao.get_cloud(cloud_name)
-            scheduled_hosts = len(ScheduleDao.get_current_schedule(cloud=cloud_obj))
-            moved_hosts = len(HostDao.filter_hosts(cloud=cloud_obj))
+            cloud_obj = quads.get_cloud(cloud_name)
+            scheduled_hosts = len(
+                quads.get_current_schedules({"cloud": cloud_obj.name})
+            )
+            moved_hosts = len(quads.filter_hosts({"cloud": cloud_obj.name}))
             percent = moved_hosts / scheduled_hosts * 100
             style_tag_start = '<span style="color:red">'
             instack_link = "#"
@@ -110,7 +116,8 @@ def print_summary():
                 status = (
                     '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
                     'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
-                    'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
+                    'class="%s">%.0f%%</span></span>'
+                    % (percent, percent, " ".join(classes), percent)
                 )
 
         _data = [
@@ -137,7 +144,9 @@ def print_summary():
                 )
             else:
                 factstyle_tag_start = '<span style="color:red">'
-                ansible_facts_link = os.path.join(Config["quads_url"], "underconstruction")
+                ansible_facts_link = os.path.join(
+                    Config["quads_url"], "underconstruction"
+                )
             if cloud_name == "cloud01":
                 _data.append("")
                 _data.append("")
@@ -145,10 +154,12 @@ def print_summary():
                 _data.append("")
             else:
                 _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>" % (instack_link, style_tag_start, instack_text, style_tag_end)
+                    "<a href=%s target=_blank>%s%s%s</a>"
+                    % (instack_link, style_tag_start, instack_text, style_tag_end)
                 )
                 _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>" % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
+                    "<a href=%s target=_blank>%s%s%s</a>"
+                    % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
                 )
                 _data.append(status)
                 _data.append(
@@ -176,8 +187,8 @@ def print_summary():
 
         _summary.append("| %s |\n" % " | ".join(_data))
 
-    _host_count = len(HostDao.filter_hosts(broken=False, retired=False))
-    _schedules = len(ScheduleDao.get_current_schedule())
+    _host_count = len(quads.filter_hosts({"broken": False, "retired": False}))
+    _schedules = len(quads.get_current_schedules())
     _daily_percentage = _schedules * 100 // _host_count
     _summary.append(f"| Total | {_host_count} |\n")
     _summary.append("\n")
@@ -197,10 +208,13 @@ def print_unmanaged(hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host, properties in hosts.items():
         real_host = host[5:]
-        host_obj = HostDao.get_host(real_host)
+        host_obj = quads.get_host(real_host)
         if not host_obj:
             short_host = real_host.split(".")[0]
-            lines.append("| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host))
+            lines.append(
+                "| %s | <a href=http://%s/ target=_blank>console</a> |\n"
+                % (short_host, host)
+            )
     return lines
 
 
@@ -211,7 +225,10 @@ def print_faulty(broken_hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host in broken_hosts:
         short_host = host.name.split(".")[0]
-        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host.name))
+        lines.append(
+            "| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n"
+            % (short_host, host.name)
+        )
     return lines
 
 
@@ -220,7 +237,7 @@ def add_row(host):
     short_host = host.name.split(".")[0]
 
     _schedule_obj = None
-    _schedules = ScheduleDao.get_current_schedule(host=host)
+    _schedules = quads.get_current_schedules({"host": host})
     if _schedules:
         _schedule_obj = _schedules[0]
 
@@ -267,10 +284,14 @@ def main():
 
     lines = []
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
-    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
+    blacklist = re.compile(
+        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
+    )
 
-    broken_hosts = HostDao.filter_hosts(broken=False)
-    domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
+    broken_hosts = quads.filter_hosts({"broken": False})
+    domain_broken_hosts = [
+        host for host in broken_hosts if Config["domain"] in host.name
+    ]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -295,11 +316,16 @@ def main():
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
+        lines.append(
+            "### **%s : %s (%s) -- %s**\n\n"
+            % (name.strip(), cloud["count"], cloud["description"], owner)
+        )
         lines.extend(print_header())
-        _cloud_obj = CloudDao.get_cloud(name)
+        _cloud_obj = quads.get_cloud(name)
         _hosts = sorted(
-            HostDao.filter_hosts(cloud=_cloud_obj, retired=False, broken=False),
+            quads.filter_hosts(
+                {"cloud": _cloud_obj.name, "retired": False, "broken": False}
+            ),
             key=lambda x: x.name,
         )
         for host in _hosts:
