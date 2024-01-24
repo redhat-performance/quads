@@ -152,7 +152,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     ticket = ""
     _assignment = quads.get_active_cloud_assignment(_target_cloud.name)
     if _assignment:
-        ticket = _assignment[0].ticket
+        ticket = _assignment.ticket
     ipmi_new_pass = f"{Config['infra_location']}@{ticket}" if ticket else Config["ipmi_password"]
 
     ipmi_set_pass = [
@@ -291,15 +291,15 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
     schedule = quads.get_current_schedules(data)
     if schedule:
         data = {
-            "build_start": build_start.isoformat()[:-3],
-            "build_end": datetime.now().isoformat()[:-3],
+            "build_start": build_start.strftime("%Y-%m-%dT%H:%M"),
+            "build_end": datetime.now().strftime("%Y-%m-%dT%H:%M"),
         }
         quads.update_schedule(schedule[0].id, data)
     logger.debug("Updating host: %s")
     data = {
         "cloud": _target_cloud.name,
-        "build": False,
-        "last_build": datetime.now().isoformat()[:-3],
+        "build": True,
+        "last_build": datetime.now().strftime("%Y-%m-%dT%H:%M"),
         "validated": False,
     }
     quads.update_host(_host_obj.name, data)

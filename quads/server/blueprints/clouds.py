@@ -7,7 +7,6 @@ from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
-from quads.server.models import db
 
 cloud_bp = Blueprint("clouds", __name__)
 

@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 from quads.config import Config
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.schedule import ScheduleDao
-from quads.server.dao.assignment import AssignmentDao
+from quads.quads_api import QuadsApi
 from quads.tools.external.foreman import Foreman
 
 import asyncio
@@ -14,6 +12,8 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.propagate = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+quads = QuadsApi(Config)
 
 
 def main(_logger=None):
@@ -33,9 +33,9 @@ def main(_logger=None):
     ignore = [Config["spare_pool_name"]]
     if Config.foreman_rbac_exclude:
         ignore.extend(Config.foreman_rbac_exclude.split("|"))
-    clouds = CloudDao.get_clouds()
+    clouds = quads.get_clouds()
     for cloud in clouds:
-        ass = AssignmentDao.get_active_cloud_assignment(cloud=cloud)
+        ass = quads.get_active_cloud_assignment(cloud.name)
         if ass:
             infra_pass = f"{Config['infra_location']}@{ass.ticket}"
             loop.run_until_complete(foreman_admin.update_user_password(cloud.name, infra_pass))
@@ -55,7 +55,7 @@ def main(_logger=None):
                 user_id = loop.run_until_complete(foreman_admin.get_user_id(cloud.name))
                 admin_id = loop.run_until_complete(foreman_admin.get_user_id(Config["foreman_username"]))
 
-                current_schedule = ScheduleDao.get_current_schedule(cloud=cloud)
+                current_schedule = quads.get_current_schedules({"cloud": cloud.name})
                 if current_schedule:
 
                     logger.info("  Current Host Permissions:")

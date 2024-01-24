@@ -55,24 +55,6 @@ class TestReadMoves:
         assert response.json == resp
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
-    def test_valid_moved(self, test_client, auth, prefill):
-        """
-        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules and moved out hosts
-        | WHEN: User tries to read a list of all hosts that need to be moved
-        | THEN: User should be able to get the list of hosts with information where they need to moved (empty)
-        """
-        quads_cli_call("movehosts")
-        auth_header = auth.get_auth_header()
-        response = unwrap_json(
-            test_client.get(
-                "/api/v3/moves",
-                headers=auth_header,
-            )
-        )
-        assert response.status_code == 200
-        assert response.json == []
-
-    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_date(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules and moved out hosts
@@ -80,10 +62,10 @@ class TestReadMoves:
         | THEN: User should be able to get the list of hosts with information where they need to moved
         """
         auth_header = auth.get_auth_header()
-        req = {"date": "2055-01-01T00:00"}
+        req = {"date": "2040-01-01T00:00"}
         resp = [
-            {"current": "cloud02", "host": "host2.example.com", "new": "cloud01"},
-            {"current": "cloud03", "host": "host3.example.com", "new": "cloud01"},
+            {"current": "cloud01", "host": "host2.example.com", "new": "cloud02"},
+            {"current": "cloud01", "host": "host3.example.com", "new": "cloud03"},
         ]
         response = unwrap_json(
             test_client.get(

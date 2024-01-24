@@ -9,15 +9,13 @@ from enum import Enum
 
 from jinja2 import Template
 from quads.config import Config
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.schedule import ScheduleDao
+from quads.quads_api import QuadsApi, APIServerException, APIBadRequest
 from quads.tools.external.netcat import Netcat
 from quads.tools.external.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+quads = QuadsApi(Config)
 
 
 class Days(Enum):
@@ -192,11 +190,18 @@ def main(_logger=None):
     if _logger:
         logger = _logger
 
-    _all_clouds = CloudDao.get_clouds()
-    _assignments = AssignmentDao.filter_assignments({"active": True, "validated": True})
+    _all_clouds = quads.get_clouds()
+    _assignments = quads.filter_assignments({"active": True, "validated": True})
 
     for ass in _assignments:
-        current_hosts = ScheduleDao.get_current_schedule(cloud=ass.cloud)
+
+        payload = {"cloud": ass.cloud.name}
+        try:
+            current_hosts = quads.get_current_schedules(payload)
+        except (APIServerException, APIBadRequest) as ex:
+            logger.debug(str(ex))
+            logger.error("Could not get current schedules")
+
         cloud_info = "%s: %s (%s)" % (
             ass.cloud.name,
             len(current_hosts),
@@ -213,19 +218,25 @@ def main(_logger=None):
                     ass.ccuser,
                 )
             )
-            ass.notification.initial = True
-            BaseDao.safe_commit()
+            try:
+                quads.update_notification(ass.notification.id, {"initial": True})
+            except (APIServerException, APIBadRequest) as ex:
+                logger.debug(str(ex))
+                logger.error("Could not update notification: %s." % ass.notification.id)
 
         for day in Days:
             future = datetime.now() + timedelta(days=day.value)
-            future_date = "%4d-%.2d-%.2d 22:00" % (
+            future_date = "%4d-%.2d-%.2dT22:00" % (
                 future.year,
                 future.month,
                 future.day,
             )
-            future_hosts = ScheduleDao.get_current_schedule(
-                cloud=ass.cloud, date=datetime.strptime(future_date, "%Y-%m-%d %H:%M")
-            )
+            payload = {"cloud": ass.cloud.name, "date": future_date}
+            try:
+                future_hosts = quads.get_current_schedules(payload)
+            except (APIServerException, APIBadRequest) as ex:
+                logger.debug(str(ex))
+                logger.error("Could not get current schedules")
 
             diff = set(current_hosts) - set(future_hosts)
             if diff and future > current_hosts[0].end:
@@ -239,16 +250,27 @@ def main(_logger=None):
                         cloud_info,
                         host_list,
                     )
-                    setattr(ass.notification, day.name.lower(), True)
-                    BaseDao.safe_commit()
+
+                    try:
+                        quads.update_notification(ass.notification.id, {day.name.lower(): True})
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not update notification: %s." % ass.notification.id)
+
                     break
 
     for cloud in _all_clouds:
-        ass = AssignmentDao.get_active_cloud_assignment(cloud)
+        ass = quads.get_active_cloud_assignment(cloud.name)
         if not ass:
             continue
         if cloud.name != Config["spare_pool_name"] and ass.owner not in ["quads", None]:
-            current_hosts = ScheduleDao.get_current_schedule(cloud=cloud)
+            payload = {"cloud": ass.cloud.name}
+            try:
+                current_hosts = quads.get_current_schedules(payload)
+            except (APIServerException, APIBadRequest) as ex:
+                logger.debug(str(ex))
+                logger.error("Could not get current schedules")
+
             cloud_info = "%s: %s (%s)" % (
                 cloud.name,
                 len(current_hosts),
@@ -262,21 +284,27 @@ def main(_logger=None):
                     ass,
                     cloud_info,
                 )
-                setattr(ass.notification, "pre_initial", True)
-                BaseDao.safe_commit()
+
+                try:
+                    quads.update_notification(ass.notification.id, {"pre_initial": True})
+                except (APIServerException, APIBadRequest) as ex:
+                    logger.debug(str(ex))
+                    logger.error("Could not update notification: %s." % ass.notification.id)
 
             for day in Days:
                 if not ass.notification.pre and ass.validated:
                     future = datetime.now() + timedelta(days=day.value)
-                    future_date = "%4d-%.2d-%.2d 22:00" % (
+                    future_date = "%4d-%.2d-%.2dT22:00" % (
                         future.year,
                         future.month,
                         future.day,
                     )
-                    future_hosts = ScheduleDao.get_current_schedule(
-                        cloud=cloud,
-                        date=datetime.strptime(future_date, "%Y-%m-%d %H:%M"),
-                    )
+                    payload = {"cloud": ass.cloud.name, "date": future_date}
+                    try:
+                        future_hosts = quads.get_current_schedules(payload)
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not get current schedules")
 
                     if len(future_hosts) > 0:
                         diff = set(current_hosts) - set(future_hosts)
@@ -290,8 +318,13 @@ def main(_logger=None):
                                 cloud_info,
                                 host_list,
                             )
-                            setattr(ass.notification, "pre", True)
-                            BaseDao.safe_commit()
+
+                            try:
+                                quads.update_notification(ass.notification.id, {"pre": True})
+                            except (APIServerException, APIBadRequest) as ex:
+                                logger.debug(str(ex))
+                                logger.error("Could not update notification: %s." % ass.notification.id)
+
                             break
 
 
