@@ -1,6 +1,5 @@
 import asyncio
 import functools
-import json
 import logging
 import os
 import subprocess
@@ -1491,7 +1490,8 @@ class QuadsCli:
                                 host,
                                 {
                                     "switch_config_applied": False,
-                                    "cloud": target_assignment.cloud.name,
+                                    "provisioned": False,
+                                    "build": False,
                                 },
                             )
                         except (APIServerException, APIBadRequest) as ex:
@@ -1605,7 +1605,7 @@ class QuadsCli:
                         try:
                             _new_cloud_obj = self.quads.get_cloud(_cloud)
                             assignment = self.quads.get_active_cloud_assignment(_new_cloud_obj.name)
-                            validate = assignment.wipe
+                            validate = not assignment.wipe
                             self.quads.update_assignment(
                                 assignment.id,
                                 {"provisioned": True, "validated": validate},

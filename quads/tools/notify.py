@@ -9,15 +9,13 @@ from enum import Enum
 
 from jinja2 import Template
 from quads.config import Config
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.schedule import ScheduleDao
+from quads.quads_api import QuadsApi, APIServerException, APIBadRequest
 from quads.tools.external.netcat import Netcat
 from quads.tools.external.postman import Postman
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+quads = QuadsApi(Config)
 
 
 class Days(Enum):
@@ -192,7 +190,7 @@ def main(_logger=None):
     if _logger:
         logger = _logger
 
-    _all_clouds = CloudDao.get_clouds()
+    _all_clouds = quads.get_clouds()
     _assignments = AssignmentDao.filter_assignments({"active": True, "validated": True})
 
     for ass in _assignments:
@@ -213,8 +211,11 @@ def main(_logger=None):
                     ass.ccuser,
                 )
             )
-            ass.notification.initial = True
-            BaseDao.safe_commit()
+            try:
+                quads.update_notification(ass.notification.id, {"initial": True})
+            except (APIServerException, APIBadRequest) as ex:
+                logger.debug(str(ex))
+                logger.error("Could not update notification: %s." % ass.notification.id)
 
         for day in Days:
             future = datetime.now() + timedelta(days=day.value)
@@ -239,12 +240,17 @@ def main(_logger=None):
                         cloud_info,
                         host_list,
                     )
-                    setattr(ass.notification, day.name.lower(), True)
-                    BaseDao.safe_commit()
+
+                    try:
+                        quads.update_notification(ass.notification.id, {day.name.lower(): True})
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not update notification: %s." % ass.notification.id)
+
                     break
 
     for cloud in _all_clouds:
-        ass = AssignmentDao.get_active_cloud_assignment(cloud)
+        ass = quads.get_active_cloud_assignment(cloud.name)
         if not ass:
             continue
         if cloud.name != Config["spare_pool_name"] and ass.owner not in ["quads", None]:
@@ -262,8 +268,12 @@ def main(_logger=None):
                     ass,
                     cloud_info,
                 )
-                setattr(ass.notification, "pre_initial", True)
-                BaseDao.safe_commit()
+
+                try:
+                    quads.update_notification(ass.notification.id, {"pre_initial": True})
+                except (APIServerException, APIBadRequest) as ex:
+                    logger.debug(str(ex))
+                    logger.error("Could not update notification: %s." % ass.notification.id)
 
             for day in Days:
                 if not ass.notification.pre and ass.validated:
@@ -290,8 +300,13 @@ def main(_logger=None):
                                 cloud_info,
                                 host_list,
                             )
-                            setattr(ass.notification, "pre", True)
-                            BaseDao.safe_commit()
+
+                            try:
+                                quads.update_notification(ass.notification.id, {"pre": True})
+                            except (APIServerException, APIBadRequest) as ex:
+                                logger.debug(str(ex))
+                                logger.error("Could not update notification: %s." % ass.notification.id)
+
                             break
 
 

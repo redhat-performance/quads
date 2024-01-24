@@ -1,7 +1,6 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import argparse
 import asyncio
-import json
 import logging
 import os
 import re
@@ -16,9 +15,6 @@ from quads.config import Config
 from quads.exceptions import CliException
 from quads.helpers import is_supported
 from quads.quads_api import QuadsApi, APIServerException, APIBadRequest
-from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao
-from quads.server.models import Assignment
 from quads.tools.external.badfish import BadfishException, badfish_factory
 from quads.tools.external.foreman import Foreman
 from quads.tools.helpers import get_running_loop
@@ -26,6 +22,7 @@ from quads.tools.move_and_rebuild import switch_config
 from quads.tools.external.netcat import Netcat
 from quads.tools.external.postman import Postman
 from quads.tools.external.ssh_helper import SSHHelper, SSHHelperException
+
 
 logger = logging.getLogger(__name__)
 quads = QuadsApi(Config)
@@ -39,8 +36,8 @@ class Validator(object):
         self.args = _args
         self.hosts = quads.filter_hosts({"cloud": self.cloud, "validated": False})
         self.hosts = [host for host in self.hosts if quads.get_current_schedules({"host": host.name})]
-        if self.args.get("skip_hosts"):
-            self.hosts = [host for host in self.hosts if host.name not in self.args.get("skip_hosts")]
+        if self.args.skip_hosts:
+            self.hosts = [host for host in self.hosts if host.name not in self.args.skip_hosts]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -118,7 +115,8 @@ class Validator(object):
                 if schedule.host and schedule.host.name in build_hosts:
                     pending.append(schedule.host.name)
 
-            pending = [host for host in pending if host not in self.args.get("skip_hosts")]
+            if self.args.skip_hosts:
+                pending = [host for host in pending if host not in self.args.skip_hosts]
 
             if pending:
                 logger.info("The following hosts are marked for build and will now be rebooted:")
@@ -181,11 +179,10 @@ class Validator(object):
                 str(Config["ipmi_cloud_username"]),
                 password,
             )
-            await badfish.validate_credentials()
         except BadfishException:
             logger.info(f"Could not verify badfish credentials for: {host.name}")
-            return False
-        return True
+            return True
+        return False
 
     async def post_network_test(self):
         test_host = self.hosts[0]
@@ -202,8 +199,13 @@ class Validator(object):
                     previous_cloud = previous_schedule[0].cloud.name
                 result = switch_config(host.name, previous_cloud, host.cloud.name)
                 if result:
-                    setattr(host, "switch_config_applied", True)
-                    BaseDao.safe_commit()
+                    try:
+                        quads.update_host(host.name, {"switch_config_applied": True})
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not update host: %s." % host.name)
+                        self.report = self.report + "Could not update host: %s.\n" % host.name
+                        return False
                 else:
                     switch_config_missing.append(host.name)
             try:
@@ -237,7 +239,7 @@ class Validator(object):
             NoValidConnectionsError,
             socket.timeout,
         ) as ex:
-            logger.error(str(ex))
+            logger.debug(str(ex))
             logger.error("Could not establish connection with host: %s." % test_host.name)
             self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             failed_ssh = True
@@ -298,12 +300,12 @@ class Validator(object):
 
         if self.env_allocation_time_exceeded():
             if self.hosts:
-                if not self.args.get("skip_system"):
+                if not self.args.skip_system:
                     result_pst = await self.post_system_test()
                     if not result_pst:
                         failed = True
 
-                if not self.args.get("skip_network"):
+                if not self.args.skip_network:
                     result_pnt = await self.post_network_test()
                     if not failed and not result_pnt:
                         failed = True
@@ -315,20 +317,38 @@ class Validator(object):
             if not failed:
                 if not assignment.notification.success:
                     self.notify_success()
-                    setattr(assignment.notification, "success", True)
-                    setattr(assignment.notification, "fail", False)
-                    BaseDao.safe_commit()
+                    try:
+                        quads.update_notification(assignment.notification.id, {"success": True, "fail": False})
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not update notification: %s." % assignment.notification.id)
+                        self.report = self.report + "Could not update notification: %s.\n" % assignment.notification.id
+                        failed = True
 
                 for host in self.hosts:
-                    setattr(host, "validated", True)
-                    BaseDao.safe_commit()
-                setattr(self.assignment, "validated", True)
-                BaseDao.safe_commit()
+                    try:
+                        quads.update_host(host.name, {"validated": True})
+                    except (APIServerException, APIBadRequest) as ex:
+                        logger.debug(str(ex))
+                        logger.error("Could not update host: %s." % host.name)
+                        self.report = self.report + "Could not update host: %s.\n" % host.name
+                        failed = True
+                try:
+                    quads.update_assignment(self.assignment.id, {"validated": True})
+                except (APIServerException, APIBadRequest) as ex:
+                    logger.debug(str(ex))
+                    logger.error("Could not update assignment: %s." % self.assignment.id)
+                    self.report = self.report + "Could not update assignment: %s.\n" % self.assignment.id
+                    failed = True
 
         if failed and not assignment.notification.fail:
             self.notify_failure()
-            setattr(assignment.notification, "fail", True)
-            BaseDao.safe_commit()
+            try:
+                quads.update_notification(assignment.notification.id, {"fail": True})
+            except (APIServerException, APIBadRequest) as ex:
+                logger.debug(str(ex))
+                logger.error("Could not update notification: %s." % assignment.notification.id)
+                self.report = self.report + "Could not update notification: %s.\n" % assignment.notification.id
 
         return
 
@@ -341,15 +361,15 @@ def main(_args, _loop, _logger=None):
     _filter = {"validated": False, "provisioned": True, "cloud__ne": "cloud01"}
     assignments = quads.filter_assignments(_filter)
 
-    if _args.get("cloud"):
+    if _args.cloud:
         try:
-            cloud = quads.get_cloud(_args.get("cloud"))
+            cloud = quads.get_cloud(_args.cloud)
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(ex)
 
-    if _args.get("skip_hosts"):
+    if _args.skip_hosts:
         hosts = []
-        for hostname in _args.get("skip_hosts"):
+        for hostname in _args.skip_hosts:
             try:
                 host = quads.get_host(hostname)
             except (APIServerException, APIBadRequest) as ex:
@@ -359,7 +379,8 @@ def main(_args, _loop, _logger=None):
     for ass in assignments:
         _schedules = quads.get_current_schedules(data={"cloud": ass.cloud.name})
         _schedule_count = len(_schedules)
-        _assignment = AssignmentDao.get_active_cloud_assignment(ass.cloud)
+
+        _assignment = quads.get_active_cloud_assignment(ass.cloud.name)
         if _schedule_count and _assignment.wipe:
             validator = Validator(ass.cloud.name, _assignment, _args, _loop=_loop)
             try:
