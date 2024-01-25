@@ -57,6 +57,7 @@ def render_row(host_obj, _properties):
         host_obj.cloud.name,
     )
     assignment = quads.get_active_cloud_assignment(host_obj.cloud.name)
+    owner = assignment.owner if assignment else "QUADS"
     row = [
         u_loc,
         host_obj.name.split(".")[0],
@@ -67,7 +68,7 @@ def render_row(host_obj, _properties):
         "<a href=http://mgmt-%s/ target=_blank>console</a>" % host_obj.name,
         str(_properties["mac"]),
         cloud,
-        assignment.owner,
+        owner,
     ]
     return "| %s |\n" % " | ".join(row)
 
@@ -90,9 +91,7 @@ def main():
     )
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
 
-    blacklist = re.compile(
-        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
-    )
+    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
     hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):
