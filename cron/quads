@@ -26,21 +26,21 @@ PYTHONPATH=/opt/quads
 ##### ONLY USE WITH CONTAINER DEPLOYMENT
 ########################################
 # * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "docker exec quads bin/quads-cli --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
-# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "docker exec quads quads/tools/validate_env.py" ) 1>/dev/null 2>&1
-# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock -c "docker exec quads quads/tools/regenerate_wiki.py" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "docker exec quads quads/tools/notify.py" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "docker exec quads quads/tools/simple_table_web.py" ) 1>/dev/null 2>&1
-# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "docker exec quads quads/tools/make_instackenv_json.py" ) 1>/dev/null 2>&1
-# 0 */3 * * 1-6 python /opt/quads/quads/tools/foreman_heal.py 1>/dev/null 2>&1
+# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "docker exec quads bin/quads-cli --validate-env" ) 1>/dev/null 2>&1
+# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock -c "docker exec quads bin/quads-cli --regen-wiki" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "docker exec quads bin/quads-cli --notify" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "docker exec quads bin/quads-cli --regen-heatmap" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "docker exec quads bin/quads-cli --regen-instack" ) 1>/dev/null 2>&1
+# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "docker exec quads bin/quads-cli --foreman-rbac" ) 1>/dev/null 2>&1
 #########################################
 ##### NON-CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH RPM OR SOURCE INSTALL
 #########################################
 # * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "/opt/quads/bin/quads-cli --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
-# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "/opt/quads/quads/tools/validate_env.py" ) 1>>/var/log/validate-env.log 2>&1
-# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock "/opt/quads/quads/tools/regenerate_wiki.py" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "/opt/quads/quads/tools/notify.py" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "/opt/quads/quads/tools/simple_table_web.py" ) 1>/dev/null 2>&1
-# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "/opt/quads/quads/tools/make_instackenv_json.py" ) 1>/dev/null 2>&1
-# 0 */3 * * 1-6 python /opt/quads/quads/tools/foreman_heal.py 1>/dev/null 2>&1
+# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "/opt/quads/bin/quads-cli --validate-env" ) 1>>/var/log/validate-env.log 2>&1
+# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock "/opt/quads/bin/quads-cli --regen-wiki" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "/opt/quads/bin/quads-cli --notify" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "/opt/quads/bin/quads-cli --regen-heatmap" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "/opt/quads/bin/quads-cli --regen-instack" ) 1>/dev/null 2>&1
+# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "/opt/quads/bin/quads-cli --foreman-rbac" ) 1>/dev/null 2>&1
 ########################################
