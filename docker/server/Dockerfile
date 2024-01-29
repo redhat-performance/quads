@@ -12,6 +12,7 @@ RUN git checkout flaskapi_v3
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install -r tests/requirements.txt
+RUN pip install validators
 
 ENV PYTHONPATH=/opt/quads
 EXPOSE 5000

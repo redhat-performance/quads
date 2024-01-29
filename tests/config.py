@@ -1,4 +1,6 @@
 """Template responses and requests for API testing."""
+from datetime import datetime, timedelta
+
 # --------------------
 # AUTH
 # --------------------
@@ -128,8 +130,7 @@ INTERFACE_1_UPDATE_REQUEST = {
     "switch_port": "et-0/0/0:2",
 }
 INTERFACE_1_UPDATE_RESPONSE = {
-    key: INTERFACE_1_UPDATE_REQUEST.get(key, INTERFACE_1_RESPONSE[key])
-    for key in INTERFACE_1_RESPONSE
+    key: INTERFACE_1_UPDATE_REQUEST.get(key, INTERFACE_1_RESPONSE[key]) for key in INTERFACE_1_RESPONSE
 }
 INTERFACE_2_REQUEST = (
     {
@@ -452,11 +453,19 @@ ASSIGNMENT_2_RESPONSE = {
 # --------------------
 # SCHEDULES
 # --------------------
+start_date = datetime.now() - timedelta(days=1)
+start_str = start_date.strftime("%Y-%m-%d")
+end_date = start_date + timedelta(days=3650)
+end_str = end_date.strftime("%Y-%m-%d")
+end_date_future = start_date + timedelta(days=36500)
+end_str_future = end_date_future.strftime("%Y-%m-%d")
+build_end = start_date + timedelta(days=1)
+build_end_str = build_end.strftime("%Y-%m-%d")
 SCHEDULE_1_REQUEST = {
     "cloud": "cloud02",
     "hostname": "host2.example.com",
-    "start": "2023-02-04 22:00",
-    "end": "2042-03-18 22:00",
+    "start": f"{start_str} 22:00",
+    "end": f"{end_str} 22:00",
 }
 SCHEDULE_1_RESPONSE = {
     "assignment": {
@@ -537,8 +546,8 @@ SCHEDULE_1_RESPONSE = {
 SCHEDULE_2_REQUEST = {
     "cloud": "cloud03",
     "hostname": "host3.example.com",
-    "start": "2023-02-04 22:00",
-    "end": "2044-03-18 22:00",
+    "start": f"{start_str} 22:00",
+    "end": f"{end_str_future} 22:00",
 }
 SCHEDULE_2_RESPONSE = {
     "assignment": {
@@ -617,8 +626,8 @@ SCHEDULE_2_RESPONSE = {
     "start": "Sat, 04 Feb 2023 22:00:00 GMT",
 }
 SCHEDULE_1_UPDATE_REQUEST = {
-    "start": "2023-02-04T22:00",
-    "end": "2032-02-04T22:00",
-    "build_start": "2024-02-04T22:00",
-    "build_end": "2024-02-05T22:00",
+    "start": f"{start_str}T22:00",
+    "end": f"{end_str}T22:00",
+    "build_start": f"{start_str}T22:00",
+    "build_end": f"{build_end_str}T22:00",
 }
