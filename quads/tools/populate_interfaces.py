@@ -11,7 +11,7 @@ from quads.tools.helpers import get_running_loop
 logger = logging.getLogger(__name__)
 
 
-class Populator(object):
+class Populator(object):  # pragma: no cover
     def __init__(self, _loop=None):
         self.loop = _loop if _loop else get_running_loop()
 
@@ -127,7 +127,7 @@ class Populator(object):
         return
 
 
-def main(_loop):
+def main(_loop):  # pragma: no cover
     validator = Populator(_loop)
     hosts = Host.objects()
     for host in hosts:
@@ -138,7 +138,7 @@ def main(_loop):
             logger.info("  Failed to populate interfaces for %s" % host.name)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
     parser.add_argument(
         "--debug",

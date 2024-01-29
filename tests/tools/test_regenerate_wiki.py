@@ -12,13 +12,13 @@ class WikiStub:
     def __init__(self, url, username, password):
         pass
 
-    def update(self, _page_title, _page_id, _markdown):
+    def update_page(self, _page_title, _page_id, _markdown):
         pass
 
 
 class TestWiki(TestBase):
-    @patch("quads.tools.regenerate_wiki.Wiki", WikiStub)
-    @patch("quads.tools.regenerate_vlans_wiki.Wiki", WikiStub)
+    @patch("quads.tools.regenerate_wiki.Wordpress", WikiStub)
+    @patch("quads.tools.regenerate_vlans_wiki.Wordpress", WikiStub)
     def test_regenerate_wiki(self):
         Config.__setattr__("foreman_unavailable", True)
         Config.__setattr__(
@@ -29,9 +29,7 @@ class TestWiki(TestBase):
 
         files = ["assignments.md", "main.md"]
         for f in files:
-            assert os.path.exists(
-                os.path.join(os.path.dirname(__file__), f"artifacts/git/wiki/{f}")
-            )
+            assert os.path.exists(os.path.join(os.path.dirname(__file__), f"artifacts/git/wiki/{f}"))
 
         assignment_md = open(
             os.path.join(os.path.dirname(__file__), f"artifacts/git/wiki/{files[0]}"),

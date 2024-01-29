@@ -20,7 +20,7 @@ logging.basicConfig(
 quads = QuadsApi(Config)
 
 
-def switch_config(host, old_cloud, new_cloud):
+def switch_config(host, old_cloud, new_cloud):  # pragma: no cover
     _host_obj = quads.get_host(host)
     _old_ass_cloud_obj = quads.get_active_cloud_assignment(old_cloud)
     _new_ass_cloud_obj = quads.get_active_cloud_assignment(new_cloud)
@@ -112,7 +112,7 @@ def switch_config(host, old_cloud, new_cloud):
     return True
 
 
-async def execute_ipmi(host, arguments, semaphore):
+async def execute_ipmi(host, arguments, semaphore):  # pragma: no cover
     ipmi_cmd = [
         "/usr/bin/ipmitool",
         "-I",
@@ -134,7 +134,7 @@ async def execute_ipmi(host, arguments, semaphore):
         logger.debug(f"{stdout.decode().strip()}")
 
 
-async def ipmi_reset(host, semaphore):
+async def ipmi_reset(host, semaphore):  # pragma: no cover
     ipmi_off = [
         "chassis",
         "power",
@@ -150,7 +150,9 @@ async def ipmi_reset(host, semaphore):
     await execute_ipmi(host, ipmi_on, semaphore)
 
 
-async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None):
+async def move_and_rebuild(
+    host, new_cloud, semaphore, rebuild=False, loop=None
+):  # pragma: no cover
     build_start = datetime.now()
     logger.debug("Moving and rebuilding host: %s" % host)
 

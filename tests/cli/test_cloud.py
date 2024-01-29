@@ -329,11 +329,29 @@ class TestCloud(TestBase):
 class TestCloudOnly(TestBase):
     def test_cloud_only(self):
         self.cli_args["cloud"] = CLOUD
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = None
         self.quads_cli_call("cloudonly")
         assert self._caplog.messages[0] == f"{HOST1}"
 
+    def test_cloud_only_filter_some(self):
+        self.cli_args["cloud"] = CLOUD
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = "model==R640"
+        self.quads_cli_call("cloudonly")
+        assert self._caplog.messages[0] == f"{HOST1}"
+
+    def test_cloud_only_filter_none(self):
+        self.cli_args["cloud"] = CLOUD
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = "model==R930"
+        self.quads_cli_call("cloudonly")
+        assert len(self._caplog.messages) == 0
+
     def test_cloud_not_found(self):
         self.cli_args["cloud"] = "BADCLOUD"
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = None
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("cloudonly")
             assert str(ex) == f"Cloud not found: BADCLOUD"
@@ -342,10 +360,20 @@ class TestCloudOnly(TestBase):
         date = datetime.now().strftime("%Y-%m-%d")
         self.cli_args["cloud"] = CLOUD
         self.cli_args["datearg"] = f"{date} 22:00"
+        self.cli_args["filter"] = None
         self.quads_cli_call("cloudonly")
         assert self._caplog.messages[0] == f"{HOST1}"
 
     def test_cloud_no_schedule(self):
         self.cli_args["cloud"] = MOD_CLOUD
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = None
         self.quads_cli_call("cloudonly")
-        assert self._caplog.messages[0] == f"{HOST1}"
+        assert len(self._caplog.messages) == 0
+
+    def test_cloud_no_schedule(self):
+        self.cli_args["cloud"] = MOD_CLOUD
+        self.cli_args["datearg"] = None
+        self.cli_args["filter"] = None
+        self.quads_cli_call("cloudonly")
+        assert len(self._caplog.messages) == 0

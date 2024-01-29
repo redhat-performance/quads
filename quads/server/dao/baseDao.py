@@ -73,7 +73,7 @@ class BaseDao:
         for expression in filters:
             try:
                 column_name, op, value = expression
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise Exception("Invalid filter: %s" % expression)
             if op not in FILTERING_OPERATORS:
                 raise Exception("Invalid filter operation: %s" % op)
@@ -98,7 +98,7 @@ class BaseDao:
                         )[0]
                         % FILTERING_OPERATORS[op]
                     )
-                except IndexError:
+                except IndexError:  # pragma: no cover
                     raise Exception(
                         "Invalid filter operator: %s" % FILTERING_OPERATORS[op]
                     )

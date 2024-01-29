@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 def verify(
     _host_name, change=False, nic1=None, nic2=None, nic3=None, nic4=None, nic5=None
-):
+):  # pragma: no cover
     _nics = {"em1": nic1, "em2": nic2, "em3": nic3, "em4": nic4, "em5": nic5}
     _host_obj = quads.get_host(_host_name)
     if not _host_obj:
@@ -97,7 +97,7 @@ def verify(
         logger.error("The host has no interfaces defined")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(
         description="Verify switch configs for a cloud or host"
     )

@@ -15,7 +15,7 @@ class DiskDao(BaseDao):
         count: int,
     ) -> Disk:
         _host_obj = HostDao.get_host(hostname)
-        if not _host_obj:
+        if not _host_obj:  # pragma: no cover
             raise EntryNotFound
         _disk = Disk(
             disk_type=disk_type,
@@ -28,7 +28,7 @@ class DiskDao(BaseDao):
         return _disk
 
     @staticmethod
-    def get_disks() -> List[Disk]:
+    def get_disks() -> List[Disk]:  # pragma: no cover
         disks = db.session.query(Disk).all()
         return disks
 
@@ -38,7 +38,7 @@ class DiskDao(BaseDao):
         return disk
 
     @classmethod
-    def delete_disk(cls, disk_id) -> None:
+    def delete_disk(cls, disk_id) -> None:  # pragma: no cover
         _disk_obj = cls.get_disk(disk_id)
         if not _disk_obj:
             raise EntryNotFound

@@ -91,7 +91,9 @@ def main():
     )
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
 
-    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
+    blacklist = re.compile(
+        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
+    )
     hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):

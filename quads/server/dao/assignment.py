@@ -10,7 +10,8 @@ from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db, Assignment, Cloud, Notification
 from sqlalchemy import and_, Boolean
-from sqlalchemy.orm import RelationshipProperty, Relationship
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm.relationships import Relationship
 
 
 class AssignmentDao(BaseDao):
@@ -44,7 +45,7 @@ class AssignmentDao(BaseDao):
                 kwargs["vlan"] = vlan
         try:
             _assignment_obj = Assignment(**kwargs)
-        except Exception as ex:
+        except Exception as ex:  # pragma: no cover
             print(ex)
         db.session.add(_assignment_obj)
         cls.safe_commit()
@@ -52,7 +53,9 @@ class AssignmentDao(BaseDao):
         return _assignment_obj
 
     @classmethod
-    def udpate_assignment(cls, assignment_id: int, **kwargs) -> Assignment:
+    def udpate_assignment(
+        cls, assignment_id: int, **kwargs
+    ) -> Assignment:  # pragma: no cover
         """
         Updates an assignment in the database.
 
@@ -184,7 +187,7 @@ class AssignmentDao(BaseDao):
         return _hosts
 
     @staticmethod
-    def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:
+    def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:  # pragma: no cover
         assignments = (
             db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
         )

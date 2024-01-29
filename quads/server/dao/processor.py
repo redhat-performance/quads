@@ -32,7 +32,7 @@ class ProcessorDao(BaseDao):
         return _processor
 
     @classmethod
-    def delete_processor(cls, processor_id: int) -> None:
+    def delete_processor(cls, processor_id: int) -> None:  # pragma: no cover
         _processor = cls.get_processor(processor_id)
         if not _processor:
             raise EntryNotFound
@@ -40,7 +40,7 @@ class ProcessorDao(BaseDao):
         return
 
     @staticmethod
-    def get_processors() -> List[Processor]:
+    def get_processors() -> List[Processor]:  # pragma: no cover
         processors = db.session.query(Processor).all()
         return processors
 

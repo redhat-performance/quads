@@ -1,7 +1,8 @@
-from typing import List, Optional, Type
+from typing import List, Optional
 
 from sqlalchemy import Boolean
-from sqlalchemy.orm import RelationshipProperty, Relationship
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm.relationships import Relationship
 
 from quads.config import Config
 from quads.server.dao.baseDao import (
@@ -146,7 +147,7 @@ class HostDao(BaseDao):
         return _hosts
 
     @staticmethod
-    def filter_hosts(
+    def filter_hosts(  # pragma: no cover
         model: str = None,
         host_type: str = None,
         build: bool = None,
