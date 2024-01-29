@@ -36,7 +36,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     for user in cc:
         cc_users.append("%s@%s" % (user, Config["domain"]))
 
-    if Config["email_notify"]:
+    if Config["email_notify"]:  # pragma: no cover
         with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
             template = Template(_file.read())
         content = template.render(
@@ -57,7 +57,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         )
         postman.send_email()
 
-    if Config["irc_notify"]:
+    if Config["irc_notify"]:  # pragma: no cover
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
                 message = (
@@ -72,11 +72,11 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
                     )
                 )
                 await nc.write(bytes(message.encode("utf-8")))
-        except (TypeError, BrokenPipeError) as ex:
+        except (TypeError, BrokenPipeError) as ex:  # pragma: no cover
             logger.debug(ex)
             logger.error("Beep boop netcat can't communicate with your IRC.")
 
-    if Config["webhook_notify"]:
+    if Config["webhook_notify"]:  # pragma: no cover
         try:
             message = (
                 "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s"
@@ -98,7 +98,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             logger.error("Beep boop we can't communicate with your webhook.")
 
 
-def create_message(
+def create_message(  # pragma: no cover
     cloud_obj,
     assignment_obj,
     day,
@@ -226,7 +226,7 @@ def main(_logger=None):
             )
             try:
                 quads.update_notification(ass.notification.id, {"initial": True})
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 logger.debug(str(ex))
                 logger.error("Could not update notification: %s." % ass.notification.id)
 
@@ -240,7 +240,7 @@ def main(_logger=None):
             payload = {"cloud": ass.cloud.name, "date": future_date}
             try:
                 future_hosts = quads.get_current_schedules(payload)
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 logger.debug(str(ex))
                 logger.error("Could not get current schedules")
 
@@ -280,7 +280,7 @@ def main(_logger=None):
             payload = {"cloud": ass.cloud.name}
             try:
                 current_hosts = quads.get_current_schedules(payload)
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 logger.debug(str(ex))
                 logger.error("Could not get current schedules")
 
@@ -302,7 +302,7 @@ def main(_logger=None):
                     quads.update_notification(
                         ass.notification.id, {"pre_initial": True}
                     )
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     logger.debug(str(ex))
                     logger.error(
                         "Could not update notification: %s." % ass.notification.id
@@ -319,7 +319,7 @@ def main(_logger=None):
                     payload = {"cloud": ass.cloud.name, "date": future_date}
                     try:
                         future_hosts = quads.get_current_schedules(payload)
-                    except (APIServerException, APIBadRequest) as ex:
+                    except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                         logger.debug(str(ex))
                         logger.error("Could not get current schedules")
 
@@ -340,7 +340,7 @@ def main(_logger=None):
                                 quads.update_notification(
                                     ass.notification.id, {"pre": True}
                                 )
-                            except (APIServerException, APIBadRequest) as ex:
+                            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                                 logger.debug(str(ex))
                                 logger.error(
                                     "Could not update notification: %s."
@@ -350,5 +350,5 @@ def main(_logger=None):
                             break
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

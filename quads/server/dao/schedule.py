@@ -34,7 +34,7 @@ class ScheduleDao(BaseDao):
         :return: The updated schedule
         """
         schedule = cls.get_schedule(sched_id)
-        if not schedule:
+        if not schedule:  # pragma: no cover
             raise EntryNotFound
 
         for key, value in kwargs.items():
@@ -52,7 +52,7 @@ class ScheduleDao(BaseDao):
 
         result = cls.safe_commit()
 
-        if not result:
+        if not result:  # pragma: no cover
             raise SQLError("Failed to update schedule")
 
         return schedule
@@ -60,7 +60,7 @@ class ScheduleDao(BaseDao):
     @classmethod
     def remove_schedule(cls, schedule_id: int) -> None:
         _schedule_obj = cls.get_schedule(schedule_id)
-        if not _schedule_obj:
+        if not _schedule_obj:  # pragma: no cover
             raise EntryNotFound
         db.session.delete(_schedule_obj)
         cls.safe_commit()

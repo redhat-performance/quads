@@ -12,7 +12,7 @@ RUN pip install \
     mongoengine \
     requests \
     ipdb \
-    python-wordpress-xmlrpc \
+    validators \
     gitpython \
     flake8 \
     paramiko \

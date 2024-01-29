@@ -4,7 +4,7 @@ import logging
 from xmlrpc.client import ProtocolError
 
 from quads.quads_api import QuadsApi
-from quads.tools.external.wiki import Wiki
+from quads.tools.external.wordpress import Wordpress
 from quads.config import Config
 from tempfile import NamedTemporaryFile
 
@@ -88,8 +88,8 @@ def regenerate_vlans_wiki():
         render_vlans(_markdown)
         _markdown.seek(0)
         try:
-            wiki = Wiki(wp_url, wp_username, wp_password)
-            wiki.update(page_title, page_id, _markdown.name)
+            wiki = Wordpress(wp_url, wp_username, wp_password)
+            wiki.update_page(page_title, page_id, _markdown.name)
         except ProtocolError as ex:
             logger.error(ex.errmsg)
 

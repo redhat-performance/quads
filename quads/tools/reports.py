@@ -51,10 +51,9 @@ def report_available(_logger, _start, _end):
 
     hosts_summary = {}
     for host in hosts:
-        host_type = host.name.split(".")[0].split("-")[-1]
-        if not hosts_summary.get(host_type):
-            hosts_summary[host_type] = []
-        hosts_summary[host_type].append(host)
+        if not hosts_summary.get(host.model):
+            hosts_summary[host.model] = []
+        hosts_summary[host.model].append(host)
 
     headers = ["Server Type", "Total", "Free", "Scheduled", "2 weeks", "4 weeks"]
     _logger.info(

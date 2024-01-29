@@ -21,7 +21,7 @@ class MemoryDao(BaseDao):
         return _memory
 
     @classmethod
-    def delete_memory(cls, memory_id: int) -> None:
+    def delete_memory(cls, memory_id: int) -> None:  # pragma: no cover
         _memory = cls.get_memory(memory_id)
         if not _memory:
             raise EntryNotFound

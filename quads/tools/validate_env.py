@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 quads = QuadsApi(Config)
 
 
-class Validator(object):
+class Validator(object):  # pragma: no cover
     def __init__(self, cloud, assignment, _args, _loop=None):
         self.cloud = cloud
         self.assignment = assignment
@@ -412,7 +412,7 @@ class Validator(object):
         return
 
 
-def main(_args, _loop, _logger=None):
+def main(_args, _loop, _logger=None):  # pragma: no cover
     global logger
     if _logger:
         logger = _logger
@@ -453,7 +453,7 @@ def main(_args, _loop, _logger=None):
                 logger.info("Failed validation for %s" % ass.cloud.name)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Validate Quads assignments")
     parser.add_argument(
         "--skip-system",

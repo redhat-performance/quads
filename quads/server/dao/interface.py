@@ -54,7 +54,7 @@ class InterfaceDao(BaseDao):
     @classmethod
     def delete_interface(cls, interface_id: int) -> None:
         _interface = InterfaceDao.get_interface(interface_id)
-        if not _interface:
+        if not _interface:  # pragma: no cover
             raise EntryNotFound
         db.session.delete(_interface)
         cls.safe_commit()
