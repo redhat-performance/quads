@@ -12,16 +12,17 @@
 #### Note: quads-dev = latest master branch
 ####       quads     = latest stable release
 
-%define name quads-dev
+%define name quads
 %define reponame quads
-%define version 1.1.7
+%define branch master
+%define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
 Name: %{name}
 Version: %{version}
 Release: %{build_timestamp}
-Source0: https://github.com/redhat-performance/quads/archive/master.tar.gz#/%{name}-%{version}-%{release}.tar.gz
+Source0: https://github.com/redhat-performance/quads/archive/%{branch}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 License: GPLv3
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: /opt/quads
@@ -29,42 +30,45 @@ BuildArch: noarch
 Vendor: QUADS Project
 Packager: QUADS Project
 Requires: httpd >= 2.4
-Requires: python3-mongoengine >= 0.8
-Requires: python3-cherrypy >= 8.9
+Requires: python3 >= 3.11
 Requires: python3-jinja2 >= 3.0.3
 Requires: python3-werkzeug >= 2.2.2
+Requires: nginx >= 1.0
+Requires: python3-gunicorn >= 15.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 6.0
-Requires: python3-requests >= 2.0
+Requires: python3-requests >= 2.28.1
 Requires: python3-aiohttp >= 3.8.5
 Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.12
-Requires: python3-flask >= 2.2.2
-Requires: python3-flask-bootstrap >= 3.3.7.1
-Requires: python3-flask-wtf >= 0.12
 Requires: python3-wtforms >= 2.2.0
 Requires: python3-pexpect >= 4.8.0
-Requires: python3-ipdb >= 0.10
 Requires: python3-argcomplete >= 2.0.0
 Requires: python3-requests >= 2.28.1
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 3.1.40
+Requires: python3-flask >= 2.2.2
+Requires: python3-flask-bootstrap >= 3.3.7.1
+Requires: python3-flask-wtf >= 1.0.1
 Requires: python3-flask-sqlalchemy >= 2.5.1
 Requires: python3-flask-principal >= 0.4.0
 Requires: python3-flask-login >= 0.6.2
 Requires: python3-flask-security-too >= 4.1.5
-Requires: python3-flask-babelex >= 0.9.3
-Requires: python3-flask-script >= 2.0.6
 Requires: python3-flask-migrate >= 3.1.0
 Requires: python3-flask-httpauth >= 3.2.3
 Requires: python3-flask-cors >= 3.0.10
 Requires: python3-jwt >= 1.6.4
 Requires: python3-dotenv >= 0.19.2
 Requires: python3-sqlalchemy >= 1.4.50
-Requires: python3-sqlalchemy-utils >= 0.38.3
-Requires: python3-psycopg2 >= 2.7.5
+Requires: python3-sqlalchemy-utils >= 0.37.8
+Requires: python3-psycopg2 >= 2.9.6
+Requires: python3-gunicorn >= 20.1.0
+Requires: python3-validators >= 0.20.0
 Requires: logrotate >= 3.0
+Requires: postgresql >= 15.4
+Requires: postgresql-server >= 15.4
+
 AutoReq: no
 
 Url: https://quads.dev
@@ -85,11 +89,14 @@ Automatically generate documentation to illustrate current status, published to 
 Query scheduling data to determine future availability
 Generates a monthly, auto-updated calendar of machine assignments
 Generates a per-month visualization map for per-machine allocations to assignments.
-RT (or similiar ticketing system) integration.
-IRC bot and email notifications for new provisioning tasks and ones ending completion
+JIRA integration.
+IRC and webhook bot and email notifications for new provisioning tasks and ones ending completion
 
 %prep
-%autosetup -n %{reponame}-master
+%autosetup -n %{reponame}-%{branch}
+
+%build
+%py3_build    
 
 %install
 rm -rf %{buildroot}
@@ -97,54 +104,84 @@ mkdir %{buildroot}%{prefix} -p
 mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
-tar cf - bin quads/*.py quads/tools/*.py quads/cli/* quads/templates/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
+mkdir %{buildroot}/etc/nginx/conf.d/ -p
+mkdir %{buildroot}/usr/share/nginx/html/visual/ -p
+mkdir %{buildroot}%{python3_sitelib}/quads/ -p
+tar cf - conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
+cp -rf systemd/quads-db.service %{buildroot}/etc/systemd/system/
+cp -rf systemd/quads.target %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
-mkdir -p %{buildroot}/var/www/html/visual/
-echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
-echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
-echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
+cp -rf container/etc/nginx/conf/nginx.conf %{buildroot}/etc/nginx/conf.d/
+cp -rf container/etc/nginx/conf.d/default.conf %{buildroot}/etc/nginx/conf.d/
+cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
+echo 'export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@localhost:5432/quads"' >> %{buildroot}/etc/profile.d/quads.sh
 echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
+%py3_install
+
 %clean
 rm -rf %{buildroot}
 
 %files
+%doc README.md
+%license LICENSE
 /etc/systemd/system/quads-web.service
 /etc/systemd/system/quads-server.service
+/etc/systemd/system/quads-db.service
+/etc/systemd/system/quads.target
 /etc/profile.d/quads.sh
-/opt/quads/bin/*
-/opt/quads/web/*
-/opt/quads/web/templates/*
-/opt/quads/quads/*
-/opt/quads/quads/cli/*
-/opt/quads/quads/tools/*
-/opt/quads/quads/templates/*
+/etc/nginx/*
 /opt/quads/conf/logrotate_quads.conf
+/usr/bin/quads
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
 %config(noreplace) /opt/quads/conf/hosts_metadata.yml
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
 %config(noreplace) /etc/logrotate.d/logrotate_quads.conf
 
+%{python3_sitelib}/quads/
+%{python3_sitelib}/quads-*.egg-info/
+
 %post
+/usr/bin/mkdir -p /opt/quads/db/data/
+/usr/bin/chown -R postgres:postgres /opt/quads/db/
+/usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
-/usr/bin/systemctl enable mongod
-/usr/bin/systemctl enable httpd
+/usr/bin/systemctl enable quads.target
+/usr/bin/systemctl enable nginx
 /usr/bin/systemctl enable haveged
 source /etc/profile.d/quads.sh
+/usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
+sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
 
 %preun
 if [ "$1" -eq 0 ]; then
-  /usr/bin/systemctl stop quads-server
-  /usr/bin/systemctl disable quads-server
-  /usr/bin/systemctl stop quads-web
+  /usr/bin/systemctl stop quads.target
   /usr/bin/systemctl disable quads-web
+  /usr/bin/systemctl disable quads-server
+  /usr/bin/systemctl disable quads-db
+  /usr/bin/systemctl disable quads.target
 fi;
 :;
 
+%postun
+find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+
 %changelog
+
+* Mon Jan 29 2024 Will Foster <wfoster@redhat.com>
+- Testing 2.0.0 packaging WIP
+
+* Tue Oct 31 2023 Will Foster <wfoster@redhat.com>
+- 1.1.8 release
+- added --cloud filter to --ls-available
+- added argparse for ommitting systems validation
+- added better host build checks
+- quads-cli --host now shows the host environment
+- host metadata export now writes a file copy to disk
+- many bug fixes
 
 * Wed Feb 08 2023 Will Foster <wfoster@redhat.com>
 - 1.1.7 release

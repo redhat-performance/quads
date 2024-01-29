@@ -1,0 +1,8 @@
+# /etc/systemd/system/quads.target
+[Unit]
+Description=Quads Target
+Requires=quads-db.service quads-server.service quads-web.service
+After=quads-db.service quads-server.service quads-web.service
+
+[Install]
+WantedBy=multi-user.target
