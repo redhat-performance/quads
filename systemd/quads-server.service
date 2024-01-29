@@ -6,6 +6,7 @@
 [Unit]
 Description = QUADS Daemon
 Documentation = https://github.com/redhat-performance/quads
+Before=quads-db.service
 After=network.target mongod.service httpd.service
 
 [Service]
