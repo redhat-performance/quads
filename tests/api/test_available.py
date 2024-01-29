@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pytest
 
 from urllib.parse import urlencode
@@ -16,20 +18,25 @@ class TestReadAvailable:
         | THEN: User should be able to get the available host(s) for each case
         """
         auth_header = auth.get_auth_header()
+        start_date = datetime.now() + timedelta(weeks=1)
+        start_str = start_date.strftime("%Y-%m-%d")
+        start_date_future = start_date + timedelta(days=3651)
+        start_str_future = start_date_future.strftime("%Y-%m-%d")
+        end_date = start_date + timedelta(days=3652)
+        end_str = end_date.strftime("%Y-%m-%d")
+        requests = [
+            {"start": f"{start_str}T00:00"},
+            {"start": f"{start_str_future}T00:00", "end": f"{end_str}T22:00"},
+            {"start": f"{start_str_future}T00:00", "cloud": "cloud02"},
+        ]
         responses = [
             [
                 "host1.example.com",
-                "host2.example.com",
                 "host4.example.com",
                 "host5.example.com",
             ],
-            ["host1.example.com", "host4.example.com", "host5.example.com"],
-            ["host3.example.com"],
-        ]
-        requests = [
-            {"start": "2043-03-20T00:00"},
-            {"start": "2035-01-01T00:00", "end": "2040-01-01T00:00"},
-            {"start": "2045-01-01T00:00", "cloud": "cloud03"},
+            ["host1.example.com", "host2.example.com", "host4.example.com", "host5.example.com"],
+            ["host2.example.com"],
         ]
         for i, (req, resp) in enumerate(zip(requests, responses)):
             api_resp = unwrap_json(
@@ -49,14 +56,20 @@ class TestReadAvailable:
         | THEN: User should be able to get an answer if it is or isn't
         """
         auth_header = auth.get_auth_header()
+        start_date = datetime.now() + timedelta(weeks=1)
+        start_str = start_date.strftime("%Y-%m-%d")
+        start_date_future = start_date + timedelta(days=3651)
+        start_str_future = start_date_future.strftime("%Y-%m-%d")
+        end_date = start_date + timedelta(days=3652)
+        end_str = end_date.strftime("%Y-%m-%d")
         hostname = "host2.example.com"
         responses = [
             {hostname: "True"},
             {hostname: "False"},
         ]
         requests = [
-            {"start": "2043-03-20T00:00"},
-            {"start": "2035-01-01T00:00", "end": "2040-01-01T00:00"},
+            {"start": f"{start_str_future}T00:00"},
+            {"start": f"{start_str}T00:00", "end": f"{end_str}T00:00"},
         ]
         for i, (req, resp) in enumerate(zip(requests, responses)):
             api_resp = unwrap_json(

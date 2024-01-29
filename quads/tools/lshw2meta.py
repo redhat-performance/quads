@@ -14,14 +14,14 @@ MD_DIR = "/var/www/html/lshw"
 DISK_TYPES = {"nvme": "nvm", "sata": "ata", "scsi": "scsi"}
 
 
-def b2g(num, metric=False):
+def b2g(num, metric=False): # pragma: no cover
     factor = 1024
     if metric:
         factor = 1000
     return round(num / (factor**3))
 
 
-for _d, _, _files in os.walk(MD_DIR):
+for _d, _, _files in os.walk(MD_DIR): # pragma: no cover
     for _file in _files:
         filename = os.path.join(MD_DIR, _file)
         if os.path.getsize(filename):

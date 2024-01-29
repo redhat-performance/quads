@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 
-def verify(_cloud_name, _host_name, change=False):
+def verify(_cloud_name, _host_name, change=False): # pragma: no cover
     Config.load_from_yaml(DEFAULT_CONF_PATH)
 
     quads = QuadsApi(config=Config)
@@ -139,7 +139,7 @@ def verify(_cloud_name, _host_name, change=False):
                             )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     parser = argparse.ArgumentParser(
         description="Verify switch configs for a cloud or host"
     )
