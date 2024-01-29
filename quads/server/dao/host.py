@@ -1,7 +1,8 @@
-from typing import List, Optional, Type
+from typing import List, Optional
 
 from sqlalchemy import Boolean
-from sqlalchemy.orm import RelationshipProperty, Relationship
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm.relationships import Relationship
 
 from quads.config import Config
 from quads.server.dao.baseDao import (
@@ -18,9 +19,7 @@ from quads.server.models import db, Host, Cloud
 
 class HostDao(BaseDao):
     @classmethod
-    def create_host(
-        cls, name: str, model: str, host_type: str, default_cloud: str
-    ) -> Host:
+    def create_host(cls, name: str, model: str, host_type: str, default_cloud: str) -> Host:
         _host_obj = cls.get_host(name)
         if _host_obj:
             raise EntryExisting
