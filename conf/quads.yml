@@ -27,7 +27,7 @@ email_notify: true
 
 ## email server settings
 # this is for your mail relay host
-# in containers we use the docker container host itself, you should
+# in containers we use the podman container host itself, you should
 # change this to localhost if you want to use the mail relay on the localhost
 # and you're not running quads in containers
 email_host: 172.16.0.1
