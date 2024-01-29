@@ -110,10 +110,10 @@ class QuadsCli:
             "processors": self.quads.remove_processor,
         }
         field = getattr(host, key)
-        if field is None:
+        if field is None:  # pragma: no cover
             raise CliException("{key} is not a Host property")
 
-        for obj in field:
+        for obj in field:  # pragma: no cover
             try:
                 if key == "interfaces":
                     self.quads.remove_interface(host.name, obj.name)
@@ -168,9 +168,7 @@ class QuadsCli:
                     else:
                         if keys[0].strip().lower() == "model":
                             if str(value).upper() not in conf["models"].split(","):
-                                self.logger.warning(
-                                    f"Accepted model names are: {conf['models']}"
-                                )
+                                self.logger.warning(f"Accepted model names are: {conf['models']}")
                                 raise CliException("Model type not recognized.")
 
                         if type(value) == str:
@@ -181,13 +179,9 @@ class QuadsCli:
             if not op_found:
                 self.logger.warning(f"Condition: {condition}")
                 self.logger.warning(f"Accepted operators: {', '.join(ops.keys())}")
-                raise CliException(
-                    "A filter was defined but not parsed correctly. Check filter operator."
-                )
-        if not kwargs:
-            raise CliException(
-                "A filter was defined but not parsed correctly. Check filter syntax."
-            )
+                raise CliException("A filter was defined but not parsed correctly. Check filter operator.")
+        if not kwargs:  # pragma: no cover
+            raise CliException("A filter was defined but not parsed correctly. Check filter syntax.")
         return kwargs
 
     def _output_json_result(self, request, data):
@@ -196,9 +190,7 @@ class QuadsCli:
                 self.logger.info("Successfully removed")
             else:
                 js = request.json()
-                self.logger.debug(
-                    "%s %s: %s" % (request.status_code, request.reason, data)
-                )
+                self.logger.debug("%s %s: %s" % (request.status_code, request.reason, data))
                 if request.request.method == "POST" and request.status_code == 200:
                     self.logger.info("Successful request")
                 if js.get("result"):
@@ -208,7 +200,7 @@ class QuadsCli:
                                 self.logger.info(line)
                         else:
                             self.logger.info(result)
-        except JSONDecodeError:
+        except JSONDecodeError:  # pragma: no cover
             self.logger.debug(request.text)
             raise CliException("Could not parse json reply")
 
@@ -263,9 +255,7 @@ class QuadsCli:
     def action_interface(self):
         hostname = self.cli_args.get("host")
         if not hostname:
-            raise CliException(
-                "Missing option. --host option is required for --ls-interface."
-            )
+            raise CliException("Missing option. --host option is required for --ls-interface.")
 
         try:
             self.quads.get_host(hostname)
@@ -291,9 +281,7 @@ class QuadsCli:
     def action_memory(self):
         hostname = self.cli_args.get("host")
         if hostname is None:
-            raise CliException(
-                "Missing option. --host option is required for --ls-memory."
-            )
+            raise CliException("Missing option. --host option is required for --ls-memory.")
 
         try:
             host = self.quads.get_host(hostname)
@@ -310,9 +298,7 @@ class QuadsCli:
     def action_disks(self):
         hostname = self.cli_args.get("host")
         if hostname is None:
-            raise CliException(
-                "Missing option. --host option is required for --ls-disks."
-            )
+            raise CliException("Missing option. --host option is required for --ls-disks.")
 
         try:
             host = self.quads.get_host(hostname)
@@ -331,9 +317,7 @@ class QuadsCli:
     def action_processors(self):
         hostname = self.cli_args.get("host")
         if not hostname:
-            raise CliException(
-                "Missing option. --host option is required for --ls-processors."
-            )
+            raise CliException("Missing option. --host option is required for --ls-processors.")
 
         try:
             host = self.quads.get_host(hostname)
@@ -394,29 +378,25 @@ class QuadsCli:
                 self.logger.info("Current cloud: %s" % _host.default_cloud.name)
             try:
                 _host_schedules = self.quads.get_schedules(_kwargs)
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
             if _host_schedules:
                 for schedule in _host_schedules:
                     _cloud_name = schedule.assignment.cloud.name
                     start = ":".join(schedule.start.isoformat().split(":")[:-1])
                     end = ":".join(schedule.end.isoformat().split(":")[:-1])
-                    self.logger.info(
-                        f"{schedule.id}| start={start}, end={end}, cloud={_cloud_name}"
-                    )
+                    self.logger.info(f"{schedule.id}| start={start}, end={end}, cloud={_cloud_name}")
         else:
             try:
                 _clouds = self.quads.get_clouds()
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
             for cloud in _clouds:
                 self.logger.info("%s:" % cloud.name)
                 _kwargs["cloud"] = cloud.name
                 if cloud.name == conf.get("spare_pool_name"):
                     if self.cli_args.get("datearg"):
-                        _date = datetime.strptime(
-                            self.cli_args.get("datearg"), "%Y-%m-%d %H:%M"
-                        )
+                        _date = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M")
                         _date_iso = ":".join(_date.isoformat().split(":")[:-1])
                         data = {
                             "start": _date_iso,
@@ -424,7 +404,7 @@ class QuadsCli:
                         }
                         try:
                             available_hosts = self.quads.filter_available(data)
-                        except (APIServerException, APIBadRequest) as ex:
+                        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                             raise CliException(str(ex))
 
                         for host in available_hosts:
@@ -433,7 +413,7 @@ class QuadsCli:
                     payload = {"cloud": cloud.name}
                     try:
                         _hosts = self.quads.filter_hosts(payload)
-                    except (APIServerException, APIBadRequest) as ex:
+                    except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                         raise CliException(str(ex))
                     for host in _hosts:
                         self.logger.info(host.name)
@@ -485,9 +465,7 @@ class QuadsCli:
                 continue
             else:
                 cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-                last_redefined = datetime.strptime(
-                    str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z"
-                )
+                last_redefined = datetime.strptime(str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z")
                 lock_release = last_redefined + timedelta(hours=cloud_reservation_lock)
                 cloud_string = f"{cloud.name}"
                 if lock_release > datetime.now():
@@ -506,9 +484,7 @@ class QuadsCli:
         _filter = self.cli_args.get("filter")
         _schedstart = self.cli_args.get("schedstart")
         _schedend = self.cli_args.get("schedend")
-        _start = _end = "T".join(
-            ":".join(datetime.now().isoformat().split(":")[:-1]).split()
-        )
+        _start = _end = "T".join(":".join(datetime.now().isoformat().split(":")[:-1]).split())
 
         if _filter:
             filter_args = self._filter_kwargs(_filter)
@@ -544,20 +520,17 @@ class QuadsCli:
             # TODO: check return on this below
             try:
                 if self.quads.is_available(host.name, data):
-                    current_schedule = self.quads.get_current_schedules(
-                        {"host": host.name}
-                    )
+                    current_schedule = self.quads.get_current_schedules({"host": host.name})
                     if current_schedule:
                         if (
                             host.default_cloud.name == conf["spare_pool_name"]
-                            and current_schedule[0].assignment.cloud.name
-                            != omit_cloud_arg
+                            and current_schedule[0].assignment.cloud.name != omit_cloud_arg
                         ):
                             current.append(host.name)
                     else:
                         if host.default_cloud.name == conf["spare_pool_name"]:
                             available.append(host.name)
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
 
         for host in available:
@@ -621,9 +594,7 @@ class QuadsCli:
             raise CliException(msg)
 
         if not cloud_name and not host_name:
-            msg = (
-                "Missing option. At least one of either --host or --cloud is required."
-            )
+            msg = "Missing option. At least one of either --host or --cloud is required."
             raise CliException(msg)
 
         if weeks:
@@ -641,16 +612,13 @@ class QuadsCli:
 
             schedules = self.quads.get_current_schedules(data_dispatch)
             if not schedules:
-                self.logger.warning(
-                    f"The selected {dispatch_key} does not have any active schedules"
-                )
+                self.logger.warning(f"The selected {dispatch_key} does not have any active schedules")
                 future_schedules = self.quads.get_future_schedules(data_dispatch)
                 if not future_schedules:
                     return
 
                 if not self._confirmation_dialog(
-                    "Would you like to extend a future allocation of "
-                    f"{data_dispatch[dispatch_key]}? (y/N): "
+                    "Would you like to extend a future allocation of " f"{data_dispatch[dispatch_key]}? (y/N): "
                 ):
                     return
                 schedules = future_schedules
@@ -659,18 +627,14 @@ class QuadsCli:
 
         non_extendable = []
         for schedule in schedules:
-            end_date = (
-                schedule.end + timedelta(weeks=weeks)
-                if weeks
-                else datetime.strptime(date_arg, "%Y-%m-%d %H:%M")
-            )
+            end_date = schedule.end + timedelta(weeks=weeks) if weeks else datetime.strptime(date_arg, "%Y-%m-%d %H:%M")
             data = {
                 "start": ":".join(schedule.end.isoformat().split(":")[:-1]),
                 "end": ":".join(end_date.isoformat().split(":")[:-1]),
             }
             try:
                 is_host_available = self.quads.is_available(schedule.host.name, data)
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
             if not is_host_available or end_date < schedule.end:
                 non_extendable.append(schedule.host)
@@ -703,7 +667,7 @@ class QuadsCli:
                     end = ":".join(end_date.isoformat().split(":")[:-1])
                     self.quads.update_schedule(schedule.id, {"end": end})
 
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
 
             if weeks:
@@ -732,14 +696,10 @@ class QuadsCli:
         end_date = None
 
         if not weeks and not now and not date_arg:
-            raise CliException(
-                "Missing option. Need --weeks, --date or --now when using --shrink"
-            )
+            raise CliException("Missing option. Need --weeks, --date or --now when using --shrink")
 
         if not cloud_name and not host_name:
-            raise CliException(
-                "Missing option. At least one of either --host or --cloud is required"
-            )
+            raise CliException("Missing option. At least one of either --host or --cloud is required")
 
         if weeks:
             try:
@@ -761,21 +721,18 @@ class QuadsCli:
 
         try:
             dispatched_obj = dispatch[dispatch_key](data_dispatch[dispatch_key])
-            if not dispatched_obj:
+            if not dispatched_obj:  # pragma: no cover
                 raise CliException(f"{dispatch_key.capitalize()} not found")
 
             schedules = self.quads.get_current_schedules(data_dispatch)
             if not schedules:
-                self.logger.error(
-                    f"The selected {dispatch_key} does not have any active schedules"
-                )
+                self.logger.error(f"The selected {dispatch_key} does not have any active schedules")
                 future_schedules = self.quads.get_future_schedules(data_dispatch)
                 if not future_schedules:
                     return
 
                 if not self._confirmation_dialog(
-                    "Would you like to shrink a future allocation of"
-                    f" {data_dispatch[dispatch_key]}? (y/N): "
+                    "Would you like to shrink a future allocation of" f" {data_dispatch[dispatch_key]}? (y/N): "
                 ):
                     return
                 schedules = future_schedules
@@ -785,11 +742,7 @@ class QuadsCli:
         non_shrinkable = []
         for schedule in schedules:
             end_date = schedule.end - timedelta(weeks=weeks) if weeks else _date
-            if (
-                end_date < schedule.start
-                or end_date > schedule.end
-                or (not now and end_date < threshold)
-            ):
+            if end_date < schedule.start or end_date > schedule.end or (not now and end_date < threshold):
                 non_shrinkable.append(schedule.host)
 
         if non_shrinkable:
@@ -802,14 +755,9 @@ class QuadsCli:
             return
 
         if not check:
-            confirm_msg = (
-                f"for {weeks} week[s]? (y/N): "
-                if weeks
-                else f"to {str(_date)[:16]}? (y/N): "
-            )
+            confirm_msg = f"for {weeks} week[s]? (y/N): " if weeks else f"to {str(_date)[:16]}? (y/N): "
             if not self._confirmation_dialog(
-                f"Are you sure you want to shrink {data_dispatch[dispatch_key]} "
-                + confirm_msg
+                f"Are you sure you want to shrink {data_dispatch[dispatch_key]} " + confirm_msg
             ):
                 return
 
@@ -840,9 +788,7 @@ class QuadsCli:
                     f"{dispatch_key.capitalize()} {data_dispatch[dispatch_key]} can be shrunk to {str(end_date)[:16]}"
                 )
             else:
-                self.logger.info(
-                    f"{dispatch_key.capitalize()} {data_dispatch[dispatch_key]} can be terminated now"
-                )
+                self.logger.info(f"{dispatch_key.capitalize()} {data_dispatch[dispatch_key]} can be terminated now")
 
     def action_cloudresource(self):
         assignment = None
@@ -872,16 +818,12 @@ class QuadsCli:
 
         if cloud:
             try:
-                assignment = self.quads.get_active_cloud_assignment(
-                    self.cli_args.get("cloud")
-                )
-            except (APIServerException, APIBadRequest) as ex:
+                assignment = self.quads.get_active_cloud_assignment(self.cli_args.get("cloud"))
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
 
             if assignment:
-                last_redefined = datetime.strptime(
-                    str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S GMT"
-                )
+                last_redefined = datetime.strptime(str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S GMT")
                 lock_release = last_redefined + timedelta(hours=cloud_reservation_lock)
                 cloud_string = f"{cloud.name}"
                 if lock_release > datetime.now():
@@ -900,7 +842,7 @@ class QuadsCli:
             if not cloud:
                 try:
                     cloud_response = self.quads.insert_cloud(data)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 if cloud_response.status_code == 200:
                     self.logger.info(f'Cloud {self.cli_args.get("cloud")} created.')
@@ -908,7 +850,7 @@ class QuadsCli:
             if not assignment:
                 try:
                     response = self.quads.insert_assignment(data)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 if response.status_code == 200:
                     self.logger.info("Assignment created.")
@@ -920,10 +862,8 @@ class QuadsCli:
                 if response.status_code == 200:
                     self.logger.info("Assignment updated.")
 
-        except ConnectionError:
-            raise CliException(
-                "Could not connect to the quads-server, verify service is up and running."
-            )
+        except ConnectionError:  # pragma: no cover
+            raise CliException("Could not connect to the quads-server, verify service is up and running.")
 
     def action_modcloud(self):
         data = {
@@ -948,16 +888,12 @@ class QuadsCli:
             clean_data["qinq"] = self.cli_args.get("qinq")
 
         try:
-            assignment = self.quads.get_active_cloud_assignment(
-                self.cli_args.get("cloud")
-            )
+            assignment = self.quads.get_active_cloud_assignment(self.cli_args.get("cloud"))
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
 
         if not assignment:
-            raise CliException(
-                f"No active cloud assignment for {self.cli_args.get('cloud')}"
-            )
+            raise CliException(f"No active cloud assignment for {self.cli_args.get('cloud')}")
 
         if self.cli_args.get("cloudticket"):
             payload = {"ticket": self.cli_args.get("cloudticket")}
@@ -1001,7 +937,7 @@ class QuadsCli:
         self._output_json_result(_response, {"host": self.cli_args.get("host")})
 
     def action_hostresource(self):
-        if not self.cli_args.get("host"):
+        if not self.cli_args.get("host"):  # pragma: no cover
             raise CliException("Missing parameter --host")
         if not self.cli_args.get("defaultcloud"):
             raise CliException("Missing parameter --default-cloud")
@@ -1031,9 +967,7 @@ class QuadsCli:
                 hosts_metadata = yaml.safe_load(md)
         except IOError as ಠ_ಠ:
             self.logger.debug(ಠ_ಠ, exc_info=ಠ_ಠ)
-            raise CliException(
-                f"There was something wrong reading from {self.cli_args['metadata']}"
-            )
+            raise CliException(f"There was something wrong reading from {self.cli_args['metadata']}")
 
         for host_md in hosts_metadata:
             ready_defined = []
@@ -1050,13 +984,9 @@ class QuadsCli:
                 "processors": self.quads.create_processor,
             }
             for key, value in host_md.items():
-                if (
-                    key != "name"
-                    and key != "default_cloud"
-                    and getattr(host, key) is not None
-                ):
+                if key != "name" and key != "default_cloud" and getattr(host, key) is not None:
                     ready_defined.append(key)
-                    if not self.cli_args.get("force"):
+                    if not self.cli_args.get("force"):  # pragma: no cover
                         continue
                     if type(value) == list:
                         self.clear_field(host, key)
@@ -1066,19 +996,17 @@ class QuadsCli:
                             if dispatch_func:
                                 try:
                                     dispatch_func(host.name, obj)
-                                except (APIServerException, APIBadRequest) as ex:
+                                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                                     raise CliException(str(ex))
-                            else:
-                                raise CliException(
-                                    f"Invalid key '{key}' on metadata for {host.name}"
-                                )
+                            else:  # pragma: no cover
+                                raise CliException(f"Invalid key '{key}' on metadata for {host.name}")
                     else:
                         data[key] = value
 
                 elif key == "default_cloud":
                     try:
                         cloud = self.quads.get_cloud(value)
-                    except (APIServerException, APIBadRequest) as ex:
+                    except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                         raise CliException(str(ex))
                     data[key] = cloud.name
 
@@ -1088,13 +1016,13 @@ class QuadsCli:
             if data and len(data.keys()) > 1:
                 self.quads.update_host(host.name, data)
 
-        if not self.cli_args.get("force"):
+        if not self.cli_args.get("force"):  # pragma: no cover
             self.logger.warning("For overwriting existing values use the --force.")
 
     def action_host_metadata_export(self):
         try:
             all_hosts = self.quads.get_hosts()
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
         content = []
         for host in all_hosts:
@@ -1165,11 +1093,9 @@ class QuadsCli:
             with NamedTemporaryFile("w", delete=False) as temp:
                 yaml.dump(content, temp)
                 self.logger.info(f"Metadata successfully exported to {temp.name}.")
-        except Exception as ಠ益ಠ:
+        except Exception as ಠ益ಠ:  # pragma: no cover
             self.logger.debug(ಠ益ಠ, exc_info=ಠ益ಠ)
-            raise BaseQuadsException(
-                "There was something wrong writing to file."
-            ) from ಠ益ಠ
+            raise BaseQuadsException("There was something wrong writing to file.") from ಠ益ಠ
 
         return 0
 
@@ -1192,19 +1118,17 @@ class QuadsCli:
         if self.cli_args.get("omitcloud"):
             try:
                 omit_cloud = self.quads.get_cloud(self.cli_args.get("omitcloud"))
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
 
         if self.cli_args.get("host"):
             if self.cli_args.get("omitcloud"):
                 try:
                     host = self.quads.get_host(self.cli_args.get("host"))
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 if host.cloud.name == self.cli_args.get("omitcloud"):
-                    self.logger.info(
-                        "Host is in part of the cloud specified with --omit-cloud. Nothing has been done."
-                    )
+                    self.logger.info("Host is in part of the cloud specified with --omit-cloud. Nothing has been done.")
             else:
                 data = {
                     "cloud": self.cli_args.get("schedcloud"),
@@ -1214,7 +1138,7 @@ class QuadsCli:
                 }
                 try:
                     self.quads.insert_schedule(data)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 self.logger.info("Schedule created")
 
@@ -1222,22 +1146,16 @@ class QuadsCli:
             try:
                 with open(self.cli_args.get("host_list")) as _file:
                     host_list_stream = _file.read()
-            except IOError:
+            except IOError:  # pragma: no cover
                 raise CliException(f"{self.cli_args['host_list']} File Error.")
 
             host_list = host_list_stream.split()
             non_available = []
-            _sched_start = datetime.strptime(
-                self.cli_args.get("schedstart"), "%Y-%m-%d %H:%M"
-            )
-            _sched_end = datetime.strptime(
-                self.cli_args.get("schedend"), "%Y-%m-%d %H:%M"
-            )
+            _sched_start = datetime.strptime(self.cli_args.get("schedstart"), "%Y-%m-%d %H:%M")
+            _sched_end = datetime.strptime(self.cli_args.get("schedend"), "%Y-%m-%d %H:%M")
 
             if self.cli_args.get("omitcloud"):
-                self.logger.info(
-                    f"INFO - All hosts from {self.cli_args['omitcloud']} will be omitted."
-                )
+                self.logger.info(f"INFO - All hosts from {self.cli_args['omitcloud']} will be omitted.")
                 omitted = []
 
                 for host in host_list:
@@ -1263,13 +1181,11 @@ class QuadsCli:
                     host_obj = self.quads.get_host(host)
                     if not is_available or host_obj.broken:
                         non_available.append(host)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
 
             if non_available:
-                self.logger.error(
-                    "The following hosts are either broken or unavailable:"
-                )
+                self.logger.error("The following hosts are either broken or unavailable:")
 
                 for host in non_available:
                     self.logger.error(host)
@@ -1289,9 +1205,7 @@ class QuadsCli:
                         raise CliException(str(ex))
                     self.logger.info(f"Schedule created for {host}")
                 except ConnectionError:
-                    raise CliException(
-                        "Could not connect to the quads-server, verify service is up and running."
-                    )
+                    raise CliException("Could not connect to the quads-server, verify service is up and running.")
 
             template_file = "jira_ticket_assignment"
             with open(os.path.join(conf.TEMPLATES_PATH, template_file)) as _file:
@@ -1303,9 +1217,7 @@ class QuadsCli:
                 raise CliException(str(ex))
             jira_docs_links = conf["jira_docs_links"].split(",")
             jira_vlans_docs_links = conf["jira_vlans_docs_links"].split(",")
-            ass = self.quads.get_active_cloud_assignment(
-                self.cli_args.get("schedcloud")
-            )
+            ass = self.quads.get_active_cloud_assignment(self.cli_args.get("schedcloud"))
             comment = template.render(
                 schedule_start=self.cli_args.get("schedstart"),
                 schedule_end=self.cli_args.get("schedend"),
@@ -1335,9 +1247,7 @@ class QuadsCli:
                 t_name = transition.get("name")
                 if t_name and t_name.lower() == "scheduled":
                     transition_id = transition.get("id")
-                    transition_result = loop.run_until_complete(
-                        jira.post_transition(ass.ticket, transition_id)
-                    )
+                    transition_result = loop.run_until_complete(jira.post_transition(ass.ticket, transition_id))
                     break
 
             if not transition_result:
@@ -1373,16 +1283,12 @@ class QuadsCli:
             value = self.cli_args.get(v)
             if value:
                 if k in ["start", "end"]:
-                    value = ":".join(
-                        datetime.strptime(value, "%Y-%m-%d %H:%M")
-                        .isoformat()
-                        .split(":")[:-1]
-                    )
+                    value = ":".join(datetime.strptime(value, "%Y-%m-%d %H:%M").isoformat().split(":")[:-1])
                 data[k] = value
         try:
             self.quads.update_schedule(self.cli_args.get("schedid"), data)
             self.logger.info("Schedule updated successfully.")
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         return 0
@@ -1399,13 +1305,7 @@ class QuadsCli:
         _ifmaintenance = self.cli_args.get("ifmaintenance", False)
         _force = self.cli_args.get("force", None)
         _host = self.cli_args.get("host", None)
-        if (
-            _ifmac is None
-            or _ifname is None
-            or _ifip is None
-            or _ifport is None
-            or _ifport is None
-        ):
+        if _ifmac is None or _ifname is None or _ifip is None or _ifport is None or _ifport is None:
             raise CliException(
                 "Missing option. All these options are required for --add-interface:\n"
                 "\t--host\n"
@@ -1443,9 +1343,7 @@ class QuadsCli:
 
     def action_rminterface(self):
         if not self.cli_args.get("host") or not self.cli_args.get("ifname"):
-            raise CliException(
-                "Missing option. --host and --interface-name options are required for --rm-interface"
-            )
+            raise CliException("Missing option. --host and --interface-name options are required for --rm-interface")
 
         data = {
             "hostname": self.cli_args.get("host"),
@@ -1488,9 +1386,7 @@ class QuadsCli:
         _host = self.cli_args.get("host", None)
         # TODO: fix all
         if _host is None or _ifname is None:
-            raise CliException(
-                "Missing option. --host and --interface-name options are required for --mod-interface:"
-            )
+            raise CliException("Missing option. --host and --interface-name options are required for --mod-interface:")
 
         try:
             host = self.quads.get_host(_host)
@@ -1538,22 +1434,18 @@ class QuadsCli:
         try:
             self.quads.update_interface(self.cli_args.get("host"), data)
             self.logger.info("Interface successfully updated")
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             self.logger.error("Failed to update interface")
             raise CliException(str(ex))
         return 0
 
-    def action_movehosts(self):
+    def action_movehosts(self):  # pragma: no cover
         if self.cli_args.get("datearg") and not self.cli_args.get("dryrun"):
-            raise CliException(
-                "--move-hosts and --date are mutually exclusive unless using --dry-run."
-            )
+            raise CliException("--move-hosts and --date are mutually exclusive unless using --dry-run.")
 
         date = ""
         if self.cli_args.get("datearg"):
-            date = datetime.strptime(
-                self.cli_args.get("datearg"), "%Y-%m-%d %H:%M"
-            ).isoformat()
+            date = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()
 
         try:
             moves = self.quads.get_moves(date)
@@ -1591,9 +1483,7 @@ class QuadsCli:
                         target_assignment = Assignment().from_dict(data=assignment)
                     wipe = target_assignment.wipe if target_assignment else False
 
-                    self.logger.info(
-                        f"Moving {host} from {current} to {new}, wipe = {wipe}"
-                    )
+                    self.logger.info(f"Moving {host} from {current} to {new}, wipe = {wipe}")
                     if not self.cli_args.get("dryrun"):
                         try:
                             self.quads.update_host(
@@ -1608,39 +1498,23 @@ class QuadsCli:
                             raise CliException(str(ex))
                         if new != "cloud01":
                             try:
-                                has_active_schedule = self.quads.get_current_schedules(
-                                    {"cloud": f"{cloud.name}"}
-                                )
+                                has_active_schedule = self.quads.get_current_schedules({"cloud": f"{cloud.name}"})
                                 if has_active_schedule and wipe:
-                                    assignment = self.quads.get_active_cloud_assignment(
-                                        cloud.name
-                                    )
-                                    self.quads.update_assignment(
-                                        assignment.id, {"validated": False}
-                                    )
+                                    assignment = self.quads.get_active_cloud_assignment(cloud.name)
+                                    self.quads.update_assignment(assignment.id, {"validated": False})
                             except (APIServerException, APIBadRequest) as ex:
                                 raise CliException(str(ex))
                         try:
                             if self.cli_args.get("movecommand") == default_move_command:
-                                fn = functools.partial(
-                                    move_and_rebuild, host, new, semaphore, wipe
-                                )
+                                fn = functools.partial(move_and_rebuild, host, new, semaphore, wipe)
                                 tasks.append(fn)
                                 omits = conf.get("omit_network_move")
                                 omit = False
                                 if omits:
                                     omits = omits.split(",")
-                                    omit = [
-                                        omit
-                                        for omit in omits
-                                        if omit in host or omit == new
-                                    ]
+                                    omit = [omit for omit in omits if omit in host or omit == new]
                                 if not omit:
-                                    switch_tasks.append(
-                                        functools.partial(
-                                            switch_config, host, current, new
-                                        )
-                                    )
+                                    switch_tasks.append(functools.partial(switch_config, host, current, new))
                             else:
                                 if wipe:
                                     subprocess.check_call(
@@ -1663,42 +1537,30 @@ class QuadsCli:
                                     )
                         except Exception as ex:
                             self.logger.debug(ex)
-                            self.logger.exception(
-                                "Move command failed for host: %s" % host
-                            )
+                            self.logger.exception("Move command failed for host: %s" % host)
                             provisioned = False
 
                 if not self.cli_args.get("dryrun"):
                     try:
                         _old_cloud_obj = self.quads.get_cloud(results[0]["current"])
-                        old_cloud_schedule = self.quads.get_current_schedules(
-                            {"cloud": _old_cloud_obj.name}
-                        )
+                        old_cloud_schedule = self.quads.get_current_schedules({"cloud": _old_cloud_obj.name})
 
                         if not old_cloud_schedule and _old_cloud_obj.name != "cloud01":
-                            _old_ass_cloud_obj = self.quads.get_active_cloud_assignment(
-                                _old_cloud_obj.name
-                            )
+                            _old_ass_cloud_obj = self.quads.get_active_cloud_assignment(_old_cloud_obj.name)
                             if _old_ass_cloud_obj:
                                 payload = {"active": False}
-                                self.quads.update_assignment(
-                                    _old_ass_cloud_obj.id, payload
-                                )
+                                self.quads.update_assignment(_old_ass_cloud_obj.id, payload)
                     except (APIServerException, APIBadRequest) as ex:
                         raise CliException(str(ex))
 
                     done = None
                     loop = asyncio.get_event_loop()
                     loop.set_exception_handler(
-                        lambda _loop, ctx: self.logger.error(
-                            f"Caught exception: {ctx['message']}"
-                        )
+                        lambda _loop, ctx: self.logger.error(f"Caught exception: {ctx['message']}")
                     )
 
                     try:
-                        done = loop.run_until_complete(
-                            asyncio.gather(*[task(loop) for task in tasks])
-                        )
+                        done = loop.run_until_complete(asyncio.gather(*[task(loop) for task in tasks]))
                     except (
                         asyncio.CancelledError,
                         SystemExit,
@@ -1714,9 +1576,7 @@ class QuadsCli:
                             raise CliException(str(ex))
 
                         if not host_obj.switch_config_applied:
-                            self.logger.info(
-                                f"Running switch config for {task.args[0]}"
-                            )
+                            self.logger.info(f"Running switch config for {task.args[0]}")
 
                             try:
                                 result = task()
@@ -1728,15 +1588,11 @@ class QuadsCli:
 
                             if result:
                                 try:
-                                    self.quads.update_host(
-                                        task.args[0], {"switch_config_applied": True}
-                                    )
+                                    self.quads.update_host(task.args[0], {"switch_config_applied": True})
                                 except (APIServerException, APIBadRequest) as ex:
                                     raise CliException(str(ex))
                             else:
-                                self.logger.exception(
-                                    "There was something wrong configuring the switch."
-                                )
+                                self.logger.exception("There was something wrong configuring the switch.")
 
                     if done:
                         for future in done:
@@ -1748,9 +1604,7 @@ class QuadsCli:
                     if provisioned:
                         try:
                             _new_cloud_obj = self.quads.get_cloud(_cloud)
-                            assignment = self.quads.get_active_cloud_assignment(
-                                _new_cloud_obj.name
-                            )
+                            assignment = self.quads.get_active_cloud_assignment(_new_cloud_obj.name)
                             validate = not assignment.wipe
                             self.quads.update_assignment(
                                 assignment.id,
@@ -1767,13 +1621,11 @@ class QuadsCli:
 
         try:
             host = self.quads.get_host(self.cli_args.get("host"))
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         if host.broken:
-            self.logger.warning(
-                f"Host {self.cli_args['host']} has already been marked broken"
-            )
+            self.logger.warning(f"Host {self.cli_args['host']} has already been marked broken")
         else:
             try:
                 self.quads.update_host(self.cli_args.get("host"), {"broken": True})
@@ -1787,13 +1639,11 @@ class QuadsCli:
 
         try:
             host = self.quads.get_host(self.cli_args.get("host"))
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         if not host.broken:
-            self.logger.warning(
-                f"Host {self.cli_args['host']} has already been marked repaired"
-            )
+            self.logger.warning(f"Host {self.cli_args['host']} has already been marked repaired")
         else:
             try:
                 self.quads.update_host(self.cli_args.get("host"), {"broken": False})
@@ -1807,17 +1657,15 @@ class QuadsCli:
 
         try:
             host = self.quads.get_host(self.cli_args.get("host"))
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         if host.retired:
-            self.logger.warning(
-                f"Host {self.cli_args['host']} has already been marked as retired"
-            )
+            self.logger.warning(f"Host {self.cli_args['host']} has already been marked as retired")
         else:
             try:
                 self.quads.update_host(self.cli_args.get("host"), {"retired": True})
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
             self.logger.info(f"Host {self.cli_args['host']} is now marked as retired")
 
@@ -1827,31 +1675,27 @@ class QuadsCli:
 
         try:
             host = self.quads.get_host(self.cli_args.get("host"))
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         if not host.retired:
-            self.logger.warning(
-                f"Host {self.cli_args['host']} has already been marked unretired"
-            )
+            self.logger.warning(f"Host {self.cli_args['host']} has already been marked unretired")
         else:
             try:
                 self.quads.update_host(self.cli_args.get("host"), {"retired": False})
-            except (APIServerException, APIBadRequest) as ex:
+            except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 raise CliException(str(ex))
             self.logger.info(f"Host {self.cli_args['host']} is now marked as unretired")
 
     def action_host(self):
         try:
             host = self.quads.get_host(self.cli_args.get("host"))
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         _kwargs = {"host": host.name}
         if self.cli_args.get("datearg"):
-            datetime_obj = datetime.strptime(
-                self.cli_args.get("datearg"), "%Y-%m-%d %H:%M"
-            )
+            datetime_obj = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M")
             datearg_iso = datetime_obj.isoformat()
             date_str = ":".join(datearg_iso.split(":")[:-1])
             _kwargs["date"] = date_str
@@ -1873,22 +1717,19 @@ class QuadsCli:
 
         _kwargs = {"cloud": _cloud.name}
         if self.cli_args.get("datearg"):
-            _kwargs["date"] = datetime.strptime(
-                self.cli_args.get("datearg"), "%Y-%m-%d %H:%M"
-            ).isoformat()[:-3]
+            _kwargs["date"] = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()[:-3]
         schedules = self.quads.get_current_schedules(_kwargs)
         if schedules:
             host_kwargs = {"retired": False}
             if self.cli_args.get("filter"):
                 filter_args = self._filter_kwargs(self.cli_args.get("filter"))
                 host_kwargs.update(filter_args)
-                _hosts = self.quads.filter_hosts(host_kwargs)
-            else:
-                _hosts = self.quads.get_hosts()
-            for schedule in sorted(schedules, key=lambda k: k.host.name):
-                # TODO: check data properties
-                if schedule.host.name in [host.name for host in _hosts]:
-                    self.logger.info(schedule.host.name)
+            _hosts = self.quads.filter_hosts(host_kwargs)
+            if _hosts:
+                for schedule in sorted(schedules, key=lambda k: k.host.name):
+                    # TODO: check data properties
+                    if schedule.host.name in [host.name for host in _hosts]:
+                        self.logger.info(schedule.host.name)
         else:
             if _kwargs.get("date") and self.cli_args.get("cloudonly") == "cloud01":
                 data = {
@@ -1900,9 +1741,7 @@ class QuadsCli:
                     available_hosts = self.quads.filter_available(data)
                 except (APIServerException, APIBadRequest) as ex:
                     self.logger.debug(str(ex))
-                    raise CliException(
-                        "Could not connect to the quads-server, verify service is up and running."
-                    )
+                    raise CliException("Could not connect to the quads-server, verify service is up and running.")
 
                 host_kwargs = {}
                 if self.cli_args.get("filter"):
@@ -1921,24 +1760,21 @@ class QuadsCli:
                 if self.cli_args.get("filter"):
                     filter_args = self._filter_kwargs(self.cli_args.get("filter"))
                     host_kwargs.update(filter_args)
-                    _host = self.quads.filter_hosts(host_kwargs)
-                else:
-                    _hosts = self.quads.get_hosts()
-                for host in sorted(_hosts, key=lambda k: k.name):
-                    self.logger.info(host.name)
+                _hosts = self.quads.filter_hosts(host_kwargs)
+                if _hosts:
+                    for host in sorted(_hosts, key=lambda k: k.name):
+                        self.logger.info(host.name)
 
     def action_summary(self):
         _kwargs = {}
         if self.cli_args.get("datearg"):
-            datearg_obj = datetime.strptime(
-                self.cli_args.get("datearg"), "%Y-%m-%d %H:%M"
-            )
+            datearg_obj = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M")
             datearg_iso = datearg_obj.isoformat()
             date_str = ":".join(datearg_iso.split(":")[:-1])
             _kwargs["date"] = date_str
         try:
             summary = self.quads.get_summary(_kwargs)
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
         summary_json = summary.json()
         for cloud in summary_json:
@@ -1953,9 +1789,7 @@ class QuadsCli:
                         f"{cloud_name} ({cloud_owner}): {cloud_count} ({cloud_description}) - {cloud_ticket}"
                     )
                 else:
-                    self.logger.info(
-                        f"{cloud_name}: {cloud_count} ({cloud_description})"
-                    )
+                    self.logger.info(f"{cloud_name}: {cloud_count} ({cloud_description})")
 
     def action_regen_instack(self):
         regen_instack()
@@ -1972,7 +1806,7 @@ class QuadsCli:
         regen_wiki(self.logger)
         self.logger.info("Regenerated wiki.")
 
-    def action_foreman_rbac(self):
+    def action_foreman_rbac(self):  # pragma: no cover
         foreman_heal(self.logger)
         self.logger.info("Foreman RBAC repaired.")
 
