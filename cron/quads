@@ -1,5 +1,4 @@
 SHELL=/bin/bash
-PYTHONPATH=/opt/quads
 #######################################
 #
 # Only one cron category should be uncommented
@@ -25,22 +24,22 @@ PYTHONPATH=/opt/quads
 ##### CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH CONTAINER DEPLOYMENT
 ########################################
-# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "docker exec quads bin/quads-cli --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
-# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "docker exec quads bin/quads-cli --validate-env" ) 1>/dev/null 2>&1
-# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock -c "docker exec quads bin/quads-cli --regen-wiki" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "docker exec quads bin/quads-cli --notify" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "docker exec quads bin/quads-cli --regen-heatmap" ) 1>/dev/null 2>&1
-# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "docker exec quads bin/quads-cli --regen-instack" ) 1>/dev/null 2>&1
-# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "docker exec quads bin/quads-cli --foreman-rbac" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "podman exec quads quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
+# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "podman exec quads quads --validate-env" ) 1>/dev/null 2>&1
+# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock -c "podman exec quads quads --regen-wiki" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "podman exec quads quads --notify" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "podman exec quads quads --regen-heatmap" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "podman exec quads quads --regen-instack" ) 1>/dev/null 2>&1
+# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "podman exec quads quads --foreman-rbac" ) 1>/dev/null 2>&1
 #########################################
 ##### NON-CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH RPM OR SOURCE INSTALL
 #########################################
-# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "/opt/quads/bin/quads-cli --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
-# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "/opt/quads/bin/quads-cli --validate-env" ) 1>>/var/log/validate-env.log 2>&1
-# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock "/opt/quads/bin/quads-cli --regen-wiki" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "/opt/quads/bin/quads-cli --notify" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "/opt/quads/bin/quads-cli --regen-heatmap" ) 1>/dev/null 2>&1
-# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "/opt/quads/bin/quads-cli --regen-instack" ) 1>/dev/null 2>&1
-# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "/opt/quads/bin/quads-cli --foreman-rbac" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
+# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "quads --validate-env" ) 1>>/var/log/validate-env.log 2>&1
+# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock "quads --regen-wiki" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "quads --notify" ) 1>/dev/null 2>&1
+# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "quads --regen-heatmap" ) 1>/dev/null 2>&1
+# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "quads --regen-instack" ) 1>/dev/null 2>&1
+# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "quads --foreman-rbac" ) 1>/dev/null 2>&1
 ########################################

@@ -14,39 +14,39 @@ The QUADS project welcomes contributions from everyone!  Please read the below s
   - Clone `master` branch for latest, or a specific release branch e.g. `1.1`
 
 ```
-git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/docker/quads/
+git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/container/quads/
 ```
 
   - Change directory to the code and create your own branch to work
 ```
-cd /opt/docker/quads/docker
+cd /opt/container/quads/container
 git branch name_of_change
 git checkout !$
 ```
 
-#### Docker on Linux or a Linux VM
+#### Podman on Linux or a Linux VM
 
   - Instantiate the QUADS containers
 
 ```
-docker-compose -f /opt/docker/quads/docker/docker-compose.yml up
+podman-compose -f /opt/container/quads/container/container-compose.yml up
 ```
-  - This will not background the docker orchestration, so open other terminals to work.
+  - This will not background the podman orchestration, so open other terminals to work.
   - You can now test locally, it's useful to set a bashrc alias for the `bin/quads-cli` commmand
 
 ```
-echo 'alias quads="docker exec -it quads bin/quads-cli"' >> ~/.bashrc
+echo 'alias quads="podman exec -it quads bin/quads-cli"' >> ~/.bashrc
 ```
 
 #### MAC OSX Specific
 
   - Make the directory structure for your mapped database data
 ```
-mkdir -p /opt/docker/quads/docker/{data_db,wiki_db,wordpress_data} 
+mkdir -p /opt/container/quads/container/{data_db,wiki_db,wordpress_data} 
 ```
-  - Instantiate the docker compose
+  - Instantiate the podman compose
 ```
-docker compose -f /opt/docker/quads/docker/docker-compose-osx.yml up
+podman compose -f /opt/container/quads/container/container-compose-osx.yml up
 ```
   - If you're using Docker on Mac OSX you may want to switch to the [overlay2 driver](https://stackoverflow.com/questions/39455764/change-storage-driver-for-docker-on-os-x#39737553)  This is not strictly a requirement but can significantly improve performance on a Mac for the local driver.  For more details see this [article](https://markshust.com/2017/03/02/making-docker-mac-faster-overlay2-filesystem/).  Local driver mapped content is stored in ~/Library/Containers/com.docker.docker/Data/vms/0/ in a disk image.
 
@@ -83,16 +83,16 @@ vi lib/Quads.py
 ```
 
 #### Reloading Environment after Changes
-* Since we're using containers, any changes you make in the checked out repo and local branch in `/opt/docker/quads` can be reloaded via Docker.
+* Since we're using containers, any changes you make in the checked out repo and local branch in `/opt/container/quads` can be reloaded via Podman.
 
 ```
-docker-compose -f docker-compose.yml down
+podman-compose -f container-compose.yml down
 ```
 
-* Now bring it up again with your new code since the `/opt/docker/quads` volume is mapped.
+* Now bring it up again with your new code since the `/opt/container/quads` volume is mapped.
 
 ```
-docker-compose -f docker-compose.yml up -d
+podman-compose -f container-compose.yml up -d
 ```
 
 ### Make a Commit, Submit Review
@@ -132,7 +132,7 @@ git review
 * If you just want to checkout an existing patchset in Gerrit you can use the `git review -d $CHANGEID` command.
 
 ```
-cd /opt/docker/quads
+cd /opt/container/quads
 git review -d $CHANGEID
 ```
 

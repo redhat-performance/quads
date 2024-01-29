@@ -155,8 +155,8 @@ b08-h13-r620.rdu.openstack.engineering.example.com
   * **NOTE** As of `1.1.0` PDU management is currently unavailable but will be added back in soon.
 
 ### Sending Notification Emails from a Container
-   * If you want to send email from QUADS containers (and not the localhost MTA) you will need changes to the localhost MTA of the host running your docker container to facilitate relaying mail through it, as cgroup and container isolation do not permit this without additional settings.
-      * In `/etc/postfix/main.cf` where `172.17.0.1` is your `docker0` interface on the docker container host.
+   * If you want to send email from QUADS containers (and not the localhost MTA) you will need changes to the localhost MTA of the host running your podman container to facilitate relaying mail through it, as cgroup and container isolation do not permit this without additional settings.
+      * In `/etc/postfix/main.cf` where `172.17.0.1` is your `docker0` interface on the podman container host.
       * In our R&D environments we use an upstream SMTP relay server, your environment may vary.
 ```
 inet_interfaces = all
