@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define version 1.1.7
+%define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -28,11 +28,12 @@ Prefix: /opt/quads
 BuildArch: noarch
 Vendor: QUADS Project
 Packager: QUADS Project
-Requires: httpd >= 2.4
 Requires: python3-mongoengine >= 0.8
 Requires: python3-cherrypy >= 8.9
 Requires: python3-jinja2 >= 3.0.3
 Requires: python3-werkzeug >= 2.2.2
+Requires: nginx >= 1.0
+Requires: python3-gunicorn >= 15.0
 Requires: python3-passlib >= 1.7
 Requires: python3-PyYAML >= 6.0
 Requires: python3-requests >= 2.0
@@ -41,6 +42,8 @@ Requires: git >= 2.1
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.12
 Requires: python3-flask >= 2.2.2
+Requires: postgresql >= 14.0
+Requires: postgresql-server 14.0
 Requires: python3-flask-bootstrap >= 3.3.7.1
 Requires: python3-flask-wtf >= 0.12
 Requires: python3-wtforms >= 2.2.0
@@ -100,8 +103,9 @@ mkdir %{buildroot}/etc/logrotate.d/ -p
 tar cf - bin quads/*.py quads/tools/*.py quads/cli/* quads/templates/* quads/*.py conf web | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
+cp -rf systemd/quads-db.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
-mkdir -p %{buildroot}/var/www/html/visual/
+mkdir -p %{buildroot}/usr/share/nginx/html/visual/
 echo 'export PATH="/opt/quads/bin:$PATH"' > %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
 echo 'export PYTHONPATH="$PYTHONPATH:/opt/quads/"' >> %{buildroot}/etc/profile.d/quads.sh
@@ -112,6 +116,7 @@ rm -rf %{buildroot}
 %files
 /etc/systemd/system/quads-web.service
 /etc/systemd/system/quads-server.service
+/etc/systemd/system/quads-db.service
 /etc/profile.d/quads.sh
 /opt/quads/bin/*
 /opt/quads/web/*
@@ -128,10 +133,15 @@ rm -rf %{buildroot}
 %config(noreplace) /etc/logrotate.d/logrotate_quads.conf
 
 %post
+/usr/bin/mkdir -p /opt/quads/db/pgsql/data
+/usr/bin/chown -R postgres:postgres /opt/quads/db/pgsql
+/usr/bin/sudo -u postgres initdb -D /opt/quads/db/pgsql/data
+PYTHONPATH=. /usr/bin/flask --app quads/server/app.py init-db
+/usr/bin/chown -R postgres:postgres /opt/quads/db/pgsql
+/usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
-/usr/bin/systemctl enable mongod
-/usr/bin/systemctl enable httpd
+/usr/bin/systemctl enable nginx
 /usr/bin/systemctl enable haveged
 source /etc/profile.d/quads.sh
 
@@ -141,10 +151,24 @@ if [ "$1" -eq 0 ]; then
   /usr/bin/systemctl disable quads-server
   /usr/bin/systemctl stop quads-web
   /usr/bin/systemctl disable quads-web
+  /usr/bin/systemctl stop quads-db
+  /usr/bin/systemctl disable quads-db
 fi;
 :;
 
 %changelog
+
+* Mon Jan 29 2024 Will Foster <wfoster@redhat.com>
+- Testing 2.0.0 packaging WIP
+
+* Tue Oct 31 2023 Will Foster <wfoster@redhat.com>
+- 1.1.8 release
+- added --cloud filter to --ls-available
+- added argparse for ommitting systems validation
+- added better host build checks
+- quads-cli --host now shows the host environment
+- host metadata export now writes a file copy to disk
+- many bug fixes
 
 * Wed Feb 08 2023 Will Foster <wfoster@redhat.com>
 - 1.1.7 release
