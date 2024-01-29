@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+
+  quads-db:
+    image: postgres
+    container_name: quads_db
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: quads
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d postgres'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  quads_api:
+    depends_on:
+      quads-db:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Containerfile
+      network: host
+    container_name: quads_api
+    ports:
+      - 5000:5000
+    environment:
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@quads_db:5432/quads"
+    volumes:
+      - /var/lib/jenkins/workspace/Quads-2.0:/opt/quads:z
