@@ -10,8 +10,7 @@ from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import db, Assignment, Cloud, Notification
 from sqlalchemy import and_, Boolean
-from sqlalchemy.orm import RelationshipProperty
-from sqlalchemy.orm.relationships import Relationship
+from sqlalchemy.orm import RelationshipProperty, relationship
 
 
 class AssignmentDao(BaseDao):
@@ -161,7 +160,7 @@ class AssignmentDao(BaseDao):
                 raise InvalidArgument(f"{k} is not a valid field.")
             if (
                 type(field) != RelationshipProperty
-                and type(field) != Relationship
+                and type(field) != relationship
                 and type(field.columns[0].type) == Boolean
             ):
                 value = str(value).lower() in ["true", "y", 1, "yes"]

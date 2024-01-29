@@ -971,10 +971,11 @@ class QuadsCli:
 
         for host_md in hosts_metadata:
             ready_defined = []
+            missing_host = False
             try:
                 host = self.quads.get_host(host_md.get("name"))
-            except (APIServerException, APIBadRequest) as ex:
-                raise CliException(str(ex))
+            except (APIServerException, APIBadRequest):
+                missing_host = True
 
             data = {}
             dispatch_create = {
@@ -1013,8 +1014,20 @@ class QuadsCli:
             if ready_defined:
                 action = "SKIPPING" if not self.cli_args.get("force") else "RECREATING"
                 self.logger.warning(f"{host.name} [{action}]: {ready_defined}")
+
             if data and len(data.keys()) > 1:
-                self.quads.update_host(host.name, data)
+                if not missing_host:
+                    try:
+                        self.quads.update_host(host.name, data)
+                    except (APIServerException, APIBadRequest) as ex:
+                        raise CliException(str(ex))
+                else:
+                    data["name"] = host_md.get("name")
+                    try:
+                        self.quads.create_host(data)
+                    except (APIServerException, APIBadRequest) as ex:
+                        raise CliException(str(ex))
+                    self.logger.info(f"{host_md.get('name')} created")
 
         if not self.cli_args.get("force"):  # pragma: no cover
             self.logger.warning("For overwriting existing values use the --force.")

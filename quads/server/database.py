@@ -1,5 +1,5 @@
 from sqlalchemy_utils import database_exists, create_database
-from quads.server.models import Base, Role, engine_from_config, db
+from quads.server.models import Base, Role, User, engine_from_config, db
 
 
 def init_db(config=None):
@@ -36,15 +36,15 @@ def populate(user_datastore):
     regular_user = "gonza@redhat.com"
     admin_user = "grafuls@redhat.com"
 
-    user = user_datastore.get_user(admin_user)
-    if not user:
+    admin_user_entry = db.session.query(User).filter(User.email == admin_user).first()
+    if not admin_user_entry:
         user_datastore.create_user(
             email=admin_user, password="password", roles=[admin_role]
         )
         commit = True
 
-    user = user_datastore.get_user(regular_user)
-    if not user:
+    regular_user_entry = db.session.query(User).filter(User.email == regular_user).first()
+    if not regular_user_entry:
         user_datastore.create_user(
             email=regular_user, password="password", roles=[user_role]
         )
