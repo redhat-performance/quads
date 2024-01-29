@@ -1,7 +1,7 @@
 import json
 
 from flask import Blueprint, jsonify, request, Response, make_response
-from email_validator import validate_email, EmailNotValidError
+from validators import email
 
 from quads.server.models import User, TokenBlackList, db, Role
 from quads.server.app import basic_auth, user_datastore
@@ -29,10 +29,7 @@ def register() -> Response:
             "message": "Please provide both email and password.",
         }
         return Response(response=json.dumps(response), status=401)
-    try:
-        valid = validate_email(data["email"])
-        data["email"] = valid.email
-    except EmailNotValidError:
+    if not email(data["email"]):
         response = {
             "status_code": 401,
             "status": "fail",
@@ -41,9 +38,7 @@ def register() -> Response:
         return Response(response=json.dumps(response), status=401)
     if not user:
         try:
-            user = user_datastore.create_user(
-                email=data["email"], password=data["password"], roles=[role]
-            )
+            user = user_datastore.create_user(email=data["email"], password=data["password"], roles=[role])
             db.session.commit()
             auth_token = User.encode_auth_token(user.id)
             response_object = {
@@ -70,7 +65,7 @@ def register() -> Response:
 
 
 @auth_bp.route("/login/", methods=["POST"])
-@basic_auth.login_required()
+@basic_auth.login_required
 def login() -> Response:
     """
     Used to authenticate a user.

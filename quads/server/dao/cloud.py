@@ -1,7 +1,8 @@
 from typing import List, Optional, Type
 
 from sqlalchemy import Boolean
-from sqlalchemy.orm import RelationshipProperty, Relationship
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm.relationships import Relationship
 
 from quads.server.dao.baseDao import (
     BaseDao,

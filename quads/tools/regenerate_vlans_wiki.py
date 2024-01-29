@@ -4,7 +4,7 @@ import logging
 from xmlrpc.client import ProtocolError
 
 from quads.quads_api import QuadsApi
-from quads.tools.external.wiki import Wiki
+from quads.tools.external.wordpress import Wordpress
 from quads.config import Config
 from tempfile import NamedTemporaryFile
 
@@ -47,9 +47,7 @@ def render_vlans(markdown):
         netmask = vlan.netmask
         gateway = vlan.gateway
         ip_free = vlan.ip_free
-        cloud_current_count = len(
-            quads.get_current_schedules({"cloud": cloud_obj.name})
-        )
+        cloud_current_count = len(quads.get_current_schedules({"cloud": cloud_obj.name}))
         if assignment_obj and cloud_current_count > 0 and cloud_obj:
             owner = assignment_obj.owner
             ticket = assignment_obj.ticket
@@ -88,8 +86,8 @@ def regenerate_vlans_wiki():
         render_vlans(_markdown)
         _markdown.seek(0)
         try:
-            wiki = Wiki(wp_url, wp_username, wp_password)
-            wiki.update(page_title, page_id, _markdown.name)
+            wiki = Wordpress(wp_url, wp_username, wp_password)
+            wiki.update_page(page_title, page_id, _markdown.name)
         except ProtocolError as ex:
             logger.error(ex.errmsg)
 
