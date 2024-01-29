@@ -62,7 +62,7 @@ class TestReadMoves:
         | THEN: User should be able to get the list of hosts with information where they need to moved
         """
         auth_header = auth.get_auth_header()
-        req = {"date": "2040-01-01T00:00"}
+        req = {"date": "2025-01-01T00:00"}
         resp = [
             {"current": "cloud01", "host": "host2.example.com", "new": "cloud02"},
             {"current": "cloud01", "host": "host3.example.com", "new": "cloud03"},
