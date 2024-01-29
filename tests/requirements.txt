@@ -1,14 +1,13 @@
-tox==3.25.0
-pytest==7.0.0
-pytest-asyncio==0.21.1
-pytest-aiohttp==1.0.5
-pytest-mock==3.11.1
-pytest-cov==3.0.0
-codecov==2.1.13
-asynctest==0.13.0
+tox>=3.25.0
+pytest>=7.0.0
+pytest-asyncio>=0.21.1
+pytest-aiohttp>=1.0.5
+pytest-mock>=3.11.1
+pytest-cov>=3.0.0
+codecov>=2.1.13
+asynctest>=0.13.0
 pyyaml>=3.10
 aiohttp>=3.7.4
-requests==2.31.0
-python-wordpress-xmlrpc>=2.3
+requests>=2.31.0
 GitPython>=3.1.36
 
