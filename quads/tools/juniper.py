@@ -78,6 +78,9 @@ class Juniper(object):
             self.execute(
                 f"set interfaces {self.switch_port} unit 0 family ethernet-switching vlan members vlan{self.new_vlan}"
             )
+            self.execute(
+                f"set interfaces {self.switch_port} mtu 9216"
+            )
 
             if self.old_vlan and self.old_vlan != self.new_vlan:
                 self.execute(
