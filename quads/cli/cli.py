@@ -1770,13 +1770,14 @@ class QuadsCli:
                     if host in _hosts:
                         self.logger.info(host)
             else:
-                _kwargs = {"cloud": _cloud}
-                if self.cli_args["filter"]:
-                    filter_args = self._filter_kwargs(self.cli_args["filter"])
-                    _kwargs.update(filter_args)
-                _hosts = Host.objects(**_kwargs).all()
-                for host in sorted(_hosts, key=lambda k: k["name"]):
-                    self.logger.info(host.name)
+                if not _kwargs.get("date"):
+                    _kwargs = {"cloud": _cloud}
+                    if self.cli_args["filter"]:
+                        filter_args = self._filter_kwargs(self.cli_args["filter"])
+                        _kwargs.update(filter_args)
+                    _hosts = Host.objects(**_kwargs).all()
+                    for host in sorted(_hosts, key=lambda k: k["name"]):
+                        self.logger.info(host.name)
 
     def action_summary(self):
         _kwargs = {}
