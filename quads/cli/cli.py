@@ -1744,7 +1744,10 @@ class QuadsCli:
                 if schedule.host in _hosts:
                     self.logger.info(schedule.host.name)
         else:
-            if _kwargs.get("date") and self.cli_args["cloud"] == "cloud01":
+            if _kwargs.get("date"):
+                if self.cli_args["cloud"] != "cloud01":
+                    return
+
                 data = {
                     "start": _kwargs["date"],
                     "end": _kwargs["date"],
