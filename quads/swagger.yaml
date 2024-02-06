@@ -140,7 +140,7 @@ paths:
 
   /clouds/:
     get:
-      summary: 'Returns a list with all the defined clouds'
+      summary: Returns a list with all the defined clouds
       tags:
         - Clouds
       responses:
@@ -179,9 +179,9 @@ paths:
       security:
         - BearerAuth: [ ]
 
-  /clouds/{cloudName}:
+  /clouds/{cloudName}/:
     get:
-      summary: 'Returns a cloud by name'
+      summary: Returns a cloud by name
       tags:
         - Clouds
       parameters:
@@ -193,7 +193,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Cloud name'
+          description: Cloud name
           headers:
             x-next:
               description: A link to the next page of responses
@@ -222,13 +222,37 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Cloud'
+          description: Deleted Cloud
       security:
         - BearerAuth: [ ]
 
+  /clouds/summary/:
+    get:
+      summary: Returns all clouds summary
+      tags:
+        - Clouds
+      responses:
+        '200':
+          description: Cloud summary
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudSummary'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /hosts/:
     get:
-      summary: 'Returns a list with all the defined hosts'
+      summary: Returns a list with all the defined hosts
       tags:
         - Hosts
       parameters:
@@ -284,7 +308,7 @@ paths:
           description: Filter by created on date.
       responses:
         '200':
-          description: 'Host name'
+          description: Host name
           headers:
             x-next:
               description: A link to the next page of responses
@@ -320,9 +344,9 @@ paths:
       security:
         - BearerAuth: [ ]
 
-  /hosts/{hostName}:
+  /hosts/{hostName}/:
     get:
-      summary: 'Returns a host by name'
+      summary: Returns a host by name
       tags:
         - Hosts
       parameters:
@@ -334,7 +358,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Host name'
+          description: Host name
           headers:
             x-next:
               description: A link to the next page of responses
@@ -352,7 +376,7 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     patch:
-      summary: 'Update an existing host'
+      summary: Update an existing host
       tags:
         - Hosts
       requestBody:
@@ -371,7 +395,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Host name'
+          description: Host name
           headers:
             x-next:
               description: A link to the next page of responses
@@ -403,15 +427,15 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Host'
+          description: Deleted Host
       security:
         - BearerAuth: [ ]
 
-  /disks/{hostName}:
+  /hosts/{hostName}/memory/:
     get:
-      summary: 'Returns a list of disk for a specific hostname'
+      summary: Returns a host memory by host name
       tags:
-        - Disks
+        - Hosts
       parameters:
         - name: hostName
           in: path
@@ -421,7 +445,63 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Disks'
+          description: Memory
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Memory'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /hosts/{hostName}/processors/:
+    get:
+      summary: Returns a host processors by host name
+      tags:
+        - Hosts
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Processors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Processor'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /hosts/{hostName}/disks/:
+    get:
+      summary: Returns a host disks by host name
+      tags:
+        - Hosts
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Disks
           content:
             application/json:
               schema:
@@ -435,8 +515,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /hosts/{hostName}/interfaces/:
+    get:
+      summary: Returns a host interfaces by host name
+      tags:
+        - Hosts
+      parameters:
+        - name: hostName
+          in: path
+          description: Host name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Interfaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Interface'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /disks/:
+    get:
+      summary: Returns a all disks
+      tags:
+        - Disks
+      responses:
+        '200':
+          description: Disks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Disk'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /disks/{disk_id}/:
+    get:
+      summary: Returns a specific disk by disc id
+      tags:
+        - Disks
+      parameters:
+        - name: disk_id
+          in: path
+          description: Disk ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Disks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disk'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /disks/{hostName}/:
     post:
-      summary: 'Create a host disk definition'
+      summary: Create a host disk definition
       tags:
         - Disks
       parameters:
@@ -458,7 +614,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Disk details'
+          description: Disk details
           headers:
             x-next:
               description: A link to the next page of responses
@@ -478,7 +634,7 @@ paths:
         - BearerAuth: [ ]
 
     patch:
-      summary: 'Update an existing host disks definitions'
+      summary: Update an existing host disks definitions
       tags:
         - Disks
       parameters:
@@ -500,7 +656,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Disk details'
+          description: Disk details
           headers:
             x-next:
               description: A link to the next page of responses
@@ -532,25 +688,18 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Disk'
+          description: Deleted Disk
       security:
         - BearerAuth: [ ]
 
-  /interfaces/{hostName}:
+  /interfaces/:
     get:
-      summary: 'Returns a list of interfaces for a specific hostname'
+      summary: Returns a list of all interfaces
       tags:
         - Interfaces
-      parameters:
-        - name: hostName
-          in: path
-          description: Host name
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: 'Interface details list'
+          description: Interface details list
           content:
             application/json:
               schema:
@@ -564,8 +713,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /interfaces/{interface_id}/:
+    get:
+      summary: Returns a specific interface for a specific interface id
+      tags:
+        - Interfaces
+      parameters:
+        - name: interface_id
+          in: path
+          description: Interface ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Interface details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interface'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /interfaces/{hostName}/:
     post:
-      summary: 'Create a host interface definition'
+      summary: Create a host interface definition
       tags:
         - Interfaces
       parameters:
@@ -587,7 +763,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Interface details list'
+          description: Interface details list
           content:
             application/json:
               schema:
@@ -602,7 +778,7 @@ paths:
         - BearerAuth: [ ]
 
     patch:
-      summary: 'Update an existing host interface definitions'
+      summary: Update an existing host interface definitions
       tags:
         - Interfaces
       parameters:
@@ -624,7 +800,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Interface details'
+          description: Interface details
           content:
             application/json:
               schema:
@@ -651,25 +827,18 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Disk'
+          description: Deleted Disk
       security:
         - BearerAuth: [ ]
 
-  /memory/{hostName}:
+  /memory/:
     get:
-      summary: 'Returns a list of all memory for a specific hostname'
+      summary: Returns a list of all memory
       tags:
         - Memory
-      parameters:
-        - name: hostName
-          in: path
-          description: Host name
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: 'Memory details list'
+          description: Memory details list
           content:
             application/json:
               schema:
@@ -683,8 +852,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /memory/{memory_id}/:
+    get:
+      summary: Returns a specific memory for a specific memory id
+      tags:
+        - Memory
+      responses:
+        '200':
+          description: Memory details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memory/{hostName}/:
     post:
-      summary: 'Create a host memory definition'
+      summary: Create a host memory definition
       tags:
         - Memory
       parameters:
@@ -706,7 +895,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Memory details list'
+          description: Memory details list
           content:
             application/json:
               schema:
@@ -721,7 +910,7 @@ paths:
         - BearerAuth: [ ]
 
     patch:
-      summary: 'Update an existing host memory definitions'
+      summary: Update an existing host memory definitions
       tags:
         - Memory
       parameters:
@@ -743,7 +932,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Memory details'
+          description: Memory details
           content:
             application/json:
               schema:
@@ -770,31 +959,22 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Memory'
+          description: Deleted Memory
       security:
         - BearerAuth: [ ]
 
-  /processors/{hostName}:
+  /processors/:
     get:
-      summary: 'Returns a list of all processors for a specific hostname'
+      summary: Returns a list of all processors
       tags:
         - Processors
-      parameters:
-        - name: hostName
-          in: path
-          description: Host name
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: 'Processor details list'
+          description: Processor details list
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Processor'
+                $ref: '#/components/schemas/Processor'
         default:
           description: Unexpected error
           content:
@@ -802,8 +982,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /processors/{processor_id}/:
+    get:
+      summary: Returns a specific processor for a specific processor id
+      tags:
+        - Processors
+      parameters:
+        - name: processor_id
+          in: path
+          description: Processor ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Processor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Processor'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /processors/{hostName}/:
     post:
-      summary: 'Create a host processors definition'
+      summary: Create a host processors definition
       tags:
         - Processors
       parameters:
@@ -825,7 +1032,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Processor details list'
+          description: Processor details list
           content:
             application/json:
               schema:
@@ -852,7 +1059,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Processor'
+          description: Deleted Processor
       security:
         - BearerAuth: [ ]
 
@@ -897,9 +1104,9 @@ paths:
       security:
         - BearerAuth: [ ]
 
-  /vlans/{vlan_id}:
+  /vlans/{vlan_id}/:
     get:
-      summary: 'Returns a detail of a specific vlan by id'
+      summary: Returns a detail of a specific vlan by id
       tags:
         - Vlans
       parameters:
@@ -911,7 +1118,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: 'Vlan details list'
+          description: Vlan details list
           content:
             application/json:
               schema:
@@ -936,18 +1143,18 @@ paths:
             type: integer
       responses:
         '200':
-          description: 'Deleted Vlan'
+          description: Deleted Vlan
       security:
         - BearerAuth: [ ]
 
   /schedules/:
     get:
-      summary: 'Returns a list with all the defined schedules'
+      summary: Returns a list with all the defined schedules
       tags:
         - Schedules
       responses:
         '200':
-          description: 'Schedule'
+          description: Schedule
           content:
             application/json:
               schema:
@@ -980,9 +1187,9 @@ paths:
       security:
         - BearerAuth: [ ]
 
-  /schedules/{schedule_id}:
+  /schedules/{schedule_id}/:
     get:
-      summary: 'Returns a schedule by id'
+      summary: Returns a schedule by id
       tags:
         - Schedules
       parameters:
@@ -994,7 +1201,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Schedule'
+          description: Schedule
           content:
             application/json:
               schema:
@@ -1006,7 +1213,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     patch:
-      summary: 'Update an existing schedule'
+      summary: Update an existing schedule
       tags:
         - Schedules
       parameters:
@@ -1028,7 +1235,7 @@ paths:
               type: string
       responses:
         '200':
-          description: 'Schedule'
+          description: Schedule
           headers:
             x-next:
               description: A link to the next page of responses
@@ -1060,13 +1267,13 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted Schedule'
+          description: Deleted Schedule
       security:
         - BearerAuth: [ ]
 
-  /schedules/current:
+  /schedules/current/:
     get:
-      summary: 'Returns all current schedules'
+      summary: Returns all current schedules
       tags:
         - Schedules
       parameters:
@@ -1090,7 +1297,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Schedule'
+          description: Schedule
           headers:
             x-next:
               description: A link to the next page of responses
@@ -1107,9 +1314,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /schedules/future:
+  /schedules/future/:
     get:
-      summary: 'Returns all future schedules'
+      summary: Returns all future schedules
       tags:
         - Schedules
       parameters:
@@ -1127,7 +1334,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Schedule'
+          description: Schedule
           headers:
             x-next:
               description: A link to the next page of responses
@@ -1144,14 +1351,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /assignments/active:
+  /assignments/active/:
     get:
-      summary: 'Returns a list with all active assignments'
+      summary: Returns a list with all active assignments
       tags:
         - Assignments
       responses:
         '200':
-          description: 'Assignment'
+          description: Assignment
           content:
             application/json:
               schema:
@@ -1165,9 +1372,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /assignments/active/{cloud_name}:
+  /assignments/active/{cloud_name}/:
     get:
-      summary: 'Returns a list with all active assignments for a specific cloud'
+      summary: Returns a list with all active assignments for a specific cloud
       tags:
         - Assignments
       parameters:
@@ -1179,7 +1386,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Assignment'
+          description: Assignment
           content:
             application/json:
               schema:
@@ -1192,14 +1399,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
   /assignments/:
     get:
-      summary: 'Returns a list with all the defined assignments'
+      summary: Returns a list with all the defined assignments
       tags:
         - Assignments
       responses:
         '200':
-          description: 'Assignment'
+          description: Assignment
           content:
             application/json:
               schema:
@@ -1230,9 +1438,9 @@ paths:
         '201':
           description: Created
 
-  /assignments/{assignment_id}:
+  /assignments/{assignment_id}/:
     get:
-      summary: 'Returns an assignment by id'
+      summary: Returns an assignment by id
       tags:
         - Assignments
       parameters:
@@ -1244,7 +1452,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Assignment'
+          description: Assignment
           headers:
             x-next:
               description: A link to the next page of responses
@@ -1299,13 +1507,83 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Deleted assignment'
+          description: Deleted assignment
       security:
         - BearerAuth: [ ]
 
-  /available:
+  /notifications/:
     get:
-      summary: 'Returns a list of available hosts'
+        summary: Returns a list with all the defined notifications
+        tags:
+            - Notifications
+        responses:
+          '200':
+            description: Notification
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Notification'
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Error'
+
+  /notifications/{notification_id}/:
+    get:
+      summary: Returns a notification by id
+      tags:
+          - Notifications
+      parameters:
+        - name: notification_id
+          in: path
+          description: Notification ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Error'
+    patch:
+        summary: Update an existing notification
+        tags:
+            - Notifications
+        parameters:
+          - name: notification_id
+            in: path
+            description: Notification ID
+            required: true
+            schema:
+              type: string
+        requestBody:
+            description: Body request with *notification* details
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Notification'
+        responses:
+          '201':
+            description: Created
+        security:
+            - BearerAuth: [ ]
+
+  /available/:
+    get:
+      summary: Returns a list of available hosts
       tags:
         - Available
       parameters:
@@ -1329,7 +1607,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Hosts'
+          description: Hosts
           content:
             application/json:
               schema:
@@ -1343,9 +1621,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /available/{hostname}:
+  /available/{hostname}/:
     get:
-      summary: 'Returns a boolean for weather the host is available or not'
+      summary: Returns a boolean for weather the host is available or not
       tags:
         - Available
       parameters:
@@ -1369,7 +1647,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Hosts'
+          description: Hosts
           content:
             application/json:
               schema:
@@ -1383,42 +1661,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /moves:
+  /moves/:
     get:
       summary: Returns a list of hosts that are transitioning with the source and target clouds
       tags:
         - Moves
-      responses:
-        '200':
-          description: 'Moves'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Move'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /moves/{date}:
-    get:
-      summary: Returns a move on a specific date
-      tags:
-        - Moves
       parameters:
         - name: date
-          in: path
-          description: Future date
-          required: true
+          in: query
+          description: Date
+          required: false
           schema:
             type: string
       responses:
         '200':
-          description: 'Moves'
+          description: Moves
           content:
             application/json:
               schema:
@@ -1432,14 +1689,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /version:
+  /version/:
     get:
       summary: Returns Quads version
       tags:
         - Other
       responses:
         '200':
-          description: 'Version'
+          description: Version
           content:
             application/json:
               schema:
@@ -1461,9 +1718,38 @@ components:
         name:
           type: string
           example: cloud12
-#        last_redefined:
-#          type: string
-#          example: 1984-02-02
+        last_redefined:
+          type: string
+          example: 1984-02-02
+    CloudSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          example: cloud12
+        count:
+          type: integer
+          example: 10
+        description:
+          type: string
+          example: Short description here
+        owner:
+          type: string
+          example: jsbach
+        ticket:
+          type: string
+          example: 2122
+        ccuser:
+          type: array
+          items:
+            type: string
+          example: [edroste, kgodel]
+        provisioned:
+          type: boolean
+          example: true
+        validated:
+          type: boolean
+          example: true
     Disk:
       type: object
       properties:
