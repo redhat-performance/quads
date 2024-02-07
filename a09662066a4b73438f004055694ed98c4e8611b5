@@ -16,6 +16,24 @@
       "message": "afraid this whole code block should not be indented inside the `if not date` ?",
       "revId": "a09662066a4b73438f004055694ed98c4e8611b5",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2556de4e_ce4975cf",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2024-02-07T18:56:33Z",
+      "side": 1,
+      "message": "Actually that is intentional.  When --date is passed, the code looks for schedules, and if it finds them, it prints the host list for the matching schedules.  This is on line 1737.  However, if no schedules are found, then the code falls down into line 1747, which looks for both --date AND --cloud cloud01, and treats this as special.  However, if you pass a different --cloud (e.g. cloud02), then you fall through to the else on line 1772 which up until this patch did not take date into account.  In other words, without this patch, if you do:\n\n quads-cli --date \u003csome date\u003e --cloud-only --cloud-only \u003csome cloud not cloud01\u003e\n \n if for the given date, there is no schedules for \u003csome cloud not cloud01\u003e, then the code previously would fall through to line 1772 and print the CURRENT members of \u003csome cloud not cloud01\u003e for the current time, as opposed to printing nothing as would be expected.",
+      "parentUuid": "6dd58949_511383c0",
+      "revId": "a09662066a4b73438f004055694ed98c4e8611b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
