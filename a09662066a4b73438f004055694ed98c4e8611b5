@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dd58949_511383c0",
+        "filename": "quads/cli/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-02-07T14:33:54Z",
+      "side": 1,
+      "message": "afraid this whole code block should not be indented inside the `if not date` ?",
+      "revId": "a09662066a4b73438f004055694ed98c4e8611b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
