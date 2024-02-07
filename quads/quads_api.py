@@ -37,15 +37,11 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
-        self.auth = HTTPBasicAuth(
-            self.config.get("quads_api_username"), self.config.get("quads_api_password")
-        )
+        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
     def get(self, endpoint: str) -> Response:
-        _response = self.session.get(
-            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
-        )
+        _response = self.session.get(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -85,9 +81,7 @@ class QuadsApi:
         return _response
 
     def delete(self, endpoint) -> Response:
-        _response = self.session.delete(
-            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
-        )
+        _response = self.session.delete(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -104,6 +98,10 @@ class QuadsApi:
             host_obj = Host().from_dict(data=host)
             hosts.append(host_obj)
         return hosts
+
+    def get_host_models(self):
+        response = self.get("hosts?group_by=model")
+        return response.json()
 
     def filter_hosts(self, data) -> List[Host]:
         url_params = url_parse.urlencode(data)

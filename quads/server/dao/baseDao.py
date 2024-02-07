@@ -1,6 +1,7 @@
 from quads.server.models import Interface, Disk, Memory, Processor, Host, db
 from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 
 FILTERING_OPERATORS = {
     "==": "eq",
@@ -67,9 +68,21 @@ class BaseDao:
             return False
 
     @classmethod
-    def create_query_select(cls, model, filters=None, columns=None):
-        query_columns = cls.create_query_columns(model=model, columns=columns)
-        query = db.session.query(*query_columns).distinct(model.id)
+    def create_query_select(cls, model, filters=None, columns=None, group_by=None):
+        """
+        Create a query to select data from a model with filters and columns.
+        :param model: The model to query.
+        :param filters: A list of filter expressions.
+        :param columns: A list of columns to select.
+        :param group_by: A column to group by.
+        :return: The query result.
+        """
+        if group_by:
+            group_by_column = cls.get_group_by_column(model=model, group_by=group_by)
+            query_columns = [group_by_column, func.count(group_by_column)]
+        else:
+            query_columns = cls.create_query_columns(model=model, columns=columns)
+        query = db.session.query(*query_columns)
         for expression in filters:
             try:
                 column_name, op, value = expression
@@ -99,12 +112,12 @@ class BaseDao:
                         % FILTERING_OPERATORS[op]
                     )
                 except IndexError:  # pragma: no cover
-                    raise Exception(
-                        "Invalid filter operator: %s" % FILTERING_OPERATORS[op]
-                    )
+                    raise Exception("Invalid filter operator: %s" % FILTERING_OPERATORS[op])
                 if value == "null":
                     value = None
                 query = query.filter(getattr(column, attr)(value))
+        if group_by:
+            query = query.group_by(group_by_column)
         return query.all()
 
     @classmethod
@@ -114,8 +127,15 @@ class BaseDao:
 
         cols = []
         for column in columns:
-            attr = getattr(model, column, None)
-            if not attr:
+            _attr = getattr(model, column, None)
+            if not _attr:
                 raise Exception("Invalid column name %s" % column)
-            cols.append(attr)
+            cols.append(_attr)
         return cols
+
+    @classmethod
+    def get_group_by_column(cls, model, group_by):
+        _attr = getattr(model, group_by)
+        if not _attr:
+            raise Exception("Invalid column name %s" % group_by)
+        return _attr

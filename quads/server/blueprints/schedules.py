@@ -16,7 +16,7 @@ schedule_bp = Blueprint("schedules", __name__)
 def get_schedules() -> Response:
     if request.args:
         try:
-            _schedules = ScheduleDao.filter_schedules(**request.args)
+            _schedules = ScheduleDao.filter_schedule_dict(request.args)
         except (EntryNotFound, InvalidArgument) as ex:
             response = {
                 "status_code": 400,

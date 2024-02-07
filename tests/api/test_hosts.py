@@ -53,10 +53,7 @@ class TestCreateHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == "Model R999 does not seem to be part of the defined models on quads.yml"
-        )
+        assert response.json["message"] == "Model R999 does not seem to be part of the defined models on quads.yml"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_missing_name(self, test_client, auth, prefill):
@@ -141,10 +138,7 @@ class TestCreateHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"Default Cloud not found: {host_request['default_cloud']}"
-        )
+        assert response.json["message"] == f"Default Cloud not found: {host_request['default_cloud']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_multi(self, test_client, auth, prefill):
@@ -168,9 +162,7 @@ class TestCreateHosts:
             assert response.json["model"] == req["model"].upper()
             assert response.json["host_type"] == req["host_type"]
             assert response.json["default_cloud_id"] == response.json["cloud_id"]
-            duration = datetime.utcnow() - datetime.strptime(
-                response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT"
-            )
+            duration = datetime.utcnow() - datetime.strptime(response.json["created_at"], "%a, %d %b %Y %H:%M:%S GMT")
             assert duration.total_seconds() < 5
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
@@ -190,9 +182,7 @@ class TestCreateHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"] == f"Host {HOST_1_REQUEST['name']} already exists"
-        )
+        assert response.json["message"] == f"Host {HOST_1_REQUEST['name']} already exists"
 
 
 class TestGetHosts:
@@ -309,6 +299,45 @@ class TestGetHosts:
         assert response.json[0]["default_cloud_id"] == response.json[0]["cloud_id"]
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_group_by(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token and clouds and hosts from TestCreateHosts
+        | WHEN: User tries to get hosts that have different host_type than "scalelab" (not equal to)
+        | THEN: User should be able to get the host
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts?group_by=model",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert len(response.json) == 2
+        assert response.json[0][0] == "FC640"
+        assert response.json[0][1] == 1
+        assert response.json[1][0] == "R640"
+        assert response.json[1][1] == 1
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_group_by_bad(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth token and clouds and hosts from TestCreateHosts
+        | WHEN: User tries to get hosts that have different host_type than "scalelab" (not equal to)
+        | THEN: User should be able to get the host
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/hosts?group_by=bad",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "bad is not a valid field."
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_filter_by_undefined_cloud(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth token and clouds and hosts from TestCreateHosts
@@ -343,10 +372,7 @@ class TestGetHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"Too many arguments: {too_many_args_filter.split('=')[0].split('.')}"
-        )
+        assert response.json["message"] == f"Too many arguments: {too_many_args_filter.split('=')[0].split('.')}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_filter_by_invalid_field(self, test_client, auth, prefill):
@@ -365,10 +391,7 @@ class TestGetHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"{invalid_field_filter.split('=')[0]} is not a valid field."
-        )
+        assert response.json["message"] == f"{invalid_field_filter.split('=')[0]} is not a valid field."
 
 
 class TestUpdateHosts:
@@ -437,10 +460,7 @@ class TestUpdateHosts:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert (
-            response.json["message"]
-            == f"Cloud not found: {host_request['default_cloud']}"
-        )
+        assert response.json["message"] == f"Cloud not found: {host_request['default_cloud']}"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_invalid_undefined_cloud(self, test_client, auth, prefill):
