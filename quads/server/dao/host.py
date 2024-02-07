@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import Boolean
+from sqlalchemy import Boolean, func
 from sqlalchemy.orm import RelationshipProperty
 from sqlalchemy.orm.relationships import Relationship
 
@@ -19,9 +19,7 @@ from quads.server.models import db, Host, Cloud
 
 class HostDao(BaseDao):
     @classmethod
-    def create_host(
-        cls, name: str, model: str, host_type: str, default_cloud: str
-    ) -> Host:
+    def create_host(cls, name: str, model: str, host_type: str, default_cloud: str) -> Host:
         _host_obj = cls.get_host(name)
         if _host_obj:
             raise EntryExisting
@@ -96,9 +94,15 @@ class HostDao(BaseDao):
         return hosts
 
     @staticmethod
+    def get_host_models():
+        host_models = db.session.query(Host.model, func.count(Host.model)).group_by(Host.model).all()
+        return host_models
+
+    @staticmethod
     def filter_hosts_dict(data: dict) -> List[Host]:
         filter_tuples = []
         operator = "=="
+        group_by = None
         for k, value in data.items():
             fields = k.split(".")
             if len(fields) > 2:
@@ -115,6 +119,10 @@ class HostDao(BaseDao):
                         operator = OPERATORS[op]
                         break
 
+            if fields[0].lower() == "group_by":
+                first_field = value
+                group_by = value
+                k = value
             field = Host.__mapper__.attrs.get(first_field)
             if not field:
                 raise InvalidArgument(f"{k} is not a valid field.")
@@ -133,17 +141,16 @@ class HostDao(BaseDao):
                 if first_field.lower() in MAP_HOST_META.keys():
                     if len(fields) > 1:
                         field_name = f"{first_field.lower()}.{field_name.lower()}"
-            filter_tuples.append(
-                (
-                    field_name,
-                    operator,
-                    value,
+
+            if fields[0].lower() != "group_by":
+                filter_tuples.append(
+                    (
+                        field_name,
+                        operator,
+                        value,
+                    )
                 )
-            )
-        if filter_tuples:
-            _hosts = HostDao.create_query_select(Host, filters=filter_tuples)
-        else:
-            _hosts = HostDao.get_hosts()
+        _hosts = HostDao.create_query_select(Host, filters=filter_tuples, group_by=group_by)
         return _hosts
 
     @staticmethod

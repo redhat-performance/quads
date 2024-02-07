@@ -32,15 +32,13 @@ def report_available(_logger, _start, _end):
     total_allocated_month = 0
     total_hosts = len(hosts)
     for _date in date_span(start, end):
-        total_allocated_month += len(
-            quads.get_current_schedules({"date": _date.strftime("%Y-%m-%dT%H:%M")})
-        )
+        total_allocated_month += len(quads.get_current_schedules({"date": _date.strftime("%Y-%m-%dT%H:%M")}))
         days += 1
     utilized = total_allocated_month * 100 // (total_hosts * days)
     _logger.info(f"Percentage Utilized: {utilized}%")
 
-    # TODO: This should return future schedules as well
-    schedules = quads.get_current_schedules()
+    payload = {"build_start__ne": None, "build_end__ne": None}
+    schedules = quads.get_schedules(payload)
     total = timedelta()
     for schedule in schedules:
         if schedule.build_end and schedule.build_start:
@@ -106,12 +104,7 @@ def report_available(_logger, _start, _end):
 
 def report_scheduled(_logger, months, year):
     headers = ["Month", "Scheduled", "Systems", "% Utilized"]
-    _logger.info(
-        f"{headers[0]:<8}| "
-        f"{headers[1]:>8}| "
-        f"{headers[2]:>8}| "
-        f"{headers[3]:>11}| "
-    )
+    _logger.info(f"{headers[0]:<8}| " f"{headers[1]:>8}| " f"{headers[2]:>8}| " f"{headers[3]:>11}| ")
 
     now = datetime.now()
     now = now.replace(year=year, hour=22, minute=0, second=0)
@@ -140,18 +133,11 @@ def process_scheduled(_logger, month, now):
     utilization = 0
     for date in date_span(start, end):
         days += 1
-        scheduled_count += len(
-            quads.get_current_schedules({"date": date.strftime("%Y-%m-%dT%H:%M")})
-        )
+        scheduled_count += len(quads.get_current_schedules({"date": date.strftime("%Y-%m-%dT%H:%M")}))
     if hosts and days:
         utilization = scheduled_count * 100 // (days * hosts)
     f_month = f"{start.month:02}"
-    _logger.info(
-        f"{start.year}-{f_month:<3}| "
-        f"{scheduled:>9}| "
-        f"{hosts:>8}| "
-        f"{utilization:>10}%| "
-    )
+    _logger.info(f"{start.year}-{f_month:<3}| " f"{scheduled:>9}| " f"{hosts:>8}| " f"{utilization:>10}%| ")
 
 
 def report_detailed(_logger, _start, _end):

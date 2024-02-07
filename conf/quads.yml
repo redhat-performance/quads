@@ -123,15 +123,6 @@ json_web_path: /var/www/html/cloud
 # number of days of retaining old .json files
 json_retention_days: 0
 
-# Whether or not you want the QUADS host to gather and display ansible facts in
-# an HTMl page, you need ansible-cmdb rpm for this functionality which can be
-# got from https://github.com/fboender/ansible-cmdb/releases
-gather_ansible_facts: false
-
-# this is where we place the generated ansible configuration management database
-# html
-ansible_facts_web_path: /var/www/html/ansible_facts
-
 # untouchable_hosts are hosts that should be avoided by QUADS in any way.
 # use this to define hosts QUADS should never move.
 untouchable_hosts: foreman.example.com c08-h30-r630.example.com

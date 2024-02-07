@@ -359,9 +359,7 @@ class TestReadSchedule:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == (
-            "start argument must be a datetime object or a correct datetime format string"
-        )
+        assert response.json["message"] == "Invalid date format for start: invalid"
 
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
     def test_valid_filter(self, test_client, auth, prefill):
@@ -375,7 +373,7 @@ class TestReadSchedule:
         resp = SCHEDULE_1_RESPONSE.copy()
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/schedules?host={hostname}",
+                f"/api/v3/schedules?host.name={hostname}",
                 headers=auth_header,
             )
         )

@@ -43,8 +43,6 @@ def print_summary():
         _headers.append("**OSPENV**")
     if Config["openshift_management"]:
         _headers.append("**OCPINV**")
-    if Config["gather_ansible_facts"]:
-        _headers.append("**HWFACTS**")
 
     _summary.append("| %s |\n" % " | ".join(_headers))
     _summary.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
@@ -70,13 +68,9 @@ def print_summary():
         style_tag_end = "</span>"
         if cloud["validated"] or cloud_name == "cloud01":
             style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(
-                Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name
-            )
+            instack_link = os.path.join(Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
             instack_text = "download"
-            ocpinv_link = os.path.join(
-                Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name
-            )
+            ocpinv_link = os.path.join(Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
             ocpinv_text = "download"
             status = (
                 '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" '
@@ -84,9 +78,7 @@ def print_summary():
             )
         else:
             cloud_obj = quads.get_cloud(cloud_name)
-            scheduled_hosts = len(
-                quads.get_current_schedules({"cloud": cloud_obj.name})
-            )
+            scheduled_hosts = len(quads.get_current_schedules({"cloud": cloud_obj.name}))
             moved_hosts = len(quads.filter_hosts({"cloud": cloud_obj.name}))
             percent = moved_hosts / scheduled_hosts * 100
             style_tag_start = '<span style="color:red">'
@@ -116,8 +108,7 @@ def print_summary():
                 status = (
                     '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
                     'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
-                    'class="%s">%.0f%%</span></span>'
-                    % (percent, percent, " ".join(classes), percent)
+                    'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
                 )
 
         _data = [
@@ -127,63 +118,17 @@ def print_summary():
             link,
         ]
 
-        if Config["gather_ansible_facts"]:
-            factstyle_tag_end = "</span>"
-            if os.path.exists(
-                os.path.join(
-                    Config["ansible_facts_web_path"],
-                    "ansible_facts",
-                    "%s_overview.html" % cloud_specific_tag,
-                )
-            ):
-                factstyle_tag_start = '<span style="color:green">'
-                ansible_facts_link = os.path.join(
-                    Config["quads_url"],
-                    "ansible_facts",
-                    "%s_overview.html" % cloud_specific_tag,
-                )
-            else:
-                factstyle_tag_start = '<span style="color:red">'
-                ansible_facts_link = os.path.join(
-                    Config["quads_url"], "underconstruction"
-                )
-            if cloud_name == "cloud01":
+        _data.append(status)
+        if cloud_name == "cloud01":
+            if Config["openshift_management"] or Config["openstack_management"]:
                 _data.append("")
-                _data.append("")
-                _data.append(status)
-                _data.append("")
-            else:
-                _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (instack_link, style_tag_start, instack_text, style_tag_end)
-                )
-                _data.append(
-                    "<a href=%s target=_blank>%s%s%s</a>"
-                    % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
-                )
-                _data.append(status)
-                _data.append(
-                    "<a href=%s target=_blank>%sinventory%s</a>"
-                    % (ansible_facts_link, factstyle_tag_start, factstyle_tag_end)
-                )
         else:
-            _data.append(status)
-            if cloud_name == "cloud01":
-                if Config["openstack_management"]:
-                    _data.append("")
-                if Config["openshift_management"]:
-                    _data.append("")
-            else:
-                if Config["openstack_management"]:
-                    _data.append(
-                        "<a href=%s target=_blank>%s%s%s</a>"
-                        % (instack_link, style_tag_start, instack_text, style_tag_end)
-                    )
-                if Config["openshift_management"]:
-                    _data.append(
-                        "<a href=%s target=_blank>%s%s%s</a>"
-                        % (ocpinv_link, style_tag_start, ocpinv_text, style_tag_end)
-                    )
+            text = ""
+            if Config["openstack_management"]:
+                text = instack_text
+            if Config["openshift_management"]:
+                text = ocpinv_text
+            _data.append("<a href=%s target=_blank>%s%s%s</a>" % (ocpinv_link, style_tag_start, text, style_tag_end))
 
         _summary.append("| %s |\n" % " | ".join(_data))
 
@@ -215,10 +160,7 @@ def print_unmanaged(hosts):
 
         if not host_obj:
             short_host = real_host.split(".")[0]
-            lines.append(
-                "| %s | <a href=http://%s/ target=_blank>console</a> |\n"
-                % (short_host, host)
-            )
+            lines.append("| %s | <a href=http://%s/ target=_blank>console</a> |\n" % (short_host, host))
     return lines
 
 
@@ -229,10 +171,7 @@ def print_faulty(broken_hosts):
     lines.append("| %s |\n" % " | ".join(["---" for _ in range(len(_headers))]))
     for host in broken_hosts:
         short_host = host.name.split(".")[0]
-        lines.append(
-            "| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n"
-            % (short_host, host.name)
-        )
+        lines.append("| %s | <a href=http://mgmt-%s/ target=_blank>console</a> |\n" % (short_host, host.name))
     return lines
 
 
@@ -288,14 +227,10 @@ def main():
 
     lines = []
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
-    blacklist = re.compile(
-        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
-    )
+    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
 
     broken_hosts = quads.filter_hosts({"broken": False})
-    domain_broken_hosts = [
-        host for host in broken_hosts if Config["domain"] in host.name
-    ]
+    domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
 
     mgmt_hosts = {}
     for host, properties in all_hosts.items():
@@ -320,16 +255,11 @@ def main():
         name = cloud["name"]
         owner = cloud["owner"]
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append(
-            "### **%s : %s (%s) -- %s**\n\n"
-            % (name.strip(), cloud["count"], cloud["description"], owner)
-        )
+        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
         lines.extend(print_header())
         _cloud_obj = quads.get_cloud(name)
         _hosts = sorted(
-            quads.filter_hosts(
-                {"cloud": _cloud_obj.name, "retired": False, "broken": False}
-            ),
+            quads.filter_hosts({"cloud": _cloud_obj.name, "retired": False, "broken": False}),
             key=lambda x: x.name,
         )
         for host in _hosts:
