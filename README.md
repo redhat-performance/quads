@@ -244,6 +244,10 @@ wiki.example.com
 ```
 ansible-playbook -i hosts site.yml
 ```
+  - If you get an error about `seboolean` usage you'll also need to install the `ansible.posix` collection then re-run the playbook.
+```
+ansible-galaxy collection install ansible.posix
+```
 ##### Setup of Wordpress
    - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
    - We also provide the [krusze theme](/docker/etc/wordpress/themes/krusze.0.9.7.zip) which does a great job of rendering Markdown-based tables, and the [JP Markdown plugin](/docker/etc/wordpress/plugins/jetpack-markdown.3.9.6.zip) which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
