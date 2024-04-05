@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
 
-  quads-db:
+  quads_db:
     image: postgres
     container_name: quads_db
     restart: always
@@ -20,7 +20,7 @@ services:
 
   quads_api:
     depends_on:
-      quads-db:
+      quads_db:
         condition: service_healthy
     build:
       context: .
