@@ -39,14 +39,14 @@ def populate(user_datastore):
     admin_user_entry = db.session.query(User).filter(User.email == admin_user).first()
     if not admin_user_entry:
         user_datastore.create_user(
-            email=admin_user, password="password", roles=[admin_role]
+            fs_uniquifier=admin_user, email=admin_user, password="password", roles=[admin_role]
         )
         commit = True
 
     regular_user_entry = db.session.query(User).filter(User.email == regular_user).first()
     if not regular_user_entry:
         user_datastore.create_user(
-            email=regular_user, password="password", roles=[user_role]
+            fs_uniquifier=regular_user, email=regular_user, password="password", roles=[user_role]
         )
         commit = True
 
