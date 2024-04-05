@@ -34,7 +34,7 @@ def create_app(test_config=None) -> Flask:
         flask_app.config.from_object("quads.server.config.ProductionConfig")
     else:
         # load the test config if passed in
-        flask_app.config.from_mapping(test_config)
+        flask_app.config.from_object(test_config)
 
     register_extensions(flask_app)
     register_blueprints(flask_app)
