@@ -258,7 +258,7 @@ class Role(Base, RoleMixin):
 class User(Base, UserMixin):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    fs_uniquifier = Column(String(255), unique=True, nullable=False)
+    fs_uniquifier = Column(String(256), unique=True, nullable=False)
     email = Column(String(256), unique=True, nullable=False)
     _password = Column("password", String(256), nullable=False)
     active = Column(Boolean(), default=True)
