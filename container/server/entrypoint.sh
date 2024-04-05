@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+export SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@quads_db:5432/quads 
+
 echo "Initializing DB"
-flask --app quads/server/app.py init-db
+flask --app /opt/quads/src/quads/server/app.py init-db
 
 echo "Starting app"
-flask --app quads/server/app.py run --host 0.0.0.0
+flask --app /opt/quads/src/quads/server/app.py run --host 0.0.0.0
