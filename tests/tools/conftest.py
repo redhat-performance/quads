@@ -41,8 +41,7 @@ def test_client():
     | Creates a test client for the app from the testing config.
     | Drops and then initializes the database and populates it with default users.
     """
-    flask_app = create_app()
-    flask_app.config.from_object("quads.server.config.TestingConfig")
+    flask_app = create_app("quads.server.config.TestingConfig")
 
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():

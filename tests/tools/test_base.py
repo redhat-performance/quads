@@ -7,9 +7,6 @@ from quads.cli import QuadsCli
 from quads.config import DEFAULT_CONF_PATH, Config
 from quads.quads_api import QuadsApi
 
-from quads.server.app import create_app, user_datastore
-from quads.server.database import drop_all, populate, init_db
-
 _logger = logging.getLogger("test_log")
 _logger.setLevel(logging.INFO)
 _logger.propagate = True
