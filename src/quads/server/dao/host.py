@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from sqlalchemy import Boolean, func
-from sqlalchemy.orm import RelationshipProperty, relationship
 
 from quads.config import Config
 from quads.server.dao.baseDao import (
@@ -125,13 +124,10 @@ class HostDao(BaseDao):
             field = Host.__mapper__.attrs.get(first_field)
             if not field:
                 raise InvalidArgument(f"{k} is not a valid field.")
-            if (
-                type(field) != RelationshipProperty
-                and type(field) != relationship
-                and type(field.columns[0].type) == Boolean
-            ):
-                value = value.lower() in ["true", "y", 1, "yes"]
-            else:
+            try:
+                if type(field.columns[0].type) == Boolean:
+                    value = value.lower() in ["true", "y", 1, "yes"]
+            except AttributeError:
                 if first_field in ["cloud", "default_cloud"]:
                     cloud = CloudDao.get_cloud(value)
                     if not cloud:
