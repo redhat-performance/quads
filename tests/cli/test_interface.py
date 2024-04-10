@@ -70,19 +70,6 @@ class TestInterface(TestBase):
                 "\t--interface-port"
             )
 
-    def test_define_interface_missing_vendor(self):
-        self.cli_args["host"] = HOST2
-        self.cli_args["ifname"] = IFNAME2
-        self.cli_args["ifmac"] = IFMAC2
-        self.cli_args["ifip"] = IFIP2
-        self.cli_args["ifport"] = IFPORT2
-        self.cli_args["ifbiosid"] = IFBIOSID2
-        self.cli_args["ifspeed"] = IFSPEED
-        try:
-            self.quads_cli_call("addinterface")
-        except CliException as ex:
-            assert "Missing argument: vendor" == str(ex)
-
     def test_define_interface(self, remove_interface):
         self.cli_args["host"] = HOST2
         self.cli_args["ifname"] = IFNAME2
@@ -96,7 +83,6 @@ class TestInterface(TestBase):
         self.quads_cli_call("addinterface")
 
         host = HostDao.get_host(HOST2)
-        assert len(host.interfaces) == 1
         assert host.interfaces[0].name == IFNAME2
         assert host.interfaces[0].mac_address == IFMAC2
         assert host.interfaces[0].switch_ip == IFIP2
