@@ -20,7 +20,7 @@ def register() -> Response:
     :return: A json response with the auth token:
     """
     data = request.get_json()
-    user = user_datastore.get_user(data.get("email"))
+    user = user_datastore.find_user(email=data.get("email"))
     role = db.session.query(Role).filter(Role.name == "user").first()
     if not data["email"] or not data["password"]:
         response = {
@@ -117,7 +117,7 @@ def logout() -> Response:
         auth_token = ""
     if auth_token:
         resp = User.decode_auth_token(auth_token)
-        user = user_datastore.get_user(resp)
+        user = user_datastore.find_user(email=resp)
         if user:
             token_blacklist = TokenBlackList(token=auth_token)
             try:
