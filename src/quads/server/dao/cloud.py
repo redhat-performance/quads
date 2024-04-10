@@ -67,6 +67,7 @@ class CloudDao(BaseDao):
             if (
                 type(field) != RelationshipProperty
                 and type(field) != relationship
+                and field.get("columns")
                 and type(field.columns[0].type) == Boolean
             ):
                 value = value.lower() in ["true", "y", 1, "yes"]

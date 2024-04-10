@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import List, Type
-from sqlalchemy import and_, Boolean, func
+from sqlalchemy import and_, Boolean
 from sqlalchemy.orm import RelationshipProperty, relationship
 
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError, OPERATORS, MAP_HOST_META
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError, OPERATORS
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
@@ -124,6 +124,7 @@ class ScheduleDao(BaseDao):
             if (
                 type(field) != RelationshipProperty
                 and type(field) != relationship
+                and field.get("columns")
                 and type(field.columns[0].type) == Boolean
             ):
                 value = value.lower() in ["true", "y", 1, "yes"]
