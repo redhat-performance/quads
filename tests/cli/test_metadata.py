@@ -99,6 +99,7 @@ class TestImport(TestBase):
         assert str(ex.value) == "Missing option --metadata"
 
     def test_import_bad_host(self, define_fixture):
+        self.cli_args["force"] = False
         self.cli_args["metadata"] = os.path.join(
             os.path.dirname(__file__), "fixtures/badhost_metadata_import.yaml"
         )
