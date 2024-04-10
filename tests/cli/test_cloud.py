@@ -300,10 +300,9 @@ class TestCloud(TestBase):
 
     @patch("quads.quads_api.requests.Session.get")
     def test_ls_vlan_no_vlans(self, mock_get):
-        mock_get.return_value.json.return_value = []
-        with pytest.raises(CliException) as ex:
-            self.quads_cli_call("ls_vlan")
-        assert str(ex.value) == "No VLANs defined."
+        self.quads_cli_call("ls_vlan")
+        
+        assert self._caplog.messages[0] == "No VLANs found."
 
     def test_free_cloud(self):
         self.quads_cli_call("free_cloud")

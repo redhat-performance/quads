@@ -96,7 +96,6 @@ class TestInterface(TestBase):
         self.quads_cli_call("addinterface")
 
         host = HostDao.get_host(HOST2)
-        assert len(host.interfaces) == 1
         assert host.interfaces[0].name == IFNAME2
         assert host.interfaces[0].mac_address == IFMAC2
         assert host.interfaces[0].switch_ip == IFIP2

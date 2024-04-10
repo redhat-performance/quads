@@ -68,6 +68,15 @@ def create_interface(hostname: str) -> Response:
             }
             return make_response(jsonify(response), 400)
 
+    speed = data.get("speed")
+    if speed and not speed > 0:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Argument can't be negative or zero: speed",
+        }
+        return make_response(jsonify(response), 400)
+
     _interface_obj = Interface(
         name=name,
         bios_id=bios_id,

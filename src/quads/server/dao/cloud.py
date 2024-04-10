@@ -1,7 +1,6 @@
 from typing import List, Optional, Type
 
 from sqlalchemy import Boolean
-from sqlalchemy.orm import RelationshipProperty, relationship
 
 from quads.server.dao.baseDao import (
     BaseDao,
@@ -64,12 +63,11 @@ class CloudDao(BaseDao):
             field = Cloud.__mapper__.attrs.get(first_field)
             if not field:
                 raise InvalidArgument(f"{k} is not a valid field.")
-            if (
-                type(field) != RelationshipProperty
-                and type(field) != relationship
-                and type(field.columns[0].type) == Boolean
-            ):
-                value = value.lower() in ["true", "y", 1, "yes"]
+            try:
+                if type(field.columns[0].type) == Boolean:
+                    value = value.lower() in ["true", "y", 1, "yes"]
+            except AttributeError:
+                pass
             filter_tuples.append(
                 (
                     field_name,
@@ -82,3 +80,5 @@ class CloudDao(BaseDao):
         else:
             _clouds = CloudDao.get_clouds()
         return _clouds
+
+
