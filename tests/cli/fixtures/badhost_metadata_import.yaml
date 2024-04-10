@@ -22,6 +22,6 @@
   memory:
   - handle: DIMM1
     size_gb: 4096
-  model: IMPORTED
+  model: R620
   name: badhost.example.com
   retired: true

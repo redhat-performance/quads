@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import List, Type
-from sqlalchemy import and_, Boolean, func
+from sqlalchemy import and_, Boolean
 from sqlalchemy.orm import RelationshipProperty, relationship
 
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError, OPERATORS, MAP_HOST_META
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError, OPERATORS
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.models import db, Host, Schedule, Cloud, Assignment
@@ -121,13 +121,10 @@ class ScheduleDao(BaseDao):
             field = Schedule.__mapper__.attrs.get(first_field)
             if not field:
                 raise InvalidArgument(f"{k} is not a valid field.")
-            if (
-                type(field) != RelationshipProperty
-                and type(field) != relationship
-                and type(field.columns[0].type) == Boolean
-            ):
-                value = value.lower() in ["true", "y", 1, "yes"]
-            else:
+            try:
+                if type(field.columns[0].type) == Boolean:
+                    value = value.lower() in ["true", "y", 1, "yes"]
+            except AttributeError:
                 if first_field.lower() == "host":
                     host = HostDao.get_host(value)
                     if not host:

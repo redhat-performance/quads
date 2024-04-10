@@ -99,13 +99,14 @@ class TestImport(TestBase):
         assert str(ex.value) == "Missing option --metadata"
 
     def test_import_bad_host(self, define_fixture):
+        self.cli_args["force"] = False
         self.cli_args["metadata"] = os.path.join(
             os.path.dirname(__file__), "fixtures/badhost_metadata_import.yaml"
         )
 
-        with pytest.raises(CliException) as ex:
-            self.quads_cli_call("define_host_metadata")
-        assert str(ex.value) == "Host not found: badhost.example.com"
+        self.quads_cli_call("define_host_metadata")
+        assert self._caplog.messages[0] == "Host badhost.example.com not found. Skipping."
+        assert self._caplog.messages[1] == "For overwriting existing values use the --force."
 
     def test_import_bad_path(self, define_fixture):
         self.cli_args["metadata"] = "this/path/should/never/exist.exe"
