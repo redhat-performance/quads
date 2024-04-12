@@ -172,15 +172,13 @@ rpm -ivh --nodeps https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-14.noarch.r
 ```
 This package is also available via `pip` via `pip install python-wordpress-xmlrpc`
 
-* As this package was not rebuilt for Fedora38+ you'll need to employ a workround for nerwer versions of Python for this to function.
+* As this package was not rebuilt for Fedora38+ you'll need to employ a workaround for newer versions of Python for this to function.
 * If `python --version` is anything other than `Python 3.10` you'll need:
 
 ```
 mypythonversion=$(python --version | sed 's/Python //' | sed 's/..$//')
 cd /usr/lib
-mv python3.10 python3.10-workaround
-rsync -avH python3.10-workaround/site-packages/* python$mypythonversion/site-packages/
-ln -s python$mypythonversion python3.10
+rsync -avH python3.10/site-packages/wordpress_xmlrpc python$mypythonversion/site-packages/
 ```
 
 In QUADS 2.0 **this package dependency is no longer needed**
