@@ -165,12 +165,25 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - We build RPM packages for the Fedora distribution.
    - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
    - On Fedora 30 and above it is necessary to install `python3-wordpress-xmlrpc` as it is not included anymore
+      - On Fedora versions greater than 36 you'll need a Python workaround below after installing `python3-wordpress-xmlrpc`
 
 ```
 rpm -ivh --nodeps https://funcamp.net/w/python3-wordpress-xmlrpc-2.3-14.noarch.rpm
 ```
 This package is also available via `pip` via `pip install python-wordpress-xmlrpc`
 
+* As this package was not rebuilt for Fedora38+ you'll need to employ a workround for nerwer versions of Python for this to function.
+* If `python --version` is anything other than `Python 3.10` you'll need:
+
+```
+mypythonversion=$(python --version | sed 's/Python //' | sed 's/..$//')
+cd /usr/lib
+mv python3.10 python3.10-workaround
+rsync -avH python3.10-workaround/site-packages/* python$mypythonversion/site-packages/
+ln -s python$mypythonversion python3.10
+```
+
+In QUADS 2.0 **this package dependency is no longer needed**
 
 * Once you have mongodb installed and running you can install/upgrade QUADS via RPM.
 
