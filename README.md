@@ -178,9 +178,7 @@ This package is also available via `pip` via `pip install python-wordpress-xmlrp
 ```
 mypythonversion=$(python --version | sed 's/Python //' | sed 's/..$//')
 cd /usr/lib
-mv python3.10 python3.10-workaround
-rsync -avH python3.10-workaround/site-packages/* python$mypythonversion/site-packages/
-ln -s python$mypythonversion python3.10
+rsync -avH python3.10/site-packages/wordpress_xmlrpc python$mypythonversion/site-packages/
 ```
 
 In QUADS 2.0 **this package dependency is no longer needed**
