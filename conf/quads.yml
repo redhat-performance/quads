@@ -76,7 +76,7 @@ jira_auth: basic
 
 jira_username: admin
 jira_password: password
-jira_token: 7h1515@v3ryl0n6@ndcr1p71c70k3n
+jira_token: YourJiraTokenHereKeepItSafe
 
 # this is used in some of the wiki generate for the links
 quads_url: http://quads.scalelab.example.com
