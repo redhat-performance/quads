@@ -12,7 +12,7 @@
 #### Note: quads-dev = latest master branch
 ####       quads     = latest stable release
 
-%define name quads
+%define name quads-dev
 %define reponame quads
 %define branch master
 %define version 2.0.0
@@ -29,7 +29,7 @@ Prefix: /opt/quads
 BuildArch: noarch
 Vendor: QUADS Project
 Packager: QUADS Project
-Requires: httpd >= 2.4
+Requires: postfix >= 3.0
 Requires: python3 >= 3.11
 Requires: python3-jinja2 >= 3.0.3
 Requires: python3-werkzeug >= 2.2.2
@@ -96,7 +96,7 @@ IRC and webhook bot and email notifications for new provisioning tasks and ones 
 %autosetup -n %{reponame}-%{branch}
 
 %build
-%py3_build    
+%py3_build
 
 %install
 rm -rf %{buildroot}
@@ -116,6 +116,7 @@ cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 cp -rf container/etc/nginx/conf/nginx.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/nginx/conf.d/default.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
+cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
 echo 'export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@localhost:5432/quads"' >> %{buildroot}/etc/profile.d/quads.sh
 echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
 %py3_install
@@ -139,6 +140,7 @@ rm -rf %{buildroot}
 %config(noreplace) /opt/quads/conf/hosts_metadata.yml
 %config(noreplace) /opt/quads/conf/idrac_interfaces.yml
 %config(noreplace) /etc/logrotate.d/logrotate_quads.conf
+%config(noreplace) /etc/postfix/postfix-files.d/quads.cf
 
 %{python3_sitelib}/quads/
 %{python3_sitelib}/quads-*.egg-info/
