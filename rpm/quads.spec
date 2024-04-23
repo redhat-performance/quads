@@ -107,6 +107,7 @@ mkdir %{buildroot}/etc/systemd/system/ -p
 mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
 mkdir %{buildroot}/etc/nginx/conf.d/ -p
+mkdir %{buildroot}/etc/postfix/postfix-files.d/ -p
 mkdir %{buildroot}/usr/share/nginx/html/visual/ -p
 mkdir %{buildroot}%{python3_sitelib}/quads/ -p
 tar cf - conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
