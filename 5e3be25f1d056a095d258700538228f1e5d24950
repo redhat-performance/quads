@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "299b8ce2_52019b54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-04-23T17:27:37Z",
+      "side": 1,
+      "message": "bypassing reporting unit test failures, this fixes our COPR build issue.",
+      "revId": "5e3be25f1d056a095d258700538228f1e5d24950",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
