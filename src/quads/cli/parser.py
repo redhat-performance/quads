@@ -644,13 +644,6 @@ parser.add_argument(
     help="Filter search by host metadata",
 )
 action_group.add_argument(
-    "--regen-instack",
-    dest="action",
-    action="store_const",
-    const="regen_instack",
-    help="Regenerate instack JSON",
-)
-action_group.add_argument(
     "--regen-heatmap",
     dest="action",
     action="store_const",

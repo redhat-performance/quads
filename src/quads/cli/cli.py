@@ -20,7 +20,6 @@ from quads.server.models import Assignment
 from quads.tools import reports
 from quads.tools.external.jira import Jira, JiraException
 from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
-from quads.tools.make_instackenv_json import main as regen_instack
 from quads.tools.simple_table_web import main as regen_heatmap
 from quads.tools.regenerate_wiki import main as regen_wiki
 from quads.tools.foreman_heal import main as foreman_heal
@@ -119,7 +118,7 @@ class QuadsCli:
                 _id = obj.id
                 if key == "interfaces":
                     _id = obj.name
-                    
+
                 remove_func = dispatch_remove.get(key)
                 remove_func(str(_id))
             except (APIServerException, APIBadRequest) as ex:
@@ -817,7 +816,7 @@ class QuadsCli:
             cloud = self.quads.get_cloud(self.cli_args.get("cloud"))
         except (APIServerException, APIBadRequest) as ex:
             self.logger.debug(ex, exc_info=ex)
-            
+
         if cloud and cloud.name != conf.get("spare_pool_name"):
             try:
                 assignment = self.quads.get_active_cloud_assignment(self.cli_args.get("cloud"))
@@ -956,7 +955,7 @@ class QuadsCli:
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
         self.logger.info(f"{_host.name}")
-        
+
     def prepare_host_data(self, metadata) -> dict:
         data = {}
         for key, value in metadata.items():
@@ -1011,7 +1010,7 @@ class QuadsCli:
                 else:
                     self.logger.warning(f"Host {host_md.get('name')} not found. Skipping.")
                     continue
-            
+
             host = self.quads.get_host(host_md.get("name"))
 
             data = {}
@@ -1069,8 +1068,6 @@ class QuadsCli:
                 "default_cloud": host.default_cloud.name,
                 "broken": host.broken,
                 "retired": host.retired,
-                "last_build": host.last_build,
-                "created_at": host.created_at,
             }
 
             interfaces = []
@@ -1091,12 +1088,13 @@ class QuadsCli:
 
             disks = []
             for disk in host.disks:
-                disk_dict = {
-                    "disk_type": disk.disk_type,
-                    "size_gb": disk.size_gb,
-                    "count": disk.count,
-                }
-                disks.append(disk_dict)
+                if disk.size_gb > 0:
+                    disk_dict = {
+                        "disk_type": disk.disk_type,
+                        "size_gb": disk.size_gb,
+                        "count": disk.count,
+                    }
+                    disks.append(disk_dict)
             if disks:
                 host_meta["disks"] = disks
 
@@ -1826,13 +1824,6 @@ class QuadsCli:
                     )
                 else:
                     self.logger.info(f"{cloud_name}: {cloud_count} ({cloud_description})")
-
-    def action_regen_instack(self):
-        regen_instack()
-        if conf["openstack_management"]:
-            self.logger.info("Regenerated 'instackenv' for OpenStack Management.")
-        if conf["openshift_management"]:
-            self.logger.info("Regenerated 'ocpinventory' for OpenShift Management.")
 
     def action_regen_heatmap(self):
         regen_heatmap()

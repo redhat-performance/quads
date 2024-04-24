@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 from quads.config import Config
 from quads.tools.regenerate_wiki import main as regenerate_wiki_main
-from tests.tools.test_base import TestBase
 
 
 class WikiStub:
@@ -16,7 +15,7 @@ class WikiStub:
         pass
 
 
-class TestWiki(TestBase):
+class TestWiki:
     @patch("quads.tools.regenerate_wiki.Wordpress", WikiStub)
     @patch("quads.tools.regenerate_vlans_wiki.Wordpress", WikiStub)
     def test_regenerate_wiki(self):

@@ -8,6 +8,8 @@ from quads.web.forms import ModelSearchForm
 from quads.config import Config
 from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 
+from src.quads.tools.make_instackenv_json import make_env_json
+
 flask_app = Flask(__name__)
 flask_app.url_map.strict_slashes = False
 flask_app.secret_key = "flask rocks!"
@@ -23,6 +25,26 @@ def index():
         return search_results(search)
 
     return render_template("index.html", form=search, available_hosts=[])
+
+
+@flask_app.route("/instackenv/<cloud>")
+async def instackenv(cloud):
+    try:
+        cloud = quads.get_cloud(cloud)
+    except APIBadRequest:
+        return jsonify("Cloud not found.")
+    instackenv_json = await make_env_json("instackenv", cloud)
+    return jsonify(instackenv_json)
+
+
+@flask_app.route("/ocpinventory/<cloud>")
+async def ocpinventory(cloud):
+    try:
+        cloud = quads.get_cloud(cloud)
+    except APIBadRequest:
+        return jsonify("Cloud not found.")
+    ocpinventory_json = await make_env_json("ocpinventory", cloud)
+    return jsonify(ocpinventory_json)
 
 
 @flask_app.route("/results")
