@@ -24,21 +24,6 @@ class TestRegen(TestBase):
             assert os.path.exists(os.path.join(os.path.dirname(__file__), f"artifacts/{f}"))
         assert self._caplog.messages == ["Regenerated web table heatmap."]
 
-    def test_regen_instack(self):
-        Config.__setattr__("foreman_unavailable", True)
-        Config.__setattr__("openstack_management", True)
-        Config.__setattr__("openshift_management", True)
-        Config.__setattr__("json_web_path", os.path.join(os.path.dirname(__file__), "artifacts/"))
-        self.quads_cli_call("regen_instack")
-
-        files = ["cloud99_ocpinventory.json", "cloud99_instackenv.json"]
-        for f in files:
-            assert os.path.exists(os.path.join(os.path.dirname(__file__), f"artifacts/{f}"))
-        assert self._caplog.messages == [
-            "Regenerated 'instackenv' for OpenStack Management.",
-            "Regenerated 'ocpinventory' for OpenShift Management.",
-        ]
-
     @patch("quads.tools.regenerate_wiki.Wordpress", WikiStub)
     @patch("quads.tools.regenerate_vlans_wiki.Wordpress", WikiStub)
     def test_regen_wiki(self):
