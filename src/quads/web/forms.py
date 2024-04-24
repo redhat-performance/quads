@@ -1,5 +1,3 @@
-# forms.py
-
 from wtforms import validators, SelectMultipleField, StringField
 from flask_wtf import FlaskForm
 from quads.config import Config

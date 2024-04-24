@@ -12,9 +12,9 @@
 #### Note: quads-dev = latest master branch
 ####       quads     = latest stable release
 
-%define name quads-dev
+%define name quads
 %define reponame quads
-%define branch flaskapi_v3
+%define branch master
 %define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
@@ -116,8 +116,6 @@ cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-db.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads.target %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
-cp -rf container/etc/nginx/conf/nginx.conf %{buildroot}/etc/nginx/conf.d/
-cp -rf container/etc/nginx/conf.d/default.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
 echo 'export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@localhost:5432/quads"' >> %{buildroot}/etc/profile.d/quads.sh
@@ -160,6 +158,8 @@ rm -rf %{buildroot}
 source /etc/profile.d/quads.sh
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
 sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
+/usr/bin/systemctl start quads.target
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 %preun
 if [ "$1" -eq 0 ]; then
