@@ -160,6 +160,8 @@ rm -rf %{buildroot}
 source /etc/profile.d/quads.sh
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
 sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
+/usr/bin/systemctl start quads.target
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 %preun
 if [ "$1" -eq 0 ]; then

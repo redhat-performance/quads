@@ -10,15 +10,12 @@ After=network.target quads-server.service
 
 [Service]
 Type = simple
-ExecStart = /opt/quads/src/quads/web/main.py
-ExecStop = /usr/bin/pkill quads-web
+ExecStart = /usr/bin/gunicorn quads.web.app:flask_app -b :5001 -w 4 -k gthread --max-requests=5000 --max-requests-jitter=500 --log-level=INFO
+ExecStop = /usr/bin/pkill gunicorn
 Restart = always
 StartLimitInterval = 60
 StartLimitBurst = 10
-# this is required for newer libraries
-# set appropriately for your environment
-# or use systemctl edit quads-web to put overrides
-# in another location
+
 
 [Install]
 WantedBy = multi-user.target
