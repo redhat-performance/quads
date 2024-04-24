@@ -24,7 +24,6 @@
     switch_ip: 10.0.0.1
     switch_port: et-4/0/0
     vendor: Intel
-  last_build: null
   memory:
   - handle: DIMM1
     size_gb: 2048
@@ -42,7 +41,6 @@
 - broken: false
   default_cloud: cloud99
   host_type: scalelab
-  last_build: null
   model: R640
   name: imported.example.com
   retired: false
