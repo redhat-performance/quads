@@ -12,9 +12,9 @@
 #### Note: quads-dev = latest master branch
 ####       quads     = latest stable release
 
-%define name quads-dev
+%define name quads
 %define reponame quads
-%define branch flaskapi_v3
+%define branch master
 %define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
@@ -160,6 +160,8 @@ rm -rf %{buildroot}
 source /etc/profile.d/quads.sh
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
 sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
+/usr/bin/systemctl start quads.target
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 %preun
 if [ "$1" -eq 0 ]; then
