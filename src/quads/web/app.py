@@ -2,7 +2,6 @@ from datetime import datetime, time
 
 from flask import render_template, request, jsonify
 from flask import Flask
-from flask_bootstrap import Bootstrap
 
 from quads.web.forms import ModelSearchForm
 from quads.config import Config
@@ -11,7 +10,6 @@ from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 flask_app = Flask(__name__)
 flask_app.url_map.strict_slashes = False
 flask_app.secret_key = "flask rocks!"
-Bootstrap(flask_app)
 
 quads = Quads(Config)
 
@@ -36,8 +34,8 @@ def available(search):
     models = search.data["model"]
     try:
         start, end = [datetime.strptime(date, "%Y-%m-%d").date() for date in search.data["date_range"].split(" - ")]
-        start = datetime.combine(start, time(hour=22)).strftime("%Y-%m-%d %H:%M")
-        end = datetime.combine(end, time(hour=22)).strftime("%Y-%m-%d %H:%M")
+        start = datetime.combine(start, time(hour=22)).strftime("%Y-%m-%dT%H:%M")
+        end = datetime.combine(end, time(hour=22)).strftime("%Y-%m-%dT%H:%M")
     except ValueError:
         return jsonify([])
 

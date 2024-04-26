@@ -51,7 +51,6 @@ Requires: python3-requests >= 2.28.1
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 3.1.40
 Requires: python3-flask >= 2.2.2
-Requires: python3-flask-bootstrap >= 3.3.7.1
 Requires: python3-flask-wtf >= 1.0.1
 Requires: python3-flask-sqlalchemy >= 2.5.1
 Requires: python3-flask-principal >= 0.4.0
