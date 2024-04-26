@@ -51,7 +51,6 @@ Requires: python3-requests >= 2.28.1
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 3.1.40
 Requires: python3-flask >= 2.2.2
-Requires: python3-flask-bootstrap >= 3.3.7.1
 Requires: python3-flask-wtf >= 1.0.1
 Requires: python3-flask-sqlalchemy >= 2.5.1
 Requires: python3-flask-principal >= 0.4.0
@@ -110,6 +109,9 @@ mkdir %{buildroot}/etc/nginx/conf.d/ -p
 mkdir %{buildroot}/etc/postfix/postfix-files.d/ -p
 mkdir %{buildroot}/usr/share/nginx/html/visual/ -p
 mkdir %{buildroot}%{python3_sitelib}/quads/ -p
+mkdir %{buildroot}%{python3_sitelib}/flask_bootstrap/ -p
+mkdir %{buildroot}%{python3_sitelib}/flask_bootstrap/{static/css,static/fonts,static/js} -p
+mkdir %{buildroot}%{python3_sitelib}/flask_bootstrap/templates/bootstrap -p
 tar cf - conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
@@ -118,6 +120,9 @@ cp -rf systemd/quads.target %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
+cp -rf assets/flask_bootstrap/*.py %{python3_sitelib}/flask_bootstrap/
+cp -rf assets/flask_bootstrap/static/* %{python3_sitelib}/flask_bootstrap/static/
+cp -rf assets/flask_bootstrap/templates/* %{python3_sitelib}/flask_bootstrap/templates/
 echo 'export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@localhost:5432/quads"' >> %{buildroot}/etc/profile.d/quads.sh
 echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
 %py3_install
@@ -145,6 +150,7 @@ rm -rf %{buildroot}
 
 %{python3_sitelib}/quads/
 %{python3_sitelib}/quads-*.egg-info/
+%{python3_sitelib}/flask_bootstrap/
 
 %post
 /usr/bin/mkdir -p /opt/quads/db/data/
