@@ -119,7 +119,8 @@ exclude_hosts: cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|
 racks: b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10
 
 # this is where we place the generated instackenv.json files
-json_web_path: /var/www/html/cloud
+# directory needs to be readable by the nginx user
+json_web_path: /var/www/html/instack
 # number of days of retaining old .json files
 json_retention_days: 0
 
@@ -179,7 +180,7 @@ default_wipe: True
 
 # If you're using metadata model / search you want to add any system models
 # here.  Please see docs/quads-host-metadata-search.md
-models: R620,R630,R640,R930,R730XD,FC640,6018R,6048R,1029U-TRTP,1029U-TN10RT,1029P,5039MS,6049P
+models: R620,R630,R640,R650,R930,R730XD,FC640,DL360,6018R,6048R,1029U-TRTP,1029U-TN10RT,1029P,5039MS,6049P
 
 # Amount of hours for locking a cloud for redefinition
 cloud_reservation_lock: 48
