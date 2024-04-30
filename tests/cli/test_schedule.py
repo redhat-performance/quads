@@ -218,7 +218,7 @@ class TestSchedule(TestBase):
         self.quads_cli_call("schedule")
         assert self._caplog.messages[0] == f"Default cloud: {CLOUD}"
         assert self._caplog.messages[1] == f"Current cloud: {CLOUD}"
-        assert self._caplog.messages[2][1:].startswith("| start=")
+        assert self._caplog.messages[2].split("|")[1].startswith(" start=")
 
     def test_ls_schedule_date(self, remove_fixture):
         # TODO: verify this one
@@ -229,7 +229,7 @@ class TestSchedule(TestBase):
         self.quads_cli_call("schedule")
         assert self._caplog.messages[0] == f"Default cloud: {CLOUD}"
         assert self._caplog.messages[1] == f"Current cloud: {CLOUD}"
-        assert self._caplog.messages[2][1:].startswith("| start=")
+        assert self._caplog.messages[2].split("|")[1].startswith(" start=")
 
     @patch("quads.quads_api.QuadsApi.get_current_schedules")
     def test_ls_schedule_exception(self, mock_get, remove_fixture):
