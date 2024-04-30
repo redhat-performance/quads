@@ -147,7 +147,11 @@ rm -rf %{buildroot}
 
 %post
 /usr/bin/mkdir -p /opt/quads/db/data/
+/usr/bin/mkdir -p /var/www/html/visual/
+/usr/bin/mkdir -p /var/www/html/instack/
 /usr/bin/chown -R postgres:postgres /opt/quads/db/
+/usr/bin/chown -R nginx:nginx /var/www/html/visual/
+/usr/bin/chown -R nginx:nginx /var/www/html/instack/
 /usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web

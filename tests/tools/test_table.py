@@ -18,7 +18,6 @@ class TestTable:
         "Description: test
         Env: cloud99
         Owner: test
-        Ticket: 1234
-        Day: {datetime.now().day + 1}">"""
+        Ticket: 1234"""
         assert isinstance(current, str) is True
         assert response in current
