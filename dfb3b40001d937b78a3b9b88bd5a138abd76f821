@@ -16,6 +16,23 @@
       "message": "@grafuls@redhat.com",
       "revId": "dfb3b40001d937b78a3b9b88bd5a138abd76f821",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0f794cd_ef7f26da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-03T11:22:07Z",
+      "side": 1,
+      "message": "retrigger",
+      "revId": "dfb3b40001d937b78a3b9b88bd5a138abd76f821",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
