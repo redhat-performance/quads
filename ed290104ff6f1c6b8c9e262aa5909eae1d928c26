@@ -16,6 +16,24 @@
       "message": "no need for this change. please revert.",
       "revId": "ed290104ff6f1c6b8c9e262aa5909eae1d928c26",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca1dd2a8_2bcc9889",
+        "filename": "src/quads/web/static/js/bootstrap.min.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-03T11:55:21Z",
+      "side": 0,
+      "message": "Acknowledged",
+      "parentUuid": "be7b0bc0_85ad958e",
+      "revId": "ed290104ff6f1c6b8c9e262aa5909eae1d928c26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
