@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, time
 
 from flask import render_template, request, jsonify
@@ -54,6 +55,10 @@ def available(search):
                 "cloud": host.cloud.name,
                 "model": host.model,
                 "current": current,
+                "disks": [{
+                    "disk_type": disk.disk_type,
+                    "disk_size": disk.size_gb,
+                    "disk_count": disk.count} for disk in host.disks],
             }
             available_hosts.append(host_dict)
     except (APIBadRequest, APIServerException):
@@ -63,5 +68,5 @@ def available(search):
 
 
 if __name__ == "__main__":
-    flask_app.debug = False
+    flask_app.debug = True
     flask_app.run(host="0.0.0.0", port=5001)
