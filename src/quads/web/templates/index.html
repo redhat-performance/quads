@@ -45,6 +45,7 @@
                             <th scope="col">Hostname</th>
                             <th scope="col">Cloud</th>
                             <th scope="col">Model</th>
+                            <th scope="col">Disks</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,10 +55,16 @@
                         {% else %}
                         <tr>
                         {% endif %}
-                            <th scope="row">{{ loop.index }}</th>
+                            <th scope="row" >{{ loop.index }}</th>
                             <td>{{ host["name"] }}</td>
                             <td>{{ host["cloud"] }}</td>
                             <td>{{ host["model"] }}</td>
+                            {% if host.disks %}
+                                <td data-bs-toggle="modal"
+                                    data-bs-target="#baseModal" onclick="updateDisks({{ host.disks }})">&#128190;</td>
+                            {% else %}
+                                <td>&#10060;</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -65,12 +72,28 @@
             </div>
         </div>
     </div>
+
+    {% include 'modal_no_footer.html' %}
+
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
     <script>
+        const updateDisks = (disks) => {
+            document.getElementsByClassName('modal-title')[0].innerHTML = 'Disks'
+            let td_data = ""
+            disks.forEach(disk => {
+                td_data += `<tr><td>${disk["disk_type"]}</td>`
+                td_data += `<td>${disk["disk_size"]}</td>`
+                td_data += `<td>${disk["disk_count"]}</td></tr>`
+            })
+            let th_data = "<tr><th>DiskType</th><th>DiskSize</th><th>DiskCount</th></tr>"
+            document.getElementsByClassName('modal-body')[0].innerHTML = `<table class="table">${th_data}${td_data}</table>`;
+            };
         $(document).ready( function () {
+
+
             $('#date_range').prop('readonly', true);
             const table = $('#results').DataTable({
                 dom: 'Blfrtip',
