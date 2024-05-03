@@ -1,28 +1,8 @@
 import calendar
 
 from datetime import timedelta, datetime
+
 from quads.config import Config
-
-
-def param_check(data, params, defaults=None):
-    if not defaults:
-        defaults = {}
-    result = []
-    # set defaults
-    for k, v in defaults.items():
-        data.setdefault(k, v)
-
-    if data:
-        # check for missing params
-        for param in params:
-            if param not in data:
-                result.append("Missing required parameter: %s" % param)
-            elif not data[param]:
-                result.append("Could not parse %s parameter" % param)
-            elif data[param] == "None":
-                data[param] = None
-
-    return result, data
 
 
 def is_supported(_host_name):

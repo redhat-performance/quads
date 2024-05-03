@@ -13,7 +13,7 @@ from paramiko.ssh_exception import NoValidConnectionsError
 
 from quads.config import Config
 from quads.exceptions import CliException
-from quads.helpers import is_supported
+from quads.helpers.utils import is_supported
 from quads.quads_api import QuadsApi, APIServerException, APIBadRequest
 from quads.tools.external.badfish import BadfishException, badfish_factory
 from quads.tools.external.foreman import Foreman
@@ -35,15 +35,9 @@ class Validator(object):  # pragma: no cover
         self.report = ""
         self.args = _args
         self.hosts = quads.filter_hosts({"cloud": self.cloud, "validated": False})
-        self.hosts = [
-            host
-            for host in self.hosts
-            if quads.get_current_schedules({"host": host.name})
-        ]
+        self.hosts = [host for host in self.hosts if quads.get_current_schedules({"host": host.name})]
         if self.args.skip_hosts:
-            self.hosts = [
-                host for host in self.hosts if host.name not in self.args.skip_hosts
-            ]
+            self.hosts = [host for host in self.hosts if host.name not in self.args.skip_hosts]
         self.loop = _loop if _loop else get_running_loop()
 
     def notify_failure(self):
@@ -58,9 +52,7 @@ class Validator(object):  # pragma: no cover
         }
         content = template.render(**parameters)
 
-        subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(
-            **parameters
-        )
+        subject = "Validation check failed for {cloud} / {owner} / {ticket}".format(**parameters)
         _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
@@ -76,9 +68,7 @@ class Validator(object):  # pragma: no cover
         }
         content = template.render(**parameters)
 
-        subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(
-            **parameters
-        )
+        subject = "Validation check succeeded for {cloud} / {owner} / {ticket}".format(**parameters)
         _cc_users = Config["report_cc"].split(",")
         postman = Postman(subject, "dev-null", _cc_users, content)
         postman.send_email()
@@ -94,8 +84,7 @@ class Validator(object):  # pragma: no cover
             if time_delta.total_seconds() // 60 > Config["validation_grace_period"]:
                 return True
             logger.warning(
-                "You're still within the configurable validation grace period. Skipping validation for %s."
-                % self.cloud
+                "You're still within the configurable validation grace period. Skipping validation for %s." % self.cloud
             )
         return False
 
@@ -112,12 +101,8 @@ class Validator(object):  # pragma: no cover
         if not valid_creds:
             logger.error("Unable to query Foreman for cloud: %s" % self.cloud)
             logger.error("Verify Foreman password is correct: %s" % password)
-            self.report = (
-                self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud
-            )
-            self.report = (
-                self.report + "Verify Foreman password is correct: %s\n" % password
-            )
+            self.report = self.report + "Unable to query Foreman for cloud: %s\n" % self.cloud
+            self.report = self.report + "Verify Foreman password is correct: %s\n" % password
             return False
 
         build_hosts = await foreman.get_build_hosts()
@@ -134,12 +119,8 @@ class Validator(object):  # pragma: no cover
                 pending = [host for host in pending if host not in self.args.skip_hosts]
 
             if pending:
-                logger.info(
-                    "The following hosts are marked for build and will now be rebooted:"
-                )
-                self.report = (
-                    self.report + "The following hosts are marked for build:\n"
-                )
+                logger.info("The following hosts are marked for build and will now be rebooted:")
+                self.report = self.report + "The following hosts are marked for build:\n"
                 for host in pending:
                     logger.info(host)
                     try:
@@ -179,9 +160,7 @@ class Validator(object):  # pragma: no cover
                             )
                             await badfish.reboot_server()
                         else:
-                            logger.error(
-                                f"Could not initiate Badfish instance for: {host}"
-                            )
+                            logger.error(f"Could not initiate Badfish instance for: {host}")
 
                     self.report = self.report + "%s\n" % host
                 return False
@@ -228,9 +207,7 @@ class Validator(object):  # pragma: no cover
                     except (APIServerException, APIBadRequest) as ex:
                         logger.debug(str(ex))
                         logger.error("Could not update host: %s." % host.name)
-                        self.report = (
-                            self.report + "Could not update host: %s.\n" % host.name
-                        )
+                        self.report = self.report + "Could not update host: %s.\n" % host.name
                         return False
                 else:
                     switch_config_missing.append(host.name)
@@ -245,9 +222,7 @@ class Validator(object):  # pragma: no cover
                 test_host = host
 
         if hosts_down:
-            logger.error(
-                "The following hosts appear to be down or with no ssh connection:"
-            )
+            logger.error("The following hosts appear to be down or with no ssh connection:")
             for i in hosts_down:
                 logger.error(i)
             return False
@@ -268,13 +243,8 @@ class Validator(object):  # pragma: no cover
             socket.timeout,
         ) as ex:
             logger.debug(str(ex))
-            logger.error(
-                "Could not establish connection with host: %s." % test_host.name
-            )
-            self.report = (
-                self.report
-                + "Could not establish connection with host: %s.\n" % test_host.name
-            )
+            logger.error("Could not establish connection with host: %s." % test_host.name)
+            self.report = self.report + "Could not establish connection with host: %s.\n" % test_host.name
             failed_ssh = True
 
         if failed_ssh:
@@ -282,9 +252,7 @@ class Validator(object):  # pragma: no cover
 
         host_list = " ".join([host.name for host in self.hosts])
 
-        result, output = ssh_helper.run_cmd(
-            f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {host_list}"
-        )
+        result, output = ssh_helper.run_cmd(f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {host_list}")
         if not result:
             return False
 
@@ -310,9 +278,7 @@ class Validator(object):  # pragma: no cover
 
             if new_ips:
                 all_ips = " ".join(new_ips)
-                result, output = ssh_helper.run_cmd(
-                    f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {all_ips}"
-                )
+                result, output = ssh_helper.run_cmd(f"fping -t {Config.FPING_TIMEOUT} -B 1 -u {all_ips}")
                 if not result:
                     pattern = re.compile(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})")
                     hosts = []
@@ -355,20 +321,11 @@ class Validator(object):  # pragma: no cover
                 if not assignment.notification.success:
                     self.notify_success()
                     try:
-                        quads.update_notification(
-                            assignment.notification.id, {"success": True, "fail": False}
-                        )
+                        quads.update_notification(assignment.notification.id, {"success": True, "fail": False})
                     except (APIServerException, APIBadRequest) as ex:
                         logger.debug(str(ex))
-                        logger.error(
-                            "Could not update notification: %s."
-                            % assignment.notification.id
-                        )
-                        self.report = (
-                            self.report
-                            + "Could not update notification: %s.\n"
-                            % assignment.notification.id
-                        )
+                        logger.error("Could not update notification: %s." % assignment.notification.id)
+                        self.report = self.report + "Could not update notification: %s.\n" % assignment.notification.id
                         failed = True
 
                 for host in self.hosts:
@@ -377,21 +334,14 @@ class Validator(object):  # pragma: no cover
                     except (APIServerException, APIBadRequest) as ex:
                         logger.debug(str(ex))
                         logger.error("Could not update host: %s." % host.name)
-                        self.report = (
-                            self.report + "Could not update host: %s.\n" % host.name
-                        )
+                        self.report = self.report + "Could not update host: %s.\n" % host.name
                         failed = True
                 try:
                     quads.update_assignment(self.assignment.id, {"validated": True})
                 except (APIServerException, APIBadRequest) as ex:
                     logger.debug(str(ex))
-                    logger.error(
-                        "Could not update assignment: %s." % self.assignment.id
-                    )
-                    self.report = (
-                        self.report
-                        + "Could not update assignment: %s.\n" % self.assignment.id
-                    )
+                    logger.error("Could not update assignment: %s." % self.assignment.id)
+                    self.report = self.report + "Could not update assignment: %s.\n" % self.assignment.id
                     failed = True
 
         if failed and not assignment.notification.fail:
@@ -400,14 +350,8 @@ class Validator(object):  # pragma: no cover
                 quads.update_notification(assignment.notification.id, {"fail": True})
             except (APIServerException, APIBadRequest) as ex:
                 logger.debug(str(ex))
-                logger.error(
-                    "Could not update notification: %s." % assignment.notification.id
-                )
-                self.report = (
-                    self.report
-                    + "Could not update notification: %s.\n"
-                    % assignment.notification.id
-                )
+                logger.error("Could not update notification: %s." % assignment.notification.id)
+                self.report = self.report + "Could not update notification: %s.\n" % assignment.notification.id
 
         return
 
@@ -479,9 +423,7 @@ if __name__ == "__main__":  # pragma: no cover
         default=False,
         help="Show debugging information.",
     )
-    parser.add_argument(
-        "--cloud", default="", help="Run validation only on specified cloud."
-    )
+    parser.add_argument("--cloud", default="", help="Run validation only on specified cloud.")
     args = parser.parse_args()
 
     level = logging.INFO

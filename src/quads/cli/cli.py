@@ -14,7 +14,7 @@ from jinja2 import Template
 from requests import ConnectionError
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
-from quads.helpers import first_day_month, last_day_month
+from quads.helpers.utils import first_day_month, last_day_month
 from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 from quads.server.models import Assignment
 from quads.tools import reports
@@ -849,16 +849,16 @@ class QuadsCli:
                 if cloud_response.status_code == 200:
                     self.logger.info(f'Cloud {self.cli_args.get("cloud")} created.')
 
-            if not assignment and self.cli_args.get("cloud") != conf.get("spare_pool_name"):
+            if not assignment and cloud and self.cli_args.get("cloud") != conf.get("spare_pool_name"):
                 try:
                     response = self.quads.insert_assignment(data)
                 except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 if response.status_code == 200:
                     self.logger.info("Assignment created.")
-            else:
+            elif assignment:
                 try:
-                    response = self.quads.update_assignment(data["id"], data)
+                    response = self.quads.update_assignment(assignment.id, data)
                 except (APIServerException, APIBadRequest) as ex:
                     raise CliException(str(ex))
                 if response.status_code == 200:

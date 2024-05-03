@@ -51,11 +51,8 @@ class TestCloud(TestBase):
         self.quads_cli_call("cloudresource")
 
         assert self._caplog.messages[0] == f"Cloud {DEFINE_CLOUD} created."
-        assert self._caplog.messages[1] == "Assignment created."
 
         cloud = CloudDao.get_cloud(CLOUD)
-        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
-        assert assignment is not None
         assert cloud is not None
         assert cloud.name == CLOUD
 
@@ -301,7 +298,7 @@ class TestCloud(TestBase):
     @patch("quads.quads_api.requests.Session.get")
     def test_ls_vlan_no_vlans(self, mock_get):
         self.quads_cli_call("ls_vlan")
-        
+
         assert self._caplog.messages[0] == "No VLANs found."
 
     def test_free_cloud(self):

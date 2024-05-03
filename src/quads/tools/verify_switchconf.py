@@ -4,7 +4,7 @@ import argparse
 import logging
 
 from quads.config import Config, DEFAULT_CONF_PATH
-from quads.helpers import get_vlan
+from quads.helpers.utils import get_vlan
 from quads.quads_api import QuadsApi
 from quads.tools.external.juniper import Juniper
 from quads.tools.external.ssh_helper import SSHHelper
@@ -41,9 +41,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
         logger.warning("Both --cloud and --host have been specified.")
         logger.warning(f"Host: {first_host.name}")
         logger.warning(f"Cloud: {_cloud_obj.name}")
-        logger.warning(
-            f"However, {first_host.name} is a member of {first_host.cloud.name}"
-        )
+        logger.warning(f"However, {first_host.name} is a member of {first_host.cloud.name}")
         logger.warning("!!!!! Be certain this is what you want to do. !!!!!")
 
     _assignment = quads.get_active_cloud_assignment(_cloud_obj.name)
@@ -58,9 +56,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                 vlan = get_vlan(_assignment, i, last_nic)
 
                 try:
-                    _, old_vlan_out = ssh_helper.run_cmd(
-                        f"show configuration interfaces {interface.switch_port}"
-                    )
+                    _, old_vlan_out = ssh_helper.run_cmd(f"show configuration interfaces {interface.switch_port}")
                     old_vlan = old_vlan_out[0].split(";")[0].split()[1]
                     if old_vlan.startswith("QinQ"):
                         old_vlan = old_vlan[7:]
@@ -69,8 +65,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
 
                 try:
                     _, vlan_member_out = ssh_helper.run_cmd(
-                        "show configuration vlans | display set | match %s.0"
-                        % interface.switch_port
+                        "show configuration vlans | display set | match %s.0" % interface.switch_port
                     )
                     vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
@@ -88,9 +83,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                 ssh_helper.disconnect()
 
                 if int(old_vlan) != int(vlan):
-                    logger.warning(
-                        "Interface %s not using QinQ_vl%s", interface.switch_port, vlan
-                    )
+                    logger.warning("Interface %s not using QinQ_vl%s", interface.switch_port, vlan)
 
                 if int(vlan_member) != int(vlan):
                     if not last_nic:
@@ -106,10 +99,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                             if int(_cloud_obj.vlan.vlan_id) != int(old_vlan):
 
                                 logger.info(f"Change requested for {interface.name}")
-                                logger.info(
-                                    "Setting last interface to public vlan %s."
-                                    % _cloud_obj.vlan.vlan_id
-                                )
+                                logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
 
                                 juniper = Juniper(
                                     interface.switch_ip,
@@ -134,15 +124,11 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                         if success:
                             logger.info("Successfully updated switch settings.")
                         else:
-                            logger.error(
-                                f"There was something wrong updating switch for {interface.name}"
-                            )
+                            logger.error(f"There was something wrong updating switch for {interface.name}")
 
 
 if __name__ == "__main__":  # pragma: no cover
-    parser = argparse.ArgumentParser(
-        description="Verify switch configs for a cloud or host"
-    )
+    parser = argparse.ArgumentParser(description="Verify switch configs for a cloud or host")
     parser.add_argument(
         "--cloud",
         dest="cloud",
@@ -157,9 +143,7 @@ if __name__ == "__main__":  # pragma: no cover
         default=None,
         help="Host name to verify switch configuration for.",
     )
-    parser.add_argument(
-        "--change", dest="change", action="store_true", help="Commit changes on switch."
-    )
+    parser.add_argument("--change", dest="change", action="store_true", help="Commit changes on switch.")
 
     args = parser.parse_args()
     verify(args.cloud, args.host, args.change)

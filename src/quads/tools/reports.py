@@ -2,7 +2,7 @@ import logging
 import sys
 
 from quads.config import Config
-from quads.helpers import (
+from quads.helpers.utils import (
     date_span,
     first_day_month,
     last_day_month,
