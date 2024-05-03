@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be7b0bc0_85ad958e",
+        "filename": "src/quads/web/static/js/bootstrap.min.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-03T11:21:13Z",
+      "side": 0,
+      "message": "no need for this change. please revert.",
+      "revId": "ed290104ff6f1c6b8c9e262aa5909eae1d928c26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
