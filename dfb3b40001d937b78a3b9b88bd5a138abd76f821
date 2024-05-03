@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91707664_82d05a81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-05-03T10:04:10Z",
+      "side": 1,
+      "message": "@grafuls@redhat.com",
+      "revId": "dfb3b40001d937b78a3b9b88bd5a138abd76f821",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
