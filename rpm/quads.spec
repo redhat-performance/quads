@@ -118,7 +118,7 @@ cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
 echo 'export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@localhost:5432/quads"' >> %{buildroot}/etc/profile.d/quads.sh
-echo 'eval "$(register-python-argcomplete quads-cli)"' >> %{buildroot}/etc/profile.d/quads.sh
+echo 'eval "$(register-python-argcomplete quads)"' >> %{buildroot}/etc/profile.d/quads.sh
 %py3_install
 
 %clean
