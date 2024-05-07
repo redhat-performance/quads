@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, jsonify, request, Response, make_response
+from flask import Blueprint, jsonify, request, Response, make_response, g
 from validators import email
 
 from quads.server.models import User, TokenBlackList, db, Role
@@ -38,9 +38,7 @@ def register() -> Response:
         return Response(response=json.dumps(response), status=401)
     if not user:
         try:
-            user = user_datastore.create_user(
-                email=data["email"], password=data["password"], roles=[role]
-            )
+            user = user_datastore.create_user(email=data["email"], password=data["password"], roles=[role])
             db.session.commit()
             auth_token = User.encode_auth_token(user.id)
             response_object = {
@@ -76,9 +74,8 @@ def login() -> Response:
 
     :return: A json object with a status code, status, message and auth_token
     """
-    current_user = basic_auth.current_user()
     try:
-        user = db.session.query(User).filter(User.email == current_user).first()
+        user = db.session.query(User).filter(User.email == g.flask_httpauth_user).first()
         auth_token = User.encode_auth_token(user.email)
         if auth_token:
             response_object = {

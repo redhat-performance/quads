@@ -24,25 +24,6 @@ HEADERS = [
 ]
 
 
-def consolidate_ipmi_data(_host, _path, _value):
-    ipmi_path = os.path.join(Config["data_dir"], "ipmi")
-    host_path = os.path.join(ipmi_path, _host)
-    _file_path = os.path.join(host_path, _path)
-    try:
-        with open(_file_path, "r+") as _ipmi_file:
-            mac = _ipmi_file.read()
-            if not mac and _value:
-                _ipmi_file.seek(0)
-                _ipmi_file.write(_value)
-                _ipmi_file.truncate()
-    except IOError:
-        if not os.path.exists(host_path):
-            pathlib.Path(host_path).mkdir(parents=True, exist_ok=True)
-        with open(_file_path, "w") as _ipmi_file:
-            value = _value if _value else ""
-            _ipmi_file.write(value)
-
-
 def render_header(_rack):
     h = "**Rack %s**" % _rack.upper()
     h1 = "| %s |" % " | ".join(HEADERS)
@@ -102,8 +83,6 @@ def main():
                 properties["host_mac"] = properties["mac"]
                 properties["ip"] = properties.get("sp_ip")
                 properties["mac"] = properties.get("sp_mac")
-                consolidate_ipmi_data(host, "macaddr", properties["host_mac"])
-                consolidate_ipmi_data(host, "oobmacaddr", properties.get("sp_mac"))
                 svctag_file = os.path.join(Config["data_dir"], "ipmi", host, "svctag")
                 svctag = ""
                 if os.path.exists(svctag_file):
