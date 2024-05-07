@@ -38,9 +38,7 @@ def register() -> Response:
         return Response(response=json.dumps(response), status=401)
     if not user:
         try:
-            user = user_datastore.create_user(
-                email=data["email"], password=data["password"], roles=[role]
-            )
+            user = user_datastore.create_user(email=data["email"], password=data["password"], roles=[role])
             db.session.commit()
             auth_token = User.encode_auth_token(user.id)
             response_object = {
@@ -76,8 +74,8 @@ def login() -> Response:
 
     :return: A json object with a status code, status, message and auth_token
     """
-    current_user = basic_auth.current_user()
     try:
+        current_user = basic_auth.username()
         user = db.session.query(User).filter(User.email == current_user).first()
         auth_token = User.encode_auth_token(user.email)
         if auth_token:

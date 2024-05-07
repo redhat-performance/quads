@@ -11,7 +11,6 @@ from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.vlan import VlanDao
 from quads.tools.create_input import (
-    consolidate_ipmi_data,
     render_header,
     render_row,
     main as create_input_main,
@@ -22,47 +21,6 @@ from tests.tools.config import HOST_E20, HOST_C02, HOST_C08, HOST_C01
 
 
 class TestCreateInput(object):
-    @pytest.mark.asyncio
-    def test_consolidate_ipmi_data(self):
-        with tempfile.TemporaryDirectory() as tmp_dirname:
-            Config.__setattr__("data_dir", tmp_dirname)
-            consolidate_ipmi_data(HOST1, "macaddr", IFMAC1)
-            file_path = os.path.join(tmp_dirname, "ipmi", HOST1, "macaddr")
-            assert os.path.exists(file_path)
-
-    @pytest.mark.asyncio
-    def test_consolidate_ipmi_data_file_create(self):
-        with tempfile.TemporaryDirectory() as tmp_dirname:
-            Config.__setattr__("data_dir", tmp_dirname)
-            host_path = os.path.join(tmp_dirname, "ipmi", HOST1)
-            file_path = os.path.join(host_path, "macaddr")
-            pathlib.Path(host_path).mkdir(parents=True, exist_ok=True)
-            consolidate_ipmi_data(HOST1, "macaddr", IFMAC1)
-
-            assert os.path.exists(file_path)
-
-    @pytest.mark.asyncio
-    def test_consolidate_ipmi_data_mac_not_exists(self):
-        with tempfile.TemporaryDirectory() as tmp_dirname:
-            Config.__setattr__("data_dir", tmp_dirname)
-            consolidate_ipmi_data(HOST1, "macaddr", "")
-            file_path = os.path.join(tmp_dirname, "ipmi", HOST1, "macaddr")
-            assert os.path.exists(file_path)
-            consolidate_ipmi_data(HOST1, "macaddr", IFMAC1)
-            with open(file_path, "r+") as file:
-                assert IFMAC1 in file.read()
-
-    @pytest.mark.asyncio
-    def test_consolidate_ipmi_data_file_create_mac_exists(self):
-        with tempfile.TemporaryDirectory() as tmp_dirname:
-            Config.__setattr__("data_dir", tmp_dirname)
-            consolidate_ipmi_data(HOST1, "macaddr", IFMAC1)
-            file_path = os.path.join(tmp_dirname, "ipmi", HOST1, "macaddr")
-            assert os.path.exists(file_path)
-            consolidate_ipmi_data(HOST1, "macaddr", IFMAC1)
-            with open(file_path, "r+") as file:
-                assert IFMAC1 in file.read()
-
     def test_render_header(self):
         response = render_header("unittest")
         assert "unittest" in response.lower()

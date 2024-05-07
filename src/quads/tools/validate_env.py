@@ -144,10 +144,7 @@ class Validator(object):  # pragma: no cover
                         if is_supported(host):
                             await badfish.boot_to_type(
                                 "foreman",
-                                os.path.join(
-                                    os.path.dirname(__file__),
-                                    "../../conf/idrac_interfaces.yml",
-                                ),
+                                "/opt/quads/conf/idrac_interfaces.yml",
                             )
                         else:
                             await badfish.set_next_boot_pxe()
