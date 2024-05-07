@@ -46,7 +46,7 @@ class SSHHelper(object):
                 allow_agent=False,
                 timeout=30,
             )
-        except SSHException as ex:
+        except (SSHException, TimeoutError) as ex:
             raise SSHHelperException(ex)
 
         transport = ssh.get_transport()
