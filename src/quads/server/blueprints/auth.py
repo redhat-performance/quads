@@ -5,6 +5,7 @@ from validators import email
 
 from quads.server.models import User, TokenBlackList, db, Role
 from quads.server.app import basic_auth, user_datastore
+from flask_security.core import current_user
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -76,7 +77,6 @@ def login() -> Response:
 
     :return: A json object with a status code, status, message and auth_token
     """
-    current_user = basic_auth.current_user()
     try:
         user = db.session.query(User).filter(User.email == current_user).first()
         auth_token = User.encode_auth_token(user.email)

@@ -188,7 +188,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
 
         if is_supported(host):
             try:
-                interfaces_path = os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml")
+                interfaces_path = "/opt/quads/conf/idrac_interfaces.yml"
                 await badfish.change_boot("director", interfaces_path)
 
                 # wait 10 minutes for the boot order job to complete
@@ -243,7 +243,7 @@ async def move_and_rebuild(host, new_cloud, semaphore, rebuild=False, loop=None)
             try:
                 await badfish.boot_to_type(
                     "foreman",
-                    os.path.join(os.path.dirname(__file__), "../../conf/idrac_interfaces.yml"),
+                    "/opt/quads/conf/idrac_interfaces.yml",
                 )
                 await badfish.reboot_server(graceful=False)
             except BadfishException:
