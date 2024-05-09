@@ -62,7 +62,7 @@ def switch_config(host, old_cloud, new_cloud):  # pragma: no cover
 
         new_vlan = get_vlan(_new_ass_cloud_obj, i)
 
-        if _new_ass_cloud_obj.vlan and last_nic:
+        if _new_ass_cloud_obj and _new_ass_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_ass_cloud_obj.vlan.vlan_id):
                 logger.info("Setting last interface to public vlan %s." % new_vlan)
 

@@ -23,7 +23,7 @@ class Wordpress:
         self.password = password
         self.credentials = f"{username}:{password}"
         self.token = base64.b64encode(self.credentials.encode())
-        self.header = {"Content-Type": "text/xml"}
+        self.header = {"Content-Type": "text/xml;charset=UTF-8"}
         self.api_endpoint = os.path.join(self.url, "xmlrpc.php")
         self.xml_root = minidom.Document()
 
@@ -129,7 +129,7 @@ class Wordpress:
         :param _markdown: path to markdown file for upload
         """
         payload = self.create_xml(_page_title, _page_id, _markdown)
-        response = requests.post(self.api_endpoint, headers=self.header, data=payload)
+        response = requests.post(self.api_endpoint, headers=self.header, data=payload.encode(encoding="utf-8"))
 
         if response.status_code == 200:
             print(f"Successfully updated {_page_title} page.")

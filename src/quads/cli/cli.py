@@ -1640,11 +1640,12 @@ class QuadsCli:
                         try:
                             _new_cloud_obj = self.quads.get_cloud(_cloud)
                             assignment = self.quads.get_active_cloud_assignment(_new_cloud_obj.name)
-                            validate = not assignment.wipe
-                            self.quads.update_assignment(
-                                assignment.id,
-                                {"provisioned": True, "validated": validate},
-                            )
+                            if assignment:
+                                validate = not assignment.wipe
+                                self.quads.update_assignment(
+                                    assignment.id,
+                                    {"provisioned": True, "validated": validate},
+                                )
                         except (APIServerException, APIBadRequest) as ex:
                             raise CliException(str(ex))
 
