@@ -6,6 +6,91 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 * Visit the [QUADS blog](https://quads.dev)
 * Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
 
+![quads](/image/quads.png)
+
+![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
+
+   * [QUADS (quick and dirty scheduler)](#quads-quick-and-dirty-scheduler)
+      * [What does it do?](#what-does-it-do)
+      * [Design](#design)
+      * [Requirements](#requirements)
+      * [Setup Overview](#setup-overview)
+      * [QUADS Workflow](#quads-workflow)
+      * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
+      * [Installing QUADS](#installing-quads)
+         * [Installing QUADS from RPM](#installing-quads-from-rpm)
+         * [Installing other QUADS Components](#installing-other-quads-components)
+            * [QUADS Wiki](#quads-wiki)
+               * [Installing Wordpress via Ansible](#installing-wordpress-via-ansible)
+               * [Setup of Wordpress](#setup-of-wordpress)
+               * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
+            * [QUADS Move Command](#quads-move-command)
+         * [Making QUADS Run](#making-quads-run)
+      * [QUADS Usage Documentation](#quads-usage-documentation)
+         * [Adding New Hosts to QUADS](#adding-new-hosts-to-quads)
+            * [Define Initial Cloud Environments](#define-initial-cloud-environments)
+            * [Define Host in QUADS and Foreman](#define-host-in-quads-and-foreman)
+            * [Define Host Interfaces in QUADS](#define-host-interfaces-in-quads)
+         * [How Provisioning Works](#how-provisioning-works)
+            * [QUADS Move Host Command](#quads-move-host-command)
+      * [QUADS Reporting](#quads-reporting)
+        * [Future Assignment Reporting](#future-assignment-reporting)
+        * [Server Availability Overview Report](#server-availability-overview-report)
+        * [Assignment Scheduling Statistics](#assignment-scheduling-statistics)
+        * [Upcoming Scheduled Assignments Report](#upcoming-scheduled-assignments-report)
+      * [Common Administration Tasks](#common-administration-tasks)
+         * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
+            * [QUADS VLAN Options](#quads-vlan-options)
+            * [Optional QUADS Public VLAN](#optional-quads-public-vlan)
+            * [Defining a New Cloud](#defining-a-new-cloud)
+            * [Adding New Hosts to your Cloud](#adding-new-hosts-to-your-cloud)
+            * [Adding New Hosts to your Cloud with JIRA Integration](#adding-new-hosts-to-your-cloud-with-jira-integration)
+         * [Managing Faulty Hosts](#managing-faulty-hosts)
+            * [Migrating to QUADS-managed Host Health](#migrating-to-quads-managed-host-health)
+         * [Managing Retired Hosts](#managing-retired-hosts)
+            * [Retiring Hosts](#retiring-hosts)
+         * [Extending the <strong>Schedule</strong> of an Existing Cloud](#extending-the-schedule-of-an-existing-cloud)
+         * [Extending the <strong>Schedule</strong> of a Specific Host](#extending-the-schedule-of-a-specific-host)
+         * [Shrinking the <strong>Schedule</strong> of an Existing Cloud](#shrinking-the-schedule-of-an-existing-cloud)
+         * [Shrinking the <strong>Schedule</strong> of a Specific Host](#shrinking-the-schedule-of-a-specific-host)
+         * [Terminating a <strong>Schedule</strong>](#terminating-a-schedule)
+         * [Adding Hosts to an existing Cloud](#adding-hosts-to-an-existing-cloud)
+         * [Removing a Schedule](#removing-a-schedule)
+         * [Removing a Schedule across a large set of hosts](#removing-a-schedule-across-a-large-set-of-hosts)
+         * [Removing a Host from QUADS](#removing-a-host-from-quads)
+         * [Modifying a Host Schedule](#modifying-a-host-schedule)
+            * [Modifying a Host Schedule across a large set of hosts](#modifying-a-host-schedule-across-a-large-set-of-hosts)
+         * [Modify a Host Interface](#modify-a-host-interface)
+         * [Remove a Host Interface](#remove-a-host-interface)
+      * [Using the QUADS JSON API](#using-the-quads-json-api)
+      * [Additional Tools and Commands](#additional-tools-and-commands)
+         * [Verify or Correct Cloud and Host Network Switch Settings](#verify-or-correct-cloud-and-host-network-switch-settings)
+         * [Modify or check a specific Host Network Switch Settings](#modify-or-check-a-specific-host-network-switch-settings)
+            * [Mapping Interface to VLAN ID](#mapping-interface-to-vlan-id)
+         * [Modifying Cloud-level Attributes](#modifying-cloud-level-attributes)
+         * [Looking into the Future](#looking-into-the-future)
+         * [Dry Run for Pending Actions](#dry-run-for-pending-actions)
+         * [Find Free Cloud Environment](#find-free-cloud-environment)
+         * [Find Available Hosts](#find-available-hosts)
+            * [Find Available Hosts based on Hardware or Model](#find-available-hosts-based-on-hardware-or-model)
+            * [Find Available Web Interface](#find-available-web-interface)
+            * [Find a System by MAC Address](#find-a-system-by-mac-address)
+            * [Find Systems by Switch IP Address](#find-systems-by-switch-ip-address)
+      * [Using JIRA with QUADS](#using-jira-with-quads)
+      * [Backing up QUADS](#backing-up-quads)
+      * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
+      * [Troubleshooting Validation Failures](#troubleshooting-validation-failures)
+         * [Understanding Validation Structure](#understanding-validation-structure)
+         * [Troubleshooting Steps](#troubleshooting-steps)
+         * [Validation using Debug Mode](#validation-using-debug-mode)
+         * [Skipping Past Network Validation](#skipping-past-network-validation)
+         * [Skipping Past Host and Systems Validation](#skipping-past-host-and-systems-validation)
+         * [Skipping Past Network and Systems Validation per Host](#skipping-past-network-and-systems-validation-per-host)
+         * [Validate Only a Specific Cloud](#validate-only-a-specific-cloud)
+         * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
+      * [Contact QUADS Developers](#contact-quads-developers)
+      * [QUADS Talks and Media](#quads-talks-and-media)
+
 ## What does it do?
    - Create and manage unlimited future scheduling for automated slicing & dicing of systems and network infrastructure
    - Drive automated systems provisioning and network switch changes to deliver isolated, multi-tenant bare-metal environments
@@ -79,8 +164,78 @@ systemctl start quads-{db,server,web}
 flask --app quads.server.app init-db
 ```
 
-   - At this point you should be able to start interacting with QUADS via the CLI or the API.
+   - Now you're ready to go.
+```
+quads --help
+```
+   - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
 
+### Installing other QUADS Components
+
+#### QUADS Wiki
+   - The Wiki component for QUADS is currently Wordpress, though in 2.x we'll be moving everything to Flask.
+   - Please use **Red Hat, CentOS Stream or Rocky 8** for the below Wordpress component.
+   - Wordpress needs to be on it's **own VM/server** as a standalone component.
+   - [Wordpress](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) provides a place to automate documentation and inventory/server status via the Wordpress Python RPC API.
+
+##### Installing Wordpress via Ansible
+   - You can use our Ansible playbook for installing Wordpress / PHP / PHP-FPM / nginx on a Rocky8, RHEL8 or CentOS8 Stream standalone virtual machine.
+   - First, clone the repository
+```
+git clone https://github.com/redhat-performance/ops-tools
+cd ansible/wiki-wordpress-nginx-mariadb
+```
+  - Second, add the hostname or IP address of your intended Wiki/Wordpress host replacing `wiki.example.com` with your host in the `hosts` file.
+```
+# cat hosts
+[wordpress_server]
+wiki.example.com
+```
+  - Third, run Ansible to deploy.  You might take a look at `group_vars/all` for any configuration settings you want to change first.
+```
+ansible-playbook -i hosts site.yml
+```
+  - If you get an error about `seboolean` usage you'll also need to install the `ansible.posix` collection then re-run the playbook.
+```
+dnf install ansible-collection-ansible-posix
+```
+  - Alternatively you can install this via `ansible-galaxy` without RPM.
+```
+ansible-galaxy collection install ansible.posix
+```
+##### Setup of Wordpress
+   - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
+   - We also provide the [krusze theme](/docker/etc/wordpress/themes/krusze.0.9.7.zip) which does a great job of rendering Markdown-based tables, and the [JP Markdown plugin](/docker/etc/wordpress/plugins/jetpack-markdown.3.9.6.zip) which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
+
+##### Limit Page Revisions in Wordpress
+   - It's advised to set the following parameter in your `wp-config.php` file to limit the amount of page revisions that are kept in the database.
+     - Before the first reference to `ABSPATH` in `wp-config.php` add:
+
+```
+define('WP_POST_REVISIONS', 100);
+```
+   - You can always clear out your old page revisions via the `wp-cli` utility as well, QUADS regenerates all content as it changes so there is no need to keep around old revisions of pages unless you want to.
+
+```
+yum install wp-cli -y
+su - wordpress -s /bin/bash
+wp post delete --force $(wp post list --post_type='revision' --format=ids)
+```
+#### QUADS Move Command
+   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+
+### Making QUADS Run
+   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/master/cron/quads) to your liking, adjust as needed.
+
+   - Below are the major components run out of cron that makes everything work.
+
+| Service Command       | Category | Purpose |
+|-----------------------|----------|---------|
+| quads --move-hosts    | provisioning | checks for hosts to move/reclaim as scheduled |
+| quads --validate-env  | validation | checks clouds pending to be released for all enabled validation checks |
+| quads --regen-wiki    | documentation | keeps your infra wiki updated based on current state of environment |
+| quads --regen-heatmap | visualization | keeps your systems availability and usage visualization up to date |
+| quads --regen-instack | openstack | keeps optional openstack triple-o installation files up-to-date |
 
 ## QUADS Usage Documentation
 
@@ -337,7 +492,7 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  *cloud-ticket* (RT ticket used for the work, also appears in the assignments dynamic wiki)
    -  *wipe* (whether to reprovision machines going into this cloud, default is 1 or wipe.
 
-#### QUADS VLAN Options ####
+#### QUADS VLAN Options
 
 This pertains to the internal interfaces that QUADS will manage for you to move sets of hosts between environments based on a schedule.  For setting up optional publicly routable VLANS please see the [QUADS public vlan setup steps](/docs/switch-host-setup.md#define-optional-public-vlans)
 
@@ -359,7 +514,7 @@ cloud03: 0 (Isolated)
 cloud04: 1 (Combined)
 ```
 
-#### Optional QUADS Public VLAN ####
+#### Optional QUADS Public VLAN
 
 If you need to associate a public vlan (routable) with your cloud, quads currently supports associating your last NIC per host with one of your defined public VLANs (see the [QUADS public vlan setup steps](/docs/switch-host-setup.md#define-optional-public-vlans)).
 
@@ -375,7 +530,7 @@ If you need to clear the vlan association with your cloud, you can pass any stri
 quads --mod-cloud --cloud cloud03 --vlan none
 ```
 
-#### Defining a New Cloud ####
+#### Defining a New Cloud
 
 ```bash
 quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
@@ -386,7 +541,7 @@ quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --clo
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
      - We're going to find the first 20 Dell r620's and assign them as an example.
 
-#### Adding New Hosts to your Cloud ####
+#### Adding New Hosts to your Cloud
 ```bash
 quads --cloud-only --cloud cloud01 | grep r620 | head -20 > /tmp/RT423624
 ```
@@ -481,7 +636,7 @@ for host in $(cat /tmp/retired_hosts); do yes | quads --shrink --host $host --no
 * After this the defined `--move-host` command will want to move these back to your resource pool and power them off.
 * `retired` hosts will remain officially in your resource pool but not show up in any visualizations or usage reporting, however their past usage history will all be available for record keeping and data requirements.
 
-### Extending the __Schedule__ of an Existing Cloud
+### Extending the Schedule of an Existing Cloud
 
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
 In this example we'll be extending the assignment end date for cloud02
@@ -500,7 +655,7 @@ To go ahead and extend it remove the `--check`
 quads --extend --cloud cloud02 --weeks 2
 ```
 
-### Extending the __Schedule__ of a Specific Host
+### Extending the Schedule of a Specific Host
 
 You might also want to extend the lifetime of a specific host.
 In this example we'll be extending the assignment end date for host01.
@@ -517,7 +672,7 @@ To go ahead and extend it remove the `--check`
 quads --extend --host host01 --weeks 2
 ```
 
-### Shrinking the __Schedule__ of an Existing Cloud
+### Shrinking the Schedule of an Existing Cloud
 
 Occasionally you'll want to shrink the lifetime of a particular assignment.
 In this example we'll be shrinking the assignment end date for cloud02
@@ -534,7 +689,7 @@ To go ahead and shrink it remove the `--check`
 quads --shrink --cloud cloud02 --weeks 2
 ```
 
-### Shrinking the __Schedule__ of a Specific Host
+### Shrinking the Schedule of a Specific Host
 
 You might also want to shrink the lifetime of a specific host.
 In this example we'll be shrinking the assignment end date for host01.
@@ -551,7 +706,7 @@ To go ahead and shrink it remove the `--check`
 quads --shrink --host host01 --weeks 2
 ```
 
-### Terminating a __Schedule__
+### Terminating a Schedule
 
 If you would like to terminate the lifetime of a schedule at either a host or cloud level, you can pass the `--now` argument instead of `--weeks` which will set the schedules end date to now.
 In this example we'll be terminating the assignment end date for cloud02.
@@ -908,6 +1063,87 @@ quads --ls-hosts --filter "interfaces.ip_address==10.1.34.210"
 
    - For more information see [Using JIRA with QUADS](/docs/using-jira-with-quads.md)
 
+## Backing up QUADS
+
+* We do not implement backups for QUADS for you, but it's really easy to do on your own via [mongodump](https://www.mongodb.com/download-center/community)
+* Refer to our docs on [installing mongodb tools](docs/install-mongodb.md#extract-and-setup-mongodb-binaries)
+* Implement `mongodump` to backup your database, we recommend using a git repository as it will take care of revisioning and updates for you.
+* Below is an example script we use for this purpose, this assumes you have a git repository already setup you can push to with ssh access.
+
+```
+#!/bin/bash
+# script to call mongodump and dump quads db, push to git.
+
+backup_database() {
+    mongodump --out /opt/quads/backups/
+}
+
+sync_git() {
+    cd /opt/quads/backups
+    git add quads/*
+    git add admin/*
+    git commit -m "$(date) content commit"
+    git push
+}
+
+backup_database
+sync_git
+```
+
+## Restoring QUADS DB from Backup
+* If you have a valid mongodump directory structure you can restore the QUADS database via the following command.
+* This will drop the current database and replace it with your mongodump copy
+
+   - First, cd to the parent directory of where your mongorestore is kept
+
+```
+[root@host-04 rdu2-quads-backup-mongo]# ls
+admin  mongodump  mongodump-quads.sh  quads  README.md
+```
+
+  - `quads` is the directory containing our database dump files
+
+* Use mongorestore to drop the current quads database and replace with your backup
+
+```
+mongorestore --drop -d quads quads
+```
+
+  - You will see some messages and all should be good.
+
+```
+2019-05-05T01:23:01.257+0100	building a list of collections to restore from quads dir
+2019-05-05T01:23:01.270+0100	reading metadata for quads.vlan from quads/vlan.metadata.json
+2019-05-05T01:23:01.282+0100	reading metadata for quads.host from quads/host.metadata.json
+2019-05-05T01:23:01.288+0100	reading metadata for quads.counters from quads/counters.metadata.json
+2019-05-05T01:23:01.294+0100	reading metadata for quads.schedule from quads/schedule.metadata.json
+2019-05-05T01:23:01.329+0100	restoring quads.vlan from quads/vlan.bson
+2019-05-05T01:23:01.361+0100	restoring quads.host from quads/host.bson
+2019-05-05T01:23:01.396+0100	restoring quads.counters from quads/counters.bson
+2019-05-05T01:23:01.426+0100	restoring quads.schedule from quads/schedule.bson
+2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.vlan from metadata
+2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.host from metadata
+2019-05-05T01:23:01.524+0100	finished restoring quads.host (494 documents)
+2019-05-05T01:23:01.549+0100	finished restoring quads.vlan (148 documents)
+2019-05-05T01:23:01.549+0100	reading metadata for quads.notification from quads/notification.metadata.json
+2019-05-05T01:23:01.567+0100	reading metadata for quads.cloud_history from quads/cloud_history.metadata.json
+2019-05-05T01:23:01.568+0100	no indexes to restore
+2019-05-05T01:23:01.568+0100	finished restoring quads.counters (334 documents)
+2019-05-05T01:23:01.602+0100	restoring quads.notification from quads/notification.bson
+2019-05-05T01:23:01.643+0100	restoring quads.cloud_history from quads/cloud_history.bson
+2019-05-05T01:23:01.659+0100	reading metadata for quads.cloud from quads/cloud.metadata.json
+2019-05-05T01:23:01.661+0100	no indexes to restore
+2019-05-05T01:23:01.661+0100	finished restoring quads.notification (41 documents)
+2019-05-05T01:23:01.699+0100	restoring quads.cloud from quads/cloud.bson
+2019-05-05T01:23:01.717+0100	restoring indexes for collection quads.cloud_history from metadata
+2019-05-05T01:23:01.718+0100	no indexes to restore
+2019-05-05T01:23:01.718+0100	finished restoring quads.schedule (433 documents)
+2019-05-05T01:23:01.742+0100	restoring indexes for collection quads.cloud from metadata
+2019-05-05T01:23:01.743+0100	finished restoring quads.cloud_history (94 documents)
+2019-05-05T01:23:01.792+0100	finished restoring quads.cloud (32 documents)
+2019-05-05T01:23:01.792+0100	done
+```
+
 ## Troubleshooting Validation Failures
 A useful part of QUADS is the functionality for automated systems/network validation.  Below you'll find some steps to help understand why systems/networks might not pass validation so you can address any issues.
 
@@ -1022,9 +1258,59 @@ quads --validate-env --skip-network
 
 * In older versions of QUADS you will want to consult the documentation for [interacting with MongoDB](/docs/interact-mongodb.md) for how to override this check.
 
+### Skipping Past Host and Systems Validation
+
+* In `QUADS 1.1.8` you can skip past systems and host validation (Foreman) via:
+
+```
+/opt/quads/quads/tools/validate_env.py --skip-system
+```
+
+### Skipping Past Network and Systems Validation per Host
+
+* In `QUADS 1.1.8` you can skip past both systems and network checks per host via:
+
+```
+/opt/quads/quads/tools/validate_env.py --skip-hosts host01.example.com host02.example.com
+```
+
+* Effectively, any host listed with `--skip-hosts` will pass it completely through validation.
+* This can be used in combination with `--skip-system` and `--skip-network` as well.
+
 ### Validate Only a Specific Cloud
 
 * If you want to validate only a certain cloud you can do so by specifying the cloud's name with the `--cloud` flag.
 ```bash
 quads --validate-env --cloud cloud01
 ```
+
+### Mapping Internal VLAN Interfaces to Problem Hosts
+You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/master/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
+
+The _first two octets_ here can be substituted by the _first two octets of your systems public network_ in order to determine from `validate_env.py --debug` which host internal interfaces have issues or are unreachable.
+
+![validation_1](/image/troubleshoot_validation1.png?raw=true)
+
+* Above, we can run the `host` command to determine what these machines map to by substituting `10.1` for the first two octects:
+
+```
+# for host in 10.1.37.231 10.1.38.150; do host $host; done
+231.37.1.10.in-addr.arpa domain name pointer e17-h26-b04-fc640.example.com.
+150.38.1.10.in-addr.arpa domain name pointer e17-h26-b03-fc640.example.com.
+```
+
+* Below you can see the code that maintains this mapping and assumptions:
+
+![validation_2](/image/troubleshoot_validation2.png?raw=true)
+
+This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/master/quads/tools/validate_env.py#L143)
+
+## Contact QUADS Developers
+
+Besides Github we're also on IRC via `irc.libera.chat`.  You can [click here](https://web.libera.chat/?channels=#quads) to join in your browser.
+
+## QUADS Talks and Media
+[![Skynet your Infrastructure with QUADS @ EuroPython 2017](http://img.youtube.com/vi/9e1ZhtBliHc/0.jpg)](https://www.youtube.com/watch?v=9e1ZhtBliHc "Skynet your Infrastructure with QUADS")
+
+   - [Skynet your Infrastructure with QUADS @ Europython 2017 Slides](https://hobosource.files.wordpress.com/2016/11/skynet_quads_europython_2017_wfoster.pdf)
+   - [Skynet your Infrastructure with QUADS @ DevOps Pro Moscow 2018 Slides](https://hobosource.files.wordpress.com/2017/11/quads_devopspro_moscow_wfoster_2017-11-16.pdf)

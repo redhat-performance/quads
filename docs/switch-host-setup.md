@@ -3,7 +3,7 @@ QUADS Bare-Metal Switch and Host Setup
 
 General guidelines of how to setup your network switches, servers and DNS for QUADS.
 
-![quads](../image/quads.jpg?raw=true)
+![quads](../image/quads.png)
 
    * [QUADS Bare-Metal Switch and Host Setup](#quads-bare-metal-switch-and-host-setup)
       * [Network Architecture](#network-architecture)

@@ -3,7 +3,7 @@ QUADS Metadata Model and Search Library
 
 In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
 
-![quads](../image/quads.jpg?raw=true)
+![quads](../image/quads.png)
 
   * [How to Import Host Metadata](#how-to-import-host-metadata)
      * [Modify YAML Host Data](#modify-yaml-host-data)
