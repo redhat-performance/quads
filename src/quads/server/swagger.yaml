@@ -595,9 +595,9 @@ paths:
       tags:
         - Disks
       parameters:
-        - name: hostName
+        - name: disk_id
           in: path
-          description: Hostname
+          description: Disk ID
           required: true
           schema:
             type: string

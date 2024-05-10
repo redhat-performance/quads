@@ -32,9 +32,9 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - We use [Badfish](https://github.com/redhat-performance/badfish) for managing bare-metal IPMI
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend.
    - We use [Wordpress](https://wordpress.org/) for auto-generating wiki and documentation.
-   - A typical container-based QUADS deployment might look like this:
+   - A typical QUADS deployment might look like this:
 
-![quadsarchitecture](/image/quads-container-architecture.png?raw=true)
+![quadsarchitecture](/image/quads-architecture.png)
 
 ## Requirements
    - In QUADS 2.0+ we are using Python3, Flask and Jinja2 with PostgreSQL as the database backend.
@@ -60,7 +60,26 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
 
 ### Installing QUADS from RPM
    - We build RPM packages for the Fedora distribution.
-   - On Fedora 30 and above you'll need to manually install mongodb first, see [installing mongodb for QUADS](docs/install-mongodb.md)
+   - The following commands will install the QUADS package and all dependencies.
+
+```bash
+dnf copr enable quadsdev/python3-quads  -y
+dnf install quads -y
+```
+
+   - Make sure the QUADS services are initialized via systemd:
+
+```bash
+systemctl start quads-{db,server,web}
+```
+
+   - Additionally, the `quads-db` needs to be initialized via the following command:
+
+```bash
+flask --app quads.server.app init-db
+```
+
+   - At this point you should be able to start interacting with QUADS via the CLI or the API.
 
 
 ## QUADS Usage Documentation
@@ -71,10 +90,10 @@ You can read about QUADS architecture, provisioning, visuals and workflow [in ou
    - Define the various cloud environments
    - These are the isolated environments QUADS will use and provision into for you.
 
-```
-quads-cli --define-cloud --cloud cloud01 --description "Primary Cloud Environment"
-quads-cli --define-cloud --cloud cloud02 --description "02 Cloud Environment"
-quads-cli --define-cloud --cloud cloud03 --description "03 Cloud Environment"
+```bash
+quads --define-cloud --cloud cloud01 --description "Primary Cloud Environment"
+quads --define-cloud --cloud cloud02 --description "02 Cloud Environment"
+quads --define-cloud --cloud cloud03 --description "03 Cloud Environment"
 ```
 
 #### Define Host in QUADS and Foreman
@@ -84,14 +103,14 @@ quads-cli --define-cloud --cloud cloud03 --description "03 Cloud Environment"
      - If you don't want systems to be reprovisioned when they move into a cloud environment append `--no-wipe` to the define command.
      - We are excluding anything starting with mgmt- and including servers with the name r630.
 
-```
-for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads-cli --define-host $h --default-cloud cloud01 --host-type general; done
+```bash
+for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads --define-host $h --default-cloud cloud01 --host-type general; done
 ```
 
    - The command **without Foreman** would be simply:
 
-```
-quads-cli --define-host --host <hostname> --default-cloud cloud01 --host-type general
+```bash
+quads --define-host --host <hostname> --default-cloud cloud01 --host-type general
 ```
 
 #### Define Host Interfaces in QUADS
@@ -100,17 +119,17 @@ quads-cli --define-host --host <hostname> --default-cloud cloud01 --host-type ge
    - Do this for every interface you want QUADS to manage per host (we are working on auto-discovery of this step).
    - The variable `default_pxe_interface` on the quads.yml will set the default value of `pxe_boot=True` for that interface while any other interface will have a default value of `False` unless specified via `--pxe-boot` or `--no-pxe-boot`. This can be later modified via `--mod-interface`.
 
-```
-quads-cli --add-interface --interface-name em1 --interface-mac 52:54:00:d9:5d:df --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface --interface-name em2 --interface-mac 52:54:00:d9:5d:dg --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
-quads-cli --add-interface --interface-name em3 --interface-mac 52:54:00:d9:5d:dh --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
-quads-cli --add-interface --interface-name em4 --interface-mac 52:54:00:d9:5d:d1 --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+```bash
+quads --add-interface --interface-name em1 --interface-mac 52:54:00:d9:5d:df --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:0 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads --add-interface --interface-name em2 --interface-mac 52:54:00:d9:5d:dg --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:1 --interface-vendor "Intel" --interface-speed 1000 --pxe-boot --host <hostname>
+quads --add-interface --interface-name em3 --interface-mac 52:54:00:d9:5d:dh --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:2 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
+quads --add-interface --interface-name em4 --interface-mac 52:54:00:d9:5d:d1 --interface-switch-ip 10.12.22.201 --interface-port xe-0/0/1:3 --interface-vendor "Intel" --interface-speed 1000 --host <hostname>
 ```
 
    - To list the hosts:
 
-```
-quads-cli --ls-hosts
+```bash
+quads --ls-hosts
 ```
 You will now see the list of full hosts.
 
@@ -131,7 +150,7 @@ c09-h03-r630.example.com
 
    - To list a hosts interface and switch information:
 
-```
+```bash
 quads --ls-interface --host c08-h21-r630.example.com
 
 {"name": "em1", "mac_address": "52:54:00:d9:5d:df", "switch_ip": "10.12.22.201", "switch_port": "xe-0/0/1:0"}
@@ -142,8 +161,8 @@ quads --ls-interface --host c08-h21-r630.example.com
 
    - To see the current system allocations:
 
-```
-quads-cli --summary
+```bash
+quads --summary
 ```
 ```
 cloud01 : 45 (Primary Cloud Environment)
@@ -151,8 +170,8 @@ cloud02 : 22 (02 Cloud Environment)
 ```
    - For a more detailed summary of current system allocations use `--detail`
 
-```
-quads-cli --summary --detail
+```bash
+quads --summary --detail
 ```
 ```
 cloud01 (quads): 45 (Primary Cloud Environment) - 451
@@ -160,8 +179,8 @@ cloud02 (jdoe): 22 (02 Cloud Environment) - 462
 ```
    - For including clouds with no active assignments use `--all`
 
-```
-quads-cli --summary --detail --all
+```bash
+quads --summary --detail --all
 ```
 ```
 cloud01 (quads): 45 (Primary Cloud Environment) - 451
@@ -176,14 +195,14 @@ The format here is based on the following:
    - Define a custom schedule for a host
      - Example: assign host ```c08-h21``` to the workload/cloud ```cloud02```
 
-```
-quads-cli --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
+```bash
+quads --add-schedule --host c08-h21-r630.example.com --schedule-start "2016-07-11 08:00" --schedule-end "2016-07-12 08:00" --schedule-cloud cloud02
 ```
 
    - List the schedule for a specific host:
 
-```
-quads-cli --ls-schedule --host c08-h21-r630.example.com
+```bash
+quads --ls-schedule --host c08-h21-r630.example.com
 ```
 
 You'll see the schedule output below
@@ -200,8 +219,8 @@ Defined schedules:
 
    - Move any hosts that need to be re-allocated based on the current schedule
 
-```
-quads-cli --move-hosts
+```bash
+quads --move-hosts
 ```
 
 You should see the following verbosity from a move operation
@@ -220,13 +239,13 @@ In the above example the default move command called ```/bin/echo``` for illustr
 * This expects three arguments `hostname current-cloud new-cloud`.
 * Runs against all hosts according to the QUADS schedule.
 
-```
-quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
+```bash
+quads --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 ```
 
-* You can modify the default settings via the `default_move_command` setting in [quads-cli](https://github.com/redhat-performance/quads/blob/master/bin/quads-cli).
+* You can modify the default settings via the `default_move_command` setting in [quads](https://github.com/redhat-performance/quads/blob/master/src/quads/cli/cli.py).
 
-* You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) script as an example.  It's useful to note that with `quads/tools/             move_and_rebuild_hosts.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
+* You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild.py) script as an example.  It's useful to note that with `quads/tools/move_and_rebuild.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
 ## QUADS Reporting
 
@@ -235,8 +254,8 @@ quads-cli --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 As of QUADS `1.1.6` we now have the `--report-detailed` command which will list all upcoming future assignments that are scheduled.
 You can also specify custom start and end dates via `--schedule-start "YYYY-MM-DD HH:MM"` and `--schedule-stop "YYYY-MM-DD HH:MM"`
 
-```
-quads-cli --report-detailed
+```bash
+quads --report-detailed
 ```
 Example Output
 ```
@@ -252,8 +271,8 @@ gcarlin  |      1026|  cloud08|        Ceph|       4| 2022-02-06|       14|
 
 Generate a report with a list of server types with total count of systems and their current and future availability plus an average build time delta overall
 
-```
-quads-cli --report-available
+```bash
+quads --report-available
 ```
 Example output
 ```
@@ -271,8 +290,8 @@ Additionally, you can pass `--schedule-start` and `--schedule-end` dates for rep
 
 Generate a report detailing systems and scheduling utilization over the course of months or years.
 
-```
-quads-cli --report-scheduled --months 6
+```bash
+quads --report-scheduled --months 6
 ```
 Example Output
 ```
@@ -289,8 +308,8 @@ Month   | Scheduled|  Systems|  % Utilized|
 
 Generate statistics on the number of assigned clouds in quads over a period of months in the past starting today or on a specific year.
 
-```
-quads-cli --report-scheduled --months 6
+```bash
+quads --report-scheduled --months 6
 ```
 Example output
 ```
@@ -328,10 +347,10 @@ This pertains to the internal interfaces that QUADS will manage for you to move 
 
    - ```qinq: 1``` all QUADS-managed interfaces in the same qinq VLAN. For this to take effect you need to pass the optional argument of `--qinq 1` to the `--define-cloud` command.
 
-   - You can use the command `quads-cli --ls-qinq` to view your current assignment VLAN configuration:
+   - You can use the command `quads --ls-qinq` to view your current assignment VLAN configuration:
 
-```
-quads-cli --ls-qinq
+```bash
+quads --ls-qinq
 ```
 ```
 cloud01: 0 (Isolated)
@@ -346,20 +365,20 @@ If you need to associate a public vlan (routable) with your cloud, quads current
 
 To define your cloud with a public VLAN, use the following syntax:
 
-```
-quads-cli --define-cloud --cloud cloud03 [ other define-cloud options ] --vlan 601
+```bash
+quads --define-cloud --cloud cloud03 [ other define-cloud options ] --vlan 601
 ```
 
 If you need to clear the vlan association with your cloud, you can pass any string to the `--vlan` argument in `--mod-cloud`
 
-```
-quads-cli --mod-cloud --cloud cloud03 --vlan none
+```bash
+quads --mod-cloud --cloud cloud03 --vlan none
 ```
 
 #### Defining a New Cloud ####
 
-```
-quads-cli --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
+```bash
+quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
 ```
 
    * Note: in QUADS `1.1.4` you can change any of these values selectively via the `--mod-cloud` command [described below](#modifying-cloud-level-attributes).
@@ -368,55 +387,55 @@ quads-cli --define-cloud --cloud cloud03 --description "Messaging AMQ" --force -
      - We're going to find the first 20 Dell r620's and assign them as an example.
 
 #### Adding New Hosts to your Cloud ####
-```
-quads-cli --cloud-only cloud01 | grep r620 | head -20 > /tmp/RT423624
+```bash
+quads --cloud-only --cloud cloud01 | grep r620 | head -20 > /tmp/RT423624
 ```
 
    - Now we'll allocate all of these hosts with a schedule, by default our system times use UTC.
 
-```
-for h in $(cat /tmp/RT423624) ; do quads-cli --host $h --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03 ; done
+```bash
+quads --host-list /tmp/RT423624 --add-schedule --schedule-start "2016-10-17 00:00" --schedule-end "2016-11-14 17:00" --schedule-cloud cloud03
 ```
 
 #### Adding New Hosts to your Cloud with JIRA Integration
 
    - **NOTE** If you are using [JIRA integration features](/docs/using-jira-with-quads.md) with QUADS 1.1.5 and higher you can utilize `--host-list` along with a list of hosts and it will take care of updating your `--cloud-ticket` in JIRA for you in one swoop.
 
-```
-quads-cli --add-schedule --host-list /tmp/hosts --schedule-start "2021-04-20 22:00" --schedule-end "2021-05-02 22:00" --schedule-cloud cloud20
+```bash
+quads --add-schedule --host-list /tmp/hosts --schedule-start "2021-04-20 22:00" --schedule-end "2021-05-02 22:00" --schedule-cloud cloud20
 ```
 
 That's it.  At this point your hosts will be queued for provision and move operations, we check once a minute if there are any pending provisioning tasks.  To check manually:
 
-```
-quads-cli --move-hosts --dry-run
+```bash
+quads --move-hosts --dry-run
 
 ```
 
 After your hosts are provisioned and moved you should see them populate under the cloud list.
 
-```
-quads-cli --cloud-only cloud03
+```bash
+quads --cloud-only --cloud cloud03
 ```
 
 ### Managing Faulty Hosts
 Starting with `1.1.4` QUADS can manage broken or faulty hosts for you and ensure they are ommitted from being added to a future schedule or listed as available.  Prior to `1.1.4` this is managed via the Foreman host parameter `broken_state` (true/false).
 
 * Listing all broken systems.
-```
-# quads-cli --ls-broken
+```bash
+# quads --ls-broken
 f18-h22-000-r620.stage.example.com
 ```
 
 * Marking a system as faulty
-```
-# quads-cli --mark-broken --host f18-h23-000-r620.example.com
+```bash
+# quads --mark-broken --host f18-h23-000-r620.example.com
 Host f18-h23-000-r620.example.com is now marked as broken
 ```
 
 * Marking a system as repaired or no longer faulty.
-```
-# quads-cli --mark-repaired --host f18-h23-000-r620.example.com
+```bash
+# quads --mark-repaired --host f18-h23-000-r620.example.com
 Host f18-h23-000-r620.example.com is now marked as repaired.
 ```
 
@@ -428,8 +447,8 @@ Host f18-h23-000-r620.example.com is now marked as repaired.
 * If you previously used the `broken_state` Foreman host parameter to manage your broken or out-of-service systems within your fleet you'll want to migrate to using the new methodology of the QUADS database handling this for you for versions `1.1.4` and higher.
 * You can use the following command to query Foreman and convert `broken_state` host parameters and status into QUADS:
 
-```
-for h in $(hammer host list --per-page 1000 --search params.broken_state=true | grep $(egrep ^domain /opt/quads/conf/quads.yml | awk '{ print $NF }') | awk '{ print $3 }') ; do quads-cli --mark-broken --host $h ; done
+```bash
+for h in $(hammer host list --per-page 1000 --search params.broken_state=true | grep $(egrep ^domain /opt/quads/conf/quads.yml | awk '{ print $NF }') | awk '{ print $3 }') ; do quads --mark-broken --host $h ; done
 ```
 
 ### Managing Retired Hosts
@@ -438,16 +457,16 @@ for h in $(hammer host list --per-page 1000 --search params.broken_state=true | 
 * Hosts marked as retired will still retain their scheduling history and data, but will not show as available unless filtered.
    - To list retired hosts:
 
-```
-quads-cli --ls-retire
+```bash
+quads --ls-retire
 ```
 * To retire a host:
-```
-quads-cli --retire --host host01.example.com
+```bash
+quads --retire --host host01.example.com
 ```
 * To unretire a host:
-```
-quads-cli --unretire --host host01.example.com
+```bash
+quads --unretire --host host01.example.com
 ```
 
 #### Retiring Hosts
@@ -455,8 +474,8 @@ quads-cli --unretire --host host01.example.com
 * This requires shrinking any active schedules on the host.
 * The below command will shrink any active schedules on those hosts without prompting to terminate immediately.
 
-```
-for host in $(cat /tmp/retired_hosts); do yes | quads-cli --shrink --host $host --now; done
+```bash
+for host in $(cat /tmp/retired_hosts); do yes | quads --shrink --host $host --now; done
 ```
 
 * After this the defined `--move-host` command will want to move these back to your resource pool and power them off.
@@ -469,16 +488,16 @@ In this example we'll be extending the assignment end date for cloud02
 
 In QUADS version `1.1.4` or higher or the current `master` branch you can extend a cloud environment with a simple command.
 
-```
-quads-cli --extend --cloud cloud02 --weeks 2 --check
+```bash
+quads --extend --cloud cloud02 --weeks 2 --check
 ```
 
 This will check whether or not the environment can be extended without conflicts.
 
 To go ahead and extend it remove the `--check`
 
-```
-quads-cli --extend --cloud cloud02 --weeks 2
+```bash
+quads --extend --cloud cloud02 --weeks 2
 ```
 
 ### Extending the __Schedule__ of a Specific Host
@@ -486,16 +505,16 @@ quads-cli --extend --cloud cloud02 --weeks 2
 You might also want to extend the lifetime of a specific host.
 In this example we'll be extending the assignment end date for host01.
 
-```
-quads-cli --extend --host host01 --weeks 2 --check
+```bash
+quads --extend --host host01 --weeks 2 --check
 ```
 
 This will check whether or not the environment can be extended without conflicts.
 
 To go ahead and extend it remove the `--check`
 
-```
-quads-cli --extend --host host01 --weeks 2
+```bash
+quads --extend --host host01 --weeks 2
 ```
 
 ### Shrinking the __Schedule__ of an Existing Cloud
@@ -503,16 +522,16 @@ quads-cli --extend --host host01 --weeks 2
 Occasionally you'll want to shrink the lifetime of a particular assignment.
 In this example we'll be shrinking the assignment end date for cloud02
 
-```
-quads-cli --shrink --cloud cloud02 --weeks 2 --check
+```bash
+quads --shrink --cloud cloud02 --weeks 2 --check
 ```
 
 This will check whether or not the environment can be shrunk without conflicts.
 
 To go ahead and shrink it remove the `--check`
 
-```
-quads-cli --shrink --cloud cloud02 --weeks 2
+```bash
+quads --shrink --cloud cloud02 --weeks 2
 ```
 
 ### Shrinking the __Schedule__ of a Specific Host
@@ -520,16 +539,16 @@ quads-cli --shrink --cloud cloud02 --weeks 2
 You might also want to shrink the lifetime of a specific host.
 In this example we'll be shrinking the assignment end date for host01.
 
-```
-quads-cli --shrink --host host01 --weeks 2 --check
+```bash
+quads --shrink --host host01 --weeks 2 --check
 ```
 
 This will check whether or not the host schedule can be shrunk without conflicts.
 
 To go ahead and shrink it remove the `--check`
 
-```
-quads-cli --shrink --host host01 --weeks 2
+```bash
+quads --shrink --host host01 --weeks 2
 ```
 
 ### Terminating a __Schedule__
@@ -537,16 +556,16 @@ quads-cli --shrink --host host01 --weeks 2
 If you would like to terminate the lifetime of a schedule at either a host or cloud level, you can pass the `--now` argument instead of `--weeks` which will set the schedules end date to now.
 In this example we'll be terminating the assignment end date for cloud02.
 
-```
-quads-cli --shrink --cloud cloud02 --now --check
+```bash
+quads --shrink --cloud cloud02 --now --check
 ```
 
 This will check whether or not the environment can be terminated without conflicts.
 
 To go ahead and terminate it remove the `--check`
 
-```
-quads-cli --shrink --cloud cloud02 --now
+```bash
+quads --shrink --cloud cloud02 --now
 ```
 
 ### Adding Hosts to an existing Cloud
@@ -556,8 +575,8 @@ QUADS also supports adding new machines into an existing workload (cloud).
    - Search Availability Pool for Free Servers
       - Let's look for any 5 x servers from `2019-03-11 22:00` until `2019-04-22 22:00`
 
-```
-quads-cli --ls-available --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00"
+```bash
+quads --ls-available --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00"
 
 ```
 ```
@@ -571,11 +590,11 @@ c03-h15-r620.rdu.openstack.example.com
 
 Above we see all the free servers during our timeframe, let's move them into cloud10
 
-```
-quads-cli --host c03-h11-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-quads-cli --host c03-h13-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-quads-cli --host c03-h14-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
-quads-cli --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+```bash
+quads --host c03-h11-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads --host c03-h13-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads --host c03-h14-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
+quads --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedule-start "2016-12-05 08:00" --schedule-end "2016-12-15 08:00" --schedule-cloud cloud10
 ```
 
 ### Removing a Schedule
@@ -583,11 +602,11 @@ quads-cli --host c03-h15-r620.rdu.openstack.example.com --add-schedule --schedul
 You can remove an existing schedule across a set of hosts using the ```--rm-schedule``` flag against the schedule ID for each particular machine of that assignment.
 
    - Example: removing the schedule for three machines in cloud
-   - Obtain the schedule ID via ```quads-cli --ls-schedule --host```
-```
-quads-cli --rm-schedule --schedule-id 2
-quads-cli --rm-schedule --schedule-id 3
-quads-cli --rm-schedule --schedule-id 4
+   - Obtain the schedule ID via ```quads --ls-schedule --host```
+```bash
+quads --rm-schedule --schedule-id 2
+quads --rm-schedule --schedule-id 3
+quads --rm-schedule --schedule-id 4
 ```
 
  * NOTE: Previous versions of QUADS required passing `--host`. This is not required on QUADS 2.0 onwards as the schedule Ids are now unique. 
@@ -600,16 +619,16 @@ You should search for either the start or end dates to select the right schedule
    - Example: removing schedule by searching for start date.
    - Often machine schedule ID's are different for the same schedule across a set of machines, this ensures you remove the right one.
 
-```
-for host in $(cat /tmp/452851); do quads-cli --rm-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }'); echo Done. ; done
+```bash
+for host in $(cat /tmp/452851); do quads --rm-schedule --schedule-id $(quads --ls-schedule --host $host | grep cloud08 | grep "start=2017-08-06" | tail -1 | awk -F\| '{ print $1 }'); echo Done. ; done
 ```
 
 ### Removing a Host from QUADS
 
 To remove a host entirely from QUADS management you can use the `--rm-host` command.
 
-```
-quads-cli --rm-host f03-h30-000-r720xd.rdu2.example.com
+```bash
+quads --rm-host f03-h30-000-r720xd.rdu2.example.com
 Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 ```
 
@@ -619,8 +638,8 @@ Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 * To modify a host schedule use the `--mod-schedule --schedule-id` command and either `--schedule-start` or `--schedule-end` or both as needed.
 * Before using this, make sure it's not easier to simply use `--shrink` or `--extend` and sub-commands across the entire cloud/environments or even per-host first.
 
-```
-quads-cli --mod-schedule --host host01.example.com --mod-schedule --schedule-id 31 --schedule-start "2023-05-22 22:00" --schedule-end "2023-06-22 22:00"
+```bash
+quads --mod-schedule --host host01.example.com --mod-schedule --schedule-id 31 --schedule-start "2023-05-22 22:00" --schedule-end "2023-06-22 22:00"
 ```
 
 #### Modifying a Host Schedule across a large set of hosts
@@ -628,10 +647,10 @@ quads-cli --mod-schedule --host host01.example.com --mod-schedule --schedule-id 
 * You may often need to modify the same schedule ID across a large set of hosts, in this scenario you can use the following one-liner:
 * You will want to filter for the specific cloudname and at least one schedule start or stop identifier (since environments are re-used).
   * In this example we use `cloud06` and `start=2023-03-13` to make sure our `--mod-schedule` command is unique.
-* It's also a good idea to do this first by prepending `echo` to `quads-cli` to ensure that the `schedule-id` are matched.
+* It's also a good idea to do this first by prepending `echo` to `quads` to ensure that the `schedule-id` are matched.
 
-```
-for host in $(cat /tmp/2491); do quads-cli --mod-schedule --schedule-id $(quads-cli --ls-schedule --host $host | grep cloud06 | grep "start=2023-03-13" | tail -1 | awk -F\| '{ print $1 }') --host $host --schedule-start "2023-03-12 22:00" ; done
+```bash
+for host in $(cat /tmp/2491); do quads --mod-schedule --schedule-id $(quads --ls-schedule --host $host | grep cloud06 | grep "start=2023-03-13" | tail -1 | awk -F\| '{ print $1 }') --host $host --schedule-start "2023-03-12 22:00" ; done
 ```
 
 
@@ -639,8 +658,8 @@ for host in $(cat /tmp/2491); do quads-cli --mod-schedule --schedule-id $(quads-
 
 To remove a host entirely from QUADS management you can use the `--rm-host` command.
 
-```
-quads-cli --mod-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com --no-pxe-boot
+```bash
+quads --mod-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com --no-pxe-boot
 Interface successfully updated
 ```
 
@@ -648,15 +667,15 @@ Interface successfully updated
 
 To remove a host entirely from QUADS management you can use the `--rm-host` command.
 
-```
-quads-cli --rm-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com
+```bash
+quads --rm-interface --interface-name em1 --host f03-h30-000-r720xd.rdu2.example.com
 Resource properly removed
 ```
 
 ## Using the QUADS JSON API
 * All QUADS actions under the covers uses the JSON API v2
    - Please [read about the QUADS RESTful API here](/docs/quads-api.md)
-* This is an optional local systemd service you can start and interact with and listens on localhost ```TCP/8080```
+* This is a systemd service you can start and interact with and listens on localhost ```TCP/8080```
 
 ## Additional Tools and Commands
 
@@ -667,13 +686,13 @@ Resource properly removed
 * This will also check/correct optional routable VLANs if those are in use.
 * To validate a clouds network config:
 
-```
+```bash
 /opt/quads/quads/tools/verify_switchconf.py --cloud cloud10
 ```
 
 * To validate and fix a clouds network config use `--change`
 
-```
+```bash
 /opt/quads/quads/tools/verify_switchconf.py --cloud cloud10 --change
 ```
 
@@ -689,7 +708,7 @@ Resource properly removed
 ```
 
 * To straddle clouds and place a single host into a cloud it does not belong in (rare use case):
-```
+```bash
 /opt/quads/quads/tools/verify_switchconf.py --host host01.example.com --cloud cloud10
 ```
 
@@ -710,14 +729,14 @@ WARNING -
 * With the `modify_switch_conf.py` tool you can set up each individual network interface to a specific vlan id.
 * Passing the `--change` argument will make the changes effective in the switch. Not passing this will only verify the configuration is set to the desired.
 
-```
+```bash
 /opt/quads/quads/tools/modify_switch_conf.py --host host01.example.com --nic1 1400 --nic2 1401 --nic3 1400 --nic4 1402 --nic5 1400
 ```
 * All `--nic*` arguments are optional so this can be also done individually for all nics.
 
 #### Mapping Interface to VLAN ID
 * An easy way to figure out what VLAN corresponds to what generic `em` interface in the QUADS `--ls-interfaces` information we now include the following tool:
-```
+```bash
 ./opt/quads/quads/tools/ls_switch_conf.py --cloud cloud32
 INFO - Cloud qinq: 1
 INFO - Interface em1 appears to be a member of VLAN 1410
@@ -728,7 +747,7 @@ This tool also accepts the `--all` argument which will list a detail for all hos
 
 Additional you can achieve the same with the following shell one-liner, setting `cloud=XX` for the cloud and adjusting `$(seq 1 4)` for your interface ranges available on the host.
 
-```
+```bash
 cloud=32 ; origin=1100 ; offset=$(expr $(expr $cloud - 1) \* 10); vl=$(expr $origin + $offset) ;for i in $(seq 1 4) ; do vlan=$(expr $vl + $i - 1) ; echo "em$i is interface VLAN $vlan in cloud$cloud" ; done
 ```
 
@@ -747,24 +766,24 @@ em4 is interface VLAN 1403 in cloud32
 * You can redefine or change any aspects of an already-defined cloud starting in `1.1.4` with the `--mod-cloud` command.
 * This can be done a per-parameter or combined basis:
 
-```
-quads-cli --mod-cloud --cloud cloud02 --cloud-owner jhoffa
-```
-
-```
-quads-cli --mod-cloud --cloud cloud04 --cc-users "tpetty fmercury"
+```bash
+quads --mod-cloud --cloud cloud02 --cloud-owner jhoffa
 ```
 
-```
-quads-cli --mod-cloud --cloud cloud06 --vlan 604 --wipe
-```
-
-```
-quads-cli --mod-cloud --cloud cloud50 --no-wipe
+```bash
+quads --mod-cloud --cloud cloud04 --cc-users "tpetty fmercury"
 ```
 
+```bash
+quads --mod-cloud --cloud cloud06 --vlan 604 --wipe
 ```
-quads-cli --mod-cloud --cloud cloud50 --vlan none
+
+```bash
+quads --mod-cloud --cloud cloud50 --no-wipe
+```
+
+```bash
+quads --mod-cloud --cloud cloud50 --vlan none
 ```
 
 ### Looking into the Future
@@ -772,8 +791,8 @@ quads-cli --mod-cloud --cloud cloud50 --vlan none
 
 * Looking into a specific environment by date
 
-```
-quads-cli --cloud-only cloud08 --date "2019-06-04 22:00"
+```bash
+quads --cloud-only --cloud cloud08 --date "2019-06-04 22:00"
 ```
 
 ```
@@ -786,15 +805,15 @@ f16-h06-000-1029u.rdu2.example.com
 
 * Looking at all schedules by date
 
-```
-quads-cli --ls-schedule --date "2020-06-04 22:00"
+```bash
+quads --ls-schedule --date "2020-06-04 22:00"
 ```
 
 ### Dry Run for Pending Actions
 * You can see what's in progress or set to provision via the ```--dry-run``` sub-flag of ```--move-hosts```
 
-```
-quads-cli --move-hosts --dry-run
+```bash
+quads --move-hosts --dry-run
 ```
 ```
 INFO: Moving b10-h27-r620.rdu.openstack.example.com from cloud01 to cloud03
@@ -807,10 +826,10 @@ INFO: Moving c02-h26-r620.rdu.openstack.example.com from cloud01 to cloud03
 
 ### Find Free Cloud Environment
 
-* You can use `quads-cli --find-free-cloud` to suggest a cloud environment to use that does not have any future hosts scheduled to use it.
+* You can use `quads --find-free-cloud` to suggest a cloud environment to use that does not have any future hosts scheduled to use it.
 
-```
-quads-cli --find-free-cloud
+```bash
+quads --find-free-cloud
 ```
 
 ```
@@ -826,13 +845,13 @@ cloud18
 
   - Find based on a date range:
 
-```
-quads-cli --ls-available --schedule-start "2019-12-05 08:00" --schedule-end "2019-12-15 08:00"
+```bash
+quads --ls-available --schedule-start "2019-12-05 08:00" --schedule-end "2019-12-15 08:00"
 ```
 
   - Find based on starting now with an end range:
 
-```
+```bash
 quads --ls-available --schedule-end "2019-06-02 22:00"
 ```
 
@@ -842,30 +861,29 @@ quads --ls-available --schedule-end "2019-06-02 22:00"
 * Using this feature requires [importing hardware metadata](/docs/quads-host-metadata-search.md#how-to-import-host-metadata)
 * Example below using `--filter "model==1029U-TRTP"`
 
-```
-quads-cli --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "2020-08-16 22:00" --filter "model==1029U-TRTP"
+```bash
+quads --ls-available --schedule-start "2020-08-02 22:00" --schedule-end "2020-08-16 22:00" --filter "model==1029U-TRTP"
 ```
 
 * Listing retired hosts can now use the `--filter` feature:
 
-```
-quads-cli --ls-hosts --filter "retired==True"
+```bash
+quads --ls-hosts --filter "retired==True"
 ```
 
 * Listing specific hosts from a certain cloud:
 
-```
-quads-cli --cloud-only --cloud cloud13 --filter "model==FC640"
+```bash
+quads --cloud-only --cloud cloud13 --filter "model==FC640"
 ```
 
 #### Find Available Web Interface
 
-* We now have a Flask-based `--ls-available` web interface available on `quadshost:5001` if your firewall rules are open for `TCP/5001`.
-* Available in QUADS `1.1.4` or above as a tech preview (when we migrate fully to Flask this will be supplanted with a full UI).
-* This is provided via the `quads-web` systemd service or you can run it manually via `cd /opt/quads/web ; python3 main.py`
+* We now have a Flask-based `--ls-available` web interface available on `quadshost`.
+* This is provided via the `quads-web` systemd service.
 * You will need to seed the `models` data for your systems using the new [host metadata feature](/docs/quads-host-metadata-search.md)
 
-![quads-available-web](/image/quads-available-web.png?raw=true)
+![quads-available-web](/image/quads-available-web.png)
 
 * Control + click can select more than one model
 * Not selecting a model assumes a search for anything available.
@@ -873,21 +891,16 @@ quads-cli --cloud-only --cloud cloud13 --filter "model==FC640"
 #### Find a System by MAC Address
 * You can utilize the new metadata model and `--filter` command in `1.1.4` and above along with `--ls-hosts` to search for a system by MAC Address.
 
-```
-quads-cli --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
+```bash
+quads --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 ```
 
 #### Find Systems by Switch IP Address
 * You can list what systems are connected to a switch by querying the `ip_address` (soon to be `switch_ip` in 1.1.7) information from the interfaces datasource.
 
+```bash
+quads --ls-hosts --filter "interfaces.ip_address==10.1.34.210"
 ```
-quads-cli --ls-hosts --filter "interfaces.ip_address==10.1.34.210"
-```
-
-## Interacting with MongoDB
-* In some scenarios you may wish to interrogate or modify values within MongoDB.  You should be careful doing this and have good backups in place.  Generally, we will try to implement data, object and document modification needs through quads-cli so you don't need to do this but sometimes it's useful for troubleshooting or other reasons.
-
-   - For more information see [Interacting with MongoDB](/docs/interact-mongodb.md)
 
 ## Using JIRA with QUADS
 * We utilize the JIRA ticketing system internally for R&D infrastructure requests managed by QUADS.
@@ -904,9 +917,9 @@ There are two main validation tests that occur before a cloud environment is aut
 * **Foreman Systems Validation** ensures that no target systems in your environment are marked for build.
 * **VLAN Network Validation** ensures that all the backend interfaces in your isolated VLANs are reachable via fping
 
-All of these validations are run from `/opt/quads/quads/tools/validate_env.py` and we also ship a few useful tools to help you figure out validation failures.
+All of these validations are run from `--validate-env` and we also ship a few useful tools to help you figure out validation failures.
 
-`/opt/quads/quads/tools/validate_env.py` is run from cron, see our [example cron entry](cron/quads)
+`--validate-env` is run from cron, see our [example cron entry](cron/quads)
 
 ### Troubleshooting Steps
 You should run through each of these steps manually to determine what systems/networks might need attention of automated validation does not pass in a reasonable timeframe.  Typically, `admin_cc:` will receieve email notifications of trouble hosts as well.
@@ -914,30 +927,30 @@ You should run through each of these steps manually to determine what systems/ne
 
 * **General Availability** can be checked via a simple `fping` command, this should be run first.
 
-```
-quads-cli --cloud-only cloud23 > /tmp/cloud23
+```bash
+quads --cloud-only --cloud cloud23 > /tmp/cloud23
 fping -u -f /tmp/cloud23
 ```
 
 * **Foreman Systems Validation** can be run via the hammer cli command provided by `gem install hammer_cli_foreman_admin hammer_cli`
 
-```
-for host in $(quads-cli --cloud-only cloud15) ; do echo $host $(hammer host info --name $host | grep -i build); done
+```bash
+for host in $(quads --cloud-only --cloud cloud15) ; do echo $host $(hammer host info --name $host | grep -i build); done
 ```
 
 No systems should be left marked for build.
 
 ### Validation using Debug Mode
-* **NOTE** Automated validation **will not** start until 2 hours after the assignment is scheduled to go out, until this point `/opt/quads/quads/tools/validate_env.py` will not attempt to validate any systems if run and they have started less than 2 hours ago.
+* **NOTE** Automated validation **will not** start until 2 hours after the assignment is scheduled to go out, until this point `--validate-env` will not attempt to validate any systems if run and they have started less than 2 hours ago.
   - This can be set via the `validation_grace_period:` setting in `/opt/quads/conf/quads.yml`
 
-* `/opt/quads/quads/tools/validate_env.py` now has a `--debug` option which tells you what's happening during validation.
+* `--validate-env` now has a `--debug` option which tells you what's happening during validation.
 * This will test the backend network connectivity part and the entire set of checks.
 
 * **Successful Validation** looks like this:
 
-```
-/opt/quads/quads/tools/validate_env.py --debug
+```bash
+quads --validate-env --debug
 ```
 
 ```
@@ -979,8 +992,8 @@ DevOps Team
 
 * **Unsuccessful Validation** looks like this:
 
-```
-/opt/quads/quads/tools/validate_env.py --debug
+```bash
+quads --validate-env --debug
 ```
 
 ```
@@ -1003,25 +1016,15 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 
 * In `QUADS 1.1.6+` you can skip past network validation via:
 
-```
-/opt/quads/tools/validate_env.py --skip-network
+```bash
+quads --validate-env --skip-network
 ```
 
 * In older versions of QUADS you will want to consult the documentation for [interacting with MongoDB](/docs/interact-mongodb.md) for how to override this check.
-
-### Skipping Past Foreman Validation
-
-* If you know your systems are built you can force `validate_env.py` to move into the network portions of the validation by toggling the `provisioned` attribute in MongoDB for your cloud object.
-
-```
-db.cloud.update({"name": "cloud23"}, {$set:{'provisioned':true}}
-```
-
-* More information on manual intervention and overrides via MongoDB can be [found here](/docs/interact-mongodb.md)
 
 ### Validate Only a Specific Cloud
 
 * If you want to validate only a certain cloud you can do so by specifying the cloud's name with the `--cloud` flag.
 ```bash
-/opt/quads/tools/validate_env.py --cloud cloud01
+quads --validate-env --cloud cloud01
 ```

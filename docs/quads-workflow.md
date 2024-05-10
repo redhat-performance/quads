@@ -2,10 +2,9 @@
 
 Below are common workflows, visualizations and features of QUADS.
 
-* [QUADS Workflow and Examples)](#quads-workflow-and-visuals)
+* [QUADS Workflow and Examples](#quads-workflow-and-visuals)
     * [QUADS Architecture](#quads-architecture)
     * [QUADS Data Structure](#quads-data-structure)
-    * [QUADS Workflow](#quads-workflow)
     * [QUADS Foreman Provisioning Workflow](#quads-foreman-provisioning-workflow)
     * [QUADS Move and Rebuild Provisioning UML](#quads-move-and-rebuild-provisioning-uml)
     * [Example: Automated Scheduling](#example-automated-scheduling)
@@ -15,50 +14,45 @@ Below are common workflows, visualizations and features of QUADS.
     * [Example: IRC and Email Notifications](#example-irc-and-email-notifications)
 
 ## QUADS Architecture
-Typically this is how things look via our container orchestration.
 
-![quadsarchitecture](../image/quads-container-architecture.png?raw=true)
+
+![quadsarchitecture](../image/quads-architecture.png)
 
 ## QUADS Data Structure
-This is how our scheduling data, collections and data model within Mongo collections are stored.
+This is how our scheduling data, collections and data model look like within PostgreSQL.
 
-![quads-erd-mongo](../image/quads-erd-mongo.png?raw=true)
-
-## QUADS Workflow
-More of a flat, "creative" process interpretation.
-
-![quadsworkflow](../image/quads-workflow.png?raw=true)
+![quads-erd](../image/quads-erd.jpg)
 
 ## QUADS Foreman Provisioning Workflow
-This is the workflow behind `quads/tools/move_and_rebuild_hosts.py`
+This is the workflow behind `quads/tools/move_and_rebuild.py`
 
-![quadsforemanarch](../image/quads-foreman-workflow.png?raw=true)
+![quadsforemanarch](../image/quads-foreman-workflow.png)
 
 ## QUADS Move and Rebuild Provisioning UML
 This is a UML chart illustrating all the API, host, switch and foreman workflows that happen when systems and networks are built and moved.
 
-![quadsmoverebuild](../image/quads_provisioning_uml.png?raw=true)
+![quadsmoverebuild](../image/quads_provisioning_uml.png)
 
 ## Example: Automated Scheduling
 
-![quads-schedule](../image/quads-example-scheduling.png?raw=true)
+![quads-schedule](../image/quads-example-scheduling.png)
 
 ## Example: Systems Wiki
 
-![wiki](../image/quads-wiki.png?raw=true)
+![wiki](../image/quads-wiki.png)
 
 ## Example: Workload Assignments
 
-![wiki](../image/quads-assignments.png?raw=true)
+![wiki](../image/quads-assignments.png)
 
 ## Example: Workload Assignments Readiness
 We color-code progress bars and status based on total amount of completion for an entire assignment.
 
-![wiki](../image/quads-assignment-readiness.png?raw=true)
+![wiki](../image/quads-assignment-readiness.png)
 
 ## Example: Systems Visualization Map
 
-![wiki](../image/quads-visual.png?raw=true)
+![wiki](../image/quads-visual.png)
 
 ## Example: IRC and Email Notifications
    - We notify our Supybot IRC bot to announce when new environments are provisioned
