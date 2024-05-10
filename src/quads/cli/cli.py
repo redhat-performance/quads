@@ -849,7 +849,11 @@ class QuadsCli:
                 if cloud_response.status_code == 200:
                     self.logger.info(f'Cloud {self.cli_args.get("cloud")} created.')
 
-            if not assignment and cloud and self.cli_args.get("cloud") != conf.get("spare_pool_name"):
+            if (
+                not assignment
+                and self.cli_args.get("cloudticket")
+                and self.cli_args.get("cloud") != conf.get("spare_pool_name")
+            ):
                 try:
                     response = self.quads.insert_assignment(data)
                 except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
@@ -863,6 +867,8 @@ class QuadsCli:
                     raise CliException(str(ex))
                 if response.status_code == 200:
                     self.logger.info("Assignment updated.")
+            else:
+                self.logger.warning("No assignment created or updated.")
 
         except ConnectionError:  # pragma: no cover
             raise CliException("Could not connect to the quads-server, verify service is up and running.")

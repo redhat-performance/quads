@@ -132,6 +132,21 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Documentation for setting up and using QUADS is available in detail within this repository.
    - Below is a high-level overview of a greenfield setup, some of this may exist already for you.
 
+| Step | Documentation | Details |
+|------|---------------|---------|
+| General Architecture Overview | [docs](/docs/quads-workflow.md) | Architecture overview |
+| Install and Setup Foreman/Satellite | [docs](https://theforeman.org/manuals/nightly/#3.InstallingForeman) | Not covered here |
+| Setup Foreman/Satellite Validation Templates | [examples](/templates/README.md) | Templates for internal interface configs |
+| Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
+| Install QUADS | [docs](#installing-quads) | Install via RPM |
+| Install Wiki | [docs](#installing-wordpress-via-ansible) | Use Ansible to Deploy Wordpress |
+| Configure Wiki | [docs](#setup-of-wordpress) | Configure Wordpress Pages and Plugins |
+| Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
+| Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
+| Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
+| Host Metadata Model and Search | [docs](/docs/quads-host-metadata-search.md) | Host metadata info and filtering |
+| Using JIRA with QUADS | [docs](/docs/using-jira-with-quads.md) | Optional JIRA tools and library for QUADS |
+
 ## QUADS Workflow
 
 You can read about QUADS architecture, provisioning, visuals and workflow [in our documentation examples and screenshots](/docs/quads-workflow.md)
