@@ -33,6 +33,24 @@
       "message": "I think this line break is not correct.",
       "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "917adbd5_6fcfe702",
+        "filename": "docs/quads-api.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-13T09:56:27Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "97adca3b_a659f587",
+      "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
