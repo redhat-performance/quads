@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3569b35_5394a412",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-13T09:58:56Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "1aebbc49_a25ba3cd",
+      "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97adca3b_a659f587",
@@ -49,6 +67,24 @@
       "side": 1,
       "message": "Acknowledged",
       "parentUuid": "97adca3b_a659f587",
+      "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89efc28d_a9639b6b",
+        "filename": "docs/quads-api.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-13T09:58:56Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "917adbd5_6fcfe702",
       "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
