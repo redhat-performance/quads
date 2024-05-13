@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1aebbc49_a25ba3cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2024-05-13T09:52:40Z",
+      "side": 1,
+      "message": "There is a line break not wanted.  See comment",
+      "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97adca3b_a659f587",
+        "filename": "docs/quads-api.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2024-05-13T09:52:40Z",
+      "side": 1,
+      "message": "I think this line break is not correct.",
+      "revId": "acfe69249742f04958351cf1421420b9bf3ccf9d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
