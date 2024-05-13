@@ -1,12 +1,12 @@
 QUADS (quick and dirty scheduler)
 =================================
+<img src="image/quads.png" width=150px height=150px>
 
 QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.
 
 * Visit the [QUADS blog](https://quads.dev)
 * Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
 
-![quads](/image/quads.png)
 
 ![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
 
