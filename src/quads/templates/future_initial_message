@@ -23,7 +23,7 @@ are in their final, desired state before being ready to use.
 For additional information regarding the Scale Lab usage
 please see the following documentation:
 
-{{ wp_wiki }}/faq/
-{{ wp_wiki }}/usage/
+{{ wiki_url }}/faq/
+{{ wiki_url }}/usage/
 
 Perf/Scale DevOps Team
