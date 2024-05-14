@@ -20,11 +20,9 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
             * [Using SSL with Flask API and QUADS](#using-ssl-with-flask-api-and-quads)
+         * [QUADS Wiki](#quads-wiki)
+            * [Dynamic Wiki Content](#dynamic-wiki-content)
          * [Installing other QUADS Components](#installing-other-quads-components)
-            * [QUADS Wiki](#quads-wiki)
-               * [Installing Wordpress via Ansible](#installing-wordpress-via-ansible)
-               * [Setup of Wordpress](#setup-of-wordpress)
-               * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
             * [Major Components](#major-components)
@@ -103,7 +101,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Automated allocation of optional, publicly routable VLANs
    - Generates/maintains user-configurable [instackenv.json](https://docs.openstack.org/tripleo-docs/latest/install/environments/baremetal.html#instackenv-json) to accomodate OpenStack deployment.
    - Generates/maintains user-configurable ocpinventory.json for OpenShift on Baremetal Deployments
-   - Automatically generate/maintain documentation to illustrate current status, published to a [Wordpress instance](http://python-wordpress-xmlrpc.readthedocs.io/en/latest/examples/posts.html#pages)
+   - Automatically generate/maintain documentation to illustrate current status
      * Current system details, infrastructure fleet inventory
      * Current system group ownership (cloud), workloads and assignments
      * Total duration and time remaining in system assignments
@@ -122,16 +120,14 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Installation via RPM for Fedora Linux.
    - We use [Badfish](https://github.com/redhat-performance/badfish) for managing bare-metal IPMI
    - We use [Foreman](https://theforeman.org/) for the systems provisioning backend.
-   - We use [Wordpress](https://wordpress.org/) for auto-generating wiki and documentation.
    - A typical QUADS deployment might look like this:
 
 ![quadsarchitecture](/image/quads-architecture.png)
 
 ## Requirements
    - Recent [Fedora Server](https://fedoraproject.org/server/download/) for RPM installations
-   - 2 x modest sized VM's for QUADS and the associated Wordpress Wiki component
+   - 1 x modest sized VM for QUADS and the associated Wiki component
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
-   - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but command sets can easily be extended to support other network switch models.
    - We use [badfish](https://github.com/redhat-performance/badfish) for Dell systems to manage boot order to accomodate OpenStack deployments via Ironic/Triple-O as well as to control power actions via the Redfish API.
 
@@ -147,8 +143,6 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | Install via RPM |
 | Enable SSL | [docs](#using-ssl-with-flask-api-and-quads) | Optionally enable SSL for API, Web |
-| Install Wiki | [docs](#installing-wordpress-via-ansible) | Use Ansible to Deploy Wordpress |
-| Configure Wiki | [docs](#setup-of-wordpress) | Configure Wordpress Pages and Plugins |
 | Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
 | Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
 | Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
@@ -227,60 +221,44 @@ servername=$(hostname) ; sed -i -e "s/quads.example.com/$servername/" /etc/nginx
 Lastly, restart nginx:
 
 ```
-sytemctl restart nginx
+systemctl restart nginx
 ```
+
+### QUADS Wiki
+   - The Wiki component for QUADS is fully managed by `quads-web`
+
+#### Dynamic Wiki Content
+   - Additional content can be added dynamically to the wiki by adding content to the `/opt/quads/web` directory.
+   - The way directory is to be structured is so that any directory is considered as a submenu of the `quads-web` navigation bar with the exception of `static` directories which are ignored by the navbar generation and which contain any static files for all the html files.
+   - Additionally, the "friendly" text on the links will match that of the file without undescores.
+   - Any files without extensions will be considered direct links with the content of it being only the hyperlink in plain text.
+   - The html files should be structured for the correct jinja templating that is expected like this:
+
+    ```
+    {% extends "base.html" %}
+    {% block title %} INSERT TITLE HERE {% endblock %}
+
+    {% block page_content %}
+    INSERT HTML CONTENT HERE
+    {% endblock %}
+    ```
+
+   - For static files such as images and css, all files go on the root `/static` directory and the src href has to be passed via `url_for` like this:
+
+    ```
+        <img
+          loading="lazy"
+          decoding="async"
+          class="alignnone size-full wp-image-5616"
+          src="{{url_for('content.static', filename='scale_lab_assignments-march-may.png')}}"
+          alt=""
+          width="1030"
+          height="542"
+        />
+    ```
 
 ### Installing other QUADS Components
 
-#### QUADS Wiki
-   - The Wiki component for QUADS is currently Wordpress, though in 2.x we'll be moving everything to Flask.
-   - Please use **Red Hat, CentOS Stream or Rocky 8** for the Wordpress component.
-   - Wordpress needs to be on it's **own VM/server** as a standalone component.
-   - [Wordpress](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) provides a place to automate documentation and inventory/server status via the Wordpress Python RPC API.
-
-##### Installing Wordpress via Ansible
-   - You can use our Ansible playbook for installing Wordpress / PHP / PHP-FPM / nginx on a Rocky8, RHEL8 or CentOS8 Stream standalone virtual machine.
-   - First, clone the repository
-```
-git clone https://github.com/redhat-performance/ops-tools
-cd ansible/wiki-wordpress-nginx-mariadb
-```
-  - Second, add the hostname or IP address of your intended Wiki/Wordpress host replacing `wiki.example.com` with your host in the `hosts` file.
-```
-# cat hosts
-[wordpress_server]
-wiki.example.com
-```
-  - Third, run Ansible to deploy.  You might take a look at `group_vars/all` for any configuration settings you want to change first.
-```
-ansible-playbook -i hosts site.yml
-```
-  - If you get an error about `seboolean` usage you'll also need to install the `ansible.posix` collection then re-run the playbook.
-```
-dnf install ansible-collection-ansible-posix
-```
-  - Alternatively you can install this via `ansible-galaxy` without RPM.
-```
-ansible-galaxy collection install ansible.posix
-```
-##### Setup of Wordpress
-   - You'll then simply need to create an `infrastructure` page and `assignments` page and denote their `page id` for use in automation.  This is set in `conf/quads.yml`
-   - We also provide the [krusze theme](/docker/etc/wordpress/themes/krusze.0.9.7.zip) which does a great job of rendering Markdown-based tables, and the [JP Markdown plugin](/docker/etc/wordpress/plugins/jetpack-markdown.3.9.6.zip) which is required to upload Markdown to the [Wordpress XMLRPC Python API](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/).  The `Classic Editor` plugin is also useful.  All themes and plugins can be activated from settings.
-
-##### Limit Page Revisions in Wordpress
-   - It's advised to set the following parameter in your `wp-config.php` file to limit the amount of page revisions that are kept in the database.
-     - Before the first reference to `ABSPATH` in `wp-config.php` add:
-
-```
-define('WP_POST_REVISIONS', 100);
-```
-   - You can always clear out your old page revisions via the `wp-cli` utility as well, QUADS regenerates all content as it changes so there is no need to keep around old revisions of pages unless you want to.
-
-```
-yum install wp-cli -y
-su - wordpress -s /bin/bash
-wp post delete --force $(wp post list --post_type='revision' --format=ids)
-```
 #### QUADS Move Command
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/move_and_rebuild.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
