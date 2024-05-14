@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+
+        .link-secondary-hover, .link-secondary-hover-no-decoration {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca;
+        }
+
+
+        th, td {
+            padding: 10px;
+        }
+
+        .box-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+        pre {
+            padding: 0;
+            margin: 0;
+        }
+
+        .text-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            margin-bottom: 1em;
+            padding: 10px;
+        }
+
+        .link-secondary-hover-no-decoration:hover {
+            color: #0a58ca;
+        }
+
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with docs="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-12">
+				<main id="main" class="site-main" role="main">
+					<article id="post-3707" class="post-3707 page type-page status-publish hentry">
+
+						<header class="entry-header">
+							<h1 class="entry-title">1029u</h1></header><!-- .entry-header -->
+
+						<div class="entry-content">
+							<h2>1029U TN10RT systems</h2>
+							<p>&nbsp;</p>
+							<ul>
+								<li>16 x Supermicro 1029u (TN10RT)</li>
+								<li>2x Intel Gold 6140 (36 total cores, 72 threads)</li>
+								<li>256 GB RAM or 384 GB RAM</li>
+								<li>1x 64GB SSD</li>
+								<li>4x 2.4TB NVMe or 4x 3.2TB NVMe</li>
+							</ul>
+							<p>&nbsp;</p>
+							<div class="entry-content">
+								{% for row in u1029_list %}
+									<div>{{ row }}</div>
+								{% endfor %}
+							</div>
+						</div>
+			</div><!-- .entry-content -->
+
+
+			</article>
+			</main><!-- #main -->
+		</div>
+	</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

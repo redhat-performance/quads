@@ -1,0 +1,19 @@
+<style>
+    .dropdown:hover .dropdown-menu {
+      display: block;
+    }
+</style>
+<li class="nav-item dropdown">
+    <a class="nav-link {{ visualizations or "" }}"
+       data-bs-toggle="dropdown"
+       aria-expanded="false" href="#"
+       id="visualizationsDropdown"
+       data-bs-offset="10,30"
+    >Visualizations</a>
+    <ul class="dropdown-menu" aria-labelledby="visualizationsDropdown">
+        <li><a class="dropdown-item" target="_blank" href="/available">QUADS Available UI Search (Beta)</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://quads.rdu2.scalelab.redhat.com/visual/current.html">Current Month Visualization Map</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://quads.rdu2.scalelab.redhat.com/visual/next.html">Next Month Visualization Map</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://quads.rdu2.scalelab.redhat.com/visual/index.html">All Months Visualization Map</a></li>
+    </ul>
+</li>
