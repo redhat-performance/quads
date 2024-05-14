@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: bold;
+            color: #5a5757;
+        }
+
+    </style>
+{% endblock %}
+
+{% block navbar %}
+    <div class="shadow-sm mb-5 bg-white rounded">
+        <div class="container">
+            {% with inventory="active" %}
+                {% include 'navbar.html' %}
+            {% endwith %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block page_content %}
+
+    <h2><b>RDU ScaleLab Dashboard</b></h2>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 col-sm-12 col-10">
+                {% for rack, hosts in all_hosts.items() %}
+                    <p><strong>Rack {{ rack }}</strong></p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            {% for header in headers %}
+                                <th scope="col">{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for host in hosts %}
+                            <tr>
+                                {% for header in headers %}
+                                    {% if header == "IPMIURL" %}
+                                        <td><a class="link-secondary-hover" href="http://mgmt-{{ host[header] }}/"
+                                               target=_blank">console</a></td>
+                                    {% elif header == "Workload" %}
+                                        <td><a class="link-secondary-hover"
+                                               href="#">{{ host[header] }}</a></td>
+                                    {% else %}
+                                        <td>{{ host[header] }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

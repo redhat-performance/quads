@@ -1,52 +1,53 @@
 {% block doc -%}
-<!DOCTYPE html>
-<html{% block html_attribs %} lang="en" {% endblock html_attribs %}>
-{%- block html %}
-  <head>
-    {%- block head %}
-    <title>{% block title %}{{title|default}}{% endblock title %}</title>
+	<!DOCTYPE html>
+	<html{% block html_attribs %} lang="en" {% endblock html_attribs %}>
+	{%- block html %}
+		<head>
+			{%- block head %}
+				<title>{% block title %}{{ title|default }}{% endblock title %}</title>
 
-    {%- block metas %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {%- endblock metas %}
+				{%- block metas %}
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				{%- endblock metas %}
 
-    {%- block styles %}
-    <!-- Bootstrap -->
-    <link
-        href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link
-        href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
-    <link
-        href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
-    {%- endblock styles %}
-    {%- endblock head %}
-  </head>
-  <body{% block body_attribs %}{% endblock body_attribs %}>
-    {% block body -%}
-    {% block navbar %}
-    {%- endblock navbar %}
-    {% block content -%}
-    <div class="container">
-        {% block page_content %}{% endblock %}
-    </div>
-    {%- endblock content %}
+				{%- block styles %}
+					<!-- Bootstrap -->
+					<link
+							href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+					<link
+							href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
+					<link
+							href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
+				{%- endblock styles %}
+			{%- endblock head %}
+		</head>
+		<body{% block body_attribs %}{% endblock body_attribs %}>
+		{% block body -%}
+			{% block navbar %}
+			{%- endblock navbar %}
+			{% block content -%}
+				<div class="container">
+					{% block page_content %}{% endblock %}
+				</div>
+			{%- endblock content %}
 
-    {% block scripts %}
-    <script
-        src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
-    <script
-        src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript"
-        src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
-    <script
-        src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
-    <script
-        src="{{ url_for('static', filename='js/litepicker.js') }}"></script>
-    <script
-        src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
-    {%- endblock scripts %}
-    {%- endblock body %}
-  </body>
-{%- endblock html %}
-</html>
+			{% block scripts %}
+				<script
+						src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
+				<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+				<script
+						src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+				<script type="text/javascript"
+						src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+				<script
+						src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+				<script
+						src="{{ url_for('static', filename='js/litepicker.js') }}"></script>
+				<script
+						src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+			{%- endblock scripts %}
+		{%- endblock body %}
+		</body>
+	{%- endblock html %}
+	</html>
 {% endblock doc -%}
