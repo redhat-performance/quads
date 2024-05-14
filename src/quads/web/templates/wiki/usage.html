@@ -1,0 +1,860 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover-no-decoration {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover-no-decoration:hover {
+            color: #0a58ca;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        .box-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with usage="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-10">
+				<main id="main" role="main">
+					<article>
+						<header class="entry-header">
+							<h1 class="entry-title">Usage</h1>
+						</header> <!-- .entry-header -->
+						<div class="entry-content">
+							<h2 id="Scale_Lab_Usage_Guidelines">
+								<img decoding="async" class="size-full wp-image-462 alignleft"
+									 src="{{ url_for('static', filename='images/scalelab_logo.png') }}"
+									 alt="scalelab_logo" width="47" height="42"/>
+								Scale Lab Usage Guidelines
+							</h2>
+							<div class="box-container container">
+								<ul style="list-style-type:none;">
+									<li>
+										<a class="link-secondary-hover"
+										   href="#Scale_Lab_Usage_Guidelines">1 Scale Lab Usage Guidelines</a>
+										<ul style="list-style-type:none;">
+											<li>
+												<a class="link-secondary-hover" href="#Please_Do_Not_Rename_Servers">
+													1.0.1 Please Do Not Rename Servers
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_not_Share_Environments_for_other_Purposes">
+													1.0.2 Do not Share Environments for other Purposes
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Use_a_New_Assignment_Request_for_New_Versions_Components_or_Change_in_Focus">
+													1.0.3 Use a New Assignment / Request for New Versions, Components or
+													Change in Focus
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_not_Change_or_Edit_Foreman_Entries_or_Hardware">
+													1.0.4 Do not Change or Edit Foreman Entries or Hardware
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_Not_Upgrade_Hardware_Firmware_or_BIOS">
+													1.0.5 Do Not Upgrade Hardware Firmware or BIOS
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Please_Do_Not_IP_VMs_or_Systems_Manually">
+													1.0.6 Please Do Not IP VMs or Systems Manually
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Please_Do_Not_Change_IPMI_Passwords">
+													1.0.7 Please Do Not Change IPMI Passwords
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Make_sure_to_Unmount_Virtual_Media_ISO_if_used">
+													1.0.8 Make sure to Unmount Virtual Media ISO if used.
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_not_Change_IP_Address_of_Public_Network_or_IPMIOut-of-Band">
+													1.0.9 Do not Change IP Address of Public Network or IPMI/Out-of-Band
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_Not_Change_Host_Foreman_Root_Passwords">
+													1.0.10 Do Not Change Host Foreman Root Passwords
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_Not_Change_Interface_Ordering_or_PXE_Settings">
+													1.0.11 Do Not Change Interface Ordering or PXE Settings
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Do_not_make_changes_to_System_BIOS">
+													1.0.12 Do not make changes to System BIOS
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Please_Do_Not_Run_DHCPPXE_On_Primary_Public_Interfaces">
+													1.0.13 Please Do Not Run DHCP/PXE On Primary Public Interfaces
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#We_will_Pro-actively_Shut_Down_Potentially_Abusive_Traffic">
+													1.0.14 We will Pro-actively Shut Down Potentially Abusive Traffic
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#OpenStack_Users_Always_use_instackenvjson_provided_by_QUADS">
+													1.0.15 OpenStack Users: Always use instackenv.json provided by QUADS
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Machine_Allocations_are_a_Shared_Resource">
+													1.0.16 Machine Allocations are a Shared Resource
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Resources_are_Limited">
+													1.0.17 Resources are Limited
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Bare-Metal_as_a_Service_Only">1.0.18 Bare-Metal as a Service
+													Only
+												</a>
+											</li>
+											<li><a class="link-secondary-hover"
+												   href="#We_Cannot_add_Capacity_or_Hardware_to_Systems">
+												1.0.19 We Cannot add Capacity or Hardware to Systems
+											</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Scale_Council_Drives_Priority">
+													1.0.20 Scale Council Drives Priority
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover" href="#Vetted_Workloads_Only">
+													1.0.21 Vetted Workloads Only
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover" href="#No_Long-term_Reservations">
+													1.0.22 No Long-term Reservations
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Singular_Purpose_or_Focus_for_Workloads">
+													1.0.23 Singular Purpose or Focus for Workloads
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Support_is_available_Monday-Friday">
+													1.0.24 Support is available Monday-Friday
+												</a>
+											</li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Please_Respond_to_your_Request_Emails">
+													1.0.25 Please Respond to your Request Emails 🙂
+												</a>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<div>
+								<p>&nbsp;</p>
+								<p>The purpose of the Scale Lab and the
+									<a class="link-secondary-hover-no-decoration" href="https://quads.dev"
+									   target="_blank" rel="noopener noreferrer">QUADS</a>
+									scheduler is to automate all aspects of machine and network provisioning to provide
+									Engineers with an efficient high-performance testing grounds for scaling our
+									products
+									for short-term workloads.</p>
+								<p>There are just a few guidelines to using resources within the environment:</p>
+								<hr/>
+							</div>
+							<div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Please_Do_Not_Rename_Servers">
+                                            <strong>Please Do Not Rename Servers<br/></strong></span>
+											</h4>
+											<ul>
+												<li>We have a very specific naming convention that helps us know where a
+													server is located, what rack, U-location and type. This helps us
+													quickly address any physical hardware issues or problems that might
+													arise. While renaming your machine doesn&#8217;t affect DNS records
+													it may cause confusion when reporting issues.
+												</li>
+												<li>Please also <strong>do not rename servers</strong>
+													<strong>in Foreman</strong>, this will affect DNS/DHCP records and
+													cause issues for us and other tenants in the lab.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<p>&nbsp;</p>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+                                            <span id="Do_not_Share_Environments_for_other_Purposes">
+                                                <strong>Do not Share Environments for other Purposes</strong>
+                                            </span>
+											</h4>
+											<ul>
+												<li>Please do not share credentials with other people for purposes other
+													than the stated cloud workload assigned to you. This is bad for both
+													tenants waiting for new hardware as well as our metrics which feed
+													into
+													Engineering purchasing decisions.
+													<span style="text-decoration: underline;">Each Scale Lab workload is
+                                                    for a targeted, singular purpose</span> and not meant to change
+													hands after your work is completed. If someone wants your systems
+													after you&#8217;re done (even on your team) let us know and we can
+													see about changing ownership and updating the runtime records for a
+													seamless transition assuming we do not have a large backlog of
+													requests that have been waiting.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="Use_a_New_Assignment_Request_for_New_Versions_Components_or_Change_in_Focus"><strong>Use a New Assignment / Request for New Versions, Components or Change in Focus</strong></span>
+											</h4>
+											<ul>
+												<li>Please <a href="https://scalelab.redhat.com/#request"
+															  class="link-secondary-hover-no-decoration"
+															  target="_blank" rel="noopener">open a new request</a> if
+													the major version changes, components change or overall focus of
+													your testing changes. We can easily move your current systems to a
+													new assignment with no downtime and also keep all data intact. Most
+													of the time this takes 5minutes or less but it&#8217;s important to
+													keep our product reporting accurate and helps you too for making
+													sure your work is as visible as possible.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<p>&nbsp;</p>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Do_not_Change_or_Edit_Foreman_Entries_or_Hardware"><strong>Do not Change or Edit Foreman Entries or Hardware</strong></span>
+											</h4>
+											<ul>
+												<li>Access to cloud Foreman views is meant for self-service
+													re-provisioning of systems. Beyond marking systems for build or
+													changing their intended operating system
+													<a class="link-secondary-hover-no-decoration"
+													   href="/faq/"
+													   target="_blank" rel="noopener noreferrer">documented in the
+														FAQ</a> do not rename, delete or otherwise edit physical or
+													network attributes about hosts in the Scale Lab. This can be
+													disruptive to not only your assignment but also others.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+												<span id="Do_Not_Upgrade_Hardware_Firmware_or_BIOS">
+													<strong>Do Not Upgrade Hardware Firmware or BIOS
+													</strong>
+												</span>
+											</h4>
+											<ul>
+												<li>Firmware and BIOS updates can have permanent, lasting effects on
+													tenants after you, their test results (which are often shared with
+													customers) and makes it hard for us to keep baseline consistency and
+													behavior on bare-metal systems. If you think you need a newer
+													version of BIOS, Firmware, NIC firmware or any sort of micro-code
+													update please let us know.
+												</li>
+												<li>We have a process for doing this to ensure changes are tested,
+													documented, and applied consistently across all similar model types.
+													There are lots of reasons we may need to revisit newer versions of
+													this kinds of changes but Scale Lab tenants <span
+															style="text-decoration: underline;">should not</span> under
+													any circumstance take this upon themself to apply to temporary,
+													loaned systems in the R&amp;D shared labs.
+												</li>
+												<li>If you think you might require a newer NIC, System or component
+													firmware or BIOS for your work please open a request in our <a
+															class="link-secondary-hover-no-decoration"
+															href="https://projects.engineering.redhat.com/secure/CreateIssue!default.jspa?pid=18007"
+															target="_blank" rel="noopener noreferrer">Perf-Infra
+														JIRA</a> and tell us the system(s) and current cloud and we can
+													work together to get this tested and completed.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+												<span id="Please_Do_Not_IP_VMs_or_Systems_Manually">
+													<strong>Please Do Not IP VMs or Systems Manually</strong>
+												</span>
+											</h4>
+											<ul>
+												<li>We have a tightly designed network infrastructure shared and used by
+													potentially hundreds of ongoing workloads. With the exception of <a
+															href="http://wiki.rdu2.scalelab.redhat.com/public-vlans/"
+															class="link-secondary-hover-no-decoration"
+															target="_blank" rel="noopener noreferrer">optional routable
+														public VLANS</a> where you have a specific range of IP addresses
+													allotted to you, do not manually IP any VM&#8217;s created or
+													systems loaned to you &#8211; an IP address conflict can take down
+													the entire R&amp;D infrastructure and cause disruption to your
+													colleagues.If you require additional temporary DHCP records for VMs
+													in your environment please <a
+															href="/contact/"
+															class="link-secondary-hover-no-decoration"
+															target="_blank" rel="noopener noreferrer">contact us.</a>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+												<span id="Please_Do_Not_Change_IPMI_Passwords">
+													<strong>Please Do Not Change IPMI Passwords</strong>
+												</span>
+											</h4>
+											<ul>
+												<li>Scale Lab resources change hands often, but don&#8217;t worry you&#8217;ll
+													get <strong>your own unique credentials</strong> for the duration of
+													your request. Please do not change or modify any IPMI/iDRAC
+													passwords.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+												<span id="Make_sure_to_Unmount_Virtual_Media_ISO_if_used">
+													<strong>Make sure to Unmount Virtual Media ISO if used.</strong>
+												</span>
+											</h4>
+											<ul>
+												<li>While we have a fully automated provisioning system you can use via
+													Foreman <a href="/faq/"
+															   class="link-secondary-hover-no-decoration"
+															   target="_blank" rel="noopener noreferrer">explained in
+														our FAQ</a>, there might be times when you want to load a
+													virtual CDROM ISO image. Please remember to unmount this after you
+													are using it so it does not cause problems with the next tenant to
+													use the systems after you.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="Do_not_Change_IP_Address_of_Public_Network_or_IPMIOut-of-Band"><strong>Do not Change IP Address of Public Network or IPMI/Out-of-Band</strong></span>
+											</h4>
+											<ul>
+												<li>Please do not change the IP address settings of either the <a
+														class="link-secondary-hover-no-decoration"
+														href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks#RDU2ScaleLabPrivateNetworksandInterfaces"
+														target="_blank" rel="noopener noreferrer">Public Network</a> of
+													any of your systems or the IPMI/out-of-band interfaces. This can
+													<em>severely disrupt</em> all running assignments and infrastructure
+													in the Scale Lab in the case of IP address conflicts. These are
+													managed via DHCP and should not be touched or modified and there&#8217;s
+													no practical reason for doing this.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Do_Not_Change_Host_Foreman_Root_Passwords"><strong>Do Not Change Host Foreman Root Passwords</strong></span>
+											</h4>
+											<ul>
+												<li>Just like IPMI passwords, please leave the per-host Foreman root
+													passwords alone, you can change them as you like once you get your
+													systems but modifying this value will cause problems for the next
+													tenant after you.
+												</li>
+												<li>Your host password is <em>100yard-</em> until you change it
+													otherwise at the OS level once your cloud has been validated and
+													handed off for you to use.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Do_Not_Change_Interface_Ordering_or_PXE_Settings"><strong>Do Not Change Interface Ordering or PXE Settings</strong></span>
+											</h4>
+											<ul>
+												<li>Our automation <em>(and the successful handover of machines to the
+													Engineers after you)</em> relies on automation tooling to set boot
+													order, interface order and other aspects of bare-metal systems a
+													certain way.Under no circumstances should you disable PXE or
+													re-order boot interfaces on the systems, this causes delays and
+													issues with sharing the Scale Lab equipment with others after you
+													are done. We have <a
+															href="https://github.com/redhat-performance/badfish"
+															class="link-secondary-hover-no-decoration"
+															target="_blank" rel="noopener noreferrer">self-service
+														tooling/automation</a> in place for toggling boot order for
+													OpenStack vs. Everything else scenarios &#8211; see the <a
+															href="/faq/"
+															class="link-secondary-hover-no-decoration"
+															target="_blank" rel="noopener noreferrer">FAQ</a> for more
+													information about this.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Do_not_make_changes_to_System_BIOS"><strong>Do not make changes to System BIOS</strong></span>
+											</h4>
+											<ul>
+												<li>There is really no reason anyone needs to make BIOS level changes,
+													if changes are made at the BIOS level this can cause issues for you
+													but also other Engineers that use these systems after you. It can
+													hold up our validation processes and automation that gets
+													machines/networks to people that need them. If you think you need to
+													make BIOS adjustments <a
+															href="/contact/"
+															class="link-secondary-hover-no-decoration"
+															target="_blank" rel="noopener noreferrer">please let us know
+														first.</a> We will work with you to ensure you have what you
+													need.A very small, small minority of tenants may need to make
+													adjustments to test very myopic, focused areas of CPU architecture,
+													if you&#8217;re in this situation please mention it on your Scale
+													Lab assignment request form and we&#8217;ll ensure you have what you
+													need to be successful. While we do not block access to BIOS please
+													try to consult us first if you think something needs to be changed.
+													At the least please revert any changes made before your assignment
+													ends and your work is complete.
+												</li>
+												<li>If you&#8217;re looking for a way to blacklist or disable some
+													hardware (like a PCI RAID controller + disks) you can employ
+													<strong>rdblacklist=megaraid_sas</strong> in your kernel command
+													line boot in your image or OS for example.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="Please_Do_Not_Run_DHCPPXE_On_Primary_Public_Interfaces"><strong>Please Do Not Run DHCP/PXE On Primary Public Interfaces</strong></span>
+											</h4>
+											<ul>
+												<li>For the lab to run we manage our own Foreman instance that provides
+													DHCP/PXE/TFTP services on the primary (public facing 10.1.x)
+													interface on all of the machines. Running any sort of DHCP/PXE or
+													Multicast traffic here can be disruptive to the entire lab. You will
+													have anywhere from 2-4 internal, high-speed isolated interfaces in
+													their own VLAN for segregated layer2 traffic to do whatever you
+													like. As a courtesy we also lay down 172.16.x interface configs for
+													you to use in this manner across the internal interfaces.
+												</li>
+												<li>Please consult our <a class="link-secondary-hover-no-decoration"
+																		  href="/faq/"
+																		  target="_blank"
+																		  rel="noopener noreferrer">FAQ</a> or <a
+														class="link-secondary-hover-no-decoration"
+														href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks"
+														target="_blank" rel="noopener noreferrer">Tips and Tricks
+													documentation</a> for further information.
+												</li>
+												<li>
+													<a class="link-secondary-hover-no-decoration"
+													   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks#RDU2ScaleLabPrivateNetworksandInterfaces"
+													   target="_blank" rel="noopener noreferrer"><span
+															style="color: #339966;"><strong>Authoritative Interfaces Diagram Here</strong></span></a>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<p>&nbsp;</p>
+									<p><img decoding="async" fetchpriority="high"
+											src="{{ url_for('static', filename='images/scalelab_network_interfaces-new_restrictions_1.png') }}"
+											alt="ScaleLab Network Interfaces" width="100%"/></p>
+									<p>&nbsp;</p>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="We_will_Pro-actively_Shut_Down_Potentially_Abusive_Traffic"><strong>We will Pro-actively Shut Down Potentially Abusive Traffic</strong></span>
+											</h4>
+										</li>
+									</ul>
+									<p>If you have any questions at all about network traffic, or what you can or cannot
+										do please ask us. <span style="text-decoration: underline;">Unfortunately, if we detect any network loops or traffic flooding into the lab we will shut down your assignment and disable the ports until we can rectify the problem.</span>
+										Usually this is due to improperly serving things off of the Public Network.</p>
+									<p>&nbsp;</p>
+									<p>There is just too much disruption that can happen otherwise and we almost always
+										have dozens or more of other sensitive workloads within the R&amp;D environment
+										that cannot risk disruption due to network or service mis-configuration.</p>
+									<p>&nbsp;</p>
+									<p>We&#8217;d rather be safe than sorry, and in the past we&#8217;ve seen absolute
+										havoc wreaked by tenants inadvertently running broadcast-level traffic or other
+										kinds of activity in their assignments which can cause routing loops and other
+										impactful consequences.</p>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="OpenStack_Users_Always_use_instackenvjson_provided_by_QUADS"><strong>OpenStack Users: Always use <em>instackenv.json</em> provided by QUADS</strong></span>
+											</h4>
+											<ul>
+												<li>We auto-generate and maintain an <a
+														class="link-secondary-hover-no-decoration"
+														href="/"
+														target="_blank" rel="noopener noreferrer">instackenv.json</a> in
+													a column to the right of your assignment summary. Please use this to
+													feed into RHOS Director for OpenStack deployments.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Machine_Allocations_are_a_Shared_Resource"><strong>Machine Allocations are a Shared Resource</strong></span>
+											</h4>
+											<ul>
+												<li>Scale Lab is the AirBNB of high-performance testing so be a good
+													neighbor.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Resources_are_Limited"><strong>Resources are Limited</strong></span>
+											</h4>
+											<ul>
+												<li>We will always face greater demand than supply, please be patient
+													when requesting access.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Bare-Metal_as_a_Service_Only"><strong>Bare-Metal as a Service Only</strong></span>
+											</h4>
+											<ul>
+												<li>While we&#8217;re happy to provide advice we do not setup or manage
+													services, application infrastructure or offer support beyond
+													bare-metal systems and network problems. Once you receive your
+													machines they are yours to configure, setup and run your workloads.
+													The high level of automation and rapid provisioning, hand-off and
+													reclamation of assets doesn&#8217;t lend to supporting anything
+													beyond the operating system or self-service provisioning. There are
+													efforts underway to automatically deploy some common application
+													stacks like OpenStack automatically via QUADS when you get your
+													systems but this is not in place yet.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="We_Cannot_add_Capacity_or_Hardware_to_Systems"><strong>We Cannot add Capacity or Hardware to Systems</strong></span>
+											</h4>
+											<ul>
+												<li>Hardware capabilities, to include extra disks, storage or anything
+													else is what comes on your system. We do not have the supportable
+													capability to expand hardware beyond what comes on systems. From
+													time to time we will refresh hardware, order additional disks to
+													expand slots and the like but it&#8217;s not something tenable we
+													can do during the lifetime of tenant assignments.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Scale_Council_Drives_Priority"><strong>Scale Council Drives Priority</strong></span>
+											</h4>
+											<ul>
+												<li>The Scale Council is comprised of Engineering managers who will
+													ultimately decide the priority of machine allocations, which are
+													subject to change. Your friendly DevOps team (Will and Kambiz) just
+													make things work.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Vetted_Workloads_Only"><strong>Vetted Workloads Only</strong></span>
+											</h4>
+											<ul>
+												<li>Scale Lab is designed for already-proven workloads that need to be
+													tested at a higher scale. This isn&#8217;t the right environment for
+													small-scale or untested R&amp;D sandbox development as allocations
+													are short-term. For example you might discover bugs in a product on
+													a small set of Eng-Ops provided hardware and need to prove this on
+													faster networks and larger machine counts.
+												</li>
+												<li>We currently have a minimum request limit of 10 machines, if you
+													need less than this number then you should checkout the <a
+															class="link-secondary-hover-no-decoration"
+															href="http://bagl.scalelab.redhat.com" target="_blank"
+															rel="noopener noreferrer">BAGL Lab</a> or <a
+															class="link-secondary-hover-no-decoration"
+															href="http://alias.scalelab.redhat.com" target="_blank"
+															rel="noopener noreferrer"> ALIAS Lab</a> instead.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span
+													id="No_Long-term_Reservations"><strong>No Long-term Reservations</strong></span>
+											</h4>
+											<ul>
+												<li>Scale Lab is not intended for long-term, multi-month reservations.
+													An ideal place for this kind of workload is the Eng Ops/PNT
+													supported <a class="link-secondary-hover-no-decoration"
+																 href="https://one.redhat.com/dsal" target="_blank"
+																 rel="noopener noreferrer">DSAL labs</a> where the
+													default run time is 4 months.
+												</li>
+												<li>We will always try to make accommodations and if both resources and
+													priority of your request allow we&#8217;ll make things work but run
+													times longer than 2month is the exception not the rule.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Singular_Purpose_or_Focus_for_Workloads"><strong>Singular Purpose or Focus for Workloads</strong></span>
+											</h4>
+										</li>
+									</ul>
+									<p>&nbsp;</p>
+									<ul>
+										<li style="list-style-type: none;">
+											<ul>
+												<li>Scale Lab is intended for singular-purpose workloads only, if your
+													focus changes or pivots we need a new request. You can likely use
+													the same systems you were using however, pending availability.
+												</li>
+												<li>This includes testing a new major version of products or pivoting to
+													new testing regimens and scope.
+												</li>
+												<li>More information here on <a
+														class="link-secondary-hover-no-decoration"
+														href="https://groups.google.com/a/redhat.com/g/perf-dept/c/XetNQ24bUsY"
+														target="_blank" rel="noopener">this perf-dept mailing list
+													thread.</a></li>
+											</ul>
+										</li>
+									</ul>
+									<p>&nbsp;</p>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4><span id="Support_is_available_Monday-Friday"><strong>Support is available Monday-Friday</strong></span>
+											</h4>
+											<ul>
+												<li>Just like you we try not to work over the weekend, if you have
+													issues within the Scale Lab please <a
+															class="link-secondary-hover-no-decoration"
+															href="/contact/"
+															target="_blank" rel="noopener noreferrer">let us know</a>
+													and we&#8217;ll get to you first thing Monday morning European time.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<ul>
+										<li>
+											<h4>
+												<span id="Please_Respond_to_your_Request_Emails">
+												<strong>Please Respond to your Request Emails 🙂<br/></strong>
+												</span>
+											</h4>
+											<ul>
+												<li>There&#8217;s a lot of demand for the Scale Lab and we&#8217;d love
+													to service everyone but it&#8217;s just not possible. Things move
+													fast so If we don&#8217;t hear from you via JIRA requests in 30 days
+													your request will be closed.
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<hr/>
+								</div>
+								<div>
+									<p>You can find the
+										<a href="http://scalelab.redhat.com" class="link-secondary-hover-no-decoration"
+										   target="_blank"
+										   rel="noopener noreferrer">Scale Council website and request form here.<br/>
+										</a>
+									</p>
+								</div>
+							</div>
+						</div><!-- .entry-content -->
+					</article><!-- #post-## -->
+				</main><!-- #main -->
+			</div>  <!---col-md-8 col-sm-12 col-10 -->
+		</div><!-- .row -->
+	</div><!-- .container-fluid -->
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

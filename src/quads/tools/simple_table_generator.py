@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import csv
-from datetime import datetime
+import os
 import random
+from datetime import datetime
 
 from jinja2 import Template
+
 from quads.config import Config
 from quads.quads_api import QuadsApi
 
