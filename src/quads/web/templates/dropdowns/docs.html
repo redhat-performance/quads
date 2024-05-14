@@ -1,0 +1,30 @@
+<style>
+    .dropdown:hover .dropdown-menu {
+      display: block;
+    }
+</style>
+<li class="nav-item dropdown">
+    <a class="nav-link {{ docs or "" }}"
+       data-bs-toggle="dropdown"
+       aria-expanded="false" href="#"
+       id="docsDropdown"
+       data-bs-offset="10,30"
+    >Docs</a>
+    <ul class="dropdown-menu" aria-labelledby="docsDropdown">
+        <li><a class="dropdown-item" target="_blank" href="https://search.scalelab.redhat.com">Unified Docs and Wiki Search</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks#RDU2ScaleLabPrivateNetworksandInterfaces">Private Networks and Interfaces</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks">Scale Lab Tips and Tricks</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/public-vlans/">Public VLAN Assignments</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://docs.scalelab.redhat.com">Scale Lab Documentation</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://docs.google.com/document/d/1Fn10-eK3rRb35tgkuGuVBXXGdA8w9oTa427RmehuUSA/edit?usp=sharing">Shared Labs Systems Acceptance Criteria</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/r640/">Dell R640 Disk Differences</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/r650/">Dell R650 Disk Differences</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://wiki.scalelab.redhat.com/1029u/">1029U TN10RT systems</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/mellanox/">All Mellanox NIC systems</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/mellanox-cx6/">All Mellanox-CX6 Only</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://wiki.rdu2.scalelab.redhat.com/fc640/">Dell FC640 with Mellanox NIC</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://nagios.rdu2.scalelab.redhat.com/nagios/cgi-bin/status.cgi?host=all&#038;limit=0">Infra Monitoring (guest/guest)</a></li>
+        <li><a class="dropdown-item" target="_blank" href="https://url.corp.redhat.com/perf-scale-infra">Perf Scale Lab Improvements Kanban</a></li>
+        <li><a class="dropdown-item" target="_blank" href="http://old-wiki-rdu.rdu2.scalelab.redhat.com">Old RDU Wiki</a></li>
+    </ul>
+</li>
