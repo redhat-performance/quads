@@ -1,136 +1,53 @@
 {% extends "base.html" %}
-
 {% block title %}QUADS Available Hosts{% endblock %}
 
 {% block styles %}
     {{ super() }}
     <style>
-        #search {
-            padding-right: 20px;
-            padding-bottom: 30px;
+        html {
+            font-family: sans-serif;
         }
+
         h2 {
             padding-left: 13px;
             margin-bottom: 1em;
         }
-        .dt-buttons {
-            margin-bottom: 1em;
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
         }
-        .dtpick {
-            width: 100%;
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
         }
-        .warning {
-            background-color: #f7e5d7 !important;
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: bold;
+            color: #5a5757;
         }
+
     </style>
 {% endblock %}
 
-{% block page_content %}
-    <h2>QUADS Available Hosts</h2>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3">
-                <form method="post" id="search" autocomplete="off">
-                    {{ form.model.label }} <br> {{ form.model(class_="dtpick") }}
-                    <br>
-                    <br>
-                    {{ form.date_range.label }} <br> {{ form.date_range(class_="dtpick") }}
-                    <br>
-                    <br>
-                    <input type="submit" value="Search">
-                </form>
-            </div>
-            <div class="col-md-9">
-                <table class="dataTable stripe" id="results">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Hostname</th>
-                            <th scope="col">Cloud</th>
-                            <th scope="col">Model</th>
-                            <th scope="col">Disks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for host in available_hosts.json %}
-                        {% if host["current"] %}
-                        <tr class="warning">
-                        {% else %}
-                        <tr>
-                        {% endif %}
-                            <th scope="row" >{{ loop.index }}</th>
-                            <td>{{ host["name"] }}</td>
-                            <td>{{ host["cloud"] }}</td>
-                            <td>{{ host["model"] }}</td>
-                            {% if host.disks %}
-                                <td data-bs-toggle="modal"
-                                    data-bs-target="#baseModal" onclick="updateDisks({{ host.disks }})">&#128190;</td>
-                            {% else %}
-                                <td>&#10060;</td>
-                            {% endif %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% block navbar %}
+    <div class="shadow-sm mb-5 bg-white rounded">
+        <div class="container">
+            {% with assignments="active" %}
+                {% include 'navbar.html' %}
+            {% endwith %}
         </div>
     </div>
 
-    {% include 'modal_no_footer.html' %}
+{% endblock %}
+
+{% block page_content %}
+
+    {% include 'wiki/assignments.html' %}
 
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script>
-        const updateDisks = (disks) => {
-            document.getElementsByClassName('modal-title')[0].innerHTML = 'Disks'
-            let td_data = ""
-            disks.forEach(disk => {
-                td_data += `<tr><td>${disk["disk_type"]}</td>`
-                td_data += `<td>${disk["disk_size"]}</td>`
-                td_data += `<td>${disk["disk_count"]}</td></tr>`
-            })
-            let th_data = "<tr><th>DiskType</th><th>DiskSize</th><th>DiskCount</th></tr>"
-            document.getElementsByClassName('modal-body')[0].innerHTML = `<table class="table">${th_data}${td_data}</table>`;
-            };
-        $(document).ready( function () {
-
-
-            $('#date_range').prop('readonly', true);
-            const table = $('#results').DataTable({
-                dom: 'Blfrtip',
-                lengthChange: true,
-                lengthMenu: [10, 25, 50, 75, 100],
-                pageLength: 25,
-                buttons: [
-                    'selectAll',
-                    'selectNone',
-                    {
-                        extend: 'copy',
-                        title: null,
-                        header: false,
-                        exportOptions: {columns: [1, ':selected']}
-                    }
-                ],
-                select: {
-                    style: 'multi'
-                }
-            });
-            const today = new Date();
-            const picker = new Litepicker({
-                element: document.getElementById('date_range'),
-                singleMode: false,
-                minDate: new Date(),
-                startDate: new moment().day(7).toDate(),
-                endDate: new moment().day(21).toDate(),
-                dropdowns: {
-                    "minYear": new moment().get('year'),
-                    "maxYear": 2050,
-                    "months": true,
-                    "years": true,
-                },
-            });
-        });
-    </script>
 {% endblock %}
