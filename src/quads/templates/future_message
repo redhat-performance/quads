@@ -5,7 +5,7 @@ your allocated environment:
 {{ cloud_info }}
 
 (Details)
-{{ wp_wiki }}/assignments/#{{ cloud }}
+{{ wiki_url }}/assignments/#{{ cloud }}
 
 will change.  As host schedules are activated some
 hosts will automatically be reprovisioned and moved to
@@ -22,8 +22,8 @@ hosts:
 For additional information regarding the Scale Lab usage
 please see the following documentation:
 
-{{ wp_wiki }}/faq/
-{{ wp_wiki }}/usage/
+{{ wiki_url }}/faq/
+{{ wiki_url }}/usage/
 
 Thank you for your attention.
 

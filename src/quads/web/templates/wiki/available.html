@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}QUADS Available Hosts{% endblock %}
 
 {% block styles %}
@@ -19,10 +18,19 @@
         .dtpick {
             width: 100%;
         }
-        .warning {
-            background-color: #f7e5d7 !important;
-        }
+
     </style>
+{% endblock %}
+
+{% block navbar %}
+    <div class="shadow-sm mb-5 bg-white rounded">
+        <div class="container">
+            {% with available="active" %}
+                {% include 'navbar.html' %}
+            {% endwith %}
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block page_content %}
@@ -41,7 +49,7 @@
                 </form>
             </div>
             <div class="col-md-9">
-                <table class="dataTable stripe" id="results">
+                <table class="table" id="results">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
