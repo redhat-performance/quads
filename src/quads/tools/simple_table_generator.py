@@ -19,7 +19,7 @@ from quads.server.models import Schedule, Host
 
 class QuadsApiAsync:
 
-    def __init__(self, config: Config):
+    def __init__(self, config):
         self.config = config
         self.base_url = config.API_URL
 
