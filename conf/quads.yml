@@ -44,22 +44,8 @@ ircbot_channel: #yourchannel
 webhook_notify: false
 webhook_url: https://chat.example.com/v1/spaces/AAABBBCCC
 
-# wordpress wiki
-wp_wiki: https://wiki.example.com
-wp_username: wikiadmin
-wp_password: wikipassword
-# you will have to know your wordpress page ID for the main and assignment pages
-wp_wiki_main_title: Lab Dashboard
-wp_wiki_main_page_id: 4
-wp_wiki_assignments_title: assignments
-wp_wiki_assignments_page_id: 357
-# these values are used for auto-generation of a VLAN wiki page markdown
-# when routable public VLANs are required (--vlan)
-wp_wiki_vlans_title: Public VLAN Allocations
-wp_wiki_vlans_page_id: 14244
-# optional management of wordpress content via git repo
-wp_wiki_git_manage: false
-wp_wiki_git_repo_path: /opt/quads/git/wiki
+# URL for the wiki references
+wiki_url: https://wiki.example.com
 
 # (optional ticket system URL) in this case we're using JIRA
 ticket_url: https://issues.example.com/browse
@@ -119,9 +105,14 @@ exclude_hosts: cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|
 # e.g. c01-h23-r620 is an r620 type host in rack c01 at u-location 23
 racks: b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10
 
+# visual web dir is where the visual HTML representation of the lab usage goes
+visual_web_dir: /opt/quads/web/visual
 # this is where we place the generated instackenv.json files
 # directory needs to be readable by the nginx user
-json_web_path: /var/www/html/instack
+json_web_path: /opt/quads/web/instack
+# path to the user specific web content for quads-web
+web_content_path: /opt/quads/web
+web_exclude_dirs: .git static instack visual
 # number of days of retaining old .json files
 json_retention_days: 0
 
@@ -146,9 +137,6 @@ ipmi_reset_sleep: 10
 
 # This stores the username for connecting to junos switches
 junos_username: scaleadmin
-
-# visual web dir is where the visual HTML representation of the lab usage goes
-visual_web_dir: /var/www/html/visual
 
 # Do you have managed PDUs?
 pdu_management: false
