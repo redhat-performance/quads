@@ -1,0 +1,46 @@
+img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 90%;
+  margin: 20px auto;
+}
+
+html {
+    font-family: sans-serif;
+}
+
+h2 {
+    padding-left: 13px;
+    margin-bottom: 1em;
+}
+
+.link-secondary-hover {
+    color: gray;
+    text-decoration: none;
+}
+
+.link-secondary-hover:hover {
+    color: #0a58ca;
+    border-bottom: 1px solid #0a58ca;
+}
+
+.nav-item {
+    font-size: 14px;
+    font-weight: bold;
+    color: #5a5757;
+}
+
+th, td {
+    padding: 10px;
+}
+
+.box {
+    background: #f9f9f9;
+    border: 1px solid #aaa;
+    padding: 10px;
+    margin-bottom: 1em;
+    width: auto;
+    display: table;
+    font-size: 95%;
+}
