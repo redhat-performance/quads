@@ -4,6 +4,18 @@
             "arch": "x86_64",
             "cpu": "2",
             "disk": "20",
+            "mac": [],
+            "memory": "1024",
+            "name": "e20-h17-6029p.example.com",
+            "pm_addr": "mgmt-e20-h17-6029p.example.com",
+            "pm_password": "rdu2@1234",
+            "pm_type": "pxe_ipmitool",
+            "pm_user": "quads"
+        },
+        {
+            "arch": "x86_64",
+            "cpu": "2",
+            "disk": "20",
             "mac": [
                 "A0:B1:C2:D3:E4:F5"
             ],
