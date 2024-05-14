@@ -658,13 +658,6 @@ action_group.add_argument(
     help="Regenerate web table heatmap",
 )
 action_group.add_argument(
-    "--regen-wiki",
-    dest="action",
-    action="store_const",
-    const="regen_wiki",
-    help="Regenerate wiki",
-)
-action_group.add_argument(
     "--foreman-rbac",
     dest="action",
     action="store_const",

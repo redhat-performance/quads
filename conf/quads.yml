@@ -119,9 +119,14 @@ exclude_hosts: cyclades|s4810|z9000|5548|foreman|c08-h30-r630|c08-h05-r930|b08-|
 # e.g. c01-h23-r620 is an r620 type host in rack c01 at u-location 23
 racks: b09 b10 c01 c02 c03 c04 c05 c06 c07 c08 c09 c10
 
+# visual web dir is where the visual HTML representation of the lab usage goes
+visual_web_dir: /opt/quads/web/visual
 # this is where we place the generated instackenv.json files
 # directory needs to be readable by the nginx user
-json_web_path: /var/www/html/instack
+json_web_path: /opt/quads/web/instack
+# path to the user specific web content for quads-web
+web_content_path: /opt/quads/web
+web_exclude_dirs: .git static instack visual
 # number of days of retaining old .json files
 json_retention_days: 0
 
@@ -146,9 +151,6 @@ ipmi_reset_sleep: 10
 
 # This stores the username for connecting to junos switches
 junos_username: scaleadmin
-
-# visual web dir is where the visual HTML representation of the lab usage goes
-visual_web_dir: /var/www/html/visual
 
 # Do you have managed PDUs?
 pdu_management: false
