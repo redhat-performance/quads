@@ -1,0 +1,49 @@
+<nav class="d-block navbar border-1 navbar-expand-lg bg-body-light">
+         <p class="navbar-brand fs-5 mt-2">RDU2 Scale Lab <small style="font-size: 14px">Dynamic Inventory</small></p>
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNavToggle"
+                aria-controls="navbarNavToggle"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    <div class="collapse navbar-collapse" id="navbarNavToggle">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link {{ inventory or "" }}" aria-current="page"
+                   href="/rdu2-scale-lab-dashboard">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ available or "" }}" aria-current="page"
+                   href="/available">Available</a>
+            </li>
+            {% include 'dropdowns/docs.html' %}
+            <li class="nav-item">
+                <a class="nav-link {{ faq or "" }}" href="/faq">FAQ</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ usage or "" }}" href="/usage">Usage</a>
+            </li>
+            {% include 'dropdowns/visualizations.html' %}
+            <li class="nav-item">
+                <a class="nav-link {{ assignments or "" }}" href="/">Assignments</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ vlans or "" }}" href="/vlans">VLANs</a>
+            </li>
+            {% include 'dropdowns/tickets.html' %}
+            <li class="nav-item">
+                <a class="nav-link {{ contact or "" }}" href="/contact">Contact</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ chat or "" }}"
+                   href="https://chat.google.com/room/AAAAO5aQ7lo?cls=7"
+                >Chat</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request_page or "" }}"
+                   href="http://scalelab.redhat.com/">Request</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
