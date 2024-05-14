@@ -43,7 +43,7 @@ echo 'alias quads="podman exec -it quads /usr/bin/quads"' >> ~/.bashrc
 
   - Make the directory structure for your mapped database data
 ```
-mkdir -p /opt/container/quads/container/{data_db,wiki_db,wordpress_data}
+mkdir -p /opt/container/quads/container/{data_db,wiki_db}
 ```
   - Instantiate the podman compose
 ```
