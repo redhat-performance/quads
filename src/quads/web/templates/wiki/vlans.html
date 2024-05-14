@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}VLANS{% endblock %}
+
+{% block page_content %}
+	<div class="container-fluid">
+		<div class="row">
+			<h2><b>Public VLAN Allocations</b></h2>
+			<div class="col-md-8 col-sm-12 col-10">
+				<div class="entry-content">
+					<table>
+						<thead>
+							<tr>
+								<th>VLANID</th>
+								<th>IPRange</th>
+								<th>NetMask</th>
+								<th>Gateway</th>
+								<th>IPFree</th>
+								<th>Owner</th>
+								<th>Ticket</th>
+								<th>Cloud</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for vlan in vlans %}
+							<tr>
+								<td>{{ vlan["vlanid"] }}</td>
+								<td>{{ vlan["iprange"] }}</td>
+								<td>{{ vlan["netmask"] }}</td>
+								<td>{{ vlan["gateway"] }}</td>
+								<td>{{ vlan["ipfree"] }}</td>
+								<td>{{ vlan["owner"] }}</td>
+								<td>{{ vlan["ticket"] }}</td>
+								<td>{{ vlan["cloud"] }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}
