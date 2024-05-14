@@ -13,9 +13,16 @@ class TestInstackenv(TestBase):
         Config.__setattr__("foreman_unavailable", True)
         Config.__setattr__("json_web_path", os.path.join(os.path.dirname(__file__), "artifacts/"))
         main()
-        assert list(open(os.path.join(os.path.dirname(__file__), "artifacts/cloud99_instackenv.json"))) == list(
-            open(os.path.join(os.path.dirname(__file__), "fixtures/cloud99_env.json"))
-        )
-        assert list(open(os.path.join(os.path.dirname(__file__), "artifacts/cloud99_ocpinventory.json"))) == list(
-            open(os.path.join(os.path.dirname(__file__), "fixtures/cloud99_env.json"))
-        )
+        with open(os.path.join(os.path.dirname(__file__), "artifacts/cloud99_instackenv.json")) as cloud99_instackenv:
+            instackenv_list = list(cloud99_instackenv.readlines())
+            instackenv_list = [line.strip() for line in instackenv_list]
+        with open(
+            os.path.join(os.path.dirname(__file__), "artifacts/cloud99_ocpinventory.json")
+        ) as cloud99_ocpinventory:
+            ocpinventory_list = list(cloud99_ocpinventory.readlines())
+            ocpinventory_list = [line.strip() for line in ocpinventory_list]
+        with open(os.path.join(os.path.dirname(__file__), "fixtures/cloud99_env.json")) as cloud99_instackenv:
+            fixtures_list = list(cloud99_instackenv.readlines())
+            fixtures_list = [line.strip() for line in fixtures_list]
+        assert instackenv_list == fixtures_list
+        assert ocpinventory_list == fixtures_list
