@@ -16,6 +16,24 @@
       "message": "This function is no longer necessary, you can remove it and it\u0027s calls.",
       "revId": "bbc121cd6e44c60c0d5d1952346335e425e6c541",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb6cd332_e29b48c3",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-05-14T11:40:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51ba6144_abafe673",
+      "revId": "bbc121cd6e44c60c0d5d1952346335e425e6c541",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
