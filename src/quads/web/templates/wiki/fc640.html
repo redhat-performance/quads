@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .text-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            margin-bottom: 1em;
+            padding: 10px;
+        }
+
+
+        pre {
+            padding: 0;
+            margin: 0;
+        }
+
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with docs="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-12">
+				<main id="main" class="site-main" role="main">
+					<article id="post-13795" class="post-13795 page type-page status-publish hentry">
+
+						<header class="entry-header">
+							<h1 class="entry-title">fc640</h1></header><!-- .entry-header -->
+						<div class="entry-content">
+							<p>
+								This is private docs. If you want to place your own docs please edit this file according
+								to your requirements.
+								Else You need to main GitHub repo with html templates, that will be replace this faq
+								file.
+								The folder structure for maintaining in GitHub/GitLab repository.
+								static/files contains the hosts that needs to added inside html.
+							</p>
+							<ul>
+								<li>RepositoryName
+									<ul>
+										<li>
+											quads_web
+											<ul>
+												<li>
+													static
+													<ul>
+														<li>images</li>
+														<li>files</li>
+													</ul>
+												</li>
+												<li>
+													templates
+													<ul>
+														<li>
+															wiki
+															<ul>
+																<li>fc640.html</li>
+															</ul>
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+
+
+					</article>
+				</main><!-- #main -->
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

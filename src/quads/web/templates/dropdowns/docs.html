@@ -1,0 +1,29 @@
+<style>
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+</style>
+<li class="nav-item dropdown">
+	<a class="nav-link {{ docs or "" }}"
+	   data-bs-toggle="dropdown"
+	   aria-expanded="false" href="#"
+	   id="docsDropdown"
+	   data-bs-offset="10,30"
+	>Docs</a>
+	<ul class="dropdown-menu" aria-labelledby="docsDropdown">
+		<li><a class="dropdown-item" href="/public-vlans/">Public
+			VLAN Assignments</a></li>
+		<li><a class="dropdown-item" href="/r640">Dell R640 Disk Differences</a></li>
+		<li><a class="dropdown-item" href="/r650">Dell R650 Disk
+			Differences</a></li>
+		<li><a class="dropdown-item" href="/1029u/">1029U TN10RT
+			systems</a></li>
+		<li><a class="dropdown-item" href="/mellanox/">All Mellanox
+			NIC systems</a></li>
+		<li><a class="dropdown-item" href="/mellanox-cx6/">All
+			Mellanox-CX6 Only</a></li>
+		<li><a class="dropdown-item" href="/fc640/">Dell FC640 with
+			Mellanox NIC</a></li>
+		<li><a class="dropdown-item" href="#">Add Items to dropdown</a></li>
+	</ul>
+</li>

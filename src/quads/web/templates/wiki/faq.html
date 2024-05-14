@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with faq="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-12">
+				<main id="main" class="site-main" role="main">
+					<article>
+						<header class="entry-header">
+							<h1 class="entry-title">FAQ</h1>
+						</header><!-- .entry-header -->
+						<div class="entry-content">
+							<p>
+								This is private docs. If you want to place your own docs please edit this file according
+								to your requirements.
+								Else You need to main GitHub repo with html templates, that will be replace this faq
+								file.
+								The folder structure for maintaining in GitHub/GitLab repository
+							</p>
+							<ul>
+								<li>RepositoryName
+									<ul>
+										<li>
+											quads_web
+											<ul>
+												<li>
+													static
+													<ul>
+														<li>images</li>
+														<li>files</li>
+													</ul>
+												</li>
+												<li>
+													templates
+													<ul>
+														<li>
+															wiki
+															<ul>
+																<li>faq.html</li>
+															</ul>
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+
+					</article><!-- #post-## -->
+				</main><!-- #main -->
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

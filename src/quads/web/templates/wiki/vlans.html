@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: bold;
+            color: #5a5757;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        .box {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with vlans="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+
+	<div class="container-fluid">
+		<div class="row">
+			<h2><b>Public VLAN Allocations</b></h2>
+			<div class="col-md-8 col-sm-12 col-10">
+				<div class="entry-content">
+					<p>
+						This is private docs. If you want to place your own docs please edit this file according
+						to your requirements.
+						Else You need to main GitHub repo with html templates, that will be replace this faq
+						file.
+						The folder structure for maintaining in GitHub/GitLab repository
+					</p>
+					<ul>
+						<li>RepositoryName
+							<ul>
+								<li>
+									quads_web
+									<ul>
+										<li>static</li>
+										<li>
+											templates
+											<ul>
+												<li>
+													wiki
+													<ul>
+														<li>vlans.html</li>
+													</ul>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

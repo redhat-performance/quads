@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover-no-decoration {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover-no-decoration:hover {
+            color: #0a58ca;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        .box-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with usage="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-10">
+				<main id="main" role="main">
+					<article>
+						<header class="entry-header">
+							<h1 class="entry-title">Usage</h1>
+						</header> <!-- .entry-header -->
+						<div class="entry-content">
+							<p>
+								This is private docs. If you want to place your own docs please edit this file according
+								to your requirements.
+								Else You need to main GitHub repo with html templates, that will be replace this faq
+								file.
+								The folder structure for maintaining in GitHub/GitLab repository.
+								static/files contains the hosts that needs to added inside html.
+								static/images contains the images.
+							</p>
+							<ul>
+								<li>RepositoryName
+									<ul>
+										<li>
+											quads_web
+											<ul>
+												<li>
+													static
+													<ul>
+														<li>images</li>
+														<li>files</li>
+													</ul>
+												</li>
+												<li>
+													templates
+													<ul>
+														<li>
+															wiki
+															<ul>
+																<li>usage.html</li>
+															</ul>
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+
+					</article><!-- #post-## -->
+				</main><!-- #main -->
+			</div>  <!---col-md-8 col-sm-12 col-10 -->
+		</div><!-- .row -->
+	</div><!-- .container-fluid -->
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}
