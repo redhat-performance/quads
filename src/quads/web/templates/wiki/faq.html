@@ -1,0 +1,1165 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+
+        .link-secondary-hover, .link-secondary-hover-no-decoration {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca;
+        }
+
+
+        th, td {
+            padding: 10px;
+        }
+
+        .box-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+        pre {
+            padding: 0;
+            margin: 0;
+        }
+
+        .text-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            margin-bottom: 1em;
+            padding: 10px;
+        }
+
+        .link-secondary-hover-no-decoration:hover {
+            color: #0a58ca;
+        }
+
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with faq="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-12">
+				<main id="main" class="site-main" role="main">
+					<article>
+						<header class="entry-header">
+							<h1 class="entry-title">FAQ</h1>
+						</header><!-- .entry-header -->
+						<div class="entry-content">
+							<h2>
+								<span id="Frequently_Asked_Questions">
+									<strong>
+									<img decoding="async"
+										 class="size-full wp-image-462 alignleft"
+										 src="{{ url_for('static', filename='images/scalelab_logo.png') }}"
+										 alt="scalelab_logo" width="47"
+										 height="42"/>
+									Frequently Asked Questions</strong>
+								</span>
+							</h2>
+							<div class="box-container container">
+								<ul style="list-style-type:none;">
+									<li>
+										<a class="link-secondary-hover"
+										   href="#Frequently_Asked_Questions">1 Frequently Asked Questions</a>
+										<ul style="list-style: none;">
+											<li>
+												<a class="link-secondary-hover"
+												   href="#What8217s_this_QUADS_thing_What_do_I_need_to_do_with_it"><span
+														class="toc_number toc_depth_3">1.0.1</span> What&#8217;s
+													this QUADS thing? What do I need to do with it?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#What_is_the_Scale_Lab_rack_and_network_layout"><span
+														class="toc_number toc_depth_3">1.0.2</span> What is
+													the Scale Lab rack and network layout?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#How_do_I_reserve_machines"><span
+													class="toc_number toc_depth_3">1.0.3</span> How do I
+												reserve machines?
+											</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Where_are_my_machines_When_do_I_get_them"><span
+													class="toc_number toc_depth_3">1.0.4</span> Where are my
+												machines? When do I get them?
+											</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What8217s_the_FQDN_of_my_Machines"><span
+													class="toc_number toc_depth_3">1.0.5</span> What&#8217;s
+												the FQDN of my Machines?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#When_do_I_get_my_machines"><span
+													class="toc_number toc_depth_3">1.0.6</span> When do I
+												get my machines?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#I8217ve_got_machines_how_do_I_get_into_them"><span
+													class="toc_number toc_depth_3">1.0.7</span> I&#8217;ve
+												got machines, how do I get into them?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Is_network_traffic_isolated"><span
+													class="toc_number toc_depth_3">1.0.8</span> Is network
+												traffic isolated?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What_Will_my_Network_Interfaces_Look_Like"><span
+													class="toc_number toc_depth_3">1.0.9</span> What Will my
+												Network Interfaces Look Like?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#I_am_deploying_OpenStack_what_should_my_OverCloud_Network_look_like"><span
+														class="toc_number toc_depth_3">1.0.10</span> I am
+													deploying OpenStack, what should my OverCloud Network
+													look like?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#I_am_using_OpenStack_what_should_my_instackenvjson_file_look_like"><span
+														class="toc_number toc_depth_3">1.0.11</span> I am
+													using OpenStack, what should my instackenv.json file
+													look like?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#How_do_I_re-provision_my_machines_SuperMicro_and_HP_Only"><span
+														class="toc_number toc_depth_3">1.0.12</span> How do
+													I re-provision my machines? (SuperMicro and HP Only)
+												</a>
+												<ul style="list-style: none">
+													<li>
+														<a class="link-secondary-hover"
+														   href="#Re-Provisioning_a_Different_Operating_System"><span
+																class="toc_number toc_depth_4">1.0.12.1</span>
+															Re-Provisioning a Different Operating System</a>
+													</li>
+												</ul>
+											</li>
+											<li><a class="link-secondary-hover"
+												   href="#How_do_I_re-provision_my_machines_DELL_ONLY"><span
+													class="toc_number toc_depth_3">1.0.13</span> How do I
+												re-provision my machines (DELL ONLY)</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Kickstarting_RHEL8_on_R660_with_UEFI"><span
+													class="toc_number toc_depth_3">1.0.14</span>
+												Kickstarting RHEL8 on R660 with UEFI</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#My_extension_request_says_CANNOT_EXTEND_or_CAN_EXTEND_what_does_this_mean"><span
+														class="toc_number toc_depth_3">1.0.15</span> My
+													extension request says CANNOT_EXTEND or CAN_EXTEND, what
+													does this mean?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#I_am_unable_to_register_my_system_with_RHN_help"><span
+														class="toc_number toc_depth_3">1.0.16</span> I am
+													unable to register my system with RHN, help!</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Can_you_add_Beta_non-GA_ISO_or_Latest_RHEL_to_Foreman"><span
+														class="toc_number toc_depth_3">1.0.17</span> Can you
+													add Beta, non-GA ISO or Latest RHEL to Foreman?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#Why_isn8217t_the_Latest_RHEL_the_Lab_Default"><span
+														class="toc_number toc_depth_3">1.0.18</span> Why isn&#8217;t
+													the Latest RHEL the Lab Default?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Can_I_Use_UEFI_How_do_I_Switch_Dell_Only"><span
+													class="toc_number toc_depth_3">1.0.19</span> Can I Use
+												UEFI? How do I Switch? (Dell Only)</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What_Tools_and_OS_Come_on_Systems"><span
+													class="toc_number toc_depth_3">1.0.20</span> What Tools
+												and OS Come on Systems</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#What_are_these_172xxx_Interfaces_on_my_machine"><span
+														class="toc_number toc_depth_3">1.0.21</span> What
+													are these 172.x.x.x Interfaces on my machine?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#SuperMicro_IPMIWeb_Logs_me_Out_Help"><span
+													class="toc_number toc_depth_3">1.0.22</span> SuperMicro
+												IPMI/Web Logs me Out! Help!</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Dell_IPMIiDRAC_JAVA_Disconnects_me_Help"><span
+													class="toc_number toc_depth_3">1.0.23</span> Dell
+												IPMI/iDRAC JAVA Disconnects me! Help!</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#How_do_I_use_sol_activate_for_KVM_over_IPMI_on_SuperMicro_Systems"><span
+														class="toc_number toc_depth_3">1.0.24</span> How do
+													I use sol activate for KVM over IPMI on SuperMicro
+													Systems?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What_are_the_usage_rules"><span
+													class="toc_number toc_depth_3">1.0.25</span> What are
+												the usage rules?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Do_you_provide_monitoring_services"><span
+													class="toc_number toc_depth_3">1.0.26</span> Do you
+												provide monitoring services?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#How_do_I_request_an_extension_of_my_assignment"><span
+														class="toc_number toc_depth_3">1.0.27</span> How do
+													I request an extension of my assignment?</a></li>
+											<li>
+												<a class="link-secondary-hover"
+												   href="#I_want_Machines_for_a_Long_Time_Where_do_I_go"><span
+														class="toc_number toc_depth_3">1.0.28</span> I want
+													Machines for a Long Time Where do I go?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Where_do_I_report_issues"><span
+													class="toc_number toc_depth_3">1.0.29</span> Where do I
+												report issues?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What8217s_a_good_use_case_for_Scale_Lab"><span
+													class="toc_number toc_depth_3">1.0.30</span> What&#8217;s
+												a good use case for Scale Lab?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#What_runs_in_the_Scale_Lab"><span
+													class="toc_number toc_depth_3">1.0.31</span> What runs
+												in the Scale Lab?</a></li>
+											<li><a class="link-secondary-hover"
+												   href="#Where_can_I_learn_more_about_the_Scale_Lab"><span
+													class="toc_number toc_depth_3">1.0.32</span> Where can I
+												learn more about the Scale Lab?</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<div class="content">
+								<p>&nbsp;</p>
+								<h4>
+									<span id="What8217s_this_QUADS_thing_What_do_I_need_to_do_with_it"><strong>
+										What&#8217;s this QUADS thing? What do I need to do with it?</strong>
+									</span>
+								</h4>
+								<p>Nothing at all, QUADS is our backend scheduler and provisioning tool for automating
+									current and future server/network deployments. It is transparent and you&#8217;ll
+									never need to see it or worry about it. You can read more <a
+											class="link-secondary-hover-no-decoration"
+											href="https://github.com/redhat-performance/quads" target="_blank"
+											rel="noopener noreferrer">about it here</a> or our<a
+											class="link-secondary-hover-no-decoration"
+											href="https://quads.dev" target="_blank" rel="noopener noreferrer">
+										development blog here.</a></p>
+								<hr/>
+								<h4>
+									<span id="What_is_the_Scale_Lab_rack_and_network_layout">
+										<strong>What is the Scale Lab rack and network layout?</strong>
+									</span>
+								</h4>
+								<p>Below is the rack layout of the Scale Lab in the RDU2 datacenter, you can find
+									details around the <a class="link-secondary-hover-no-decoration"
+														  href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabRDU2#NetworkDesign"
+														  target="_blank" rel="noopener">network topography here.</a>
+								</p>
+								<p><img decoding="async" fetchpriority="high"
+										src="{{ url_for('static', filename='images/scalelab-dctrack.jpg') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<p>You can find more documentation on the <a
+										class="link-secondary-hover-no-decoration"
+										href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabRDU2"
+										target="_blank" rel="noopener">Scale Lab infrastructure and utilities here.</a>
+								</p>
+								<p>
+									<strong>Per-host</strong> network interface layout <a
+										class="link-secondary-hover-no-decoration"
+										href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks#RDU2ScaleLabPrivateNetworksandInterfaces"
+										target="_blank" rel="noopener">can be found here.</a></p>
+								<hr/>
+								<h4>
+									<span id="How_do_I_reserve_machines">
+										<strong>How do I reserve machines?<br/></strong></span>
+								</h4>
+								<p>Machine reservation requests should be done through the <a
+										class="link-secondary-hover-no-decoration"
+										href="http://scalelab.redhat.com" target="_blank" rel="noopener noreferrer">Scale
+									Lab request form.</a> Large allocations are approved by the Scale Council which is a
+									cross-departmental group of Engineering managers who have stake in the Scale Lab
+									efforts.</p>
+								<hr/>
+								<h4>
+									<span id="Where_are_my_machines_When_do_I_get_them">
+										<strong>Where are my machines?  When do I get them?<br/></strong>
+									</span>
+								</h4>
+								<p>When you&#8217;ve been allocated a set of machines you can check the <a
+										class="link-secondary-hover-no-decoration"
+										href="/" target="_blank"
+										rel="noopener noreferrer">assignments page</a> for their host details and
+									time-frame of operation. At the time of allocation you&#8217;ll also receive an
+									email.</p>
+								<p>Follow the JIRA ticket that you&#8217;ve submitted. We set a special QUADS status on
+									your request inside the JIRA ticketing system that will better explain the current
+									state of your request:</p>
+								<ul>
+									<li><strong>Pending Review</strong>: This is the default for all new requests, and
+										means it hasn&#8217;t been reviewed yet during our weekly scheduling review to
+										see where it aligns with future scheduled allocations.
+									</li>
+									<li><strong>Under Review</strong>: Your request is being reviewed to find an ample
+										time for scheduling based on your requirements. During this period there may be
+										further questions from us.
+									</li>
+									<li><strong>Approved</strong>: We&#8217;ve found a time range and machine set
+										allocation for you and it&#8217;s pending being entered into the QUADS schedule.
+									</li>
+									<li><strong>Scheduled</strong>: Your machine assignment has been approved and
+										scheduled into QUADS and is set to fire off at a specific future date &#8211;
+										this will be communicated to you via email (or look at your JIRA ticket).
+									</li>
+									<li><strong>In-Progress</strong>: Your assignment has been allocated and is
+										currently running and available, details will also be available on the <a
+												class="link-secondary-hover-no-decoration"
+												href="/" target="_blank"
+												rel="noopener noreferrer">assignments page.</a></li>
+								</ul>
+								<p>You can view the <span style="text-decoration: underline;">current and future</span>
+									schedule allocation in several places before your machines become active if you
+									like. Once they are scheduled (<em>but not necessarily active</em>) they will be
+									visible in any of the mediums below:</p>
+								<ul>
+									<li><a class="link-secondary-hover-no-decoration"
+										   href="http://quads.rdu2.scalelab.redhat.com/visual/current.html"
+										   target="_blank" rel="noopener noreferrer">Scale Lab Monthly Visualization
+										Map</a></li>
+									<li><a class="link-secondary-hover-no-decoration"
+										   href="http://quads.rdu2.scalelab.redhat.com/visual/index.html"
+										   target="_blank" rel="noopener noreferrer">Scale Lab Visualization Map for All
+										Months</a></li>
+								</ul>
+								<p>When your machine allocation begins the machines will be auto-provisioned via our <a
+										class="link-secondary-hover-no-decoration"
+										href="https://engineering.redhat.com/trac/eip/wiki/QUADS" target="_blank"
+										rel="noopener noreferrer">QUADS</a> utility and the <a
+										class="link-secondary-hover-no-decoration"
+										href="/" target="_blank"
+										rel="noopener noreferrer">assignments page</a> will be updated. After your
+									machine and networks are provisioned automated validation will occur. This can take
+									upwards of 3-6 hours depending on the amount of machines and networks in question.
+								</p>
+								<p>Once your assignment has been fully validated you&#8217;ll receive a final email
+									notification that they are ready along with IPMI and Foreman credentials.</p>
+								<p>You will usually receive the hostnames of the hardware you&#8217;ll be receiving in
+									advance so it&#8217;s also a good idea to start working on any configuration
+									management automation to make the most of your time prior to the assignment start
+									time.</p>
+								<p><strong>NOTE:</strong> QUADS <span
+										style="text-decoration: underline;">operates on UTC</span>
+									time so please <a class="link-secondary-hover-no-decoration"
+													  href="http://www.worldtimeserver.com/convert_time_in_UTC.aspx"
+													  target="_blank" rel="noopener noreferrer">convert your
+										requests</a> accordingly. We typically standardize on beginning and ending
+									assignments at 22:00 UTC (6pm EST on Sundays).</p>
+								<hr/>
+								<h4><span id="What8217s_the_FQDN_of_my_Machines"><strong>What&#8217;s the FQDN of my Machines?</strong></span>
+								</h4>
+								<p>You might have noticed we are using shortnames for our bare-metal systems. All RDU2
+									Scale Lab systems have the following domain name:</p>
+								<p>&nbsp;</p>
+								<p><strong><span
+										style="text-decoration: underline;">rdu2.scalelab.redhat.com</span></strong></p>
+								<p>&nbsp;</p>
+								<p>Therefore if you have a system listed on our wiki named <em>f24-h20-000-r630</em>
+									then it&#8217;s full FQDN will be <span style="text-decoration: underline;"><em>f24-h20-000-r630.rdu2.scalelab.redhat.com</em></span>
+								</p>
+								<p>&nbsp;</p>
+								<p>Note that anything <span style="text-decoration: underline;">without</span> a
+									<strong>scalelab.redhat.com</strong> somewhere in the domain name <em>would not</em>
+									be systems under our purview. For example
+									<em>somesystem.perf.lab.eng.rdu2.redhat.com</em>
+									is managed by the Perflab team (Tom Tracey and Glenn Baker). Feel free to ask us
+									about them anyway because can still probably find you the right contact or help you
+									but we won&#8217;t have direct access or knowledge like we would our own systems.
+								</p>
+								<hr/>
+								<h4></h4>
+								<h4><span
+										id="When_do_I_get_my_machines"><strong>When do I get my machines?</strong></span>
+								</h4>
+								<p>You should receive your machines the following <strong>Monday</strong> your
+									assignment starts, we strive to deliver these <strong>by 09:30am</strong> Eastern
+									Standard time. This usually happens earlier than this but sometimes we run into
+									hardware issues and there can be delays.</p>
+								<p>You&#8217;ll receive an email letting you know when the systems are available and
+									have passed systems/network validation.</p>
+								<hr/>
+								<h4><span id="I8217ve_got_machines_how_do_I_get_into_them"><strong>I&#8217;ve got machines, how do I get into them?</strong></span>
+								</h4>
+								<p>The default root password of your systems will be <strong>root</strong> / <strong>100yard-</strong>
+								</p>
+								<p>You can use <a class="link-secondary-hover-no-decoration"
+												  href="https://github.com/sadsfae/ansible-sshkeys" target="_blank"
+												  rel="noopener noreferrer">this Ansible playbook</a> to copy public SSH
+									keys to your systems.</p>
+								<p>You also have access to the out-of-band / IPMI interfaces, to access these simply
+									prepend <strong>mgmt-</strong> in front of the respective hostname.</p>
+								<div class="text-container">
+									<pre>https://mgmt-f04-h07-000-r620.rdu2.scalelab.redhat.com</pre>
+								</div>
+
+								<p>Credentials to out-of-band/IPMI should be in your QUADS email, but it will be the
+									following: <strong>quads</strong> / <strong>rdu2@yourRTTicketNumber</strong> where
+									yourRTTicketNumber is the number of your Scale Lab ticket.</p>
+								<hr/>
+								<h4><span
+										id="Is_network_traffic_isolated"><strong>Is network traffic isolated?</strong></span>
+								</h4>
+								<p>Yes. We provision an isolated VLAN (q-in-q/Juniper) on the internal interfaces of all
+									assigned machines so your network traffic between hosts is your entirely your own.
+									There will be a &#8220;Public Network&#8221; and multiple, back-end (10GbE+) &#8220;Private
+									Networks.&#8221;</p>
+								<p>We currently offer <a class="link-secondary-hover-no-decoration"
+														 href="https://github.com/redhat-performance/quads#creating-a-new-cloud-assignment-and-schedule"
+														 target="_blank" rel="noopener noreferrer">two VLAN modes</a>
+									and default to
+									using interface isolation for all secondary interfaces and beyond.</p>
+								<div class="text-container">
+									<pre>qinq: 0</pre>
+								</div>
+								<p>This is the default. qinq VLAN separation by interface: all private network
+									QUADS-managed interfaces all match the same VLAN membership across other hosts in
+									the same cloud allocation.</p>
+								<p>Each interface per host is in its own VLAN, and these match across the rest of your
+									allocated hosts by interface <em>(all nic1, all nic2, all nic3, all nic4 etc).</em>
+								</p>
+								<div class="text-container">
+									<pre>qinq: 1</pre>
+								</div>
+								<p>All QUADS-managed interfaces are in the same qinq VLAN.</p>
+								<hr/>
+								<h4><span id="What_Will_my_Network_Interfaces_Look_Like"><strong>What Will my Network Interfaces Look Like?</strong></span>
+								</h4>
+								<p>The below diagram will illustrate how network interfaces are setup within Scale Lab
+									machines. See the above explanations of how that corresponds to VLANs.<br/>
+									<strong>You can find the <a class="link-secondary-hover-no-decoration"
+																href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks#RDU2ScaleLabPrivateNetworksandInterfaces"
+																target="_blank" rel="noopener">authoritative docs
+										here</a>.</strong></p>
+								<p><img decoding="async"
+										src="{{ url_for('static', filename='images/sl_nics_header.png') }}"
+										alt="SL NICS" width="100%"/></p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/sl_nics_body.png') }}" width="100%"
+										alt="SLC NICS list"/></p>
+								<p><img decoding="async" loading="lazy" class="alignnone size-full wp-image-11091"
+										src="{{ url_for('static', filename='images/sl_nice_footer.png') }}" width="100%"
+										alt="SLC NICS list"/></p>
+								<hr/>
+								<h4><span
+										id="I_am_deploying_OpenStack_what_should_my_OverCloud_Network_look_like"><strong>I am deploying OpenStack, what should my OverCloud Network look like?</strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<p>We use the following RFC1918 networks for systems validation:</p>
+								<div class="text-container"><pre>172.16.x.x
+172.17.x.x
+172.18.x.x
+172.19.x.x
+172.20.x.x
+172.21.x.x
+172.22.x.x
+172.23.x.x
+172.24.x.x
+172.25.x.x
+172.26.x.x</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>You should <strong>avoiding using these networks</strong> for your <a
+										class="link-secondary-hover-no-decoration"
+										href="https://docs.openstack.org/tripleo-docs/latest/install/basic_deployment/basic_deployment_cli.html#setup-the-overcloud-network"
+										target="_blank" rel="noopener noreferrer">Overcloud network</a>, especially in
+									the case if new systems are joining an already in-progress OpenStack assignment.</p>
+								<p>&nbsp;</p>
+								<p>You can opt to remove any previous 172.x.x.x interface configs on freshly provisioned
+									or new systems by running the following:</p>
+								<div class="text-container">
+									<pre>/root/clean-interfaces.sh --nuke</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>192.168.x networks are recommended for all internal addressing however.</p>
+								<div class="text-container">
+									<pre>192.168.0.0 – 192.168.255.255</pre>
+								</div>
+								<hr/>
+								<h4></h4>
+								<h4><span
+										id="I_am_using_OpenStack_what_should_my_instackenvjson_file_look_like"><strong>I am using OpenStack, what should my instackenv.json file look like?</strong></span>
+								</h4>
+								<p>You&#8217;re in luck, we auto-generate and keep an instackenv.json file available for
+									you that will match your current environment. If your machines or environment change
+									this file will be updated. This is found <a
+											class="link-secondary-hover-no-decoration"
+											href="/" target="_blank"
+											rel="noopener noreferrer">on the assignments summary</a> for your assignment
+									(column to the right).</p>
+								<p>&nbsp;</p>
+								<p>By default all of your systems are listed in the generated instackenv.json, <span
+										style="text-decoration: underline;">you will need to select which host you want to be your undercloud before you deploy.<br/>
+</span></p>
+								<p>&nbsp;</p>
+								<p>1) Log into <a class="link-secondary-hover-no-decoration"
+												  href="https://foreman.rdu2.scalelab.redhat.com/hosts" target="_blank"
+												  rel="noopener noreferrer">Foreman</a></p>
+								<p>2) Select the host you want as your undercloud and click edit.</p>
+								<p>3) set <strong>overcloud: false</strong> as a host parameter to have it omitted from
+									the next automated generation of the file.</p>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/overcloud_false.png') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<p>After a minute or less your instackenv.json file will be generated again, omitting
+									any host that contains <strong>overcloud: false</strong>.</p>
+								<p>Always pull a fresh copy when doing redeploys.</p>
+								<p>Please <strong>do not</strong> create your own instackenv.json.</p>
+								<hr/>
+								<h4><span id="How_do_I_re-provision_my_machines_SuperMicro_and_HP_Only"><strong>How do I re-provision my machines? (SuperMicro and HP Only)<br/>
+</strong></span></h4>
+								<p>We offer a <a class="link-secondary-hover-no-decoration"
+												 href="https://foreman.rdu2.scalelab.redhat.com/hosts" target="_blank"
+												 rel="noopener noreferrer">Foreman self service interface</a> for users
+									to re-provision their machines if they desire.</p>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/scalelab_login.png') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<p>Your login and password will be as follows:</p>
+								<p><strong>login:</strong> cloud0X <em>(your cloud assignment)</em></p>
+								<p><strong>pass:</strong> rdu2@your-jira-ticket-number <em>(where this is the JIRA
+									ticket number of your assignment)</em></p>
+								<p>&nbsp;</p>
+								<p>e.g. rdu2@303443</p>
+								<p>&nbsp;</p>
+								<p><strong><span style="text-decoration: underline;">To Reprovision:</span></strong></p>
+								<ul>
+									<li><span style="text-decoration: underline;">Click on your target host(s) and selection action -&gt; Build Hosts<br/>
+</span></li>
+								</ul>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy" class="alignnone size-full wp-image-44598"
+										src="{{ url_for('static', filename='images/Screenshot_2023-07-19_12-26-41-1.png') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<ul>
+									<li><span
+											style="text-decoration: underline;">Reboot the host to boot into kickstart.</span>
+									</li>
+									<li><strong>Note:</strong> you can also now reboot your system directly through the
+										Foreman UI
+									</li>
+									<li>With the same host(s) selected, click on <span
+											style="text-decoration: underline;">Action -&gt; Change Power State</span><img
+											decoding="async" loading="lazy"
+											src="{{ url_for('static', filename='images/Screenshot_2023-07-19_12-30-42.png') }}"
+											alt="" width="100%"/>Next, select <span
+											style="text-decoration: underline;">Power: Reboot</span> and click Submit.
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/Screenshot_2023-07-19_12-29-33.png') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Note: This is all that&#8217;s required for SuperMicro and HP systems, <strong>for
+										Dell you will need to follow the steps below to enact a &#8220;one-shot&#8221;
+										boot off the Foreman/provisioning interface.<br/>
+									</strong></li>
+								</ul>
+								<p>Your server IPMI credentials are quads / rdu2@your-jira-ticket-number for any
+									assigned hosts.</p>
+								<p>&nbsp;</p>
+								<h5><span id="Re-Provisioning_a_Different_Operating_System">Re-Provisioning a Different Operating System</span>
+								</h5>
+								<p>If you want to change the Operating System <span style="text-decoration: underline;">select another one from the drop-down</span>
+									as needed e.g. Fedora, Rocky, RHEL8/9, note the <em>Media</em> and <em>Partition
+										Table</em> choices as well.</p>
+								<p>If selecting a different OS than what it is currently set to you&#8217;ll need to do
+									this for each system or use a tool like hammer-cli to do it en-masse. You can always
+									<a class="link-secondary-hover-no-decoration"
+									   href="http://irc-gateway.rdu2.scalelab.redhat.com/" target="_blank"
+									   rel="noopener noreferrer">ping us on #scalelabrdu IRC</a> or reply to your active
+									cloud assignment ticket or otherwise <a class="link-secondary-hover-no-decoration"
+																			href="http://wiki.rdu2.scalelab.redhat.com/contact/"
+																			target="_blank"
+																			rel="noopener noreferrer">contact us</a> and
+									we can do this for you if that&#8217;s
+									easier.</p>
+								<p><img decoding="async" loading="lazy" width="100%"
+										src="{{ url_for('static', filename='images/Screenshot_2021-03-04_11-03-18.png') }}"/>
+								</p>
+								<p>&nbsp;</p>
+								<p><strong>Note:</strong> SuperMicro and HP systems that were previously an Undercloud
+									node may need the following run against them to re-enable the persistent PXE flag on
+									their interfaces if you are unable to PXE boot to Foreman to kickstart them.</p>
+								<p>&nbsp;</p>
+								<p>Badfish method</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quay.io/quads/badfish -H mgmt-$host -u quads -p rdu2@YOUR_TICKET_NUMBER --pxe</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>Ipmitool method</p>
+								<div class="text-container">
+									<pre>ipmitool -I lanplus -H mgmt-$host -U quads -P rdu2@YOUR_TICKET_NUMBER chassis bootdev pxe options=persistent</pre>
+								</div>
+								<h4></h4>
+								<hr/>
+								<h4><span id="How_do_I_re-provision_my_machines_DELL_ONLY"><strong>How do I re-provision my machines (<em>DELL ONLY)</em></strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<p>All systems are provisioned by Foreman via the steps above, <span
+										style="text-decoration: underline;">however Dells require a second step.</span>
+								</p>
+								<p>&nbsp;</p>
+								<p>Dell systems are setup with a particular interface boot order to accommodate
+									OpenStack Director, in that the primary interface will be one of the internal
+									10/25/40GbE interfaces and not the interface used for Foreman provisioning.</p>
+								<p>With RDU2 and QUADS 1.1.x we now have the badfish utility you can use to perform a
+									&#8220;one-time&#8221; boot. There are two methods for this below.</p>
+								<p>&nbsp;</p>
+								<p><strong>Example:</strong> <em>After marking a system for build in Foreman, perform a
+									one-time boot to the Foreman interface to reprovision where 12345 is the JIRA ticket
+									number of your cloud assignment.</em></p>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Using podman to run Badfish</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 -i config/idrac_interfaces.yml --boot-to-type foreman</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li>You can use Badfish across lots of hosts with the &#8211;host-list command as
+										well.
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -v /tmp/mgmt-interfaces:/tmp/mgmt-interfaces:Z --host-list /tmp/mgmt-interfaces  -u quads -p rdu2@12345 -i config/idrac_interfaces.yml --boot-to-type foreman</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Run Badfish from Github <a class="link-secondary-hover-no-decoration"
+																   href="https://github.com/redhat-performance/badfish#setup"
+																   target="_blank"
+																   rel="noopener noreferrer">(see install options
+										here)</a>
+										<ul>
+											<li>Requires Python3</li>
+										</ul>
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container"><pre>git clone https://github.com/redhat-performance/badfish &amp;&amp; cd badfish
+python setup.py build
+python setup.py install --prefix ~/.local
+
+badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 -i config/idrac_interfaces.yml --boot-to-type foreman</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li>You can use Badfish to check your interface order also</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 --check-boot</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li><strong>After this you need to reboot the system</strong>(s) in order to PXE
+										into a Foreman kickstart.
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-server.com -u quads -p rdu2@12345 --reboot-only</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li>You can pass multiple hosts via the &#8211;host-list command as well</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish --host-list /tmp/mgmt-interfaces -u quads -p rdu2@12345 --reboot-only</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>Alternatively, you can tell badfish to boot from a <a
+										class="link-secondary-hover-no-decoration"
+										href="https://github.com/redhat-performance/badfish#forcing-a-one-time-boot-to-a-specific-device"
+										target="_blank" rel="noopener noreferrer">specific interface</a> or <a
+										class="link-secondary-hover-no-decoration"
+										href="https://github.com/redhat-performance/badfish#forcing-a-one-time-boot-to-a-specific-mac-address"
+										target="_blank" rel="noopener noreferrer">mac address</a> too.</p>
+								<p>&nbsp;</p>
+								<p>Here are the known <em>Foreman</em> interfaces that you can boot to selectively as
+									needed:</p>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/interfaces_pxe_scalelab_foreman.png') }}"
+										alt="" width="45%"/></p>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Note: If passing another idrac_interfaces.yml file or providing your own &#8211;host-list
+										file you&#8217;ll need to map it with -v option if you are using podman or
+										docker and also pass <strong>:Z</strong> at the end of the first volume
+										declaration
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>podman run -it --rm --dns 10.1.36.2 -v /tmp/cloud09-mgmt:/tmp/cloud09-mgmt:Z quay.io/quads/badfish --host-list /tmp/cloud09-mgmt -u quads -p XXXXXX --check-boot</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>You may also opt to use the iDRAC/OOB interface to manually select the boot interface
+									by hitting F12 when it boots or:</p>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Open up virtual console / KVM</li>
+									<li>Select Next boot -&gt; BIOS Boot Manager</li>
+									<li>Select either one-shot boot menu or boot interfaces (depending on model)</li>
+									<li>Select the correct interface to boot from</li>
+								</ul>
+								<hr/>
+								<h4><span id="Kickstarting_RHEL8_on_R660_with_UEFI"><strong>Kickstarting RHEL8 on R660 with UEFI</strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<p>Dell R660&#8217;s only support EFI boot in the Scale Lab, in order to change your OS
+									to RHEL8.6 (or latest at the time) you&#8217;ll also need to make sure you select
+									<strong>GRUB2 UEFI</strong> for the PXE Loader category as changing from RHEL9 to
+									RHEL8 will reset this value to PXELinux BIOS which <em>is not compatible</em> with
+									this model.</p>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/Screenshot_2024-08-13_09-30-45.png') }}"
+										alt="" width="100%"/></p>
+								<p>&nbsp;</p>
+								<hr/>
+								<h4></h4>
+								<h4><span
+										id="My_extension_request_says_CANNOT_EXTEND_or_CAN_EXTEND_what_does_this_mean"><strong>My extension request says CANNOT_EXTEND or CAN_EXTEND, what does this mean?</strong></span>
+								</h4>
+								<p>In your cloud JIRA ticket you may see labels applied to your extension requests.
+									These labels such as <em>CANNOT_EXTEND</em> or <em>CAN_EXTEND</em> are fully
+									automated and don&#8217;t necessarily mean that we will not extend your assignment,
+									it just means some kind of scheduling conflict was detected. Not to worry, we always
+									look at each request to determine if it is actionable or not so if you happen to
+									receive one of these labels this is why.</p>
+								<p>In order to manage a very large, rapidly changing bare-metal environment we need to
+									use a high degree of automation and auto-applying labels to designate future
+									operating conditions helps us as a small team to triage and analyze every request
+									better.</p>
+								<hr/>
+								<h4><span id="I_am_unable_to_register_my_system_with_RHN_help"><strong>I am unable to register my system with RHN, help!</strong></span>
+								</h4>
+								<p>Sometimes previous tenants do not unregister systems before they are subsequently
+									expired, cleaned and assigned to others. If you find yourself unable to register
+									your system please <a class="link-secondary-hover-no-decoration"
+														  href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/Fix_RHN_Subscribe"
+														  target="_blank" rel="noopener noreferrer">see our
+										documentation here</a> on
+									how to work around this issue. We unfortunately have no way to affect other
+									associates RHN accounts to clean/remove hosts they no longer use. In the future we
+									may be able to get the RHN/CS team to enact an auto-expiration policy for shared lab
+									systems to curb this from happening but right now you&#8217;ll need to perform a
+									workaround should you hit this issue.</p>
+								<hr/>
+								<h4><span id="Can_you_add_Beta_non-GA_ISO_or_Latest_RHEL_to_Foreman"><strong>Can you add Beta, non-GA ISO or Latest RHEL to Foreman?</strong></span>
+								</h4>
+								<p>We&#8217;re really sorry but we cannot add beta or non-GA OS to Foreman. As a tenant
+									you have full access to bare-metal OOB/KVM and can install anything you want however
+									(or setup your own internal PXE/image deployment system).</p>
+								<p>We cannot however add non-GA or non-standard ISO media to the Shared Labs Foreman
+									without validating kickstart templates and functionality and any needed changes
+									across 27+ hardware system types.</p>
+								<p>Unfortunately this also means <em>even our latest standard version</em> of RHEL may
+									lag behind a few U-releases. See the <em>/root/update-latest-rhel-release.sh</em>
+									tool below on how to upgrade the minor release of RHEL from what arrives on your
+									Scale Lab or ALIAS system.</p>
+								<p>Note that you can also use <em>/root/update-latest-rhel-release.sh list</em> and if a
+									Beta release is available for your major version you&#8217;ll see it as an option.
+								</p>
+								<p>&nbsp;</p>
+								<hr/>
+								<h4><span id="Why_isn8217t_the_Latest_RHEL_the_Lab_Default"><strong>Why isn&#8217;t the Latest RHEL the Lab Default?</strong></span>
+								</h4>
+								<p>Similar to the above question, the latest lab-installed RHEL may not always be the
+									latest major version (e.g. RHEL9), while you can still always reprovision your
+									systems via Foreman and choose it (then use
+									<em>/root/update-latest-rhel-release.sh</em> tool to go to the latest minor
+									release).</p>
+								<p>While we not only have 27+ system types we need to validate major platform releases
+									on, the main reason for this is we need to choose the platform most tenants will use
+									for testing. Right now that happens to still be RHEL8. When this changes to an
+									overwhelming number of tenants who choose to reprovision to RHEL9 first we&#8217;ll
+									re-allocate resources to validate and upgrade the default lab OS. This takes time
+									and testing but is also driven by what eventually becomes the most popular preferred
+									baseOS major platform.</p>
+								<p>There is no cadence or ETA around any specific version upgrades to the new default,
+									it&#8217;s a matter of time to validate this (on older hardware too) but also driven
+									by where most products/stacks are being deployed that still utilize the
+									Foreman-provided OS.</p>
+								<hr/>
+								<h4><span id="Can_I_Use_UEFI_How_do_I_Switch_Dell_Only"><strong>Can I Use UEFI?  How do I Switch? (Dell Only)</strong></span>
+								</h4>
+								<p>While Foreman provisioning and Scale Lab is set up for BIOS mode you are free to
+									experiment with or use EFI as needed. We realize some workloads or R&amp;D may want
+									this.</p>
+								<p>You can use the badfish tool to easily toggle between BIOS and UEFI modes.</p>
+								<p>&nbsp;</p>
+								<p><span style="text-decoration: underline;">Get Current Boot mode setting</span></p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 --get-bios-attribute --attribute BootMode</pre>
+								</div>
+								<p><span style="text-decoration: underline;">Set UEFI mode</span></p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 --set-bios-attribute --attribute BootMode --value Uefi</pre>
+								</div>
+								<p><span style="text-decoration: underline;">Set BIOS mode</span></p>
+								<div class="text-container">
+									<pre>podman run --rm --dns 10.1.32.3 quads/badfish -H mgmt-f03-h01-000-r620.rdu2.scalelab.redhat.com -u quads -p rdu2@12345 --set-bios-attribute --attribute BootMode --value Bios</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>Please remember to set your systems back to BIOS mode if you can after you are done
+									with them to save trouble for the next tenant as almost all workloads will be using
+									BIOS mode.</p>
+								<p>Please see the <a
+										class="link-secondary-hover-no-decoration"
+										href="https://github.com/redhat-performance/badfish#change-between-bios-and-uefi-modes"
+										target="_blank" rel="noopener">badfish upstream documentation</a> on how to do
+									this for further information.</p>
+								<hr/>
+								<h4><span
+										id="What_Tools_and_OS_Come_on_Systems"><strong>What Tools and OS Come on Systems</strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<p>By default we ship RHEL8.2 on all systems that tenants receive along with a few tools
+									that are in the /root directory &#8211; you will see these in the /etc/motd
+									also.</p>
+								<p>&nbsp;</p>
+								<p>For example, if you want to upgrade from RHEL8.2 to RHEL8.3 or higher you can run the
+									following tool and specify the new major.minor version:</p>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>/root/update-latest-rhel-release.sh 8.9</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>You can list all available targets for upgrade by using the list command, this is run
+									on a RHEL9.1 system for example.</p>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>/root/update-latest-rhel-release.sh list
+9.2 9.3 9.4-Beta-1</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p><strong>Note</strong>: RHEL doesn&#8217;t support upgrading across major versions
+									without a re-install or using a utility like <a
+											class="link-secondary-hover-no-decoration"
+											href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/upgrading_from_rhel_8_to_rhel_9/index"
+											target="_blank" rel="noopener">LEAPP</a>. The <a
+											class="link-secondary-hover-no-decoration"
+											href="https://mirror.scalelab.redhat.com/update-tools/update-latest-rhel-release.sh"
+											target="_blank" rel="noopener">update-latest-rhel-release tool</a> is only
+									meant to<em> jump between minor releases</em> of the same major version.</p>
+								<p>&nbsp;</p>
+								<p>You can use <a class="link-secondary-hover-no-decoration"
+												  href="https://foreman.rdu2.scalelab.redhat.com/hosts" target="_blank"
+												  rel="noopener noreferrer">the Foreman</a> to reprovision a fresh OS or
+									different one as you prefer however.</p>
+								<hr/>
+								<h4><span id="What_are_these_172xxx_Interfaces_on_my_machine"><strong>What are these 172.x.x.x Interfaces on my machine?</strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<p>We drop down /etc/sysconfig/network-scripts/ifcfg-* configs for all internal VLAN
+									interfaces in order to validate your system and network configuration is setup
+									correctly from our automation. These are also there as a courtesy so you don&#8217;t
+									need to spend time creating interface configs if you don&#8217;t want to.</p>
+								<p>&nbsp;</p>
+								<p>You can remove or disable these configs at any time via the following tool:</p>
+								<div class="text-container">
+									<pre>/root/clean-interfaces.sh --nuke</pre>
+								</div>
+								<p>or</p>
+								<div class="text-container">
+									<pre>/root/clean-interfaces.sh --disable</pre>
+								</div>
+								<p>Conversely, you can re-create those same interfaces per host by running the
+									setup-interfaces tool</p>
+								<div class="text-container">
+									<pre>/root/setup-interfaces.sh</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>You can find this script in the /root directory of any freshly allocated Scale Lab
+									system or <a class="link-secondary-hover-no-decoration"
+												 href="https://gitlab.cee.redhat.com/perfscale-infra/ops-tools/-/raw/master/misc-tools/setup-interfaces.sh"
+												 target="_blank" rel="noopener">download it here.</a></p>
+								<p>&nbsp;</p>
+								<hr/>
+								<h4><span id="SuperMicro_IPMIWeb_Logs_me_Out_Help"><strong>SuperMicro IPMI/Web Logs me Out!  Help!</strong></span>
+								</h4>
+								<ul>
+									<li>There is a known issue with SuperMicro IPMI/out-of-band interfaces and browser
+										sessions, if you experience this behavior please use an incognito or private
+										browsing tab or window.
+									</li>
+									<li>Unfortunately the vendor is not interested in addressing this though we&#8217;ve
+										filed reports and issues about it.
+									</li>
+								</ul>
+								<hr/>
+								<h4><span id="Dell_IPMIiDRAC_JAVA_Disconnects_me_Help"><strong>Dell IPMI/iDRAC JAVA Disconnects me!  Help!</strong></span>
+								</h4>
+								<ul>
+									<li>There are known issues and incompatibilities with the JRE on some operating
+										systems with rendering the out-of-band KVM viewer using &#8220;native&#8221; or
+										&#8220;java&#8221; &#8211; in most cases you can simply switch this to the HTML5
+										view.
+									</li>
+									<li>Some OOB functionality is only available via Java, on top of that some features
+										only work in Windows reliably (like attaching/detaching virtual media)
+										<ul>
+											<li>
+												<a class="link-secondary-hover-no-decoration"
+												   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/DelliDRACWorkaround#WorkaroundforJavaiDRACDisconnectionError"
+												   target="_blank" rel="noopener noreferrer">Here&#8217;s a doc</a> on
+												various workarounds to use the native java renderer but below are some
+												specific solutions you can use:
+												<ul>
+													<li>
+														<a class="link-secondary-hover-no-decoration"
+														   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/DelliDRACWorkaround#RunningOlderFedoraFirefoxinaDockerContainer"
+														   target="_blank" rel="noopener noreferrer">Run a
+															Firefox/Fedora container</a></li>
+													<li>
+														<a class="link-secondary-hover-no-decoration"
+														   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/DelliDRACWorkaround#UsingRDPVMwithintheLab"
+														   target="_blank" rel="noopener noreferrer">Use the Scale Lab
+															Windows Server VM via RDP</a></li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
+								<hr/>
+								<h4><span
+										id="How_do_I_use_sol_activate_for_KVM_over_IPMI_on_SuperMicro_Systems"><strong>How do I use sol activate for KVM over IPMI on SuperMicro Systems?</strong></span>
+								</h4>
+								<p>&nbsp;</p>
+								<ul>
+									<li>In lieu of using the out-of-band KVM HTML5 console for your servers, you append
+										the following to your kernel line to access the serial console over IPMI.
+									</li>
+								</ul>
+								<div class="text-container">
+									<pre>console=ttyS0,11520</pre>
+								</div>
+								<p>&nbsp;</p>
+								<ul>
+									<li>It&#8217;s been reported that recent versions of RHEL (8.3+) may use a different
+										TTY reference, so try the below if the above doesn&#8217;t work.
+									</li>
+								</ul>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>console=ttyS1,115200</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>Note that you can use the following command to test which one is the right one
+									(Thanks to Michal Nováček)</p>
+								<p>&nbsp;</p>
+								<div class="text-container">
+									<pre>/sbin/agetty -L ttyS1 115200 vt100</pre>
+								</div>
+								<p>&nbsp;</p>
+								<p>If the TTY is correct you should see the console login.</p>
+								<p>&nbsp;</p>
+								<ul>
+									<li>Now you can use ipmitool to access the serial console.</li>
+								</ul>
+								<div class="text-container">
+									<pre>ipmitool -I lanplus -U quads -P RTTicketNumber \
+-H mgmt-f09-h29-b08-5039ms.rdu2.scalelab.redhat.com sol activate.</pre>
+								</div>
+								<p>&nbsp;</p>
+								<hr/>
+								<h4><span
+										id="What_are_the_usage_rules"><strong>What are the usage rules?</strong></span>
+								</h4>
+								<p>We&#8217;ve only got a few, please read through the Scale Lab <a
+										class="link-secondary-hover-no-decoration"
+										href="/usage/" target="_blank"
+										rel="noopener noreferrer">usage guidelines here.</a></p>
+								<hr/>
+								<h4><span id="Do_you_provide_monitoring_services"><strong>Do you provide monitoring services?</strong></span>
+								</h4>
+								<p>Yes. We monitor the IPMI/out-of-band interfaces and the switch you are connected to
+									and you can <a class="link-secondary-hover-no-decoration"
+												   href="http://nagios.scalelab.redhat.com/health/" target="_blank"
+												   rel="noopener noreferrer">view the status here</a> at any time. We
+									will be expanding this to also graph <a
+											class="link-secondary-hover-no-decoration"
+											href="https://github.com/redhat-performance/quads/issues/85" target="_blank"
+											rel="noopener noreferrer">per-port bandwidth utilization</a> in the future.
+								</p>
+								<hr/>
+								<h4><span id="How_do_I_request_an_extension_of_my_assignment"><strong>How do I request an extension of my assignment?</strong></span>
+								</h4>
+								<p>To request an extension please submit an extension request on the <a
+										class="link-secondary-hover-no-decoration"
+										href="http://scalelab.redhat.com" target="_blank" rel="noopener noreferrer">Scale
+									Lab request form.</a></p>
+								<p>&nbsp;</p>
+								<p><img decoding="async" loading="lazy"
+										src="{{ url_for('static', filename='images/scalelab_extend_1.png') }}"
+										alt="ScaleLab Extended" width="100%"/></p>
+								<p>&nbsp;</p>
+								<p>Now pick the currently running cloud from the list, enter your<strong> full Red Hat
+									email address</strong> (or that of the cloud owner) and click submit.</p>
+								<p>&nbsp;</p>
+								<p>Please note that we strive to schedule as many back-to-back future assignments as
+									possible and while it&#8217;s sometimes possible to simply extend the expiration
+									date of your machines it can potentially impact and conflict with other Engineering
+									groups schedules so it is not always possible. Your machines or sub-sets of them may
+									belong to several future, back-to-back scheduled assignments for others so in most
+									cases it&#8217;s easier to just request a <a
+											class="link-secondary-hover-no-decoration"
+											href="http://scalelab.redhat.com"
+											target="_blank"
+											rel="noopener noreferrer">new
+										reservation.</a></p>
+								<p>We publish <a class="link-secondary-hover-no-decoration"
+												 href="http://quads.rdu2.scalelab.redhat.com/visual/index.html"
+												 target="_blank" rel="noopener noreferrer">heat map visualizations</a>
+									that better illustrate how machines are being used in past, current and future
+									assignments as well.</p>
+								<hr/>
+								<h4><span id="I_want_Machines_for_a_Long_Time_Where_do_I_go"><strong>I want Machines for a Long Time Where do I go?</strong></span>
+								</h4>
+								<p>Scale Lab is intended for automated, short-term dissemination and reclamation of
+									targeted, high-performance workloads on multi-tenant bare-metal systems/networks. It
+									<strong>is not</strong> intended for generic testing or just having some machines
+									for a while.</p>
+								<p>&nbsp;</p>
+								<p>The much larger, better staffed PNT DevOps organization within Engineering runs the
+									DSAL lab for these kinds of longer-term, more generic use cases. You can sign up for
+									systems <a class="link-secondary-hover-no-decoration"
+											   href="https://one.redhat.com/dsal"
+											   target="_blank"
+											   rel="noopener noreferrer">inside their DSAL lab here.</a></p>
+								<p>&nbsp;</p>
+								<hr/>
+								<h4><span
+										id="Where_do_I_report_issues"><strong>Where do I report issues?</strong></span>
+								</h4>
+								<p>You can find all the various ways to contact us on the <a
+										class="link-secondary-hover-no-decoration"
+										href="/contact/" target="_blank"
+										rel="noopener noreferrer">contact page.</a></p>
+								<p>&nbsp;</p>
+								<p>You can also find us on IRC in <strong>#scalelabrdu and you can join our IRC channel
+									with one click via <a class="link-secondary-hover-no-decoration"
+														  href="http://irc-gateway.rdu2.scalelab.redhat.com/"
+														  target="_blank" rel="noopener noreferrer">IRC Webchat</a><br/>
+								</strong></p>
+								<hr/>
+								<h4><span id="What8217s_a_good_use_case_for_Scale_Lab"><strong>What&#8217;s a good use case for Scale Lab?</strong></span>
+								</h4>
+								<p>Scale Lab is for vetting proven workloads at scale, not for general R&amp;D testing
+									or development. You&#8217;re much better off using <a
+											class="link-secondary-hover-no-decoration"
+											href="https://url.corp.redhat.com/dsal-project" target="_blank"
+											rel="noopener noreferrer">PNT DSAL services</a> or <a
+											class="link-secondary-hover-no-decoration"
+											href="https://beaker.engineering.redhat.com/" target="_blank"
+											rel="noopener noreferrer">Beaker</a> for general usage. If you&#8217;re not
+									sure just ask us, we&#8217;re really friendly.</p>
+								<p>You should also have your deployment methodology/automation working and ready prior
+									to receiving your assignment as we don&#8217;t have a lot of wiggle room to extend
+									assignments oftentimes as it may impact multiple Engineering groups who are
+									scheduled after you.</p>
+								<hr/>
+								<h4>
+									<span id="What_runs_in_the_Scale_Lab">
+										<strong>What runs in the Scale Lab?</strong>
+									</span>
+								</h4>
+								<p>We run upwards of 24+ parallel, isolated product and partner workloads 24/7 in the
+									Scale Lab. We are able to do this by utilizing very efficient back-to-back
+									scheduling of machines and networks. Here&#8217;s an example:</p>
+								<p>
+									<img decoding="async" loading="lazy" class="alignnone size-full wp-image-5616"
+										 src="{{ url_for('static', filename='images/scale_lab_assignments-march-may.png') }}"
+										 alt="ScaleLab Assignments" width="100%"/>
+								</p>
+								<hr/>
+								<h4>
+									<span id="Where_can_I_learn_more_about_the_Scale_Lab">
+										<strong>Where can I learn more about the Scale Lab?</strong>
+									</span>
+								</h4>
+								<ul>
+									<li>
+										<a class="link-secondary-hover-no-decoration"
+										   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabTipsAndTricks"
+										   target="_blank" rel="noopener noreferrer">Scale Lab Tips and Tricks</a></li>
+									<li><a class="link-secondary-hover-no-decoration"
+										   href="http://wiki.rdu2.scalelab.redhat.com/usage/" target="_blank"
+										   rel="noopener noreferrer">Scale Lab Usage Guidelines</a></li>
+									<li><a class="link-secondary-hover-no-decoration"
+										   href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabRDU2"
+										   target="_blank" rel="noopener noreferrer">Scale Lab Technical Details</a>
+									</li>
+									<li><a class="link-secondary-hover-no-decoration"
+										   href="https://github.com/redhat-performance/quads#quads-talks-and-media"
+										   target="_blank" rel="noopener noreferrer">Scale Lab Public Talks</a></li>
+								</ul>
+							</div><!-- .entry-content -->
+						</div>
+
+					</article><!-- #post-## -->
+				</main><!-- #main -->
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}

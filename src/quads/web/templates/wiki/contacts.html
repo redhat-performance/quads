@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+            border-bottom: 1px solid #0a58ca ;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: bold;
+            color: #5a5757;
+        }
+        th, td{
+            padding: 10px;
+        }
+
+        .box{
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-bottom: 1em;
+            width: auto;
+            display: table;
+            font-size: 95%;
+        }
+
+    </style>
+{% endblock %}
+
+{% block navbar %}
+    <div class="shadow-sm mb-5 bg-white rounded">
+        <div class="container">
+            {% with contacts="active" %}
+                {% include 'navbar.html' %}
+            {% endwith %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block page_content %}
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-sm-12 col-10">
+                <h2><b>Contact Scale Lab</b></h2><hr />
+                <h2 id="You_can_find_us_via_JIRA,_Google_Chat_or_Email">You can find us via JIRA, <a class="link-secondary-hover" target="_blank" href="{{ gchat_space }}">Google Chat</a> or Email.</h2>
+                <div class="box">
+                    <ol start="1">
+                        {% for option in contact_options %}
+                            <li><a class="link-secondary-hover" href="#{{ option.replace(" ", "_").replace(":","").replace("/","") }}">
+                                {{ option }}</a>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <hr style="border-bottom: 1px solid" />
+                <div>
+                    <h4>
+                        Ticket: <span id="Ticket_Open_a_ticket_in_our_JIRA_queue">
+                            <a target="_blank" href="{{ jira_create_issue }}" class="link-secondary-hover">Open a ticket in our JIRA queue</a>
+                        </span>
+                    </h4>
+                    <ul>
+                        <li>Ask general questions or submit support queries about an active Scale Lab assignment</li>
+                    </ul>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        G-Chat: <span id="G-Chat_Join_Perfscale-Labs_here_on_G-Chat">
+                            <a target="_blank" href="{{ gchat_space }}" class="link-secondary-hover">
+                                Join Perfscale-Labs
+                            </a> here on G-chat
+                        </span>
+                    </h4>
+                    <hr style="border: 0px" />
+                </div>
+                <div>
+                    <h4>
+                        Matrix: <span id="Matrix_Join_perfscale-devops_here_on_Matrix">
+                            <a target="_blank" href="{{ matrix_space }}" class="link-secondary-hover">Join perfscale-devops</a>
+                        </span> here on Matrix
+                    </h4>
+                    <ul>
+                        <li>Ask general questions or submit support queries about an active Scale Lab assignment</li>
+                    </ul>
+                    <hr />
+                </div>
+
+                <div>
+                    <h4>
+                        Request: <span id="Request_Request_a_future_Scale_Lab_assignment_here">
+                            <a target="_blank" href="https://scalelab.redhat.com/#request" class="link-secondary-hover">Request a future Scale Lab assignment here.</a>
+                        </span>
+                    </h4>
+                    <ul>
+                        <li>Use this to request a new Scale Lab assignment.</li>
+                        <li>Looking for the ALIAS lab instead?  <a class="link-secondary-hover" target="_blank" href="https://alias.scalelab.redhat.com/">Click here</a> (operated by cenright)</li>
+                    </ul>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        Extend: <span id="Extend_Request_an_extension_to_an_Existing_Scale_Lab_assignment_here">
+                        <a class="link-secondary-hover" target="_blank" href="https://scalelab.redhat.com/extend/">
+                            Request an extension to an Existing Scale Lab assignment here</a></span>
+                    </h4>
+                    <ul>
+                        <li>Use this to request an extension to an existing, currently running cloud assignment in the Scale Lab.</li>
+                    </ul>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        Expand: <span id="Expand_Request_an_expansion_of_systems_to_an_existing_Scale_Lab_assignment_here">
+                        <a class="link-secondary-hover" target="_blank" href="https://scalelab.redhat.com/expand/">
+                            Request an expansion of systems to an existing Scale Lab assignment here</a></span>
+                    </h4>
+                    <ul>
+                        <li>Use this to request an expansion of systems to an existing, currently running cloud assignment in the Scale Lab.</li>
+                    </ul>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        Infrastructure: <span id="Infrastructure_Submit_a_question_or_improvement_on_our_perf-infra_labs_JIRA_here">
+                        <a class="link-secondary-hover" target="_blank" href="https://scalelab.redhat.com/expand/">
+                            Submit a question or improvement on our perf-infra labs JIRA here</a></span>
+                    </h4>
+                    <ul>
+                        <li><a class="link-secondary-hover" target="_blank" href="https://issues.redhat.com/secure/RapidBoard.jspa?rapidView=3639&useStoredSettings=true">View the KANBAN JIRA board.</a></li>
+                        <li>General internal infrastructure JIRA for R&D Shared Labs.</li>
+                        <li>Good place for improvement suggestions, general questions, discussions.</li>
+                        <li>Encompasses both Scale Lab and ALIAS and general utility infra/services</li>
+                    </ul>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        <span id="Search_Docs_and_Wiki">
+                        <a class="link-secondary-hover" target="_blank" href="https://search.scalelab.redhat.com/">
+                            Search Docs and Wiki</a></span>
+                    </h4>
+                    <p>We provide a basic indexed search of docs.scalelab.redhat.com and wiki above.  </p>
+                    <hr />
+                </div>
+                <div>
+                    <h4>
+                        <span id="PerfScale_DevOps_Technical_Team">Perf/Scale DevOps Technical Team</span>
+                    </h4>
+                    <ul>
+                        <li>
+                            It’s always preferable to email us, open a JIRA ticket or on G-Chat due to the globally distributed nature of our team.
+                        </li>
+                        <li>
+                            Below you can find individual contacts and focus areas of our technical staff
+                        </li>
+                    </ul>
+                </div>
+                <div style="margin-top: 50px;margin-bottom: 100px">
+                    <table
+                            style="background-color: #dcdcdc; border: 3px solid #000000; color: #000000; width: 716px; height: 248px;"
+                    >
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Matrix</th>
+                                <th>Focus / Specialty</th>
+                                <th>Time Zone</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Will Foster</td>
+                                <td>wfoster</td>
+                                <td>Team Lead,  SME: Storage, CI/CD, Ansible, Virt, Nagios,
+                                    <a href="http://docs.scalelab.redhat.com/trac/scalelab/wiki/ScaleLabRDU2#UtilityServices"
+                                    class="link-secondary-hover" target="_blank">Utility Services</a></td>
+                                <td>BST/EMEA</td>
+                                <td>wfoster@redhat.com</td>
+                            </tr>
+                            <tr>
+                                <td>Kambiz Aghaiepour</td>
+                                <td>kosh</td>
+                                <td>SME: Network/Switching, DNS, Datacenter, Integrations, Grafana</td>
+                                <td>EDT/NASA</td>
+                                <td>kambiz@redhat.com</td>
+                            </tr>
+                            <tr>
+                                <td>Gonza Rafuls</td>
+                                <td>grafuls</td>
+                                <td>SME: Python/Development,
+                                    <a href="https://github.com/redhat-performance/badfish" class="link-secondary-hover" target="_blank">Badfish</a>,
+                                    Containers</td>
+                                <td>CET/EMEA</td>
+                                <td>grafuls@redhat.com</td>
+                            </tr>
+                            <tr>
+                                <td>Chris Enright</td>
+                                <td>cenright</td>
+                                <td><a href="https://alias.scalelab.redhat.com/" target="_blank" class="link-secondary-hover">ALIAS Lab</a>,
+                                    Spire Lab, Westford Labs</td>
+                                <td>EDT/NASA</td>
+                                <td>cenright@redhat.com</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}
