@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .link-secondary-hover {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .link-secondary-hover:hover {
+            color: #0a58ca;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: bold;
+            color: #5a5757;
+        }
+
+    </style>
+{% endblock %}
+
+{% block navbar %}
+    <div class="shadow-sm mb-5 bg-white rounded">
+        <div class="container">
+            {% with assignments="active" %}
+                {% include 'navbar.html' %}
+            {% endwith %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block page_content %}
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-9 col-sm-12 col-10">
+                <h3><strong>SUMMARY</strong></h3>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        {% for header in headers %}
+                            <th scope="col">{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cloud in clouds_summary %}
+                        <tr>
+                            <td><a class="link-success text-decoration-none"
+                                   href="#{{ cloud.name }}">{{ cloud.name }}</a></td>
+                            <td>{{ cloud.count }} ({{ cloud.description }})</td>
+                            <td>{{ cloud.owner }}</td>
+                            <td>
+                                <a class="link-secondary-hover text-decoration-none"
+                                   href="{{ ticket_url }}/{{ ticket_queue }}-{{ cloud.ticket }}" target="_blank">
+                                    {{ cloud.ticket }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="progress" style="margin-bottom: 0px">
+                                    <span class="progress-bar" role="progressbar"
+                                          style="width: {{ cloud.percent }}%">{{ cloud.percent }}%</span>
+                                </span>
+                            </td>
+                            {% if cloud.name != 'cloud01' %}
+                                    <td>
+                                        <a class="link-success text-decoration-none"
+                                           href="{{ quads_url}}/cloud/{{ cloud.name }}_instackenv.json"
+                                           target=_blank">{% if cloud.validated %}download{% else %}validating{% endif %}</a>
+                                    </td>
+                                    <td>
+                                        <a class="link-success text-decoration-none"
+                                           href="{{ quads_url}}/cloud/{{ cloud.name }}_ocpinventory.json"
+                                           target=_blank">{% if cloud.validated %}download{% else %}validating{% endif %}</a>
+                                    </td>
+                            {% else %}<td></td><td></td>
+                            {% endif %}
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <p>Daily Utilization: {{ daily_utilization }}</p>
+                <p><a href="#unmanaged" class="link-secondary text-decoration-none">Unmanaged Hosts</a></p>
+                <p><a href="#faulty" class="link-secondary text-decoration-none">Faulty Hosts</a></p>
+                <h3><strong>DETAILS</strong></h3>
+                {% for managed_host in managed_nodes %}
+                    <h3><strong>{{ managed_host.name }} : {{ managed_host.count }} ({{ managed_host.description }})
+                        — {{ managed_host.owner }}</strong>
+                    </h3>
+                    <table class="table">
+                        <thead>
+                            {% for host_header in host_headers %}
+                                <th scope="col">{{ host_header }}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                        {% for host in managed_host.hosts %}
+                            <tr>
+                                <td>{{ host.short_name }}</td>
+                                <td><a class="link-secondary-hover" href="http://mgmt-{{ host.name }}/"
+                                           target=_blank">console</a></td>
+                                <td>{{ host.start_date }}</td>
+                                <td>{{ host.end_date }}</td>
+                                <td>{{ host.total_time }}</td>
+                                <td>{{ host.total_time_left }}</td>
+                            </tr>
+                         {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+                <h3><a id="unmanaged"></a><strong>Unmanaged systems</strong></h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SystemHostname</th>
+                            <th>OutOfBand</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unmanaged_host in unmanaged_hosts %}
+                        	<tr>
+                                <td>{{ unmanaged_hosts.short_name }}</td>
+                                <td><a class="link-secondary-hover" href="http://mgmt-{{ unmanaged_host.name }}/"
+                                               target=_blank">console</a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+                <h3><a id="faulty"></a><strong>Faulty systems</strong></h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SystemHostname</th>
+                            <th>OutOfBand</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for broken_host in domain_broken_hosts %}
+                            <tr>
+                                <td>{{ broken_host.name.split(".")[0] }}</td>
+                                <td><a class="link-secondary-hover" href="http://mgmt-{{ broken_host.name }}/"
+                                               target=_blank">console</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}
