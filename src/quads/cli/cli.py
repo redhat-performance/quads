@@ -24,7 +24,6 @@ from quads.tools.foreman_heal import main as foreman_heal
 from quads.tools.make_instackenv_json import main as regen_instack
 from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
 from quads.tools.notify import main as notify
-from quads.tools.regenerate_wiki import main as regen_wiki
 from quads.tools.simple_table_web import main as regen_heatmap
 from quads.tools.validate_env import main as validate_env
 
@@ -1881,10 +1880,6 @@ class QuadsCli:
         asyncio.run(regen_heatmap())
         self.logger.info("Regenerated web table heatmap.")
 
-    def action_regen_wiki(self):
-        regen_wiki(self.logger)
-        self.logger.info("Regenerated wiki.")
-
     def action_foreman_rbac(self):  # pragma: no cover
         foreman_heal(self.logger)
         self.logger.info("Foreman RBAC repaired.")
@@ -1901,6 +1896,8 @@ class QuadsCli:
             "skip_hosts": self.cli_args.get("skip_system"),
         }
         _loop = asyncio.get_event_loop()
+        if _loop.is_closed():
+            _loop = asyncio.new_event_loop()
         asyncio.set_event_loop(_loop)
 
         validate_env(_args, _loop, self.logger)
