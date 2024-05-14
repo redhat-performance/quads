@@ -84,7 +84,7 @@ Automated network and provisioning validation prior to delivering sets of machin
 Provide user-views of bare-metal systems in Foreman.
 Manage PDU power sockets for connected bare-metal systems.
 Generates instackenv.json for each OpenStack environment.
-Automatically generate documentation to illustrate current status, published to a Wordpress instance
+Automatically generate documentation to illustrate current status:
  * Current system details
  * Current workloads and assignments
  * Current ownership and resource utilization links (grafana/collectd)
@@ -109,7 +109,6 @@ mkdir %{buildroot}/etc/profile.d/ -p
 mkdir %{buildroot}/etc/logrotate.d/ -p
 mkdir %{buildroot}/etc/nginx/conf.d/ -p
 mkdir %{buildroot}/etc/postfix/postfix-files.d/ -p
-mkdir %{buildroot}/usr/share/nginx/html/visual/ -p
 mkdir %{buildroot}%{python3_sitelib}/quads/ -p
 tar cf - conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
@@ -148,17 +147,13 @@ rm -rf %{buildroot}
 
 %post
 /usr/bin/mkdir -p /opt/quads/db/data/
-/usr/bin/mkdir -p /var/www/html/visual/
-/usr/bin/mkdir -p /var/www/html/instack/
+/usr/bin/mkdir -p /opt/quads/web/visual/
+/usr/bin/mkdir -p /opt/quads/web/instack/
 /usr/bin/chown -R postgres:postgres /opt/quads/db/
-/usr/bin/chown -R nginx:nginx /var/www/html/visual/
-/usr/bin/chown -R nginx:nginx /var/www/html/instack/
 /usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
 /usr/sbin/semanage port -a -t http_port_t -p tcp 5000 2>/dev/null
 /usr/sbin/semanage port -a -t http_port_t -p tcp 5001 2>/dev/null
 /usr/bin/chcon -R --type=httpd_sys_content_t /var/www/html
-/usr/sbin/semanage fcontext -a -t httpd_sys_content_t /var/www/html 2>/dev/null
-/usr/sbin/restorecon -R /var/www/html
 /usr/sbin/semanage fcontext -a -t postgresql_db_t "/opt/quads/db/data(/.*)?" 2>/dev/null
 /usr/sbin/restorecon -R /opt/quads/db/data
 /usr/bin/systemctl enable quads-db
