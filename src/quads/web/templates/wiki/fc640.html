@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}QUADS Available Hosts{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+	<style>
+        html {
+            font-family: sans-serif;
+        }
+
+        h2 {
+            padding-left: 13px;
+            margin-bottom: 1em;
+        }
+
+        .text-container {
+            background: #f9f9f9;
+            border: 1px solid #aaa;
+            margin-bottom: 1em;
+            padding: 10px;
+        }
+
+
+        pre {
+            padding: 0;
+            margin: 0;
+        }
+
+
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	<div class="shadow-sm mb-5 bg-white rounded">
+		<div class="container">
+			{% with docs="active" %}
+				{% include 'navbar.html' %}
+			{% endwith %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block page_content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-8 col-sm-12 col-12">
+				<main id="main" class="site-main" role="main">
+					<article id="post-13795" class="post-13795 page type-page status-publish hentry">
+
+						<header class="entry-header">
+							<h1 class="entry-title">fc640</h1></header><!-- .entry-header -->
+
+						<div class="entry-content">
+							<h2>Dell fc640 with Mellanox NIC</h2>
+							<p>&nbsp;</p>
+							<ul>
+								<li style="list-style-type: none;">
+									<ul>
+										<li>10 x Dell FC640 have Mellanox NICs installed</li>
+									</ul>
+								</li>
+							</ul>
+							<p>&nbsp;</p>
+							<p><img fetchpriority="high" decoding="async"
+									src="{{ url_for('static', filename='images/Mellanox-FC640.png') }}"
+									alt="" width="100%"></p>
+							<p>&nbsp;</p>
+							<div class="text-container"><pre>e23-h12-b01-fc640.rdu2.scalelab.redhat.com
+e23-h12-b02-fc640.rdu2.scalelab.redhat.com
+e23-h12-b03-fc640.rdu2.scalelab.redhat.com
+e23-h12-b04-fc640.rdu2.scalelab.redhat.com
+e23-h24-b01-fc640.rdu2.scalelab.redhat.com
+e23-h24-b02-fc640.rdu2.scalelab.redhat.com
+e23-h24-b03-fc640.rdu2.scalelab.redhat.com
+e23-h24-b04-fc640.rdu2.scalelab.redhat.com
+e23-h26-b01-fc640.rdu2.scalelab.redhat.com
+e23-h26-b02-fc640.rdu2.scalelab.redhat.com
+e23-h26-b03-fc640.rdu2.scalelab.redhat.com
+e23-h26-b04-fc640.rdu2.scalelab.redhat.com</pre>
+							</div>
+						</div><!-- .entry-content -->
+
+
+					</article>
+				</main><!-- #main -->
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+{% endblock %}
