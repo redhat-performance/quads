@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7ba6ea9_7d831dc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-05-15T01:14:03Z",
+      "side": 1,
+      "message": "This is a great endeavor moving the wiki pieces off WP.  Ideally this will land along with the rest of the conversions and move into quads-web after 2.0 is running a while.  This branch will also change to \"latest\" when that happens.  Great work.",
+      "revId": "fd54be3408a812e2eeef8bc708e7736810b651dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67c55936_8c1415f7",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-05-15T01:14:03Z",
+      "side": 1,
+      "message": "Let\u0027s use more generic method names, something that doesn\u0027t mention an environment like `create_inventory`",
+      "revId": "fd54be3408a812e2eeef8bc708e7736810b651dd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
