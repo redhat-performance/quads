@@ -97,6 +97,20 @@ class TestSchedule(TestBase):
         assert self._caplog.messages[1] == f"{HOST1}"
         assert self._caplog.messages[2] == f"{HOST2}"
 
+    def test_add_schedule_host_list_file_not_found(self):
+        today = datetime.now()
+        tomorrow = today + timedelta(days=1)
+        self.cli_args["schedstart"] = today.strftime("%Y-%m-%d %H:%M")
+        self.cli_args["schedend"] = tomorrow.strftime("%Y-%m-%d %H:%M")
+        self.cli_args["schedcloud"] = CLOUD
+        self.cli_args["host"] = None
+        self.cli_args["host_list"] = os.path.join(os.path.dirname(__file__), "nonexistent.file")
+        self.cli_args["omitcloud"] = None
+
+        with pytest.raises(CliException) as ex:
+            self.quads_cli_call("add_schedule")
+        assert str(ex.value).startswith("Could not read file: ")
+
     def test_add_schedule_omit(self):
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
