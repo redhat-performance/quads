@@ -60,7 +60,12 @@ class QuadsCli:
                 action_meth
             ), f"Missing callable action method '{action_meth_name}', not implemented yet?"
 
-            return action_meth()
+            try:
+                exit_code = action_meth()
+            except CliException as exc:
+                raise CliException(str(exc))
+
+            return exit_code
 
         # default action
         try:
@@ -1187,8 +1192,8 @@ class QuadsCli:
             try:
                 with open(self.cli_args.get("host_list")) as _file:
                     host_list_stream = _file.read()
-            except IOError:  # pragma: no cover
-                raise CliException(f"{self.cli_args['host_list']} File Error.")
+            except IOError:
+                raise CliException(f"Could not read file: {self.cli_args['host_list']}.")
 
             host_list = host_list_stream.split()
             non_available = []

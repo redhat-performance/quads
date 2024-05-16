@@ -30,7 +30,7 @@ from quads.tools.logger import ColorFormatter
 logger = logging.getLogger(__name__)
 
 
-def main(_logger: logging=logger) -> Optional[int]:
+def main(_logger: logging = logger) -> Optional[int]:
     stdout_stream = logging.StreamHandler(sys.stdout)
     _logger.addHandler(stdout_stream)
     _logger.propagate = False
@@ -60,10 +60,16 @@ def main(_logger: logging=logger) -> Optional[int]:
         logger=_logger,
     )
 
-    return qcli.run(
-        action=cli_args.get("action"),
-        cli_args=cli_args,
-    )
+    try:
+        _exit_code = qcli.run(
+            action=cli_args.get("action"),
+            cli_args=cli_args,
+        )
+    except CliException as exc:
+        logger.error(str(exc))
+        _exit_code = 2
+
+    return _exit_code
 
 
 if __name__ == "__main__":
@@ -71,10 +77,6 @@ if __name__ == "__main__":
 
     try:
         exit_code = main(_logger=logger)
-    except CliException as exc:
-        # TODO: Return different exit codes from different exceptions
-        logger.error(exc)
-        exit_code = 2
     except Exception as exc:
         logger.exception(exc, exc_info=exc)
         exit_code = 1
