@@ -26,6 +26,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
                * [Limit Page Revisions in Wordpress](#limit-page-revisions-in-wordpress)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
+            * [Major Components](#major-components)
+            * [External Services](#external-services)
       * [QUADS Usage Documentation](#quads-usage-documentation)
          * [Adding New Hosts to QUADS](#adding-new-hosts-to-quads)
             * [Define Initial Cloud Environments](#define-initial-cloud-environments)
@@ -107,9 +109,10 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
    - Query scheduling data to determine future availability
    - Generates a per-month visualization map for per-machine allocations to assignments.
    - JIRA integration.
-   - Webhook and IRC notifications (via supybot/notify plugin) for system releases.
+   - Chat webhook and IRC notifications (via supybot/notify plugin) for system releases.
    - Email notifications to users for new future assignments, releases and expirations.
    - Flask-based Web UI for searching for available bare-metal systems in the future based on model.
+   - Open, RESTful JSON API and RBAC for controlling access
 
 ## Design
    - Main components: `Python3, Flask, SqlAlchemy, PostrgreSQL, Jinja2`
@@ -192,6 +195,7 @@ quads --help
    - Please use **Red Hat, CentOS Stream or Rocky 8** for the below Wordpress component.
    - Wordpress needs to be on it's **own VM/server** as a standalone component.
    - [Wordpress](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) provides a place to automate documentation and inventory/server status via the Wordpress Python RPC API.
+   - **Note** On our 2.0/2.1 series roadmap we'll be moving the wiki component to be served directly off Flask.
 
 ##### Installing Wordpress via Ansible
    - You can use our Ansible playbook for installing Wordpress / PHP / PHP-FPM / nginx on a Rocky8, RHEL8 or CentOS8 Stream standalone virtual machine.
@@ -242,6 +246,8 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 ### Making QUADS Run
    - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/master/cron/quads) to your liking, adjust as needed.
 
+#### Major Components
+
    - Below are the major components run out of cron that makes everything work.
 
 | Service Command       | Category | Purpose |
@@ -250,7 +256,16 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 | quads --validate-env  | validation | checks clouds pending to be released for all enabled validation checks |
 | quads --regen-wiki    | documentation | keeps your infra wiki updated based on current state of environment |
 | quads --regen-heatmap | visualization | keeps your systems availability and usage visualization up to date |
-| quads --regen-instack | openstack | keeps optional openstack triple-o installation files up-to-date |
+| quads --regen-instack | openshift/openstack | keeps optional openstack triple-o installation files up-to-date |
+
+#### External Services
+
+   - Really just the Foreman RBAC tool is needed for bare functionality, though there are a number of tools for JIRA automation that we ship in the repository as well that might be useful.
+
+| Service Command       | Category | Purpose |
+|-----------------------|----------|---------|
+| /opt/quads/quads/tools/foreman_heal.py | RBAC | ensures environment user ownership maps to systems in Foreman |
+
 
 ## QUADS Usage Documentation
 
@@ -779,7 +794,7 @@ quads --rm-schedule --schedule-id 3
 quads --rm-schedule --schedule-id 4
 ```
 
- * NOTE: Previous versions of QUADS required passing `--host`. This is not required on QUADS 2.0 onwards as the schedule Ids are now unique. 
+ * NOTE: Previous versions of QUADS required passing `--host`. This is not required on QUADS 2.0 onwards as the schedule Ids are now unique.
 
 ### Removing a Schedule across a large set of hosts
 
@@ -1080,83 +1095,26 @@ quads --ls-hosts --filter "interfaces.ip_address==10.1.34.210"
 
 ## Backing up QUADS
 
-* We do not implement backups for QUADS for you, but it's really easy to do on your own via [mongodump](https://www.mongodb.com/download-center/community)
-* Refer to our docs on [installing mongodb tools](docs/install-mongodb.md#extract-and-setup-mongodb-binaries)
-* Implement `mongodump` to backup your database, we recommend using a git repository as it will take care of revisioning and updates for you.
-* Below is an example script we use for this purpose, this assumes you have a git repository already setup you can push to with ssh access.
-
+* We do not implement backups for QUADS for you, but it's really easy to do on your own via Postgres [pg_dumpall](https://www.postgresql.org/docs/current/app-pg-dumpall.html)
 ```
-#!/bin/bash
-# script to call mongodump and dump quads db, push to git.
-
-backup_database() {
-    mongodump --out /opt/quads/backups/
-}
-
-sync_git() {
-    cd /opt/quads/backups
-    git add quads/*
-    git add admin/*
-    git commit -m "$(date) content commit"
-    git push
-}
-
-backup_database
-sync_git
+su - postgres -c "pg_dumpall --clean > /tmp/quadsdb.sql"
 ```
+
+* Configuration files are all kept in `/opt/quads/conf`
+
 
 ## Restoring QUADS DB from Backup
-* If you have a valid mongodump directory structure you can restore the QUADS database via the following command.
-* This will drop the current database and replace it with your mongodump copy
-
-   - First, cd to the parent directory of where your mongorestore is kept
+* You can restore a QUADS databasea via Postgres [pg_restore](https://www.postgresqltutorial.com/postgresql-administration/postgresql-restore-database/) and everything is in the database and `/opt/quads/conf`
+* Restoring just the quads database:
 
 ```
-[root@host-04 rdu2-quads-backup-mongo]# ls
-admin  mongodump  mongodump-quads.sh  quads  README.md
+su - postgres -c "psql -d quads -f /tmp/quadsdb.sql"
 ```
 
-  - `quads` is the directory containing our database dump files
-
-* Use mongorestore to drop the current quads database and replace with your backup
+* Restoring the entire database:
 
 ```
-mongorestore --drop -d quads quads
-```
-
-  - You will see some messages and all should be good.
-
-```
-2019-05-05T01:23:01.257+0100	building a list of collections to restore from quads dir
-2019-05-05T01:23:01.270+0100	reading metadata for quads.vlan from quads/vlan.metadata.json
-2019-05-05T01:23:01.282+0100	reading metadata for quads.host from quads/host.metadata.json
-2019-05-05T01:23:01.288+0100	reading metadata for quads.counters from quads/counters.metadata.json
-2019-05-05T01:23:01.294+0100	reading metadata for quads.schedule from quads/schedule.metadata.json
-2019-05-05T01:23:01.329+0100	restoring quads.vlan from quads/vlan.bson
-2019-05-05T01:23:01.361+0100	restoring quads.host from quads/host.bson
-2019-05-05T01:23:01.396+0100	restoring quads.counters from quads/counters.bson
-2019-05-05T01:23:01.426+0100	restoring quads.schedule from quads/schedule.bson
-2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.vlan from metadata
-2019-05-05T01:23:01.434+0100	restoring indexes for collection quads.host from metadata
-2019-05-05T01:23:01.524+0100	finished restoring quads.host (494 documents)
-2019-05-05T01:23:01.549+0100	finished restoring quads.vlan (148 documents)
-2019-05-05T01:23:01.549+0100	reading metadata for quads.notification from quads/notification.metadata.json
-2019-05-05T01:23:01.567+0100	reading metadata for quads.cloud_history from quads/cloud_history.metadata.json
-2019-05-05T01:23:01.568+0100	no indexes to restore
-2019-05-05T01:23:01.568+0100	finished restoring quads.counters (334 documents)
-2019-05-05T01:23:01.602+0100	restoring quads.notification from quads/notification.bson
-2019-05-05T01:23:01.643+0100	restoring quads.cloud_history from quads/cloud_history.bson
-2019-05-05T01:23:01.659+0100	reading metadata for quads.cloud from quads/cloud.metadata.json
-2019-05-05T01:23:01.661+0100	no indexes to restore
-2019-05-05T01:23:01.661+0100	finished restoring quads.notification (41 documents)
-2019-05-05T01:23:01.699+0100	restoring quads.cloud from quads/cloud.bson
-2019-05-05T01:23:01.717+0100	restoring indexes for collection quads.cloud_history from metadata
-2019-05-05T01:23:01.718+0100	no indexes to restore
-2019-05-05T01:23:01.718+0100	finished restoring quads.schedule (433 documents)
-2019-05-05T01:23:01.742+0100	restoring indexes for collection quads.cloud from metadata
-2019-05-05T01:23:01.743+0100	finished restoring quads.cloud_history (94 documents)
-2019-05-05T01:23:01.792+0100	finished restoring quads.cloud (32 documents)
-2019-05-05T01:23:01.792+0100	done
+su - postgres -c "psql -f /tmp/quadsdb.sql"
 ```
 
 ## Troubleshooting Validation Failures
@@ -1270,8 +1228,6 @@ ICMP Host Unreachable from 10.1.38.126 for ICMP Echo sent to f12-h14-000-1029u.r
 ```bash
 quads --validate-env --skip-network
 ```
-
-* In older versions of QUADS you will want to consult the documentation for [interacting with MongoDB](/docs/interact-mongodb.md) for how to override this check.
 
 ### Skipping Past Host and Systems Validation
 

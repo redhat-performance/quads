@@ -12,7 +12,7 @@
 #### Note: quads-dev = latest master branch
 ####       quads     = latest stable release
 
-%define name quads
+%define name quads-dev
 %define reponame quads
 %define branch master
 %define version 2.0.0
@@ -42,6 +42,7 @@ Requires: python3-PyYAML >= 6.0
 Requires: python3-requests >= 2.28.1
 Requires: python3-aiohttp >= 3.8.5
 Requires: git >= 2.1
+Requires: cronie >= 1.0
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.12
 Requires: python3-wtforms >= 2.2.0
