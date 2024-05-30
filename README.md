@@ -80,7 +80,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Find Systems by Switch IP Address](#find-systems-by-switch-ip-address)
       * [Using JIRA with QUADS](#using-jira-with-quads)
       * [Backing up QUADS](#backing-up-quads)
-      * [Restoring QUADS DB from Backup](#restoring-quads-db-from-backup)
+      * [Restoring QUADS from Backup](#restoring-quads-from-backup)
       * [Troubleshooting Validation Failures](#troubleshooting-validation-failures)
          * [Understanding Validation Structure](#understanding-validation-structure)
          * [Troubleshooting Steps](#troubleshooting-steps)
@@ -195,7 +195,6 @@ quads --help
    - Please use **Red Hat, CentOS Stream or Rocky 8** for the below Wordpress component.
    - Wordpress needs to be on it's **own VM/server** as a standalone component.
    - [Wordpress](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) provides a place to automate documentation and inventory/server status via the Wordpress Python RPC API.
-   - **Note** On our 2.0/2.1 series roadmap we'll be moving the wiki component to be served directly off Flask.
 
 ##### Installing Wordpress via Ansible
    - You can use our Ansible playbook for installing Wordpress / PHP / PHP-FPM / nginx on a Rocky8, RHEL8 or CentOS8 Stream standalone virtual machine.
@@ -257,6 +256,7 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 | quads --regen-wiki    | documentation | keeps your infra wiki updated based on current state of environment |
 | quads --regen-heatmap | visualization | keeps your systems availability and usage visualization up to date |
 | quads --regen-instack | openshift/openstack | keeps optional openstack triple-o installation files up-to-date |
+| quads --notify        | notifications | check and send email or webhook/IRC notifications on events and releases |
 
 #### External Services
 
@@ -264,7 +264,7 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 
 | Service Command       | Category | Purpose |
 |-----------------------|----------|---------|
-| /opt/quads/quads/tools/foreman_heal.py | RBAC | ensures environment user ownership maps to systems in Foreman |
+| quads --foreman-rbac  | RBAC | ensures environment user ownership maps to systems in Foreman |
 
 
 ## QUADS Usage Documentation
@@ -1103,8 +1103,8 @@ su - postgres -c "pg_dumpall --clean > /tmp/quadsdb.sql"
 * Configuration files are all kept in `/opt/quads/conf`
 
 
-## Restoring QUADS DB from Backup
-* You can restore a QUADS databasea via Postgres [pg_restore](https://www.postgresqltutorial.com/postgresql-administration/postgresql-restore-database/) and everything is in the database and `/opt/quads/conf`
+## Restoring QUADS from Backup
+* You can restore a QUADS databasea via Postgres [psql](https://www.postgresqltutorial.com/postgresql-administration/postgresql-restore-database/) and everything is in the database and `/opt/quads/conf` files.
 * Restoring just the quads database:
 
 ```
