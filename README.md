@@ -257,6 +257,7 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 | quads --regen-wiki    | documentation | keeps your infra wiki updated based on current state of environment |
 | quads --regen-heatmap | visualization | keeps your systems availability and usage visualization up to date |
 | quads --regen-instack | openshift/openstack | keeps optional openstack triple-o installation files up-to-date |
+| quads --notify        | notifications | check and send email or webhook/IRC notifications on events and releases |
 
 #### External Services
 
@@ -264,7 +265,7 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 
 | Service Command       | Category | Purpose |
 |-----------------------|----------|---------|
-| /opt/quads/quads/tools/foreman_heal.py | RBAC | ensures environment user ownership maps to systems in Foreman |
+| quads --foreman-rbac  | RBAC | ensures environment user ownership maps to systems in Foreman |
 
 
 ## QUADS Usage Documentation
