@@ -4,13 +4,11 @@ SHELL=/bin/bash
 # Only one cron category should be uncommented
 # This is how you control QUADS processes
 #
-# * quads-cli --move-hosts (checks for hosts to move/reclaim)
-# * validate-env.py (checks clouds pending to be released for all
-#   enabled validation checks)
-# * regenerate_wiki.py (keeps your wp wiki updated based on your environment)
-# * simple_table_web.py (keeps your usage visualization up to date)
-# * make_instackenv_json.py (keeps optional openstack director installation
-# files up-to-date)
+# * quads --move-hosts (checks for hosts to move/reclaim)
+# * quads --validate-env (checks clouds pending to be released for all enabled validation checks)
+# * quads --regen-wiki (keeps your wp wiki updated based on your environment)
+# * quads --regen-heatmap (keeps your usage visualization up to date)
+# * quads --regen-instack (keeps optional openshift/openstack inventory files regenerated)
 #
 # We use flock to make sure running crons have log management
 # https://linux.die.net/man/1/flock
@@ -32,8 +30,10 @@ SHELL=/bin/bash
 # * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "podman exec quads quads --regen-instack" ) 1>/dev/null 2>&1
 # 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "podman exec quads quads --foreman-rbac" ) 1>/dev/null 2>&1
 #########################################
+##### (RECOMMENDED)
 ##### NON-CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH RPM OR SOURCE INSTALL
+##### (RECOMMENDED)
 #########################################
 # * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
 # * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "quads --validate-env" ) 1>>/var/log/validate-env.log 2>&1
