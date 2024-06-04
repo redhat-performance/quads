@@ -114,7 +114,6 @@ tar cf - conf | ( cd %{buildroot}%{prefix} ; tar xvpBf - )
 cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-db.service %{buildroot}/etc/systemd/system/
-cp -rf systemd/quads.target %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
@@ -131,7 +130,6 @@ rm -rf %{buildroot}
 /etc/systemd/system/quads-web.service
 /etc/systemd/system/quads-server.service
 /etc/systemd/system/quads-db.service
-/etc/systemd/system/quads.target
 /etc/profile.d/quads.sh
 /etc/nginx/*
 /opt/quads/conf/logrotate_quads.conf
@@ -156,7 +154,6 @@ rm -rf %{buildroot}
 /usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
-/usr/bin/systemctl enable quads.target
 /usr/bin/systemctl enable nginx
 /usr/bin/systemctl enable haveged
 source /etc/profile.d/quads.sh
@@ -175,11 +172,9 @@ echo "======================================================="
 
 %preun
 if [ "$1" -eq 0 ]; then
-  /usr/bin/systemctl stop quads.target
   /usr/bin/systemctl disable quads-web
   /usr/bin/systemctl disable quads-server
   /usr/bin/systemctl disable quads-db
-  /usr/bin/systemctl disable quads.target
 fi;
 :;
 

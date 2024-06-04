@@ -180,6 +180,8 @@ class QuadsApi:
 
     # Schedules
     def get_schedules(self, data: dict = None) -> List[Schedule]:
+        if data is None:
+            data = {}
         url_params = url_parse.urlencode(data)
         url = "schedules"
         if url_params:
@@ -191,6 +193,8 @@ class QuadsApi:
         return schedules
 
     def get_current_schedules(self, data: dict = None) -> List[Schedule]:
+        if data is None:
+            data = {}
         endpoint = os.path.join("schedules", "current")
         url = f"{endpoint}"
         if data:
@@ -202,7 +206,9 @@ class QuadsApi:
             schedules.append(Schedule().from_dict(schedule))
         return schedules
 
-    def get_future_schedules(self, data) -> List[Schedule]:
+    def get_future_schedules(self, data: dict = None) -> List[Schedule]:
+        if data is None:
+            data = {}
         url_params = url_parse.urlencode(data)
         endpoint = os.path.join("schedules", "current")
         url = f"{endpoint}"
