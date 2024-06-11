@@ -175,6 +175,7 @@ smtpd_client_restrictions =
 
 ```
 relayhost = [ip.address.of.your.relay.smtp.server]
+inet_interfaces = all
 ```
 
 ### Integration into Foreman or a Provisioning System
