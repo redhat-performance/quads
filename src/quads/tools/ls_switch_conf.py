@@ -21,7 +21,7 @@ def verify(args):
     logger.info(f"Cloud qinq: {_assignment.qinq}")
 
     hosts = quads.filter_hosts({"cloud": args.cloud})
-    if args.all:
+    if not args.all:
         hosts = [hosts[0]]
 
     for host in hosts:
