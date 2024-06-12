@@ -16,6 +16,24 @@
       "message": "this if goes inside the if above for device_check.\nneeds to be indented.",
       "revId": "f75aa11d67d4e6125b31393e61f9fdefb2bea7b2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daf00998_8240437c",
+        "filename": "src/quads/tools/external/badfish.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-06-12T13:36:10Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c2e03016_7a3ed73b",
+      "revId": "f75aa11d67d4e6125b31393e61f9fdefb2bea7b2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
