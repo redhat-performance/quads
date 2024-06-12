@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a57a0f6_22fd5596",
+        "filename": "rpm/quads.spec",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-06-12T13:38:22Z",
+      "side": 1,
+      "message": "we still won\u0027t to append to that file, not overwrite what we append on the previous line",
+      "revId": "e91dd584e849eba69f9bf7727e52852623b6dc8c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
