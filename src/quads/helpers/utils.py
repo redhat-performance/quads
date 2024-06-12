@@ -1,4 +1,5 @@
 import calendar
+import re
 
 from datetime import timedelta, datetime
 
@@ -16,8 +17,9 @@ def get_vlan(ass_obj, index, last_nic=False):
     if ass_obj and ass_obj.vlan and last_nic:
         return int(ass_obj.vlan.vlan_id)
     else:
+        _cloud_id = int(re.findall(r"\d+", ass_obj.cloud.name)[0])
         if ass_obj:
-            return calculate_vlan(ass_obj.cloud.id, ass_obj.qinq, index)
+            return calculate_vlan(_cloud_id, ass_obj.qinq, index)
         else:
             return calculate_vlan(1, 0, index)
 

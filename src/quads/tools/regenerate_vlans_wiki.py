@@ -38,18 +38,19 @@ def render_vlans(markdown):
     for vlan in vlans:
         assignment_obj = quads.filter_assignments({"vlan_id": vlan.vlan_id})
         assignment_obj = assignment_obj[0] if assignment_obj else None
-        if assignment_obj is None:
-            continue
-        cloud_obj = quads.filter_clouds({"name": assignment_obj.cloud.name})
-        cloud_obj = cloud_obj[0] if cloud_obj else None
+        cloud_current_count = 0
+        cloud_obj = None
+        if assignment_obj:
+            cloud_obj = quads.filter_clouds({"name": assignment_obj.cloud.name})
+            if cloud_obj:
+                cloud_obj = cloud_obj[0]
+                cloud_current_count = len(quads.get_current_schedules({"cloud": cloud_obj.name}))
+
         vlan_id = vlan.vlan_id
         ip_range = vlan.ip_range
         netmask = vlan.netmask
         gateway = vlan.gateway
         ip_free = vlan.ip_free
-        cloud_current_count = len(
-            quads.get_current_schedules({"cloud": cloud_obj.name})
-        )
         if assignment_obj and cloud_current_count > 0 and cloud_obj:
             owner = assignment_obj.owner
             ticket = assignment_obj.ticket
