@@ -106,13 +106,12 @@ class Badfish:
                         timeout=120,
                     ) as _response:
                         await _response.text("utf-8", "ignore")
-        except (Exception, TimeoutError) as ex:
+        except Exception as ex:
             if _continue:
                 return
             else:
-                logger.debug(ex)
-                logger.error("Failed to communicate with server.")
-                raise BadfishException
+                logger.debug((str(ex))
+                raise BadfishException("Failed to communicate with server.")
         return _response
 
     async def post_request(self, uri, payload, headers):
@@ -490,8 +489,7 @@ class Badfish:
             return "Down"
 
         if not data.get("PowerState"):
-            logger.debug("Power state not found. Try to racreset.")
-            raise BadfishException
+            raise BadfishException("Power state not found. Try to racreset.")
         else:
             logger.debug("Current server power state is: %s." % data["PowerState"])
 
@@ -499,8 +497,7 @@ class Badfish:
 
     async def set_power_state(self, state):
         if state.lower() not in ["on", "off"]:
-            logger.error("Power state not valid. 'on' or 'off' only accepted.")
-            raise BadfishException
+            raise BadfishException("Power state not valid. 'on' or 'off' only accepted.")
 
         _uri = "%s%s" % (self.host_uri, self.system_resource)
         logger.debug("url: %s" % _uri)
@@ -514,12 +511,10 @@ class Badfish:
             raw = await _response.text("utf-8", "ignore")
             data = json.loads(raw.strip())
         else:
-            logger.debug("Couldn't get power state.")
-            raise BadfishException
+            raise BadfishException("Couldn't get power state.")
 
         if not data.get("PowerState"):
-            logger.debug("Power state not found. Try to racreset.")
-            raise BadfishException
+            raise BadfishException("Couldn't get power state.")
         else:
             logger.debug("Current server power state is: %s." % data["PowerState"])
 
@@ -880,11 +875,12 @@ class Badfish:
         logger.info("BIOS will now reset and be back online within a few minutes.")
         return True
 
-    async def boot_to(self, device):
+    async def boot_to(self, device, skip_job=False):
         device_check = await self.check_device(device)
         if device_check:
             await self.clear_job_queue()
             await self.send_one_time_boot(device)
+        if not skip_job:
             await self.create_bios_config_job(self.bios_uri)
         else:
             raise BadfishException
@@ -907,7 +903,7 @@ class Badfish:
 
         device = await self.get_host_type_boot_device(host_type, _interfaces_path)
 
-        await self.boot_to(device)
+        await self.boot_to(device, True)
 
     async def boot_to_mac(self, mac_address):
         interfaces_endpoints = await self.get_interfaces_endpoints()
@@ -926,11 +922,12 @@ class Badfish:
             raise BadfishException
 
     async def send_one_time_boot(self, device):
+        boot_seq = await self.get_boot_seq()
         _url = "%s%s" % (self.root_uri, self.bios_uri)
         _payload = {
             "Attributes": {
-                "OneTimeBootMode": "OneTimeBootSeq",
-                "OneTimeBootSeqDev": device,
+                "OneTimeBootMode": f"OneTime{boot_seq}",
+                f"OneTime{boot_seq}Dev": device,
             }
         }
         _headers = {"content-type": "application/json"}
