@@ -54,81 +54,60 @@ def print_summary():
 
     for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         cloud_name = cloud["name"]
-        desc = "%s (%s)" % (cloud["count"], cloud["description"])
+        cloud_description = cloud["description"] if cloud["description"] else "N/A"
+        desc = f"{cloud_description} ({cloud['count']})"
         owner = cloud["owner"]
         ticket = cloud["ticket"]
-        link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
+        ticket_link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
             Config["ticket_url"],
             Config["ticket_queue"],
             ticket,
             ticket,
         )
-        cloud_specific_tag = "%s_%s_%s" % (cloud_name, owner, ticket)
 
         style_tag_end = "</span>"
-        if cloud["validated"] or cloud_name == "cloud01":
-            style_tag_start = '<span style="color:green">'
-            instack_link = os.path.join(Config["quads_url"], "cloud", "%s_instackenv.json" % cloud_name)
-            instack_text = "download"
-            ocpinv_link = os.path.join(Config["quads_url"], "cloud", "%s_ocpinventory.json" % cloud_name)
-            ocpinv_text = "download"
-            status = (
-                '<span class="progress" style="margin-bottom:0px"><span role="progressbar" aria-valuenow="100" '
-                'aria-valuemin="0" aria-valuemax="100" style="width:100%" class="progress-bar">100%</span></span> '
-            )
-        else:
+
+        is_valid = cloud["validated"] or cloud_name == "cloud01"
+
+        percent = 100
+        if not is_valid:
             cloud_obj = quads.get_cloud(cloud_name)
             scheduled_hosts = len(quads.get_current_schedules({"cloud": cloud_obj.name}))
             moved_hosts = len(quads.filter_hosts({"cloud": cloud_obj.name}))
             percent = moved_hosts / scheduled_hosts * 100
-            style_tag_start = '<span style="color:red">'
-            instack_link = "#"
-            instack_text = "validating"
-            ocpinv_link = "#"
-            ocpinv_text = "validating"
-            if percent < 15:
-                classes = [
-                    "progress-bar",
-                    "progress-bar-striped",
-                    "progress-bar-danger",
-                    "active",
-                ]
-                status = (
-                    '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
-                    'aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%%" '
-                    'class="%s">%.0f%%</span></span>' % (" ".join(classes), percent)
-                )
-            else:
-                classes = [
-                    "progress-bar",
-                    "progress-bar-striped",
-                    "progress-bar-warning",
-                    "active",
-                ]
-                status = (
-                    '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
-                    'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
-                    'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
-                )
+        style_color = "green" if is_valid else "red"
+        style_tag_start = f'<span style="color:{style_color}">'
 
         _data = [
             "[%s%s%s](#%s)" % (style_tag_start, cloud_name, style_tag_end, cloud_name),
             desc,
             owner,
-            link,
+            ticket_link,
         ]
+        dangerous = percent < 15
+        danger_class = "danger" if dangerous else "warning"
+
+        classes = ["progress-bar"]
+        if percent != 100:
+            classes.append("progress-bar-striped")
+            classes.append(f"progress-bar-{danger_class}")
+            classes.append("active")
+
+        status = (
+            '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
+            'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
+            'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
+        )
 
         _data.append(status)
-        if cloud_name == "cloud01":
-            if Config["openshift_management"] or Config["openstack_management"]:
-                _data.append("")
-        else:
-            text = ""
-            if Config["openstack_management"]:
-                text = instack_text
-            if Config["openshift_management"]:
-                text = ocpinv_text
-            _data.append("<a href=%s target=_blank>%s%s%s</a>" % (ocpinv_link, style_tag_start, text, style_tag_end))
+        if Config["openstack_management"]:
+            filename = f"{cloud_name}_instackenv.json"
+            json_link = get_json_link(cloud_name, filename, is_valid, style_tag_start, style_tag_end)
+            _data.append(json_link)
+        if Config["openshift_management"]:
+            filename = f"{cloud_name}_ocpinventory.json"
+            json_link = get_json_link(cloud_name, filename, is_valid, style_tag_start, style_tag_end)
+            _data.append(json_link)
 
         _summary.append("| %s |\n" % " | ".join(_data))
 
@@ -144,6 +123,14 @@ def print_summary():
     _summary.append("[Faulty Hosts](#faulty)\n")
 
     return _summary
+
+
+def get_json_link(cloud_name, filename, is_valid, style_tag_start, style_tag_end):
+    if cloud_name == "cloud01":
+        return ""
+    _link = os.path.join(Config["quads_url"], "cloud", filename) if is_valid else "#"
+    _text = "download" if is_valid else "validating"
+    return "<a href=%s target=_blank>%s%s%s</a>" % (_link, style_tag_start, _text, style_tag_end)
 
 
 def print_unmanaged(hosts):
@@ -253,9 +240,11 @@ def main():
         _cloud_summary = summary_response.json()
     for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         name = cloud["name"]
-        owner = cloud["owner"]
+        owner = cloud["owner"] if cloud["owner"] else "N/A"
+        cloud_description = cloud["description"] if cloud["description"] else "N/A"
+        desc = f"{cloud_description} ({cloud['count']})"
         lines.append("### <a name=%s></a>\n" % name.strip())
-        lines.append("### **%s : %s (%s) -- %s**\n\n" % (name.strip(), cloud["count"], cloud["description"], owner))
+        lines.append(f"### **{name.strip()} : {desc} -- {owner}**\n\n")
         lines.extend(print_header())
         _cloud_obj = quads.get_cloud(name)
         _hosts = sorted(
