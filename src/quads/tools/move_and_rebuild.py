@@ -48,7 +48,7 @@ def switch_config(host, old_cloud, new_cloud):  # pragma: no cover
         if result and old_vlan_out:
             old_vlan = old_vlan_out[0].split(";")[0].split()[1][7:]
         if not old_vlan:
-            if not _new_ass_cloud_obj.vlan and not last_nic:
+            if _new_ass_cloud_obj and not _new_ass_cloud_obj.vlan and not last_nic:
                 logger.warning(
                     "Warning: Could not determine the previous VLAN for %s on %s, switch %s, switchport %s"
                     % (

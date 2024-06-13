@@ -19,9 +19,7 @@ RETRIES = 15
 logger = logging.getLogger(__name__)
 
 
-async def badfish_factory(
-    _host, _username, _password, loop=None, _retries=RETRIES, propagate=False
-):
+async def badfish_factory(_host, _username, _password, loop=None, _retries=RETRIES, propagate=False):
     logger.propagate = propagate
     badfish = Badfish(_host, _username, _password, loop, _retries=RETRIES)
     await badfish.init()
@@ -56,9 +54,7 @@ class Badfish:
         await self.validate_credentials()
         self.system_resource = await self.find_systems_resource()
         self.manager_resource = await self.find_managers_resource()
-        self.bios_uri = (
-            "%s/Bios/Settings" % self.system_resource[len(self.redfish_uri) :]
-        )
+        self.bios_uri = "%s/Bios/Settings" % self.system_resource[len(self.redfish_uri) :]
 
     @staticmethod
     def progress_bar(value, end_value, state, bar_length=20):
@@ -70,11 +66,7 @@ class Badfish:
         if state.lower() == "on":
             state = "On  "
         ret = "\r" if percent != 100 else "\n"
-        sys.stdout.write(
-            "\r- POLLING: [{0}] {1}% - Host state: {2}{3}".format(
-                arrow + spaces, percent, state, ret
-            )
-        )
+        sys.stdout.write("\r- POLLING: [{0}] {1}% - Host state: {2}{3}".format(arrow + spaces, percent, state, ret))
         sys.stdout.flush()
 
     @staticmethod
@@ -270,10 +262,7 @@ class Badfish:
                 logger.info(f"Command passed to check job status {_job_id}")
                 await asyncio.sleep(10)
             else:
-                logger.error(
-                    f"Command failed to check job status {_job_id}, return code is %s."
-                    % status_code
-                )
+                logger.error(f"Command failed to check job status {_job_id}, return code is %s." % status_code)
 
                 await self.error_handler(_response)
 
@@ -283,9 +272,7 @@ class Badfish:
                 logger.info("Job id %s successfully scheduled." % _job_id)
                 return
             else:
-                logger.warning(
-                    "JobStatus not scheduled, current status is: %s." % data["Message"]
-                )
+                logger.warning("JobStatus not scheduled, current status is: %s." % data["Message"])
 
         logger.error("Not able to successfully schedule the job.")
         raise BadfishException
@@ -303,9 +290,7 @@ class Badfish:
             else:
                 manager_reset = data["Actions"].get("#Manager.Reset")
                 if manager_reset:
-                    reset_types = manager_reset.get(
-                        "ResetType@Redfish.AllowableValues", []
-                    )
+                    reset_types = manager_reset.get("ResetType@Redfish.AllowableValues", [])
                     if not reset_types:
                         logger.warning("Could not get allowable reset types")
         return reset_types
@@ -338,12 +323,8 @@ class Badfish:
             host_types = await self.get_host_types_from_yaml(_interfaces_path)
             for host_type in host_types:
                 match = True
-                interfaces = await self.get_interfaces_by_type(
-                    host_type, _interfaces_path
-                )
-                for device in sorted(
-                    self.boot_devices[: len(interfaces)], key=lambda x: x["Index"]
-                ):
+                interfaces = await self.get_interfaces_by_type(host_type, _interfaces_path)
+                for device in sorted(self.boot_devices[: len(interfaces)], key=lambda x: x["Index"]):
                     if device["Name"] == interfaces[device["Index"]]:
                         continue
                     else:
@@ -358,9 +339,7 @@ class Badfish:
         response = await self.get_request(self.root_uri + "/Systems")
 
         if response.status == 401:
-            logger.error(
-                f"Failed to authenticate. Verify your credentials for {self.host}"
-            )
+            logger.error(f"Failed to authenticate. Verify your credentials for {self.host}")
             raise BadfishException
 
         if response.status not in [200, 201]:
@@ -384,9 +363,7 @@ class Badfish:
             for member in data["Members"]:
                 endpoints.append(member["@odata.id"])
         else:
-            logger.error(
-                "EthernetInterfaces's Members array is either empty or missing"
-            )
+            logger.error("EthernetInterfaces's Members array is either empty or missing")
             raise BadfishException
 
         return endpoints
@@ -428,24 +405,14 @@ class Badfish:
                             return systems_service
                     else:
                         try:
-                            msg = (
-                                data.get("error")
-                                .get("@Message.ExtendedInfo")[0]
-                                .get("Message")
-                            )
-                            resolution = (
-                                data.get("error")
-                                .get("@Message.ExtendedInfo")[0]
-                                .get("Resolution")
-                            )
+                            msg = data.get("error").get("@Message.ExtendedInfo")[0].get("Message")
+                            resolution = data.get("error").get("@Message.ExtendedInfo")[0].get("Resolution")
                             logger.error(msg)
                             logger.info(resolution)
                         except (IndexError, TypeError, AttributeError):
                             pass
                         else:
-                            logger.error(
-                                "ComputerSystem's Members array is either empty or missing"
-                            )
+                            logger.error("ComputerSystem's Members array is either empty or missing")
                         raise BadfishException
 
     async def find_managers_resource(self):
@@ -468,9 +435,7 @@ class Badfish:
                             logger.info("Managers service: %s." % managers_service)
                             return managers_service
                     else:
-                        logger.error(
-                            "Manager's Members array is either empty or missing"
-                        )
+                        logger.error("Manager's Members array is either empty or missing")
                         raise BadfishException
 
     async def get_power_state(self):
@@ -535,9 +500,7 @@ class Badfish:
                 logger.error("No such file or directory: %s." % interfaces_path)
                 raise BadfishException
         else:
-            logger.error(
-                "You must provide a path to the interfaces yaml via `-i` optional argument."
-            )
+            logger.error("You must provide a path to the interfaces yaml via `-i` optional argument.")
             raise BadfishException
 
         _type = await self.get_host_type(interfaces_path)
@@ -555,9 +518,7 @@ class Badfish:
             await self.reboot_server()
 
         else:
-            logger.warning(
-                "No changes were made since the boot order already matches the requested."
-            )
+            logger.warning("No changes were made since the boot order already matches the requested.")
         return True
 
     async def change_boot_order(self, _host_type, _interfaces_path):
@@ -568,10 +529,7 @@ class Badfish:
         valid_devices = [device for device in interfaces if device in devices]
         if len(valid_devices) < len(interfaces):
             diff = [device for device in interfaces if device not in valid_devices]
-            logger.warning(
-                "Some interfaces are not valid boot devices. Ignoring: %s"
-                % ", ".join(diff)
-            )
+            logger.warning("Some interfaces are not valid boot devices. Ignoring: %s" % ", ".join(diff))
         change = False
         for i, interface in enumerate(valid_devices):
             for device in self.boot_devices:
@@ -585,9 +543,7 @@ class Badfish:
             await self.patch_boot_seq()
 
         else:
-            logger.warning(
-                "No changes were made since the boot order already matches the requested."
-            )
+            logger.warning("No changes were made since the boot order already matches the requested.")
 
     async def patch_boot_seq(self):
         _boot_seq = await self.get_boot_seq()
@@ -630,10 +586,7 @@ class Badfish:
         await asyncio.sleep(5)
 
         if _response.status == 200:
-            logger.info(
-                'PATCH command passed to set next boot onetime boot device to: "%s".'
-                % "Pxe"
-            )
+            logger.info('PATCH command passed to set next boot onetime boot device to: "%s".' % "Pxe")
         else:
             logger.error("Command failed, error code is %s." % _response.status)
 
@@ -657,10 +610,7 @@ class Badfish:
         return True
 
     async def delete_job_queue_dell(self):
-        _url = (
-            "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue"
-            % self.root_uri
-        )
+        _url = "%s/Dell/Managers/iDRAC.Embedded.1/DellJobService/Actions/DellJobService.DeleteJobQueue" % self.root_uri
         _payload = {"JobID": "JID_CLEARALL"}
         _headers = {"content-type": "application/json"}
         response = await self.post_request(_url, _payload, _headers)
@@ -672,9 +622,7 @@ class Badfish:
             if data.get("error"):
                 if data["error"].get("@Message.ExtendedInfo"):
                     logger.debug(data["error"].get("@Message.ExtendedInfo"))
-            logger.error(
-                "Job queue not cleared, there was something wrong with your request."
-            )
+            logger.error("Job queue not cleared, there was something wrong with your request.")
             raise BadfishException
 
     async def delete_job_queue_force(self):
@@ -703,9 +651,7 @@ class Badfish:
         if not failed:
             logger.info("Job queue for iDRAC %s successfully cleared." % self.host)
         else:
-            logger.error(
-                "Job queue not cleared, there was something wrong with your request."
-            )
+            logger.error("Job queue not cleared, there was something wrong with your request.")
             raise BadfishException
 
     async def clear_job_queue(self):
@@ -723,10 +669,7 @@ class Badfish:
                     logger.info("Attempting to clear job list instead.")
                     await self.clear_job_list(_job_queue)
         else:
-            logger.warning(
-                "Job queue already cleared for iDRAC %s, DELETE command will not execute."
-                % self.host
-            )
+            logger.warning("Job queue already cleared for iDRAC %s, DELETE command will not execute." % self.host)
 
     async def list_job_queue(self):
         _job_queue = await self.get_job_queue()
@@ -747,10 +690,7 @@ class Badfish:
         if status_code in expected:
             logger.info("POST command passed to create target config job.")
         else:
-            logger.error(
-                "POST command failed to create BIOS config job, status code is %s."
-                % status_code
-            )
+            logger.error("POST command failed to create BIOS config job, status code is %s." % status_code)
 
             await self.error_handler(_response)
 
@@ -771,21 +711,12 @@ class Badfish:
 
         status_code = _response.status
         if status_code in [200, 204]:
-            logger.info(
-                "Command passed to %s server, code return is %s."
-                % (reset_type, status_code)
-            )
+            logger.info("Command passed to %s server, code return is %s." % (reset_type, status_code))
             await asyncio.sleep(10)
         elif status_code in [409, 400]:
-            logger.warning(
-                "Command failed to %s server, host appears to be already in that state."
-                % reset_type
-            )
+            logger.warning("Command failed to %s server, host appears to be already in that state." % reset_type)
         else:
-            logger.error(
-                "Command failed to %s server, status code is: %s."
-                % (reset_type, status_code)
-            )
+            logger.error("Command failed to %s server, status code is: %s." % (reset_type, status_code))
 
             await self.error_handler(_response)
 
@@ -799,9 +730,7 @@ class Badfish:
                 host_down = await self.polling_host_state("Off")
 
                 if not host_down:
-                    logger.warning(
-                        "Unable to graceful shutdown the server, will perform forced shutdown now."
-                    )
+                    logger.warning("Unable to graceful shutdown the server, will perform forced shutdown now.")
                     await self.send_reset("ForceOff")
             else:
                 await self.send_reset("ForceOff")
@@ -833,14 +762,10 @@ class Badfish:
 
         status_code = _response.status
         if status_code == 204:
-            logger.info(
-                "Status code %s returned for POST command to reset iDRAC." % status_code
-            )
+            logger.info("Status code %s returned for POST command to reset iDRAC." % status_code)
         else:
             data = await _response.text("utf-8", "ignore")
-            logger.error(
-                "Status code %s returned, error is: \n%s." % (status_code, data)
-            )
+            logger.error("Status code %s returned, error is: \n%s." % (status_code, data))
             raise BadfishException
         await asyncio.sleep(15)
 
@@ -862,14 +787,10 @@ class Badfish:
 
         status_code = _response.status
         if status_code in [200, 204]:
-            logger.info(
-                "Status code %s returned for POST command to reset BIOS." % status_code
-            )
+            logger.info("Status code %s returned for POST command to reset BIOS." % status_code)
         else:
             data = await _response.text("utf-8", "ignore")
-            logger.error(
-                "Status code %s returned, error is: \n%s." % (status_code, data)
-            )
+            logger.error("Status code %s returned, error is: \n%s." % (status_code, data))
             raise BadfishException
 
         logger.info("BIOS will now reset and be back online within a few minutes.")
@@ -892,9 +813,7 @@ class Badfish:
                 logger.error("No such file or directory: %s." % _interfaces_path)
                 raise BadfishException
         else:
-            logger.error(
-                "You must provide a path to the interfaces yaml via `-i` optional argument."
-            )
+            logger.error("You must provide a path to the interfaces yaml via `-i` optional argument.")
             raise BadfishException
         host_types = await self.get_host_types_from_yaml(_interfaces_path)
         if host_type.lower() not in host_types:
@@ -903,7 +822,7 @@ class Badfish:
 
         device = await self.get_host_type_boot_device(host_type, _interfaces_path)
 
-        await self.boot_to(device, True)
+        await self.boot_to(device)
 
     async def boot_to_mac(self, mac_address):
         interfaces_endpoints = await self.get_interfaces_endpoints()
@@ -984,10 +903,7 @@ class Badfish:
             if device.lower() in boot_devices:
                 return True
             else:
-                logger.error(
-                    "Device %s does not match any of the existing for host %s"
-                    % (device, self.host)
-                )
+                logger.error("Device %s does not match any of the existing for host %s" % (device, self.host))
                 return False
         else:
             logger.error(f"No boot devices found for {self.host}")
@@ -1054,9 +970,7 @@ class Badfish:
         if _interfaces_path:
             interfaces = await self.get_interfaces_by_type(host_type, _interfaces_path)
         else:
-            logger.error(
-                "You must provide a path to the interfaces yaml via `-i` optional argument."
-            )
+            logger.error("You must provide a path to the interfaces yaml via `-i` optional argument.")
             raise BadfishException
 
         return interfaces[0]
@@ -1091,9 +1005,7 @@ class Badfish:
                                 return vmc.get("@odata.id")
 
                 except ValueError:
-                    logger.error(
-                        "Not able to check for supported virtual media unmount"
-                    )
+                    logger.error("Not able to check for supported virtual media unmount")
                     raise BadfishException
 
         return None
@@ -1151,13 +1063,9 @@ class Badfish:
                 name = disc_data.get("Name")
                 image_name = disc_data.get("ImageName")
                 inserted = disc_data.get("Inserted")
-                logger.info(
-                    f"ID: {_id} - Name: {name} - ImageName: {image_name} - Inserted: {inserted}"
-                )
+                logger.info(f"ID: {_id} - Name: {name} - ImageName: {image_name} - Inserted: {inserted}")
             except ValueError:
-                logger.error(
-                    "There was something wrong getting values for VirtualMedia"
-                )
+                logger.error("There was something wrong getting values for VirtualMedia")
                 raise BadfishException
 
         return True
@@ -1313,9 +1221,7 @@ class Badfish:
 
     async def list_interfaces(self):
         na_supported = await self.check_supported_network_interfaces("NetworkAdapters")
-        ei_supported = await self.check_supported_network_interfaces(
-            "EthernetInterfaces"
-        )
+        ei_supported = await self.check_supported_network_interfaces("EthernetInterfaces")
         if na_supported:
             logger.debug("Getting Network Adapters")
             data = await self.get_network_adapters()
