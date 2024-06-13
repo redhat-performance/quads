@@ -83,12 +83,7 @@ def main():
                 properties["host_mac"] = properties["mac"]
                 properties["ip"] = properties.get("sp_ip")
                 properties["mac"] = properties.get("sp_mac")
-                svctag_file = os.path.join(Config["data_dir"], "ipmi", host, "svctag")
-                svctag = ""
-                if os.path.exists(svctag_file):
-                    with open(svctag_file) as _file:
-                        svctag = _file.read()
-                properties["svctag"] = svctag.strip()
+                properties["svctag"] = ""
                 hosts[host] = properties
 
     _full_path = os.path.join(Config["wp_wiki_git_repo_path"], "main.md")
