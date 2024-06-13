@@ -54,9 +54,9 @@ def print_summary():
 
     for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         cloud_name = cloud["name"]
-        cloud_description = cloud["description"] if cloud["description"] else "N/A"
+        cloud_description = cloud["description"] if cloud["description"] else Config["spare_pool_description"]
         desc = f"{cloud_description} ({cloud['count']})"
-        owner = cloud["owner"]
+        owner = cloud["owner"] if cloud["owner"] else Config["spare_pool_owner"]
         ticket = cloud["ticket"]
         ticket_link = "<a href=%s/%s-%s target=_blank>%s</a>" % (
             Config["ticket_url"],
@@ -240,8 +240,8 @@ def main():
         _cloud_summary = summary_response.json()
     for cloud in [cloud for cloud in _cloud_summary if cloud["count"] > 0]:
         name = cloud["name"]
-        owner = cloud["owner"] if cloud["owner"] else "N/A"
-        cloud_description = cloud["description"] if cloud["description"] else "N/A"
+        owner = cloud["owner"] if cloud["owner"] else Config["spare_pool_owner"]
+        cloud_description = cloud["description"] if cloud["description"] else Config["spare_pool_description"]
         desc = f"{cloud_description} ({cloud['count']})"
         lines.append("### <a name=%s></a>\n" % name.strip())
         lines.append(f"### **{name.strip()} : {desc} -- {owner}**\n\n")

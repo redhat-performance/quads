@@ -2,6 +2,8 @@ import json
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request, Response, make_response
+
+from quads.config import Config
 from quads.server.blueprints import check_access
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
@@ -136,14 +138,16 @@ def get_summary() -> Response:
     total_count = 0
     _clouds = CloudDao.get_clouds()
     schedules = None
+    description = ""
+    owner = ""
     for _cloud in _clouds:
         if _cloud.name == "cloud01":
             hosts = HostDao.filter_hosts(cloud=_cloud, retired=False, broken=False)
             count = len(hosts)
+            description = Config["spare_pool_description"]
+            owner = Config["spare_pool_owner"]
         else:
-            date = (
-                datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
-            )
+            date = datetime.strptime(_date, "%Y-%m-%dT%H:%M") if _date else datetime.now()
             schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
             count = len(schedules)
             total_count += count
@@ -152,13 +156,11 @@ def get_summary() -> Response:
             {
                 "name": _cloud.name,
                 "count": count,
-                "description": schedules[0].assignment.description if schedules else "",
-                "owner": schedules[0].assignment.owner if schedules else "",
+                "description": schedules[0].assignment.description if schedules else description,
+                "owner": schedules[0].assignment.owner if schedules else owner,
                 "ticket": schedules[0].assignment.ticket if schedules else "",
                 "ccuser": schedules[0].assignment.ccuser if schedules else "",
-                "provisioned": schedules[0].assignment.provisioned
-                if schedules
-                else False,
+                "provisioned": schedules[0].assignment.provisioned if schedules else False,
                 "validated": schedules[0].assignment.validated if schedules else False,
             }
         )

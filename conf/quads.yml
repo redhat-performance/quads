@@ -5,6 +5,8 @@
 #
 # spare pool name. e.g. where your unused systems rest
 spare_pool_name: cloud01
+spare_pool_description: "Spare Pool"
+spare_pool_owner: quads
 
 # display name for QUADS email notifications
 mail_display_name: "QUADS Scheduler"
