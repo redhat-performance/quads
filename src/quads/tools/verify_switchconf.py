@@ -69,7 +69,7 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                     )
                     vlan_member = vlan_member_out[0].split()[2][4:].strip(",")
                 except IndexError:
-                    if not _cloud_obj.vlan and not last_nic:
+                    if not _assignment.vlan and not last_nic:
                         logger.warning(
                             "Could not determine the previous VLAN member for %s, switch %s, switch port %s "
                             % (
@@ -95,11 +95,11 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
                         )
 
                     if change:
-                        if _cloud_obj.vlan and last_nic:
-                            if int(_cloud_obj.vlan.vlan_id) != int(old_vlan):
+                        if _assignment.vlan and last_nic:
+                            if int(_assignment.vlan.vlan_id) != int(old_vlan):
 
                                 logger.info(f"Change requested for {interface.name}")
-                                logger.info("Setting last interface to public vlan %s." % _cloud_obj.vlan.vlan_id)
+                                logger.info("Setting last interface to public vlan %s." % _assignment.vlan.vlan_id)
 
                                 juniper = Juniper(
                                     interface.switch_ip,

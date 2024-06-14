@@ -30,9 +30,6 @@ MAP_HOST_META = {
     "memory": Memory,
     "processors": Processor,
 }
-MAP_MODEL = {
-    "HostDao": Host,
-}
 
 
 class EntryNotFound(Exception):

@@ -51,9 +51,7 @@ class AssignmentDao(BaseDao):
         return _assignment_obj
 
     @classmethod
-    def udpate_assignment(
-        cls, assignment_id: int, **kwargs
-    ) -> Assignment:  # pragma: no cover
+    def udpate_assignment(cls, assignment_id: int, **kwargs) -> Assignment:  # pragma: no cover
         """
         Updates an assignment in the database.
 
@@ -101,15 +99,9 @@ class AssignmentDao(BaseDao):
 
     @staticmethod
     def get_assignment(assignment_id: int) -> Assignment:
-        assignment = (
-            db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
-        )
+        assignment = db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
         if assignment and not assignment.notification:
-            assignment.notification = (
-                db.session.query(Notification)
-                .filter(Assignment.id == assignment_id)
-                .first()
-            )
+            assignment.notification = db.session.query(Notification).filter(Assignment.id == assignment_id).first()
         return assignment
 
     @classmethod
@@ -127,11 +119,7 @@ class AssignmentDao(BaseDao):
         if assignment:
             for a in assignment:
                 if not a.notification:
-                    a.notification = (
-                        db.session.query(Notification)
-                        .filter(Assignment.id == a.id)
-                        .first()
-                    )
+                    a.notification = db.session.query(Notification).filter(Assignment.id == a.id).first()
         return assignment
 
     @staticmethod
@@ -166,6 +154,11 @@ class AssignmentDao(BaseDao):
                     if not cloud:
                         raise EntryNotFound(f"Cloud not found: {value}")
                     value = cloud
+                if first_field in ["vlan"]:
+                    vlan = VlanDao.get_vlan(value)
+                    if not vlan:
+                        raise EntryNotFound(f"Vlan not found: {value}")
+                    value = vlan.id
             filter_tuples.append(
                 (
                     field_name,
@@ -174,41 +167,31 @@ class AssignmentDao(BaseDao):
                 )
             )
         if filter_tuples:
-            _hosts = AssignmentDao.create_query_select(
-                Assignment, filters=filter_tuples
-            )
+            _hosts = AssignmentDao.create_query_select(Assignment, filters=filter_tuples)
         else:
             _hosts = AssignmentDao.get_assignments()
         return _hosts
 
     @staticmethod
     def get_all_cloud_assignments(cloud: Cloud) -> List[Assignment]:  # pragma: no cover
-        assignments = (
-            db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
-        )
+        assignments = db.session.query(Assignment).filter(Assignment.cloud == cloud).all()
         return assignments
 
     @staticmethod
     def get_active_cloud_assignment(cloud: Cloud) -> Assignment:
         assignment = (
-            db.session.query(Assignment)
-            .filter(and_(Assignment.cloud == cloud, Assignment.active == True))
-            .first()
+            db.session.query(Assignment).filter(and_(Assignment.cloud == cloud, Assignment.active == True)).first()
         )
         return assignment
 
     @staticmethod
     def get_active_assignments() -> List[Assignment]:
-        assignments = (
-            db.session.query(Assignment).filter(Assignment.active == True).all()
-        )
+        assignments = db.session.query(Assignment).filter(Assignment.active == True).all()
         return assignments
 
     @classmethod
     def delete_assignment(cls, assignment_id: int):
-        _assignment_obj = (
-            db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
-        )
+        _assignment_obj = db.session.query(Assignment).filter(Assignment.id == assignment_id).first()
 
         if not _assignment_obj:
             raise EntryNotFound(f"Could not find assignment with id: {assignment_id}")
