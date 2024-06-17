@@ -314,7 +314,7 @@ def main(_logger=None):
                             create_future_message(
                                 cloud,
                                 ass,
-                                day,
+                                day.value,
                                 cloud_info,
                                 host_list,
                             )
