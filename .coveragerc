@@ -4,7 +4,7 @@ source = src/quads/cli/cli.py
 [run]
 omit =
     tests/*
-    src/quads/tools/external/badfish.py
+    quads/src/quads/tools/external/badfish.py
 
 [report]
 # Regexes for lines to exclude from consideration
