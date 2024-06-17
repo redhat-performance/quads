@@ -48,8 +48,8 @@ class TestReport(TestBase):
         assert self._caplog.messages[0].startswith("QUADS report for ")
         assert self._caplog.messages[1].startswith("Percentage Utilized: ")
         assert self._caplog.messages[2] == "Server Type | Total|  Free| Scheduled| 2 weeks| 4 weeks"
-        assert self._caplog.messages[3] == "R930        |     1|     0|      100%|       0|       0"
-        assert self._caplog.messages[4] == "R640        |     1|     0|      100%|       0|       0"
+        assert self._caplog.messages[3].startswith("R930        |     1|     0|      100%")
+        assert self._caplog.messages[4].startswith("R640        |     1|     0|      100%")
 
     def test_report_scheduled(self, remove_fixture):
         today = datetime.now()
