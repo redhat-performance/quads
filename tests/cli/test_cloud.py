@@ -5,7 +5,6 @@ from quads.exceptions import CliException
 from quads.quads_api import APIServerException
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import db
 from tests.cli.config import (
     CLOUD,
     HOST1,

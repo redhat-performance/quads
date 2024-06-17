@@ -32,7 +32,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
     irc_bot_channel = Config["ircbot_channel"]
     webhook_url = Config["webhook_url"]
     infra_location = Config["infra_location"]
-    cc_users = Config["report_cc"].split(",")
+    cc_users = [_cc_user.strip() for _cc_user in Config["report_cc"].split(",")]
     for user in cc:
         cc_users.append("%s@%s" % (user, Config["domain"]))
 
@@ -57,7 +57,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
         )
         postman.send_email()
 
-    if Config["irc_notify"]:  # pragma: no cover
+    if Config["irc_notify"]:
         try:
             async with Netcat(irc_bot_ip, irc_bot_port) as nc:
                 message = "%s QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
@@ -73,7 +73,7 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
             logger.debug(ex)
             logger.error("Beep boop netcat can't communicate with your IRC.")
 
-    if Config["webhook_notify"]:  # pragma: no cover
+    if Config["webhook_notify"]:
         try:
             message = "QUADS: %s is now active, choo choo! - %s/assignments/#%s -  %s %s" % (
                 cloud_info,
@@ -87,25 +87,24 @@ async def create_initial_message(real_owner, cloud, cloud_info, ticket, cc):
                 json={"text": message},
                 headers={"Content-Type": "application/json"},
             )
-        except Exception as ex:
+        except Exception as ex:  # pragma: no cover
             logger.debug(ex)
             logger.error("Beep boop we can't communicate with your webhook.")
 
 
 def create_message(  # pragma: no cover
-    cloud_obj,
+    cloud,
     assignment_obj,
     day,
     cloud_info,
     host_list_expire,
 ):
     template_file = "message"
-    cloud = cloud_obj.name
     real_owner = assignment_obj.owner
     ticket = assignment_obj.ticket
     cc = assignment_obj.ccuser
 
-    cc_users = Config["report_cc"].split(",")
+    cc_users = [_cc_user.strip() for _cc_user in Config["report_cc"].split(",")]
     for user in cc:
         cc_users.append("%s@%s" % (user, Config["domain"]))
     with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
@@ -130,11 +129,10 @@ def create_message(  # pragma: no cover
     postman.send_email()
 
 
-def create_future_initial_message(cloud_obj, assignment_obj, cloud_info):
+def create_future_initial_message(cloud, assignment_obj, cloud_info):
     template_file = "future_initial_message"
-    cloud = cloud_obj.name
     ticket = assignment_obj.ticket
-    cc_users = Config["report_cc"].split(",")
+    cc_users = [_cc_user.strip() for _cc_user in Config["report_cc"].split(",")]
     for user in assignment_obj.ccuser:
         cc_users.append("%s@%s" % (user, Config["domain"]))
     with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
@@ -153,14 +151,14 @@ def create_future_initial_message(cloud_obj, assignment_obj, cloud_info):
 
 
 def create_future_message(
-    cloud_obj,
+    cloud,
     assignment_obj,
     future_days,
     cloud_info,
     host_list_expire,
 ):
-    cc_users = Config["report_cc"].split(",")
     ticket = assignment_obj.ticket
+    cc_users = [_cc_user.strip() for _cc_user in Config["report_cc"].split(",")]
     for user in assignment_obj.ccuser:
         cc_users.append("%s@%s" % (user, Config["domain"]))
     template_file = "future_message"
@@ -170,11 +168,11 @@ def create_future_message(
         days_to_report=future_days,
         cloud_info=cloud_info,
         wp_wiki=Config["wp_wiki"],
-        cloud=cloud_obj.name,
+        cloud=cloud,
         hosts=host_list_expire,
     )
     postman = Postman(
-        "QUADS upcoming assignment notification - %s - %s" % (cloud_obj.name, ticket),
+        "QUADS upcoming assignment notification - %s - %s" % (cloud, ticket),
         assignment_obj.owner,
         cc_users,
         content,
@@ -243,8 +241,9 @@ def main(_logger=None):
                 if not getattr(ass.notification, day.name.lower()) and Config["email_notify"]:
                     logger.info("=============== Additional Message")
                     host_list = [schedule.host.name for schedule in diff]
+                    cloud = ass.cloud.name
                     create_message(
-                        ass.cloud,
+                        cloud,
                         ass.notification,
                         day.value,
                         cloud_info,
@@ -280,7 +279,7 @@ def main(_logger=None):
             if not ass.notification.pre_initial and Config["email_notify"]:
                 logger.info("=============== Future Initial Message")
                 create_future_initial_message(
-                    cloud,
+                    cloud.name,
                     ass,
                     cloud_info,
                 )
@@ -312,9 +311,9 @@ def main(_logger=None):
                         if diff:
                             logger.info("=============== Additional Message")
                             create_future_message(
-                                cloud,
+                                cloud.name,
                                 ass,
-                                day,
+                                day.value,
                                 cloud_info,
                                 host_list,
                             )
