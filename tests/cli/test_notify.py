@@ -45,6 +45,5 @@ class TestNotify(TestBase):
         assert self._caplog.messages == [
             "=============== Initial Message",
             "Beep boop we can't communicate with your webhook.",
-            "=============== Additional Message",
             "Notifications sent out.",
         ]

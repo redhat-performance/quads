@@ -195,14 +195,14 @@ def main(_logger=None):
 
         payload = {"cloud": ass.cloud.name}
         try:
-            current_hosts = quads.get_current_schedules(payload)
+            current_schedules = quads.get_current_schedules(payload)
         except (APIServerException, APIBadRequest) as ex:
             logger.debug(str(ex))
             logger.error("Could not get current schedules")
 
         cloud_info = "%s: %s (%s)" % (
             ass.cloud.name,
-            len(current_hosts),
+            len(current_schedules),
             ass.description,
         )
         if not ass.notification.initial:
@@ -223,6 +223,7 @@ def main(_logger=None):
                 logger.error("Could not update notification: %s." % ass.notification.id)
 
         for day in Days:
+            future_schedules = None
             future = datetime.now() + timedelta(days=day.value)
             future_date = "%4d-%.2d-%.2dT22:00" % (
                 future.year,
@@ -231,13 +232,15 @@ def main(_logger=None):
             )
             payload = {"cloud": ass.cloud.name, "date": future_date}
             try:
-                future_hosts = quads.get_current_schedules(payload)
+                future_schedules = quads.get_current_schedules(payload)
             except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 logger.debug(str(ex))
                 logger.error("Could not get current schedules")
 
+            current_hosts = [sched.host.name for sched in current_schedules]
+            future_hosts = [sched.host.name for sched in future_schedules]
             diff = set(current_hosts) - set(future_hosts)
-            if diff and future > current_hosts[0].end:
+            if diff and future > current_schedules[0].end:
                 if not getattr(ass.notification, day.name.lower()) and Config["email_notify"]:
                     logger.info("=============== Additional Message")
                     host_list = [schedule.host.name for schedule in diff]
@@ -265,14 +268,14 @@ def main(_logger=None):
         if cloud.name != Config["spare_pool_name"] and ass.owner not in ["quads", None]:
             payload = {"cloud": ass.cloud.name}
             try:
-                current_hosts = quads.get_current_schedules(payload)
+                current_schedules = quads.get_current_schedules(payload)
             except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                 logger.debug(str(ex))
                 logger.error("Could not get current schedules")
 
             cloud_info = "%s: %s (%s)" % (
                 cloud.name,
-                len(current_hosts),
+                len(current_schedules),
                 ass.description,
             )
 
@@ -291,6 +294,7 @@ def main(_logger=None):
                     logger.error("Could not update notification: %s." % ass.notification.id)
 
             for day in Days:
+                future_schedules = None
                 if not ass.notification.pre and ass.validated:
                     future = datetime.now() + timedelta(days=day.value)
                     future_date = "%4d-%.2d-%.2dT22:00" % (
@@ -300,12 +304,14 @@ def main(_logger=None):
                     )
                     payload = {"cloud": ass.cloud.name, "date": future_date}
                     try:
-                        future_hosts = quads.get_current_schedules(payload)
+                        future_schedules = quads.get_current_schedules(payload)
                     except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                         logger.debug(str(ex))
                         logger.error("Could not get current schedules")
 
-                    if len(future_hosts) > 0:
+                    if len(future_schedules) > 0:
+                        current_hosts = [sched.host.name for sched in current_schedules]
+                        future_hosts = [sched.host.name for sched in future_schedules]
                         diff = set(current_hosts) - set(future_hosts)
                         host_list = [schedule.host.name for schedule in diff]
                         if diff:
