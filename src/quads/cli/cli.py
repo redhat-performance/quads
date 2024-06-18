@@ -1332,7 +1332,16 @@ class QuadsCli:
                     value = ":".join(datetime.strptime(value, "%Y-%m-%d %H:%M").isoformat().split(":")[:-1])
                 data[k] = value
         try:
+            schedule = self.quads.get_schedule(self.cli_args.get("schedid"))
             self.quads.update_schedule(self.cli_args.get("schedid"), data)
+            not_data = {
+                "one_day": False,
+                "three_day": False,
+                "five_day": False,
+                "seven_day": False,
+                "pre": False,
+            }
+            self.quads.update_notification(schedule.assignment["notification"]["id"], not_data)
             self.logger.info("Schedule updated successfully.")
         except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))

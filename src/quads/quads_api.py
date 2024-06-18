@@ -206,6 +206,15 @@ class QuadsApi:
             schedules.append(Schedule().from_dict(schedule))
         return schedules
 
+    def get_schedule(self, schedule_id: int) -> Schedule:
+        schedule_obj = None
+        url = os.path.join("schedules", str(schedule_id))
+        response = self.get(url)
+        obj_json = response.json()
+        if obj_json:
+            schedule_obj = Schedule(**obj_json)
+        return schedule_obj
+
     def get_future_schedules(self, data: dict = None) -> List[Schedule]:
         if data is None:
             data = {}
