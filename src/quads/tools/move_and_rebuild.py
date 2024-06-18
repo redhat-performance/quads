@@ -58,9 +58,9 @@ def switch_config(host, old_cloud, new_cloud):  # pragma: no cover
                         interface.switch_port,
                     )
                 )
-            old_vlan = get_vlan(_old_ass_cloud_obj, i)
+            old_vlan = get_vlan(_old_ass_cloud_obj, i, last_nic)
 
-        new_vlan = get_vlan(_new_ass_cloud_obj, i)
+        new_vlan = get_vlan(_new_ass_cloud_obj, i, last_nic)
 
         if _new_ass_cloud_obj and _new_ass_cloud_obj.vlan and last_nic:
             if int(old_vlan) != int(_new_ass_cloud_obj.vlan.vlan_id):
