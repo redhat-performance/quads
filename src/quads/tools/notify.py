@@ -239,11 +239,10 @@ def main(_logger=None):
 
             current_hosts = [sched.host.name for sched in current_schedules]
             future_hosts = [sched.host.name for sched in future_schedules]
-            diff = set(current_hosts) - set(future_hosts)
-            if diff and future > current_schedules[0].end:
+            host_list = set(current_hosts) - set(future_hosts)
+            if host_list and future > current_schedules[0].end:
                 if not getattr(ass.notification, day.name.lower()) and Config["email_notify"]:
                     logger.info("=============== Additional Message")
-                    host_list = [schedule.host.name for schedule in diff]
                     cloud = ass.cloud.name
                     create_message(
                         cloud,
@@ -312,9 +311,8 @@ def main(_logger=None):
                     if len(future_schedules) > 0:
                         current_hosts = [sched.host.name for sched in current_schedules]
                         future_hosts = [sched.host.name for sched in future_schedules]
-                        diff = set(current_hosts) - set(future_hosts)
-                        host_list = [schedule.host.name for schedule in diff]
-                        if diff:
+                        host_list = set(current_hosts) - set(future_hosts)
+                        if host_list:
                             logger.info("=============== Additional Message")
                             create_future_message(
                                 cloud.name,
