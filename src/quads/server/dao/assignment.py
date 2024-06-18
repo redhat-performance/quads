@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Type
 
 from quads.server.dao.baseDao import (
@@ -25,7 +26,7 @@ class AssignmentDao(BaseDao):
         cloud: str,
         vlan_id: int = None,
     ) -> Assignment:
-        cloud = CloudDao.get_cloud(cloud)
+        _cloud = CloudDao.get_cloud(cloud)
         notification = Notification()
         kwargs = {
             "description": description,
@@ -34,7 +35,7 @@ class AssignmentDao(BaseDao):
             "qinq": qinq,
             "wipe": wipe,
             "ccuser": ccuser,
-            "cloud": cloud,
+            "cloud": _cloud,
             "notification": notification,
         }
         if vlan_id:
@@ -70,6 +71,7 @@ class AssignmentDao(BaseDao):
         :return: The updated assignment
         """
         assignment = cls.get_assignment(assignment_id)
+
         if not assignment:
             raise EntryNotFound
 
@@ -92,6 +94,10 @@ class AssignmentDao(BaseDao):
                 setattr(assignment, key, value)
             else:
                 raise InvalidArgument
+
+        _cloud_obj = CloudDao.get_cloud(assignment.cloud.name)
+        if _cloud_obj:
+            CloudDao.update_cloud(_cloud_obj.name, last_redefined=datetime.now())
 
         cls.safe_commit()
 

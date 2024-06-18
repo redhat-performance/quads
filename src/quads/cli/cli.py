@@ -466,9 +466,10 @@ class QuadsCli:
         for cloud in _clouds:
             try:
                 _future_sched = self.quads.get_future_schedules({"cloud": cloud.name})
+                _active_ass = self.quads.get_active_cloud_assignment(cloud.name)
             except (APIServerException, APIBadRequest) as ex:
                 raise CliException(str(ex))
-            if len(_future_sched):
+            if len(_future_sched) or _active_ass:
                 continue
             else:
                 cloud_reservation_lock = int(conf["cloud_reservation_lock"])

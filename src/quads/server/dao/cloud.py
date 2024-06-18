@@ -24,6 +24,32 @@ class CloudDao(BaseDao):
         return _cloud
 
     @classmethod
+    def update_cloud(cls, cloud_name: str, **kwargs) -> Cloud:  # pragma: no cover
+        """
+        Updates a cloud in the database.
+
+        :param self: Represent the instance of the class
+        :param name: str: Cloud name
+        :param last_redefined: datetime: Last time the cloud was redefined
+
+        :return: The updated assignment
+        """
+        cloud = cls.get_cloud(cloud_name)
+        if not cloud:
+            raise EntryNotFound
+
+        for key, value in kwargs.items():
+
+            if getattr(cloud, key):
+                setattr(cloud, key, value)
+            else:
+                raise InvalidArgument
+
+        cls.safe_commit()
+
+        return cloud
+
+    @classmethod
     def remove_cloud(cls, name) -> None:
         _cloud_obj = cls.get_cloud(name)
         if not _cloud_obj:
@@ -80,5 +106,3 @@ class CloudDao(BaseDao):
         else:
             _clouds = CloudDao.get_clouds()
         return _clouds
-
-
