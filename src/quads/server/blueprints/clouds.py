@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request, Response, make_response
+from quads.server.dao.assignment import AssignmentDao
 
 from quads.config import Config
 from quads.server.blueprints import check_access
@@ -95,6 +96,50 @@ def create_cloud() -> Response:
     return jsonify(_cloud_obj.as_dict())
 
 
+@cloud_bp.route("/<cloud>/", methods=["PATCH"])
+@check_access("admin")
+def update_cloud(cloud) -> Response:
+    """
+    Updates an exiting cloud in the database.
+        ---
+        tags:
+          - API
+
+    :return: A response object with the created cloud
+    """
+
+    _cloud = CloudDao.get_cloud(cloud)
+    if not _cloud:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Cloud {cloud} does not exist",
+        }
+        return Response(response=json.dumps(response), status=400)
+
+    data = request.get_json()
+    parsed_data = {}
+    name = data.get("name")
+    if name:
+        parsed_data["name"] = name
+    last_redefined = data.get("last_redefined")
+    _format = "%Y-%m-%dT%H:%M"
+    try:
+        if last_redefined:
+            last_redefined = datetime.strptime(last_redefined, _format)
+            parsed_data["last_redefined"] = last_redefined
+    except ValueError:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'",
+        }
+        return make_response(jsonify(response), 400)
+
+    _cloud_obj = CloudDao.update_cloud(cloud, **data)
+    return jsonify(_cloud_obj.as_dict())
+
+
 @cloud_bp.route("/<cloud>/", methods=["DELETE"])
 @check_access("admin")
 def delete_cloud(cloud: str) -> Response:
@@ -137,6 +182,7 @@ def get_summary() -> Response:
     clouds_summary = []
     total_count = 0
     _clouds = CloudDao.get_clouds()
+    _assignment = None
     schedules = None
     description = ""
     owner = ""
@@ -151,17 +197,18 @@ def get_summary() -> Response:
             schedules = ScheduleDao.get_current_schedule(cloud=_cloud, date=date)
             count = len(schedules)
             total_count += count
+            _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
 
         clouds_summary.append(
             {
                 "name": _cloud.name,
                 "count": count,
-                "description": schedules[0].assignment.description if schedules else description,
-                "owner": schedules[0].assignment.owner if schedules else owner,
-                "ticket": schedules[0].assignment.ticket if schedules else "",
-                "ccuser": schedules[0].assignment.ccuser if schedules else "",
-                "provisioned": schedules[0].assignment.provisioned if schedules else False,
-                "validated": schedules[0].assignment.validated if schedules else False,
+                "description": _assignment.description if _assignment else description,
+                "owner": _assignment.owner if _assignment else owner,
+                "ticket": _assignment.ticket if _assignment else "",
+                "ccuser": _assignment.ccuser if _assignment else "",
+                "provisioned": _assignment.provisioned if _assignment else False,
+                "validated": _assignment.validated if _assignment else False,
             }
         )
 

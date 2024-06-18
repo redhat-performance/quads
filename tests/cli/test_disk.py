@@ -1,10 +1,7 @@
 import pytest
 
 from quads.exceptions import CliException
-from quads.server.dao.cloud import CloudDao
-from quads.server.dao.host import HostDao
 from tests.cli.config import (
-    CLOUD,
     HOST1,
     HOST2,
 )
@@ -31,9 +28,7 @@ class TestDisk(TestBase):
             self.cli_args.pop("host")
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("disks")
-        assert (
-            str(ex.value) == "Missing option. --host option is required for --ls-disks."
-        )
+        assert str(ex.value) == "Missing option. --host option is required for --ls-disks."
 
     def test_ls_disk_bad_host(self):
         self.cli_args["host"] = "BADHOST"

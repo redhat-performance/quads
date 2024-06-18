@@ -12,21 +12,29 @@ from tests.cli.config import (
     REMOVE_CLOUD,
     MOD_CLOUD,
     DEFAULT_CLOUD,
+    FREE_CLOUD,
 )
 from tests.cli.test_base import TestBase
 import pytest
 
 
+def finalizer():
+    cloud = CloudDao.get_cloud(DEFINE_CLOUD)
+    assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+    if assignment:
+        AssignmentDao.remove_assignment(assignment.id)
+    if cloud:
+        CloudDao.remove_cloud(DEFINE_CLOUD)
+
+
+def finalizer_free():
+    cloud_free = CloudDao.get_cloud(FREE_CLOUD)
+    if cloud_free:
+        CloudDao.remove_cloud(FREE_CLOUD)
+
+
 @pytest.fixture(autouse=True)
 def remove_cloud(request):
-    def finalizer():
-        cloud = CloudDao.get_cloud(DEFINE_CLOUD)
-        assignment = AssignmentDao.get_active_cloud_assignment(cloud)
-        if assignment:
-            AssignmentDao.remove_assignment(assignment.id)
-        if cloud:
-            CloudDao.remove_cloud(DEFINE_CLOUD)
-
     finalizer()
     request.addfinalizer(finalizer)
 
@@ -34,6 +42,16 @@ def remove_cloud(request):
 @pytest.fixture(autouse=True)
 def define_cloud(request):
     CloudDao.create_cloud(DEFINE_CLOUD)
+    request.addfinalizer(finalizer)
+
+
+@pytest.fixture(autouse=True)
+def define_free_cloud(request):
+    cloud = CloudDao.create_cloud(FREE_CLOUD)
+    assignment = AssignmentDao.get_active_cloud_assignment(cloud)
+    if assignment:
+        AssignmentDao.update_assignment(assignment.id, **{"active": False})
+    request.addfinalizer(finalizer_free)
 
 
 class TestCloud(TestBase):
@@ -234,7 +252,8 @@ class TestCloud(TestBase):
 
         assert self._caplog.messages[0] == DEFAULT_CLOUD
         assert self._caplog.messages[1] == MOD_CLOUD
-        assert self._caplog.messages[2] == CLOUD
+        assert self._caplog.messages[2] == FREE_CLOUD
+        assert self._caplog.messages[3] == CLOUD
 
     @patch("quads.quads_api.requests.Session.get")
     def test_ls_clouds_exception(self, mock_get):
@@ -300,21 +319,21 @@ class TestCloud(TestBase):
 
         assert self._caplog.messages[0] == "No VLANs found."
 
-    def test_free_cloud(self):
+    def test_free_cloud(self, define_free_cloud):
         self.quads_cli_call("free_cloud")
 
-        assert self._caplog.messages[0].startswith(f"{MOD_CLOUD} (reserved: ")
+        assert self._caplog.messages[0].startswith(f"{FREE_CLOUD} (reserved: ")
         assert self._caplog.messages[0].endswith("min remaining)")
 
     @patch("quads.quads_api.requests.Session.get")
-    def test_free_cloud_exception(self, mock_get):
+    def test_free_cloud_exception(self, mock_get, define_free_cloud):
         mock_get.return_value.status_code = 500
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("free_cloud")
         assert str(ex.value) == "Check the flask server logs"
 
     @patch("quads.quads_api.QuadsApi.get_future_schedules")
-    def test_free_cloud_future_exception(self, mock_future):
+    def test_free_cloud_future_exception(self, mock_future, define_free_cloud):
         mock_future.side_effect = APIServerException("Connection Error")
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("free_cloud")
