@@ -9,6 +9,7 @@ from flask import render_template, request, jsonify
 from quads.config import Config
 from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 from quads.tools.external.foreman import Foreman
+from quads.web.controller.CloudOperations import CloudOperations
 from quads.web.forms import ModelSearchForm
 
 flask_app = Flask(__name__)
@@ -74,7 +75,7 @@ def available(search):
     return jsonify(available_hosts)
 
 
-@flask_app.route("/wiki")
+@flask_app.route("/wiki/rdu2-scale-lab-dashboard")
 def create_inventory():
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
@@ -125,9 +126,28 @@ def create_inventory():
                         "Workload": host_obj.cloud.name,
                         "Owner": owner,
                     })
-    return render_template("wiki.html", headers=headers, all_hosts=all_hosts)
+    return render_template("wiki/inventory.html", headers=headers, all_hosts=all_hosts)
+
+
+@flask_app.route("/wiki")
+def create_assignments():
+
+    headers = ["NAME", "SUMMARY", "OWNER", "REQUEST", "STATUS", "OSPENV", "OCPINV"]
+    host_headers = ["ServerHostnamePublic", "OutOfBand", "DateStartAssignment", "DateEndAssignment", "TotalDuration",
+                    "TimeRemaining"]
+    cloud_operation = CloudOperations(quads_api=quads, foreman=foreman, loop=loop)
+    clouds_summary = cloud_operation.get_cloud_summary_report()
+    daily_utilization = cloud_operation.get_daily_utilization()
+    managed_nodes = cloud_operation.get_managed_nodes()
+    domain_broken_hosts = cloud_operation.get_domain_broken_hosts(domain=Config["domain"])
+    unmanaged_hosts = cloud_operation.get_unmanaged_hosts(exclude_hosts=Config["exclude_hosts"])
+    return render_template("wiki/assignments.html", headers=headers, clouds_summary=clouds_summary,
+                           ticket_url=Config.get('ticket_url'), ticket_queue=Config.get('ticket_queue'),
+                           quads_url=Config.get('quads_url'), openshift_management=Config["openshift_management"],
+                           daily_utilization=daily_utilization, domain_broken_hosts=domain_broken_hosts,
+                           host_headers=host_headers, managed_nodes=managed_nodes, unmanaged_hosts=unmanaged_hosts)
 
 
 if __name__ == "__main__":
-    flask_app.debug = False
+    flask_app.debug = True
     flask_app.run(host="0.0.0.0", port=5001)
