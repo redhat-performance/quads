@@ -167,7 +167,7 @@ def add_row(host):
     short_host = host.name.split(".")[0]
 
     _schedule_obj = None
-    _schedules = quads.get_current_schedules({"host": host})
+    _schedules = quads.get_current_schedules({"host": host.name})
     if _schedules:
         _schedule_obj = _schedules[0]
 

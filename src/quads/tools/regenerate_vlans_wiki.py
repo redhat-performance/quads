@@ -36,7 +36,7 @@ def render_vlans(markdown):
     lines = []
     vlans = quads.get_vlans()
     for vlan in vlans:
-        assignment_obj = quads.filter_assignments({"vlan_id": vlan.vlan_id})
+        assignment_obj = quads.filter_assignments({"active": True, "vlan.vlan_id": vlan.vlan_id})
         assignment_obj = assignment_obj[0] if assignment_obj else None
         cloud_current_count = 0
         cloud_obj = None
