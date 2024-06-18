@@ -348,7 +348,7 @@ class QuadsCli:
             raise CliException(str(ex))
         if _vlans:
             for vlan in _vlans:
-                payload = {"vlan.vlan_id": vlan.vlan_id}
+                payload = {"vlan.vlan_id": vlan.vlan_id, "active": True}
                 try:
                     assignments = self.quads.filter_assignments(payload)
                 except (APIServerException, APIBadRequest) as ex:
