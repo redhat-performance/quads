@@ -88,7 +88,7 @@ def print_summary():
         danger_class = "danger" if dangerous else "warning"
 
         classes = ["progress-bar"]
-        if percent != 100:
+        if not is_valid or percent != 100:
             classes.append("progress-bar-striped")
             classes.append(f"progress-bar-{danger_class}")
             classes.append("active")
