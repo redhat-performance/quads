@@ -866,9 +866,15 @@ class QuadsCli:
                     raise CliException(str(ex))
                 if response.status_code == 200:
                     self.logger.info("Assignment created.")
+                if cloud:
+                    try:
+                        self.quads.update_cloud(cloud.name, {"last_redefined": datetime.now().isoformat()[:-3]})
+                    except (APIServerException, APIBadRequest) as ex:
+                        raise CliException(str(ex))
             elif assignment:
                 try:
                     response = self.quads.update_assignment(assignment.id, data)
+                    self.quads.update_cloud(cloud.name, {"last_redefined": datetime.now().isoformat()[:-3]})
                 except (APIServerException, APIBadRequest) as ex:
                     raise CliException(str(ex))
                 if response.status_code == 200:
@@ -910,13 +916,6 @@ class QuadsCli:
 
         if not assignment:
             raise CliException(f"No active cloud assignment for {self.cli_args.get('cloud')}")
-
-        if self.cli_args.get("cloudticket"):
-            payload = {"ticket": self.cli_args.get("cloudticket")}
-            try:
-                self.quads.update_assignment(assignment.id, payload)
-            except (APIServerException, APIBadRequest) as ex:
-                raise CliException(str(ex))
 
         try:
             self.quads.update_assignment(assignment.id, clean_data)
