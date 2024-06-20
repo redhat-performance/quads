@@ -19,6 +19,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
       * [QUADS Switch and Host Setup](#quads-switch-and-host-setup)
       * [Installing QUADS](#installing-quads)
          * [Installing QUADS from RPM](#installing-quads-from-rpm)
+            *[Using TLS/SSL with Flask API and QUADS](#using-ssl-with-flask-api-and-quads)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Wiki](#quads-wiki)
                * [Installing Wordpress via Ansible](#installing-wordpress-via-ansible)
@@ -187,6 +188,45 @@ flask --app quads.server.app init-db
 quads --help
 ```
    - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
+
+#### Using SSL with Flask API and QUADS
+
+This step is optional but may be welcoming due to recent HSTS enforcement in most browsers.
+
+To enable TLS/SSL on QUADS (API, Web) you'll need to generate your own certificates, if you're cool with self-signed cerificates you can use this one-liner:
+
+```
+servername=$(hostname)
+mkdir -p /etc/pki/tls/certs ; cd /etc/pki/tls/certs
+openssl req -x509 -newkey rsa:4096 -keyout $servername.key -out $servername.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+```
+
+This generates your certificate and key here:
+
+| SSL Component | File System Path                    |
+| --------------|-------------------------------------|
+| Nginx Cert    | /etc/pki/tls/certs/servername.pem   |
+| Nginx Key     | /etc/pki/tls/certs/servername.key   |
+
+
+Next you'll need to copy `apiv3_ssl.conf.example` into place as `apiv3_ssl.conf`
+
+```
+cd /etc/nginx/conf.d
+cp apiv3_ssl.conf.example apiv3_ssl.conf
+```
+
+Lastly, in-line edit the configuration file to point to your generated cert/key pair.
+
+```
+servername=$(hostname) ; sed -i -e "s/quads.example.com/$servername/" /etc/nginx/conf.d/apiv3_ssl.conf
+```
+
+Lastly, restart nginx:
+
+```
+sytemctl restart nginx
+```
 
 ### Installing other QUADS Components
 
