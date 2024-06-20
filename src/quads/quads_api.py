@@ -175,6 +175,9 @@ class QuadsApi:
     def insert_cloud(self, data) -> Response:
         return self.post("clouds", data)
 
+    def update_cloud(self, cloud_name, data) -> Response:
+        return self.patch(os.path.join("clouds", cloud_name), data)
+
     def remove_cloud(self, cloud_name) -> Response:
         return self.delete(os.path.join("clouds", cloud_name))
 

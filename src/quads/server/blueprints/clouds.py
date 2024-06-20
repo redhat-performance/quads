@@ -182,11 +182,10 @@ def get_summary() -> Response:
     clouds_summary = []
     total_count = 0
     _clouds = CloudDao.get_clouds()
-    _assignment = None
-    schedules = None
-    description = ""
-    owner = ""
     for _cloud in _clouds:
+        _assignment = None
+        description = "Available"
+        owner = ""
         if _cloud.name == "cloud01":
             hosts = HostDao.filter_hosts(cloud=_cloud, retired=False, broken=False)
             count = len(hosts)
