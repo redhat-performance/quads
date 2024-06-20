@@ -1501,7 +1501,7 @@ class QuadsCli:
 
         date = ""
         if self.cli_args.get("datearg"):
-            date = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()
+            date = datetime.strptime(self.cli_args.get("datearg"), "%Y-%m-%d %H:%M").isoformat()[:-3]
 
         try:
             moves = self.quads.get_moves(date)
