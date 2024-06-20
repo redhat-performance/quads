@@ -36,11 +36,13 @@ SHELL=/bin/bash
 ##### ONLY USE WITH RPM OR SOURCE INSTALL
 ##### (RECOMMENDED)
 #########################################
-# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
-# * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "quads --validate-env" ) 1>>/var/log/validate-env.log 2>&1
-# */5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock "quads --regen-wiki" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "quads --notify" ) 1>/dev/null 2>&1
-# 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "quads --regen-heatmap" ) 1>/dev/null 2>&1
-# * * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "quads --regen-instack" ) 1>/dev/null 2>&1
-# 0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "quads --foreman-rbac" ) 1>/dev/null 2>&1
+#########################################
+#*/5 * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
+#*/25 * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "quads --validate-env" ) 1>>/var/log/validate-env.log 2>&1
+#*/5 * * * * ( echo "=== Regenerating Wiki == @ " $(date) ; flock -n /tmp/regeneratewiki.lock -c "quads --regen-wiki" ) 1>>/var/log/quads-regen-wiki.log 2>&1
+#*/10 * * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "quads --notify" ) 1>>/var/log/quads-notify.log 2>&1
+#*/20 * * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/simpletableweb.lock -c "quads --regen-heatmap" ) 1>/dev/null 2>&1
+#*/15 * * * * ( echo "=== Rebuild Instackenv == @ " $(date) ; flock -n /tmp/makeinstackenv.lock -c "quads --regen-instack" ) 1>/dev/null 2>&1
+#0 */3 * * 1-6 ( echo "=== Foreman RBAC == @ " $(date) ; flock -n /tmp/foremanrbac.lock -c "quads --foreman-rbac" ) 1>/dev/null 2>&1
+########################################
 ########################################

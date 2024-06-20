@@ -9,7 +9,7 @@ class TestSummary(TestBase):
         self.quads_cli_call("summary")
 
         assert self._caplog.messages[0] == "cloud99 (test): 1 (test) - 1234"
-        assert self._caplog.messages[1] == "cloud01 (test): 0 (test) - 1234"
+        assert self._caplog.messages[1] == "cloud01 (quads): 0 (Spare Pool) - "
         assert "cloud03" in self._caplog.messages[2] or "cloud04" in self._caplog.messages[2]
 
     def test_summary(self):

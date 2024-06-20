@@ -184,6 +184,11 @@ find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
 
 %changelog
 
+* Thu Jun 20 2024 Will Foster <wfoster@redhat.com>
+* 2.0.0 RELEASE "Bowie"
+* Flask, Jinja, Postgres, SQLAlchemy architecture
+* Open API
+
 * Thu May 30 2024 Will Foster <wfoster@redhat.com>
 * 2.0.0 Alpha release
 

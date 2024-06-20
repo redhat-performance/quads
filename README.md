@@ -126,7 +126,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 ![quadsarchitecture](/image/quads-architecture.png)
 
 ## Requirements
-   - In QUADS 2.0+ we are using Python3, Flask and Jinja2 with PostgreSQL as the database backend.
+   - QUADS 2.0+ uses Python3, Flask and Jinja2 with PostgreSQL as the database backend.
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but command sets can easily be extended to support other network switch models.
@@ -143,6 +143,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Setup Foreman/Satellite Validation Templates | [examples](/templates/README.md) | Templates for internal interface configs |
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | Install via RPM |
+| Enable SSL | [docs](#using-ssl-with-flask-api-and-quads) | Optionally enable SSL for API, Web |
 | Install Wiki | [docs](#installing-wordpress-via-ansible) | Use Ansible to Deploy Wordpress |
 | Configure Wiki | [docs](#setup-of-wordpress) | Configure Wordpress Pages and Plugins |
 | Configure your QUADS Move Command | [docs](#quads-move-command) | Configure your provisioning and move actions |
@@ -187,7 +188,6 @@ flask --app quads.server.app init-db
 ```
 quads --help
 ```
-   - For full functionality with Foreman you'll also need to have [hammer cli](https://theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html) installed and setup on your QUADS host.
 
 #### Using SSL with Flask API and QUADS
 
