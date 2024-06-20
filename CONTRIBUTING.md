@@ -11,10 +11,10 @@ The QUADS project welcomes contributions from everyone!  Please read the below s
   * You can also find us on IRC at **#quads** on ```irc.libera.chat``` [webchat](https://web.libera.chat/?channels=#quads)
 
 ### QUADS Development Setup
-  - Clone `master` branch for latest, or a specific release branch e.g. `1.1`
+  - Clone `latest` branch for latest.
 
 ```
-git clone --single-branch --branch master https://github.com/redhat-performance/quads /opt/container/quads/
+git clone --single-branch --branch latest https://github.com/redhat-performance/quads /opt/container/quads/
 ```
 
   - Change directory to the code and create your own branch to work
@@ -96,7 +96,7 @@ podman-compose -f container-compose.yml up -d
 ```
 
 ### Make a Commit, Submit Review
-* Add a local commit with a meaningful, short title followed by a space and a summary (you can check our [commit history](https://github.com/redhat-performance/quads/commits/master) for examples.
+* Add a local commit with a meaningful, short title followed by a space and a summary (you can check our [commit history](https://github.com/redhat-performance/quads/commits/latest) for examples.
 * Add a line that relates to a new or existing github issue, e.g. ```fixes: https://github.com/redhat-performance/quads/issues/5``` or ```related-to: https://github.com/redhat-performance/quads/issues/25```
 
 
