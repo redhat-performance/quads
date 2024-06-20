@@ -874,6 +874,8 @@ class QuadsCli:
                 if response.status_code == 200:
                     self.logger.info("Assignment updated.")
             else:
+                if not self.cli_args.get("cloudticket"):
+                    self.logger.warning("No ticket provided.")
                 self.logger.warning("No assignment created or updated.")
 
         except ConnectionError:  # pragma: no cover
