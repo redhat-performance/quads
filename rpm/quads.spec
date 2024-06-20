@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define branch flaskapi_v3
+%define branch latest
 %define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
@@ -185,9 +185,7 @@ find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
 %changelog
 
 * Thu Jun 20 2024 Will Foster <wfoster@redhat.com>
-* 2.0.0 RELEASE "Bowie"
-* Flask, Jinja, Postgres, SQLAlchemy architecture
-* Open API
+* 2.0.0 Release
 
 * Thu May 30 2024 Will Foster <wfoster@redhat.com>
 * 2.0.0 Alpha release
