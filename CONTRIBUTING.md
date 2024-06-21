@@ -7,6 +7,7 @@ Contributing to QUADS
 The QUADS project welcomes contributions from everyone!  Please read the below steps to see how you can contribute to QUADS.
 
 ## Contribution Basics
+  * We do not use the Github Pull Request system.
   * We use [Gerrit](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) for code review
   * You can also find us on IRC at **#quads** on ```irc.libera.chat``` [webchat](https://web.libera.chat/?channels=#quads)
 
@@ -32,17 +33,17 @@ git checkout !$
 podman-compose -f /opt/container/quads/container/container-compose.yml up
 ```
   - This will not background the podman orchestration, so open other terminals to work.
-  - You can now test locally, it's useful to set a bashrc alias for the `bin/quads-cli` commmand
+  - You can now test locally, it's useful to set a bashrc alias for the `/usr/bin/quads` commmand
 
 ```
-echo 'alias quads="podman exec -it quads bin/quads-cli"' >> ~/.bashrc
+echo 'alias quads="podman exec -it quads /usr/bin/quads"' >> ~/.bashrc
 ```
 
 #### MAC OSX Specific
 
   - Make the directory structure for your mapped database data
 ```
-mkdir -p /opt/container/quads/container/{data_db,wiki_db,wordpress_data} 
+mkdir -p /opt/container/quads/container/{data_db,wiki_db,wordpress_data}
 ```
   - Instantiate the podman compose
 ```
@@ -79,7 +80,7 @@ git config --add gitreview.username "vsathir"
 cd quads
 git branch my_change
 git checkout my_change
-vi lib/Quads.py
+vim src/quads/web/app.py
 ```
 
 #### Reloading Environment after Changes
@@ -99,11 +100,11 @@ podman-compose -f container-compose.yml up -d
 * Add a local commit with a meaningful, short title followed by a space and a summary (you can check our [commit history](https://github.com/redhat-performance/quads/commits/latest) for examples.
 * Add a line that relates to a new or existing github issue, e.g. ```fixes: https://github.com/redhat-performance/quads/issues/5``` or ```related-to: https://github.com/redhat-performance/quads/issues/25```
 
-
 ```
 git add quads/api_v2.py
 git commit
 ```
+
 #### Integrate Git Review (First Time Only)
 * Install git-review and run it for first time.
 
@@ -119,12 +120,14 @@ git review -s
 git review
 ```
 
+* If you are adding new functionality or methods you'll need to also include unit tests or CI will get upset.
+
 #### Managing Git Review Patchsets
 
 * If you want to make changes to your patchset you can run the ```git commit --amend``` command.
 
 ```
-vi quads/api_v2.py
+vim /src/quads/quads_api.py
 git commit --amend
 git review
 ```
@@ -143,6 +146,7 @@ git review -d $CHANGEID
 Jenkins CI pipeline currently checks the following for every submitted patchset:
   - shellcheck - checks for common shell syntax errors and issues
   - flake8 - checks Python tools for common syntax errors and issues
+  - [unit tests](https://github.com/redhat-performance/quads/tree/latest/tests)
   - You can trigger CI to run again by commenting on your patchset in gerrit with `retrigger`
 
 #### QUADS CI Architecture

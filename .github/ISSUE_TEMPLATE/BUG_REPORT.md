@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 
 ---
-* QUADS version (`rpm -qa | grep quads` and/or `quads-cli --version`):
+* QUADS version (`rpm -qa | grep quads` and/or `quads --version`):
 * Python version:
 * Operating System:
 

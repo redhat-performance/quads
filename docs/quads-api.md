@@ -108,8 +108,8 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
   * You can combine one of many POST query types with multiple POST metadata objects.
   * There is limited support for data modification via POST as well documented below.
   * Valid POST URI queries
-    - ```/api/v3/hosts```        Same as `quads-cli --define-host`, used for defining a new host.
-    - ```/api/v3/clouds```       Same as `quads-cli --define-cloud` for creating/updating a cloud environment.
+    - ```/api/v3/hosts```        Same as `quads --define-host`, used for defining a new host.
+    - ```/api/v3/clouds```       Same as `quads --define-cloud` for creating/updating a cloud environment.
     - ```/api/v3/schedules```    AKA _add host schedule_ used for adding a new host schedule.
     - ```/api/v3/interfaces```   Add an interface to a QUADS-managed host
 

@@ -5,7 +5,7 @@ QUADS (quick and dirty scheduler)
 QUADS automates the future scheduling, end-to-end provisioning and delivery of bare-metal servers and networks.
 
 * Visit the [QUADS blog](https://quads.dev)
-* Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/master/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
+* Please read our [contributing guide](https://github.com/redhat-performance/quads/blob/latest/CONTRIBUTING.md) and use [Gerrit Review](https://review.gerrithub.io/q/project:redhat-performance%252Fquads) to submit patches.
 
 
 ![quads-rpm-build](https://copr.fedorainfracloud.org/coprs/quadsdev/python3-quads/package/quads/status_image/last_build.png)
@@ -126,7 +126,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 ![quadsarchitecture](/image/quads-architecture.png)
 
 ## Requirements
-   - QUADS 2.0+ uses Python3, Flask and Jinja2 with PostgreSQL as the database backend.
+   - Recent [Fedora Server](https://fedoraproject.org/server/download/) for RPM installations
+   - 2 x modest sized VM's for QUADS and the associated Wordpress Wiki component
    - The scheduling functionality can be used standalone, but you'll want a provisioning backend like [Foreman](https://theforeman.org/) to take full advantage of QUADS scheduling, automation and provisioning capabilities.
    - To utilize the automatic wiki/docs generation we use [Wordpress](https://hobo.house/2016/08/30/auto-generating-server-infrastructure-documentation-with-python-wordpress-foreman/) but anything that accepts markdown via an API should work.
    - Switch/VLAN automation is done on Juniper Switches in [Q-in-Q VLANs](http://www.jnpr.net/techpubs/en_US/junos14.1/topics/concept/qinq-tunneling-qfx-series.html), but command sets can easily be extended to support other network switch models.
@@ -232,7 +233,7 @@ sytemctl restart nginx
 
 #### QUADS Wiki
    - The Wiki component for QUADS is currently Wordpress, though in 2.x we'll be moving everything to Flask.
-   - Please use **Red Hat, CentOS Stream or Rocky 8** for the below Wordpress component.
+   - Please use **Red Hat, CentOS Stream or Rocky 8** for the Wordpress component.
    - Wordpress needs to be on it's **own VM/server** as a standalone component.
    - [Wordpress](https://github.com/redhat-performance/ops-tools/tree/master/ansible/wiki-wordpress-nginx-mariadb) provides a place to automate documentation and inventory/server status via the Wordpress Python RPC API.
 
@@ -864,7 +865,7 @@ Removed: {'host': 'f03-h30-000-r720xd.rdu2.example.com'}
 * Before using this, make sure it's not easier to simply use `--shrink` or `--extend` and sub-commands across the entire cloud/environments or even per-host first.
 
 ```bash
-quads --mod-schedule --host host01.example.com --mod-schedule --schedule-id 31 --schedule-start "2023-05-22 22:00" --schedule-end "2023-06-22 22:00"
+quads --mod-schedule --host host01.example.com --mod-schedule --schedule-id 31 --schedule-start "2023-05-22 22 :00" --schedule-end "2023-06-22 22:00"
 ```
 
 #### Modifying a Host Schedule across a large set of hosts
