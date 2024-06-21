@@ -128,7 +128,7 @@ def print_summary():
 def get_json_link(cloud_name, filename, is_valid, style_tag_start, style_tag_end):
     if cloud_name == "cloud01":
         return ""
-    _link = os.path.join(Config["quads_url"], "cloud", filename) if is_valid else "#"
+    _link = os.path.join(Config["quads_url"], "instack", filename) if is_valid else "#"
     _text = "download" if is_valid else "validating"
     return "<a href=%s target=_blank>%s%s%s</a>" % (_link, style_tag_start, _text, style_tag_end)
 
