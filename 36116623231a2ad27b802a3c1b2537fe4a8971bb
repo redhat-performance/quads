@@ -16,6 +16,23 @@
       "message": "retrigger",
       "revId": "36116623231a2ad27b802a3c1b2537fe4a8971bb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b04e78fe_69fb0548",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-06-25T11:48:58Z",
+      "side": 1,
+      "message": "werkzeug 3.x seems to break other libs via backwards dependency failures, hold on this until it\u0027s ironed out.",
+      "revId": "36116623231a2ad27b802a3c1b2537fe4a8971bb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
