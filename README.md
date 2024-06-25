@@ -604,10 +604,11 @@ quads --mod-cloud --cloud cloud03 --vlan none
 #### Defining a New Cloud
 
 ```bash
-quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
+quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
 ```
 
    * Note: in QUADS `1.1.4` you can change any of these values selectively via the `--mod-cloud` command [described below](#modifying-cloud-level-attributes).
+   * Note: in QUADS `2.0` the `--force` command is no longer needed for defining inactive environments future use.
 
    - Now that you've defined your new cloud you'll want to allocate machines and a schedule.
      - We're going to find the first 20 Dell r620's and assign them as an example.
@@ -616,7 +617,6 @@ quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --force --clo
 ```bash
 quads --cloud-only --cloud cloud01 | grep r620 | head -20 > /tmp/RT423624
 ```
-
    - Now we'll allocate all of these hosts with a schedule, by default our system times use UTC.
 
 ```bash
