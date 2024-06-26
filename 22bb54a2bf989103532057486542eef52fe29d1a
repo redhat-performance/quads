@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ad93b38_8103a148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-06-26T10:33:20Z",
+      "side": 1,
+      "message": "approving and merging since we passed CI and it\u0027s a minor pop requirements/doc change.",
+      "revId": "22bb54a2bf989103532057486542eef52fe29d1a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
