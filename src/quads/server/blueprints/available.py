@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request, Response, make_response
+from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
@@ -20,12 +21,14 @@ def get_available() -> Response:
     """
     _params = request.args.to_dict()
     _start = _end = datetime.now()
-    _cloud = _params.get("cloud")
+    _cloud = _params.pop("cloud")
     try:
-        if _params.get("start"):
-            _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M")
-        if _params.get("end"):
-            _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
+        start = _params.pop("start")
+        if start:
+            _start = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+        end = _params.pop("end")
+        if end:
+            _end = datetime.strptime(end, "%Y-%m-%dT%H:%M")
     except ValueError:
         response = {
             "status_code": 400,
@@ -37,15 +40,26 @@ def get_available() -> Response:
     if _start > _end:
         _end = _start + timedelta(minutes=1)
 
-    all_hosts = HostDao.get_hosts()
+    if _params:
+        try:
+            all_hosts = HostDao.filter_hosts_dict(_params)
+        except (EntryNotFound, InvalidArgument) as ex:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": str(ex),
+            }
+            return make_response(jsonify(response), 400)
+
+    else:
+        all_hosts = HostDao.get_hosts()
+
     available = []
     for host in all_hosts:
         if ScheduleDao.is_host_available(host.name, _start, _end):
             if _cloud:
                 _sched_cloud = ScheduleDao.get_current_schedule(host=host)
-                _sched_cloud = (
-                    _sched_cloud[0].assignment.cloud.name if _sched_cloud else None
-                )
+                _sched_cloud = _sched_cloud[0].assignment.cloud.name if _sched_cloud else None
                 if _cloud != _sched_cloud:
                     continue
             available.append(host.name)
@@ -69,9 +83,7 @@ def is_available(hostname) -> Response:
     _params = request.args.to_dict()
     _start = _end = datetime.now()
     if _params.get("start"):
-        _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(
-            minutes=1
-        )
+        _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(minutes=1)
     if _params.get("end"):
         _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
     if _start > _end:
