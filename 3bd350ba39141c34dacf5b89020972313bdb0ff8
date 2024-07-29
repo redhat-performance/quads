@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fc40fb8_e558f66a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-07-29T12:57:42Z",
+      "side": 1,
+      "message": "https://review.gerrithub.io/c/redhat-performance/quads/+/1198493",
+      "revId": "3bd350ba39141c34dacf5b89020972313bdb0ff8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
