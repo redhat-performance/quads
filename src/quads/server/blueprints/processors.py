@@ -30,7 +30,7 @@ def get_processor(processor_id: int) -> Response:
 
 
 @processor_bp.route("/<hostname>", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_processor(hostname: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -103,7 +103,7 @@ def create_processor(hostname: str) -> Response:
 
 
 @processor_bp.route("/<processor_id>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_processor(processor_id: int) -> Response:
     _processor_obj = ProcessorDao.get_processor(processor_id)
     if not _processor_obj:

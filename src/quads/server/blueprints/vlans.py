@@ -30,7 +30,7 @@ def get_vlans() -> Response:
 
 
 @vlan_bp.route("/", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_vlan() -> Response:
     data = request.get_json()
     gateway = data.get("gateway")
@@ -77,7 +77,7 @@ def create_vlan() -> Response:
 
 
 @vlan_bp.route("/<vlan_id>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_vlan(vlan_id: int) -> Response:
     _vlan_obj = VlanDao.get_vlan(vlan_id)
     if not _vlan_obj:
@@ -98,7 +98,7 @@ def delete_vlan(vlan_id: int) -> Response:
 
 
 @vlan_bp.route("/<vlan_id>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_vlan(vlan_id: int) -> Response:
     data = request.get_json()
     gateway = data.get("gateway")
