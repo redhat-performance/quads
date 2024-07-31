@@ -30,7 +30,7 @@ def get_notification(notification_id: int) -> Response:
 
 
 @notification_bp.route("/<notification_id>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_notification(notification_id: int) -> Response:
     notification_obj = NotificationDao.get_notification(notification_id)
     if not notification_obj:

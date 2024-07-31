@@ -31,7 +31,7 @@ def get_disk(disk_id: int) -> Response:
 
 
 @disk_bp.route("/<hostname>", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_disks(hostname: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -96,7 +96,7 @@ def create_disks(hostname: str) -> Response:
 
 
 @disk_bp.route("/<hostname>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_disk(hostname: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -147,7 +147,7 @@ def update_disk(hostname: str) -> Response:
 
 
 @disk_bp.route("/<disk_id>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_disk(disk_id: int) -> Response:
     _disk_obj = DiskDao.get_disk(disk_id)
     if not _disk_obj:

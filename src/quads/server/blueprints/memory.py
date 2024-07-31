@@ -30,7 +30,7 @@ def get_memory(memory_id: int) -> Response:
 
 
 @memory_bp.route("/<hostname>", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_memory(hostname: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
@@ -86,7 +86,7 @@ def create_memory(hostname: str) -> Response:
 
 
 @memory_bp.route("/<memory_id>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_memory(memory_id: int) -> Response:
     _memory_obj = MemoryDao.get_memory(memory_id)
     if not _memory_obj:

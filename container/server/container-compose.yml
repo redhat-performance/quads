@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   quads_db:
-    image: postgres
+    image: quay.io/sclorg/postgresql-13-c9s
     container_name: quads_db
     restart: always
     ports:
@@ -25,7 +25,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      network: host
     container_name: quads_api
     ports:
       - 5000:5000
