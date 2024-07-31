@@ -545,7 +545,7 @@ paths:
 
   /disks/:
     get:
-      summary: Returns a all disks
+      summary: Returns all disks
       tags:
         - Disks
       responses:
