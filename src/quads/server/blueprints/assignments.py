@@ -106,7 +106,7 @@ def get_active_assignments() -> Response:
 
 
 @assignment_bp.route("/", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_assignment() -> Response:
     """
     Creates a new assignment in the database.
@@ -191,7 +191,7 @@ def create_assignment() -> Response:
 
 
 @assignment_bp.route("/<assignment_id>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_assignment(assignment_id: str) -> Response:
     """
     Updates an existing assignment.
@@ -257,7 +257,7 @@ def update_assignment(assignment_id: str) -> Response:
 
 
 @assignment_bp.route("/", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_assignment() -> Response:
     """
     Used to delete an assignment from the database.
