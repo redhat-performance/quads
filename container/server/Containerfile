@@ -1,6 +1,7 @@
-FROM python:3.11-buster
+FROM quay.io/sclorg/python-311-minimal-c9s
 
-RUN apt-get install git patch
+USER 0
+RUN microdnf install git patch -y
 
 WORKDIR /opt
 RUN git clone https://github.com/redhat-performance/quads

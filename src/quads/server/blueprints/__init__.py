@@ -4,7 +4,7 @@ from flask import request, Response
 from quads.server.models import User, db, Role
 
 
-def check_access(role):
+def check_access(roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs) -> Response:
@@ -63,8 +63,12 @@ def check_access(role):
                         }
                         return Response(response=json.dumps(response), status=401)
 
-                role_obj = db.session.query(Role).filter(Role.name == role).first()
-                if role_obj not in current_user.roles:
+                has_role = False
+                for role in roles:
+                    role_obj = db.session.query(Role).filter(Role.name == role).first()
+                    if role_obj in current_user.roles:
+                        has_role = True
+                if not has_role:
                     response = {
                         "message": "You don't have the permission to access the requested resource",
                         "error": "Forbidden",

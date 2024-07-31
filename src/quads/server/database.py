@@ -21,34 +21,35 @@ def drop_all(config=None):
 
 
 def populate(user_datastore):
-    admin_role = db.session.query(Role).filter(Role.name == "admin").first()
-    user_role = db.session.query(Role).filter(Role.name == "user").first()
-    commit = False
-    if not admin_role:
-        admin_role = Role(name="admin", description="Administrative role")
-        db.session.add(admin_role)
-        commit = True
-    if not user_role:
-        user_role = Role(name="user", description="Regular user role")
-        db.session.add(user_role)
-        commit = True
+    admin_role_name = "admin"
+    admin_role_description = "Administrative role"
 
+    user_role_name = "user"
+    user_role_description = "Regular user role"
+
+    admin_role = create_role(admin_role_name, admin_role_description)
+    user_role = create_role(user_role_name, user_role_description)
+        
     regular_user = "gonza@redhat.com"
     admin_user = "grafuls@redhat.com"
 
-    admin_user_entry = db.session.query(User).filter(User.email == admin_user).first()
-    if not admin_user_entry:
-        user_datastore.create_user(
-            email=admin_user, password="password", roles=[admin_role]
-        )
-        commit = True
+    admin_user_added = create_user(user_datastore, admin_user, "password", [admin_role])
+    regular_user_added = create_user(user_datastore, regular_user, "password", [user_role])
 
-    regular_user_entry = db.session.query(User).filter(User.email == regular_user).first()
-    if not regular_user_entry:
-        user_datastore.create_user(
-            email=regular_user, password="password", roles=[user_role]
-        )
-        commit = True
-
-    if commit:
+    if admin_role or user_role or admin_user_added or regular_user_added:
         db.session.commit()
+        
+def create_user(user_datastore, email, password, roles):
+    user_entry = db.session.query(User).filter(User.email == email).first()
+    if not user_entry:
+        user_datastore.create_user(email=email, password=password, roles=roles)
+        return True
+    return False
+
+def create_role(name, description):
+    role_entry = db.session.query(Role).filter(Role.name == name).first()
+    if not role_entry:
+        role = Role(name=name, description=description)
+        db.session.add(role)
+        return role
+    return role_entry
