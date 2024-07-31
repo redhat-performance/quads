@@ -74,7 +74,7 @@ def get_future_schedule() -> Response:
 
 
 @schedule_bp.route("/", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_schedule() -> Response:
     data = request.get_json()
     hostname = data.get("hostname")
@@ -159,7 +159,7 @@ def create_schedule() -> Response:
 
 
 @schedule_bp.route("/<schedule_id>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_schedule(schedule_id: int) -> Response:
     data = request.get_json()
     hostname = data.get("hostname")
@@ -267,7 +267,7 @@ def update_schedule(schedule_id: int) -> Response:
 
 
 @schedule_bp.route("/<schedule_id>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_schedule(schedule_id: int) -> Response:
     _schedule = ScheduleDao.get_schedule(schedule_id)
     if not _schedule:
