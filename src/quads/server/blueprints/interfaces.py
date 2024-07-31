@@ -30,7 +30,7 @@ def get_interfaces(interface_id: int) -> Response:
 
 
 @interface_bp.route("/<hostname>", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_interface(hostname: str) -> Response:
     data = request.get_json()
 
@@ -95,7 +95,7 @@ def create_interface(hostname: str) -> Response:
 
 
 @interface_bp.route("/<hostname>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_interface(hostname: str) -> Response:
     data = request.get_json()
 
@@ -162,7 +162,7 @@ def update_interface(hostname: str) -> Response:
 
 
 @interface_bp.route("/<hostname>/<if_name>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_interface(hostname: str, if_name: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
