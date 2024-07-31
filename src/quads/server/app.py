@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import argparse
 from flask import Flask, Blueprint, jsonify, Response
 from flask_security import SQLAlchemySessionUserDatastore
 from flask_cors import CORS
+from flask.cli import with_appcontext
 
-from quads.server.database import populate, drop_all
+from quads.server.database import create_user, populate, drop_all
 from quads.server.database import init_db as db_init
 from quads.server.extensions import basic_auth, security, login_manager
 from quads.server.models import User, db, Role, migrate
@@ -50,17 +52,35 @@ def create_app(test_config=None) -> Flask:
         )
 
     @flask_app.cli.command("init-db")
+    @with_appcontext
     def init_db():
         """Creates the db tables."""
-        with flask_app.app_context():
-            db_init(flask_app.config)
-            populate(user_datastore)
+        db_init(flask_app.config)
+        populate(user_datastore)
 
     @flask_app.cli.command("drop-db")
+    @with_appcontext
     def drop_db():
         """Drops the db tables."""
-        with flask_app.app_context():
-            drop_all(flask_app.config)
+        drop_all(flask_app.config)
+
+    @flask_app.cli.command("add-user")
+    @with_appcontext
+    def add_user():
+        """Adds a user."""
+        parser = argparse.ArgumentParser(description="Add a user")
+        parser.add_argument("--username", help="The username of the user", required=True)
+        parser.add_argument("--password", help="The password of the user", required=True)
+        parser.add_argument("--role", help="The role of the user", required=True)
+
+        args = parser.parse_args()
+        role = db.session.query(Role).filter(Role.name == args.role).first()
+        if not role:
+            print(f"Role {args.role} not found")
+            return
+        
+        # Your command logic here
+        create_user(user_datastore, args.username, args.password, [role])
 
     return flask_app
 

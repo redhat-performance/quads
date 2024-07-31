@@ -63,7 +63,7 @@ def get_clouds() -> Response:
 
 
 @cloud_bp.route("/", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_cloud() -> Response:
     """
     Creates a new cloud in the database.
@@ -97,7 +97,7 @@ def create_cloud() -> Response:
 
 
 @cloud_bp.route("/<cloud>/", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_cloud(cloud) -> Response:
     """
     Updates an exiting cloud in the database.
@@ -141,7 +141,7 @@ def update_cloud(cloud) -> Response:
 
 
 @cloud_bp.route("/<cloud>/", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_cloud(cloud: str) -> Response:
     """
     Deletes a cloud from the database.
