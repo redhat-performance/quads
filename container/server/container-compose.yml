@@ -1,9 +1,14 @@
 version: '3.1'
 
+networks:
+  podman:
+    external:
+      name: my_bridge
+
 services:
 
   quads_db:
-    image: postgres
+    image: quay.io/sclorg/postgresql-13-c9s
     container_name: quads_db
     restart: always
     ports:
@@ -17,6 +22,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+        podman:
+          ipv4_address: 10.88.2.10
 
   quads_api:
     depends_on:
@@ -33,3 +41,6 @@ services:
       SQLALCHEMY_DATABASE_URI: "postgresql://postgres:postgres@quads_db:5432/quads"
     volumes:
       - /var/lib/jenkins/workspace/Quads-2.0:/opt/quads:z
+    networks:
+       podman:
+         ipv4_address: 10.88.2.11
