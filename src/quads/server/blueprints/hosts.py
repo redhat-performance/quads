@@ -102,7 +102,7 @@ def get_host_interfaces(hostname: str) -> Response:
 
 
 @host_bp.route("/<hostname>", methods=["PATCH"])
-@check_access("admin")
+@check_access(["admin"])
 def update_host(hostname: str) -> Response:
     data = request.get_json()
 
@@ -147,7 +147,7 @@ def update_host(hostname: str) -> Response:
 
 
 @host_bp.route("/", methods=["POST"])
-@check_access("admin")
+@check_access(["admin"])
 def create_host() -> Response:
     data = request.get_json()
     hostname = data.get("name")
@@ -230,7 +230,7 @@ def create_host() -> Response:
 
 
 @host_bp.route("/<hostname>", methods=["DELETE"])
-@check_access("admin")
+@check_access(["admin"])
 def delete_host(hostname: str) -> Response:
     _host = HostDao.get_host(hostname)
     if not _host:
