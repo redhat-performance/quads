@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7be6ece_2fd120c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-08-02T13:55:48Z",
+      "side": 1,
+      "message": "merging to solve container chicken \u0026 egg situation.",
+      "revId": "a490d02d738b34b59c9281211e0817bdb6a35334",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
