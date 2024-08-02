@@ -14,7 +14,7 @@
 
 %define name quads-dev
 %define reponame quads
-%define branch latest
+%define branch development
 %define version 2.0.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
@@ -168,6 +168,11 @@ echo "        systemctl start quads-{db,server,web}          "
 echo "                                                       "
 echo "        flask --app quads.server.app init-db           "
 echo "                                                       "
+echo "======================================================="
+echo " For package upgrades restart QUADS app stack only     "
+echo "======================================================="
+echo "                                                       "
+echo "        systemctl restart quads-{server,web}           "
 echo "                                                       "
 echo "======================================================="
 
