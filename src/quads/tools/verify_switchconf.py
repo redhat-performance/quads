@@ -30,6 +30,9 @@ def verify(_cloud_name, _host_name, change=False):  # pragma: no cover
 
     if _host_name:
         hosts = quads.filter_hosts({"name": _host_name, "retired": False})
+        if not hosts:
+            logger.error("Host not found.")
+            return
     else:
         hosts = quads.filter_hosts({"cloud": _cloud_name, "retired": False})
     first_host = hosts[0]

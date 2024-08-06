@@ -47,7 +47,7 @@ mkdir -p /opt/container/quads/container/{data_db,wiki_db,wordpress_data}
 ```
   - Instantiate the podman compose
 ```
-podman compose -f /opt/container/quads/container/container-compose-osx.yml up
+podman-compose -f /opt/container/quads/container/container-compose-osx.yml up
 ```
   - If you're using Docker on Mac OSX you may want to switch to the [overlay2 driver](https://stackoverflow.com/questions/39455764/change-storage-driver-for-docker-on-os-x#39737553)  This is not strictly a requirement but can significantly improve performance on a Mac for the local driver.  For more details see this [article](https://markshust.com/2017/03/02/making-docker-mac-faster-overlay2-filesystem/).  Local driver mapped content is stored in ~/Library/Containers/com.docker.docker/Data/vms/0/ in a disk image.
 
@@ -132,7 +132,7 @@ git commit --amend
 git review
 ```
 
-* If you just want to checkout an existing patchset in Gerrit you can use the `git review -d $CHANGEID` command.
+* If you just want to check out an existing patchset in Gerrit you can use the `git review -d $CHANGEID` command.
 
 ```
 cd /opt/container/quads
@@ -141,6 +141,27 @@ git review -d $CHANGEID
 
 ### Monitor your Patchset Lifecycle
 * Keep an eye on your patchset in Gerrithub, this is where CI will run, where we'll provide feedback and where you can monitor changes and status.  Your git review command will print the correct URL to your patchset.
+
+### Running Tests locally
+* Start a postgresql container for the tests to run against
+```bash
+podman run -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
+```
+
+* Initialize the database
+```bash
+SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/quads flask --app src/quads/server/app.py init-db
+```
+
+* Start a Flask development server instance
+```bash
+SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/quads flask --app src/quads/server/app.py run
+```
+
+* Run the tests
+```bash
+tox -e py311
+```
 
 ### Continuous Integration (CI)
 Jenkins CI pipeline currently checks the following for every submitted patchset:
