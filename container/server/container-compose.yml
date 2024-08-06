@@ -10,6 +10,7 @@ services:
   quads_db:
     image: quay.io/sclorg/postgresql-13-c9s
     container_name: quads_db
+    hostname: quads_db
     restart: always
     ports:
       - 5432:5432
@@ -34,6 +35,7 @@ services:
       context: .
       dockerfile: Containerfile
     container_name: quads_api
+    hostname: quads_api
     ports:
       - 5000:5000
     environment:
