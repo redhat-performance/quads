@@ -22,7 +22,7 @@ def main(_args):
             with open(_args.yaml, "r") as _vlans_read:
                 try:
                     vlans = yaml.safe_load(_vlans_read)
-                except yaml.YAMLError:
+                except yaml.YAMLError:  # pragma: no cover
                     logger.error("quads: Invalid YAML config: " + _args.yaml)
                     exit(1)
         except IOError as ex:
@@ -41,7 +41,7 @@ def main(_args):
                 logger.info("Updated vlan: %s" % properties["vlan_id"])
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--yaml", dest="yaml", type=str, required=True)
