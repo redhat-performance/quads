@@ -91,9 +91,9 @@ def regenerate_vlans_wiki():
         try:
             wiki = Wordpress(wp_url, wp_username, wp_password)
             wiki.update_page(page_title, page_id, _markdown.name)
-        except ProtocolError as ex:
+        except ProtocolError as ex:  # pragma: no cover
             logger.error(ex.errmsg)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     regenerate_vlans_wiki()

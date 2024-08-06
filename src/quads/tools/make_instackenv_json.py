@@ -29,7 +29,7 @@ async def make_env_json(filename):
 
     cloud_list = quads.get_clouds()
 
-    if not os.path.exists(Config["json_web_path"]):
+    if not os.path.exists(Config["json_web_path"]):  # pragma: no cover
         os.makedirs(Config["json_web_path"])
 
     now = time.time()
@@ -89,7 +89,7 @@ async def make_env_json(filename):
 
         content = json.dumps(data, indent=4, sort_keys=True)
 
-        if not os.path.exists(Config["json_web_path"]):
+        if not os.path.exists(Config["json_web_path"]):  # pragma: no cover
             pathlib.Path(Config["json_web_path"]).mkdir(parents=True, exist_ok=True)
 
         now = datetime.now()
@@ -108,7 +108,7 @@ async def make_env_json(filename):
 def main():
     tasks = []
     loop = asyncio.get_event_loop()
-    if not loop:
+    if not loop:  # pragma: no cover
         loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     if Config["openstack_management"]:
@@ -122,5 +122,5 @@ def main():
     loop.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

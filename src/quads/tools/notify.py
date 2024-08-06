@@ -196,7 +196,7 @@ def main(_logger=None):
         payload = {"cloud": ass.cloud.name}
         try:
             current_schedules = quads.get_current_schedules(payload)
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             logger.debug(str(ex))
             logger.error("Could not get current schedules")
 

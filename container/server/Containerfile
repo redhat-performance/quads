@@ -3,7 +3,6 @@ FROM quay.io/sclorg/python-311-minimal-c9s
 USER 0
 RUN microdnf install git patch -y; exit 0
 
-
 WORKDIR /opt/quads
 RUN python setup.py install
 

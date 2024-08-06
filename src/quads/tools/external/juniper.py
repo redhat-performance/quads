@@ -22,8 +22,7 @@ class Juniper(object):
         logger.debug("Connecting to switch: %s" % self.ip_address)
         try:
             self.child = pexpect.spawn(
-                "ssh -o StrictHostKeyChecking=no %s@%s"
-                % (Config["junos_username"], self.ip_address)
+                f'ssh -o StrictHostKeyChecking=no {Config["junos_username"]}@{self.ip_address}'
             )
             self.child.expect(">")
         except pexpect.exceptions.TIMEOUT:
@@ -37,7 +36,7 @@ class Juniper(object):
         try:
             self.child.sendline(command)
             self.child.expect(expect, timeout=120)
-        except pexpect.exceptions.TIMEOUT:
+        except pexpect.exceptions.TIMEOUT:  # pragma: no cover
             raise JuniperException(f"Timeout trying to execute the command: {command}")
 
     def set_port(self):
@@ -46,14 +45,10 @@ class Juniper(object):
             self.execute("edit")
             self.execute("rollback")
             self.execute(f"delete interfaces {self.switch_port}")
-            self.execute(
-                f"set interfaces {self.switch_port} apply-groups QinQ_vl{self.new_vlan}"
-            )
+            self.execute(f"set interfaces {self.switch_port} apply-groups QinQ_vl{self.new_vlan}")
 
             if self.old_vlan:
-                self.execute(
-                    f"delete vlans vlan{self.old_vlan} interface {self.switch_port}"
-                )
+                self.execute(f"delete vlans vlan{self.old_vlan} interface {self.switch_port}")
 
             self.execute(f"set vlans vlan{self.new_vlan} interface {self.switch_port}")
             self.execute("commit", "commit complete")
@@ -69,20 +64,14 @@ class Juniper(object):
             self.execute("edit")
             self.execute("rollback")
             self.execute(f"delete interfaces {self.switch_port}")
-            self.execute(
-                f"set interfaces {self.switch_port} native-vlan-id {self.new_vlan}"
-            )
-            self.execute(
-                f"set interfaces {self.switch_port} unit 0 family ethernet-switching interface-mode trunk"
-            )
+            self.execute(f"set interfaces {self.switch_port} native-vlan-id {self.new_vlan}")
+            self.execute(f"set interfaces {self.switch_port} unit 0 family ethernet-switching interface-mode trunk")
             self.execute(
                 f"set interfaces {self.switch_port} unit 0 family ethernet-switching vlan members vlan{self.new_vlan}"
             )
 
             if self.old_vlan and self.old_vlan != self.new_vlan:
-                self.execute(
-                    f"delete vlans vlan{self.old_vlan} interface {self.switch_port}"
-                )
+                self.execute(f"delete vlans vlan{self.old_vlan} interface {self.switch_port}")
 
             self.execute("commit", "commit complete")
             self.close()

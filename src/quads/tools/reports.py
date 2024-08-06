@@ -183,7 +183,7 @@ def report_detailed(_logger, _start, _end):
             )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     _start = first_day_month(datetime.now())
     _end = last_day_month(datetime.now())
     report_available(logger, _start, _end)

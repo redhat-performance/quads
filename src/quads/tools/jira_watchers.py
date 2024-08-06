@@ -41,9 +41,7 @@ async def main(_loop):
                 cloud_field = description.split("\n")[1]
                 cloud = cloud_field.split()[-1]
             except IndexError:
-                logger.warning(
-                    f"Could not retrieve cloud name from ticket {ticket_key}"
-                )
+                logger.warning(f"Could not retrieve cloud name from ticket {ticket_key}")
                 continue
 
             if "EXTENSION" in fields.get("labels"):
@@ -75,14 +73,10 @@ async def main(_loop):
                     response = await jira.add_watcher(ticket_key, watcher["key"])
                     if not response:
                         failed_watchers.append(watcher["key"])
-                if len(
-                    failed_watchers
-                ) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
+                if len(failed_watchers) != 0 and "WATCHERS_MAP_FAIL_NOTIFIED" not in fields.get("labels"):
                     await jira.add_label(ticket_key, "WATCHERS_MAP_FAIL_NOTIFIED")
                     template_file = "watchers_fail"
-                    with open(
-                        os.path.join(Config.TEMPLATES_PATH, template_file)
-                    ) as _file:
+                    with open(os.path.join(Config.TEMPLATES_PATH, template_file)) as _file:
                         template = Template(_file.read())
                     submitter = description.split("\n")[0].split()[-1]
                     parameters = {
@@ -96,7 +90,7 @@ async def main(_loop):
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     loop = asyncio.get_event_loop()
     err = loop.run_until_complete(main(loop))
     sys.exit(err)

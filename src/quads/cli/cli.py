@@ -885,6 +885,7 @@ class QuadsCli:
                         cloud.name,
                         {"last_redefined": ":".join(datetime.now().isoformat().split(":")[:-1])},
                     )
+
                 except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
                 if response.status_code == 200:
@@ -1078,7 +1079,7 @@ class QuadsCli:
             if data and len(data.keys()) > 1:
                 try:
                     self.quads.update_host(host.name, data)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     raise CliException(str(ex))
 
         if not self.cli_args.get("force"):  # pragma: no cover
@@ -1298,7 +1299,7 @@ class QuadsCli:
                     conf["jira_url"],
                     loop=loop,
                 )
-            except JiraException as ex:
+            except JiraException as ex:  # pragma: no cover
                 self.logger.error(ex)
                 exit(1)
             result = loop.run_until_complete(jira.post_comment(ass.ticket, comment))
@@ -1409,7 +1410,7 @@ class QuadsCli:
 
         try:
             self.quads.create_interface(_host, data)
-        except (APIServerException, APIBadRequest) as ex:
+        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
             raise CliException(str(ex))
 
         return 0
@@ -1815,7 +1816,7 @@ class QuadsCli:
 
                 try:
                     available_hosts = self.quads.filter_available(data)
-                except (APIServerException, APIBadRequest) as ex:
+                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
                     self.logger.debug(str(ex))
                     raise CliException("Could not connect to the quads-server, verify service is up and running.")
 
