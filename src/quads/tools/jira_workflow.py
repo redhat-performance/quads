@@ -43,20 +43,16 @@ async def main(_loop):
             t_name = transition.get("name")
             if t_name and t_name.lower() == "done":
                 transition_id = transition.get("id")
-                transition_result = await jira.post_transition(
-                    ticket_key, transition_id
-                )
+                transition_result = await jira.post_transition(ticket_key, transition_id)
                 break
 
         if not transition_result:
-            logger.warning(
-                f"Failed to update ticket status, ticket key {ticket_key}, SKIPPING."
-            )
+            logger.warning(f"Failed to update ticket status, ticket key {ticket_key}, SKIPPING.")
 
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     loop = asyncio.get_event_loop()
     err = loop.run_until_complete(main(loop))
     sys.exit(err)

@@ -66,7 +66,7 @@ def verify(args):
             logger.error("The cloud has no hosts or the host has no interfaces defined")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="List switch configs for a cloud")
     parser.add_argument(
         "--cloud",
