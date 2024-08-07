@@ -57,7 +57,7 @@ def export_current_schedules(output):
         yaml.dump(data, outfile, default_flow_style=False)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Export current schedules to a YAML file.")
     parser.add_argument("--output", type=str, help="The name of the output file.", required=True)
     args = parser.parse_args()

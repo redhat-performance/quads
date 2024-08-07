@@ -94,7 +94,7 @@ def generator(_host_file, _days, _month, _year, _gentime):
     return content
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(
         description="Generate a simple HTML table with color depicting resource usage for the month"
     )

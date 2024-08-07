@@ -52,7 +52,7 @@ def main(_logger=None):
             _page_id=wp_wiki_main_page_id,
             _markdown=main_md,
         )
-    except ProtocolError as ex:
+    except ProtocolError as ex:  # pragma: no cover
         logger.error(ex.errmsg)
 
     create_input_assignments.main()
@@ -76,7 +76,7 @@ def main(_logger=None):
             _page_id=wp_wiki_assignments_page_id,
             _markdown=assignments_md,
         )
-    except ProtocolError as ex:
+    except ProtocolError as ex:  # pragma: no cover
         logger.error(ex.errmsg)
 
     regenerate_vlans_wiki()

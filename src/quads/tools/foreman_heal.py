@@ -86,5 +86,5 @@ def main(_logger=None):
                         logger.info("  No active schedule nor roles assigned.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

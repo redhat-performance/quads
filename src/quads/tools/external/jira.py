@@ -47,8 +47,7 @@ class Jira(object):
                 payload = BasicAuth(self.username, self.password)
             else:
                 raise JiraException(
-                    "Jira authentication is set to BasicAuth but no "
-                    "username or password have been defined"
+                    "Jira authentication is set to BasicAuth but no username or password have been defined"
                 )
         self.headers = {"Authorization": payload}
 
@@ -81,9 +80,7 @@ class Jira(object):
         logger.debug("POST: {%s:%s}" % (endpoint, payload))
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    headers=self.headers, loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(headers=self.headers, loop=self.loop) as session:
                     async with session.post(
                         self.url + endpoint,
                         json=payload,
@@ -105,9 +102,7 @@ class Jira(object):
         logger.debug("POST: {%s:%s}" % (endpoint, payload))
         try:
             async with self.semaphore:
-                async with aiohttp.ClientSession(
-                    headers=self.headers, loop=self.loop
-                ) as session:
+                async with aiohttp.ClientSession(headers=self.headers, loop=self.loop) as session:
                     async with session.put(
                         self.url + endpoint,
                         json=payload,
@@ -225,7 +220,7 @@ class Jira(object):
         query_expand = {"statusCategory": 4, "labels": "EXPANSION"}
         result_expand = await self.search_tickets(query_expand)
         result["issues"] += result_expand["issues"]
-        if not result:
+        if not result:  # pragma: no cover
             logger.error("Failed to get pending tickets")
             return None
         return result

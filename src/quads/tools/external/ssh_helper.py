@@ -23,7 +23,7 @@ class SSHHelper(object):
         except SSHHelperException as ex:
             raise SSHHelperException(f"{self.host}: {ex}")
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):  # pragma: no cover
         self.disconnect()
 
     def connect(self):

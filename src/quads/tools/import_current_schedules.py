@@ -69,7 +69,7 @@ def import_current_schedules(filepath):
             quads.update_host(schedule["host"], {"cloud": schedule["cloud"]})
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Import current schedules from a YAML file.")
     parser.add_argument("--input", type=str, help="The name of the input file.", required=True)
     args = parser.parse_args()
