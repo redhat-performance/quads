@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, request, Response, make_response
 from quads.server.dao.assignment import AssignmentDao
@@ -60,6 +60,36 @@ def get_clouds() -> Response:
     else:
         _clouds = CloudDao.get_clouds()
     return jsonify([_cloud.as_dict() for _cloud in _clouds] if _clouds else {})
+
+
+@cloud_bp.route("/free/")
+def get_free_clouds() -> Response:
+    """
+    Returns a list of all free clouds in the database.
+        ---
+        tags:
+          - API
+
+    :return: The list of free clouds
+    """
+    _clouds = CloudDao.get_clouds()
+    _clouds = [_c for _c in _clouds if _c.name != Config.get("spare_pool_name")]
+    free_clouds = []
+    for cloud in _clouds:
+        _future_sched = []
+        _active_ass = None
+        try:
+            _future_sched = ScheduleDao.get_future_schedules(cloud=cloud)
+            _active_ass = AssignmentDao.get_active_cloud_assignment(cloud)
+        except (EntryNotFound, InvalidArgument) as ex:
+            pass
+
+        if len(_future_sched) or _active_ass:
+            continue
+        else:
+            free_clouds.append(cloud)
+
+    return jsonify([_cloud.as_dict() for _cloud in free_clouds])
 
 
 @cloud_bp.route("/", methods=["POST"])

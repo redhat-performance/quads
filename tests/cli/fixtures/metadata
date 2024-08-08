@@ -1,11 +1,5 @@
 - broken: false
   default_cloud: cloud99
-  host_type: scalelab
-  model: R930
-  name: host2.example.com
-  retired: false
-- broken: false
-  default_cloud: cloud99
   disks:
   - count: 10
     disk_type: NVME
@@ -36,6 +30,12 @@
     product: i7
     threads: 4
     vendor: Intel
+  retired: false
+- broken: false
+  default_cloud: cloud99
+  host_type: scalelab
+  model: R930
+  name: host2.example.com
   retired: false
 - broken: false
   default_cloud: cloud99
