@@ -1,5 +1,4 @@
 from typing import List, Optional, Type
-
 from sqlalchemy import Boolean
 
 from quads.server.dao.baseDao import (
