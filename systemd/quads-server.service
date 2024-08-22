@@ -11,8 +11,8 @@ After=network.target quads-db.service
 
 [Service]
 Type = simple
-ExecStart = /usr/bin/gunicorn quads.server.app:create_app() -b :5000 -w 4 -k gthread --max-requests=5000 --max-requests-jitter=500 --log-level=INFO
-ExecStop = /usr/bin/pkill gunicorn
+ExecStart = /usr/bin/gunicorn quads.server.app:create_app() -b :5000 --workers=17 --worker-connections=150 -k gthread --max-requests=5000 --max-requests-jitter=500 --log-level=INFO
+ExecStop = /usr/bin/pkill -f quads.server.app
 Restart = always
 StartLimitInterval = 60
 StartLimitBurst = 10
