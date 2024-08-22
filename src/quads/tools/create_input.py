@@ -4,7 +4,7 @@ import os
 import pathlib
 import re
 
-from quads.quads_api import QuadsApi
+from quads.quads_api import QuadsApi, APIBadRequest, APIServerException
 from quads.tools.external.foreman import Foreman
 from quads.config import Config
 
@@ -98,7 +98,10 @@ def main():
 
                 for host, properties in hosts.items():
                     if rack in host:
-                        host_obj = quads.get_host(host)
+                        try:
+                            host_obj = quads.get_host(host)
+                        except (APIBadRequest, APIServerException):
+                            host_obj = None
                         if host_obj and not host_obj.retired:
                             _f.write(render_row(host_obj, properties))
                 _f.write("\n")

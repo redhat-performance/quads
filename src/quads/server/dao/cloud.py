@@ -65,7 +65,7 @@ class CloudDao(BaseDao):
 
     @staticmethod
     def get_clouds() -> List[Cloud]:
-        clouds = db.session.query(Cloud).all()
+        clouds = db.session.query(Cloud).order_by(Cloud.name.asc()).all()
         return clouds
 
     @staticmethod
