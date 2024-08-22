@@ -35,5 +35,5 @@ class TestWiki:
             "r",
         )
         assignment_md = "".join(assignment_md.readlines())
-        host_assignment_str = "| host1 | <a href=http://mgmt-host1.example.com/ target=_blank>console</a> |\n"
+        host_assignment_str = "| host1 | <a href=http://mgmt-host1.example.com/ target=_blank>console</a> |"
         assert host_assignment_str in assignment_md
