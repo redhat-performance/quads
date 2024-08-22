@@ -411,7 +411,10 @@ class QuadsCli:
                         }
                         try:
                             available_hosts = self.quads.filter_available(data)
-                        except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
+                        except (
+                            APIServerException,
+                            APIBadRequest,
+                        ) as ex:  # pragma: no cover
                             raise CliException(str(ex))
 
                         for host in available_hosts:
@@ -420,7 +423,10 @@ class QuadsCli:
                     payload = {"cloud": cloud.name}
                     try:
                         _hosts = self.quads.filter_hosts(payload)
-                    except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
+                    except (
+                        APIServerException,
+                        APIBadRequest,
+                    ) as ex:  # pragma: no cover
                         raise CliException(str(ex))
                     for host in _hosts:
                         self.logger.info(host.name)
@@ -868,14 +874,20 @@ class QuadsCli:
                     self.logger.info("Assignment created.")
                 if cloud:
                     try:
-                        self.quads.update_cloud(cloud.name, {"last_redefined": datetime.now().isoformat()[:-3]})
+                        self.quads.update_cloud(
+                            cloud.name,
+                            {"last_redefined": ":".join(datetime.now().isoformat().split(":")[:-1])},
+                        )
                     except (APIServerException, APIBadRequest) as ex:
                         raise CliException(str(ex))
             elif assignment:
                 try:
                     response = self.quads.update_assignment(assignment.id, data)
-                    self.quads.update_cloud(cloud.name, {"last_redefined": datetime.now().isoformat()[:-3]})
-                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
+                    self.quads.update_cloud(
+                        cloud.name,
+                        {"last_redefined": ":".join(datetime.now().isoformat().split(":")[:-1])},
+                    )
+                except (APIServerException, APIBadRequest) as ex:
                     raise CliException(str(ex))
                 if response.status_code == 200:
                     self.logger.info("Assignment updated.")
@@ -899,7 +911,7 @@ class QuadsCli:
         clean_data = {k: v for k, v in data.items() if v and k != "cloud"}
         if self.cli_args.get("vlan"):
             try:
-                data["vlan"] = int(self.cli_args.get("vlan"))
+                clean_data["vlan"] = int(self.cli_args.get("vlan"))
             except (TypeError, ValueError) as ཀʖ̯ཀ:
                 self.logger.debug(ཀʖ̯ཀ, exc_info=ཀʖ̯ཀ)
                 raise CliException("Could not parse vlan id. Only integers accepted.")
@@ -1041,7 +1053,10 @@ class QuadsCli:
                             if dispatch_func:
                                 try:
                                     dispatch_func(host.name, obj)
-                                except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
+                                except (
+                                    APIServerException,
+                                    APIBadRequest,
+                                ) as ex:  # pragma: no cover
                                     raise CliException(str(ex))
                             else:  # pragma: no cover
                                 raise CliException(f"Invalid key '{key}' on metadata for {host.name}")
@@ -1051,7 +1066,10 @@ class QuadsCli:
                 elif key == "default_cloud":
                     try:
                         cloud = self.quads.get_cloud(value)
-                    except (APIServerException, APIBadRequest) as ex:  # pragma: no cover
+                    except (
+                        APIServerException,
+                        APIBadRequest,
+                    ) as ex:  # pragma: no cover
                         raise CliException(str(ex))
                     data[key] = cloud.name
 
@@ -1630,7 +1648,8 @@ class QuadsCli:
                         try:
                             host_obj = self.quads.get_host(task.args[0])
                         except (APIServerException, APIBadRequest) as ex:
-                            raise CliException(str(ex))
+                            self.logger.exception(str(ex))
+                            continue
 
                         if not host_obj.switch_config_applied:
                             self.logger.info(f"Running switch config for {task.args[0]}")
@@ -1647,7 +1666,8 @@ class QuadsCli:
                                 try:
                                     self.quads.update_host(task.args[0], {"switch_config_applied": True})
                                 except (APIServerException, APIBadRequest) as ex:
-                                    raise CliException(str(ex))
+                                    self.logger.exception(str(ex))
+                                    continue
                             else:
                                 self.logger.exception("There was something wrong configuring the switch.")
 

@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from typing import Optional, List
 from requests import Response
 from requests.auth import HTTPBasicAuth
+from requests.adapters import HTTPAdapter, Retry
 from urllib import parse as url_parse
 from urllib.parse import urlencode
 
@@ -37,6 +38,8 @@ class QuadsApi:
         self.config = config
         self.base_url = config.API_URL
         self.session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+        self.session.mount("http://", HTTPAdapter(max_retries=retries))
         self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
 
     # Base functions
