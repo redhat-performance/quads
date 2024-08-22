@@ -92,11 +92,11 @@ def print_summary():
             classes.append("progress-bar-striped")
             classes.append(f"progress-bar-{danger_class}")
             classes.append("active")
-
+        width = percent if percent else 100
         status = (
             '<span class="progress" style="margin-bottom:0px"><span role="progressbar" '
             'aria-valuenow="%.0f" aria-valuemin="0" aria-valuemax="100" style="width:%.0f%%" '
-            'class="%s">%.0f%%</span></span>' % (percent, percent, " ".join(classes), percent)
+            'class="%s">%.0f%%</span></span>' % (percent, width, " ".join(classes), percent)
         )
 
         _data.append(status)
@@ -216,7 +216,7 @@ def main():
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
     blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
 
-    broken_hosts = quads.filter_hosts({"broken": False})
+    broken_hosts = quads.filter_hosts({"broken": True})
     domain_broken_hosts = [host for host in broken_hosts if Config["domain"] in host.name]
 
     mgmt_hosts = {}
