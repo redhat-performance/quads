@@ -170,6 +170,12 @@ echo "        flask --app quads.server.app init-db           "
 echo "                                                       "
 echo "                                                       "
 echo "======================================================="
+echo " For package upgrades restart QUADS app stack only     "
+echo "======================================================="
+echo "                                                       "
+echo "        systemctl restart quads-{server,web}           "
+echo "                                                       "
+echo "======================================================="
 
 %preun
 if [ "$1" -eq 0 ]; then
