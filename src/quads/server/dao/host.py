@@ -88,7 +88,7 @@ class HostDao(BaseDao):
 
     @staticmethod
     def get_hosts() -> List[Host]:
-        hosts = db.session.query(Host).all()
+        hosts = db.session.query(Host).order_by(Host.name.asc()).all()
         return hosts
 
     @staticmethod
