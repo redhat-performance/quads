@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db6d0498_c29c2c13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-08-23T08:49:03Z",
+      "side": 1,
+      "message": "Discussed and will self-merge to get this into a package.",
+      "revId": "24a157c0a2a7f40b9e24d234ee1222fd71dbe056",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
