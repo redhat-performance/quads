@@ -17,7 +17,9 @@ from quads.server.models import db, Host, Cloud
 
 class HostDao(BaseDao):
     @classmethod
-    def create_host(cls, name: str, model: str, host_type: str, default_cloud: str) -> Host:
+    def create_host(
+        cls, name: str, model: str, host_type: str, default_cloud: str
+    ) -> Host:
         _host_obj = cls.get_host(name)
         if _host_obj:
             raise EntryExisting
@@ -93,7 +95,11 @@ class HostDao(BaseDao):
 
     @staticmethod
     def get_host_models():
-        host_models = db.session.query(Host.model, func.count(Host.model)).group_by(Host.model).all()
+        host_models = (
+            db.session.query(Host.model, func.count(Host.model))
+            .group_by(Host.model)
+            .all()
+        )
         return host_models
 
     @staticmethod
@@ -145,7 +151,9 @@ class HostDao(BaseDao):
                         value,
                     )
                 )
-        _hosts = HostDao.create_query_select(Host, filters=filter_tuples, group_by=group_by)
+        _hosts = HostDao.create_query_select(
+            Host, filters=filter_tuples, group_by=group_by, order_by=Host.name.asc()
+        )
         return _hosts
 
     @staticmethod
