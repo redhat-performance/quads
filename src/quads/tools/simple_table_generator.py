@@ -1,100 +1,190 @@
 #!/usr/bin/env python3
-
 import argparse
-import os
+import asyncio
 import csv
-from datetime import datetime
+import os
 import random
+from datetime import datetime
+from typing import List
+from urllib import parse as url_parse
 
+import aiohttp
+from aiohttp import BasicAuth
 from jinja2 import Template
+from requests import Response
+
 from quads.config import Config
-from quads.quads_api import QuadsApi
+from quads.server.models import Schedule, Host
 
 
-def random_color():
-    def rand():
-        return random.randint(100, 255)
+class QuadsApiAsync:
 
-    return "#%02X%02X%02X" % (rand(), rand(), rand())
+    def __init__(self, config: Config):
+        self.config = config
+        self.base_url = config.API_URL
+
+    async def async_get(self, endpoint: str) -> Response:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                        os.path.join(self.base_url, endpoint),
+                        auth=BasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password")),
+                        timeout=60,
+                        verify_ssl=False
+                ) as response:
+                    result = await response.json()
+        except Exception as ex:
+            result = {}
+        return result
+
+    async def async_get_current_schedules(self, data: dict = None) -> List[Schedule]:
+        if data is None:
+            data = {}
+        endpoint = os.path.join("schedules", "current")
+        url = f"{endpoint}"
+        if data:
+            url_params = url_parse.urlencode(data)
+            url = f"{endpoint}?{url_params}"
+        response = await self.async_get(url)
+        schedules = []
+        for schedule in response:
+            schedules.append(Schedule().from_dict(schedule))
+        return schedules
+
+    async def async_filter_hosts(self, data) -> List[Host]:
+        url_params = url_parse.urlencode(data)
+        response = await self.async_get(f"hosts?{url_params}")
+        hosts = []
+        for host in response:
+            host_obj = Host().from_dict(data=host)
+            hosts.append(host_obj)
+        return hosts
 
 
-def generator(_host_file, _days, _month, _year, _gentime):
-    quads = QuadsApi(Config)
-    if _host_file:
-        with open(_host_file, "r") as f:
-            reader = csv.reader(f)
-            hosts = list(reader)
-    else:
-        filtered_hosts = quads.filter_hosts(data={"retired": False, "broken": False})
-        hosts = sorted(filtered_hosts, key=lambda x: x.name)
+class HostGenerate:
 
-    lines = []
-    __days = []
-    non_allocated_count = 0
-    all_samples = []
-    all_samples.extend(range(129296, 129510))
-    all_samples.extend(range(128000, 128252))
-    samples = random.sample(all_samples, 200)
-    exclude = [129401, 129484]
-    emojis = [emoji for emoji in samples if emoji not in exclude]
-    colors = [random_color() for _ in range(100)]
-    colors[0] = "#A9A9A9"
-    for i, host in enumerate(hosts):
-        line = {"hostname": host.name}
+    BLOCK_SIZE = 10
+
+    def __init__(self):
+        self.hosts = []
+        self.total_current_schedules = {}
+        self.quads_async = QuadsApiAsync(Config)
+        self.colors = []
+        self.emojis = []
+        self.current_host_schedules = {}
+        self.generate_colors()
+
+    def random_color(self):
+        def rand():
+            return random.randint(100, 255)
+
+        return "#%02X%02X%02X" % (rand(), rand(), rand())
+
+    def generate_colors(self):
+        all_samples = []
+        all_samples.extend(range(129296, 129510))
+        all_samples.extend(range(128000, 128252))
+        samples = random.sample(all_samples, 200)
+        exclude = [129401, 129484]
+        self.emojis = [emoji for emoji in samples if emoji not in exclude]
+        self.colors = [self.random_color() for _ in range(100)]
+        self.colors[0] = "#A9A9A9"
+
+    async def order_current_schedules_by_hostname(self):
+        if not self.total_current_schedules:
+            total_current_schedules = await self.quads_async.async_get_current_schedules()
+            for schedule in total_current_schedules:
+                self.total_current_schedules[schedule.host.name] = schedule
+
+    async def get_current_host_schedules(self, host_name):
+        if not self.total_current_schedules:
+            await self.order_current_schedules_by_hostname()
+        return self.total_current_schedules.get(host_name, None)
+
+    async def process_hosts(self, host, _days, _month, _year):
+        non_allocated_count = 0
         __days = []
+        schedules = await self.get_current_host_schedules(host.name)
+        schedule = schedules
+        chosen_color = schedule.assignment.cloud.name[5:] if schedules else "01"
         for j in range(1, _days + 1):
             cell_date = "%s-%.2d-%.2d 01:00" % (_year, _month, j)
             cell_time = datetime.strptime(cell_date, "%Y-%m-%d %H:%M")
-            datearg_iso = cell_time.isoformat()
-            date_str = ":".join(datearg_iso.split(":")[:-1])
-            payload = {"host": host.name, "date": date_str}
-            schedule = None
-            schedules = quads.get_current_schedules(payload)
-            if schedules:
-                schedule = schedules[0]
-                chosen_color = schedule.assignment.cloud.name[5:]
-            else:
-                non_allocated_count += 1
-                chosen_color = "01"
             _day = {
                 "day": j,
                 "chosen_color": chosen_color,
-                "emoji": "&#%s;" % emojis[int(chosen_color) - 1],
-                "color": colors[int(chosen_color) - 1],
+                "emoji": "&#%s;" % self.emojis[int(chosen_color) - 1],
+                "color": self.colors[int(chosen_color) - 1],
                 "cell_date": cell_date,
                 "cell_time": cell_time,
             }
-
             if schedule:
-                assignment = schedule.assignment
-                _day["display_description"] = assignment.description
-                _day["display_owner"] = assignment.owner
-                _day["display_ticket"] = assignment.ticket
+                schedule_start_date = schedule.start
+                schedule_end_date = schedule.end
+                if schedule_start_date <= cell_time <= schedule_end_date:
+                    assignment = schedule.assignment
+                    _day["display_description"] = assignment.description
+                    _day["display_owner"] = assignment.owner
+                    _day["display_ticket"] = assignment.ticket
+                else:
+                    chosen_color = "01"
+                    _day["chosen_color"] = "01"
+                    _day["color"] = self.colors[int(chosen_color) - 1]
+                    _day["color"] = self.colors[int(chosen_color) - 1]
+            else:
+                non_allocated_count += 1
             __days.append(_day)
+        return __days, non_allocated_count
 
-        line["days"] = __days
-        lines.append(line)
+    async def generator(self, _host_file, _days, _month, _year, _gentime):
+        if _host_file:
+            with open(_host_file, "r") as f:
+                reader = csv.reader(f)
+                hosts = list(reader)
+        else:
+            if not self.hosts:
+                filtered_hosts = await self.quads_async.async_filter_hosts(data={"retired": False, "broken": False})
+                self.hosts = sorted(filtered_hosts, key=lambda x: x.name)
+            hosts = self.hosts
 
-    total_hosts = len(hosts)
-    total_use = len(quads.get_current_schedules())
-    utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
-    utilization_daily = total_use * 100 // total_hosts
-    with open(os.path.join(Config.TEMPLATES_PATH, "simple_table_emoji")) as _file:
-        template = Template(_file.read())
-    content = template.render(
-        gentime=_gentime,
-        _days=_days,
-        lines=lines,
-        utilization=utilization,
-        utilization_daily=utilization_daily,
-        total_use=total_use,
-        total_hosts=total_hosts,
-    )
+        if not self.total_current_schedules:
+            await self.order_current_schedules_by_hostname()
 
-    return content
+        total_current_schedules = self.total_current_schedules
+        lines = []
+        __days = []
+        non_allocated_count = 0
+        host_blocks = [hosts[i:i + self.BLOCK_SIZE] for i in
+                       range(0, len(hosts), self.BLOCK_SIZE)]
+
+        for host_block in host_blocks:
+            tasks = [self.process_hosts(host, _days, _month, _year) for host in host_block]
+            results = await asyncio.gather(*tasks)
+
+            for host, (days, non_allocated) in zip(host_block, results):
+                lines.append({"hostname": host.name, "days": days})
+                non_allocated_count += non_allocated
+
+        total_hosts = len(hosts)
+        total_use = len(total_current_schedules)
+        utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
+        utilization_daily = total_use * 100 // total_hosts
+        with open(os.path.join(Config.TEMPLATES_PATH, "simple_table_emoji")) as _file:
+            template = Template(_file.read())
+        content = template.render(
+            gentime=_gentime,
+            _days=_days,
+            lines=lines,
+            utilization=utilization,
+            utilization_daily=utilization_daily,
+            total_use=total_use,
+            total_hosts=total_hosts,
+        )
+
+        return content
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate a simple HTML table with color depicting resource usage for the month"
     )
@@ -151,4 +241,6 @@ if __name__ == "__main__":  # pragma: no cover
     year = args.year
     gentime = args.gentime
 
-    generator(host_file, days, month, year, gentime)
+    generate = HostGenerate()
+    asyncio.run(generate.generator(host_file, days, month, year, gentime))
+
