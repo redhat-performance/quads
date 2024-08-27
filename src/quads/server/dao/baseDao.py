@@ -65,13 +65,14 @@ class BaseDao:
             return False
 
     @classmethod
-    def create_query_select(cls, model, filters=None, columns=None, group_by=None):
+    def create_query_select(cls, model, filters=None, columns=None, group_by=None, order_by=None):
         """
         Create a query to select data from a model with filters and columns.
         :param model: The model to query.
         :param filters: A list of filter expressions.
         :param columns: A list of columns to select.
         :param group_by: A column to group by.
+        :param order_by: A column to order by.
         :return: The query result.
         """
         if group_by:
@@ -115,6 +116,8 @@ class BaseDao:
                 query = query.filter(getattr(column, attr)(value))
         if group_by:
             query = query.group_by(group_by_column)
+        if order_by is not None:
+            query = query.order_by(order_by)
         return query.all()
 
     @classmethod
