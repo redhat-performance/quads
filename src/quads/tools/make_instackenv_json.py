@@ -107,9 +107,7 @@ async def make_env_json(filename):
 
 def main():
     tasks = []
-    loop = asyncio.get_event_loop()
-    if not loop:  # pragma: no cover
-        loop = asyncio.new_event_loop()
+    loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     if Config["openstack_management"]:
         fn = functools.partial(make_env_json, "instackenv")
