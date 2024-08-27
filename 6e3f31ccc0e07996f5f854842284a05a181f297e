@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22d22d4c_7c617a25",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-27T10:02:27Z",
+      "side": 1,
+      "message": "why are all these variables not inside the `generator` function?",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "692d2d79_68a36b75",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-27T10:02:27Z",
+      "side": 1,
+      "message": "why is this not using quads_async instead?",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b21ed39b_f4f05182",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-27T10:02:27Z",
+      "side": 1,
+      "message": "this should be made async and we should `await generator()` in order for it to be able to run in parallel.",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "767f68e0_e8630990",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-27T10:02:27Z",
+      "side": 1,
+      "message": "`await generator(..`",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
