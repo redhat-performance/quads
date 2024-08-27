@@ -12,6 +12,7 @@ from typing import Tuple, Optional
 import yaml
 from jinja2 import Template
 from requests import ConnectionError
+
 from quads.config import Config as conf
 from quads.exceptions import CliException, BaseQuadsException
 from quads.helpers.utils import first_day_month, last_day_month
@@ -19,12 +20,12 @@ from quads.quads_api import QuadsApi as Quads, APIServerException, APIBadRequest
 from quads.server.models import Assignment
 from quads.tools import reports
 from quads.tools.external.jira import Jira, JiraException
-from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
-from quads.tools.make_instackenv_json import main as regen_instack
-from quads.tools.simple_table_web import main as regen_heatmap
-from quads.tools.regenerate_wiki import main as regen_wiki
 from quads.tools.foreman_heal import main as foreman_heal
+from quads.tools.make_instackenv_json import main as regen_instack
+from quads.tools.move_and_rebuild import move_and_rebuild, switch_config
 from quads.tools.notify import main as notify
+from quads.tools.regenerate_wiki import main as regen_wiki
+from quads.tools.simple_table_web import main as regen_heatmap
 from quads.tools.validate_env import main as validate_env
 
 default_move_command = "/opt/quads/quads/tools/move_and_rebuild.py"
@@ -1876,7 +1877,7 @@ class QuadsCli:
             self.logger.info("Regenerated 'ocpinventory' for OpenShift Management.")
 
     def action_regen_heatmap(self):
-        regen_heatmap()
+        asyncio.run(regen_heatmap())
         self.logger.info("Regenerated web table heatmap.")
 
     def action_regen_wiki(self):
