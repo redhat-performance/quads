@@ -1,8 +1,15 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import argparse
-from quads.model import Schedule
+import logging
+from datetime import datetime
+
 import yaml
+
+from quads.model import Schedule
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def export_current_schedules(output):
@@ -21,14 +28,24 @@ def export_current_schedules(output):
                 "ccuser": [cc for cc in cloud.ccuser],
                 "vlan": cloud.vlan.vlan_id if cloud.vlan else None,
             }
+        format_str = "%a, %d %b %Y %H:%M:%S %Z"
+        _start = datetime.strptime(str(schedule.start), format_str)
+        _end = datetime.strptime(str(schedule.end), format_str)
+        _build_start = (
+            datetime.strptime(str(schedule.build_start).split(".")[0], format_str) if schedule.build_start else None
+        )
+        _build_end = (
+            datetime.strptime(str(schedule.build_end).split(".")[0], format_str) if schedule.build_end else None
+        )
         current_schedules.append(
             {
                 "cloud": cloud.name,
-                "host": schedule.host.name,
-                "start": schedule.start,
-                "end": schedule.end,
-                "build_start": schedule.build_start,
-                "build_end": schedule.build_end,
+                "host": cloud.name,
+                "start": _start,
+                "end": _end,
+                "build_start": _build_start,
+                "build_end": _build_end,
+                "moved": schedule.host.cloud.name != schedule.host.default_cloud.name,
             }
         )
 
