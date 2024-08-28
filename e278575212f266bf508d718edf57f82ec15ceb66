@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7327c06d_d0d795c8",
+        "filename": "src/quads/web/templates/base.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-28T08:09:22Z",
+      "side": 1,
+      "message": "rename to popper.min.js",
+      "range": {
+        "startLine": 37,
+        "startChar": 51,
+        "endLine": 37,
+        "endChar": 57
+      },
+      "revId": "e278575212f266bf508d718edf57f82ec15ceb66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
