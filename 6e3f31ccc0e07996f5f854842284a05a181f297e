@@ -35,6 +35,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b036ae4d_a002fdb3",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-28T07:58:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "692d2d79_68a36b75",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b21ed39b_f4f05182",
