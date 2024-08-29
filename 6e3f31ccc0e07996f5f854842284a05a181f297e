@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "703b7fa6_ab3b776a",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T09:32:13Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "006a650f_c04c08ba",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "692d2d79_68a36b75",
         "filename": "src/quads/tools/simple_table_generator.py",
         "patchSetId": 1
@@ -209,6 +227,24 @@
       "side": 1,
       "message": "Running the generator with `asyncio.run` makes this line run until the generator execution is completed. I suggested making the `main` function async so that we can run this with `await` which in turn would continue with the `for` loop even if the execution of the `generator` is not completed. This would make it a considerable execution time enhancement.",
       "parentUuid": "f2c99436_edce4ec9",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b9500a9_b0d1886d",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T09:32:13Z",
+      "side": 1,
+      "message": "hmm, got you.",
+      "parentUuid": "a14e343a_b73d0c71",
       "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
