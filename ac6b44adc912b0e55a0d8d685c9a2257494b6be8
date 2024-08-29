@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a662688_f001a32c",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T08:14:14Z",
+      "side": 1,
+      "message": "Added the async_filter_hosts method inside the quads_async and removed the sync quads object. So no sync method will exist.",
+      "revId": "ac6b44adc912b0e55a0d8d685c9a2257494b6be8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}

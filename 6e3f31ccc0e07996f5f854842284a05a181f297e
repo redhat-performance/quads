@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7ace8fd0_1eb5bde4",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T08:14:14Z",
+      "side": 1,
+      "message": "colors variable is used inside the async `process_host` block. So I made it available all the time without passing as arguments.",
+      "parentUuid": "22d22d4c_7c617a25",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "692d2d79_68a36b75",
         "filename": "src/quads/tools/simple_table_generator.py",
         "patchSetId": 1
@@ -55,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d09ed359_80074a7d",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T08:14:14Z",
+      "side": 1,
+      "message": "Used quads_async when we called the api continuously. Here we called api only once, so I didn\u0027t use here.",
+      "parentUuid": "692d2d79_68a36b75",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b21ed39b_f4f05182",
         "filename": "src/quads/tools/simple_table_web.py",
         "patchSetId": 1
@@ -72,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "67b7fbce_b8c00b2f",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T08:14:14Z",
+      "side": 1,
+      "message": "True, but we have very limited dates. So I didn\u0027t use async here.",
+      "parentUuid": "b21ed39b_f4f05182",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "767f68e0_e8630990",
         "filename": "src/quads/tools/simple_table_web.py",
         "patchSetId": 1
@@ -83,6 +137,24 @@
       "writtenOn": "2024-08-27T10:02:27Z",
       "side": 1,
       "message": "`await generator(..`",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2c99436_edce4ec9",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-08-29T08:14:14Z",
+      "side": 1,
+      "message": "From the above reply: we don\u0027t need await here.",
+      "parentUuid": "767f68e0_e8630990",
       "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
