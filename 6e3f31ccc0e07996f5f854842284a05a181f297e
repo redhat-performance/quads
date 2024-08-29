@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "006a650f_c04c08ba",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-29T08:39:39Z",
+      "side": 1,
+      "message": "I understand why you wouldn\u0027t want to pass it as an arg to `process_host` but having it as a global and defined in the middle of the file is not considered a best practice.\nI\u0027d rather have all those variable under a `Generator` class as class variables and rename the `generator` function to `generate`.",
+      "parentUuid": "7ace8fd0_1eb5bde4",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "692d2d79_68a36b75",
         "filename": "src/quads/tools/simple_table_generator.py",
         "patchSetId": 1
@@ -85,6 +103,24 @@
       "side": 1,
       "message": "Used quads_async when we called the api continuously. Here we called api only once, so I didn\u0027t use here.",
       "parentUuid": "692d2d79_68a36b75",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab060f77_87fdc5c4",
+        "filename": "src/quads/tools/simple_table_generator.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-29T08:39:39Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d09ed359_80074a7d",
       "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -155,6 +191,24 @@
       "side": 1,
       "message": "From the above reply: we don\u0027t need await here.",
       "parentUuid": "767f68e0_e8630990",
+      "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a14e343a_b73d0c71",
+        "filename": "src/quads/tools/simple_table_web.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-08-29T08:39:39Z",
+      "side": 1,
+      "message": "Running the generator with `asyncio.run` makes this line run until the generator execution is completed. I suggested making the `main` function async so that we can run this with `await` which in turn would continue with the `for` loop even if the execution of the `generator` is not completed. This would make it a considerable execution time enhancement.",
+      "parentUuid": "f2c99436_edce4ec9",
       "revId": "6e3f31ccc0e07996f5f854842284a05a181f297e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
