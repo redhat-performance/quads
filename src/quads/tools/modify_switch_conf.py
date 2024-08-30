@@ -25,7 +25,7 @@ def verify(
 
     logger.info(f"Host: {_host_obj.name}")
     if _host_obj.interfaces:
-        interfaces = sorted(_host_obj.interfaces, key=lambda k: k["name"])
+        interfaces = sorted(_host_obj.interfaces, key=lambda k: k.name)
         for i, interface in enumerate(interfaces):
             vlan = _nics.get(interface.name)
             if vlan:
