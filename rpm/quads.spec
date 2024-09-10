@@ -152,6 +152,7 @@ rm -rf %{buildroot}
 /usr/bin/chown -R postgres:postgres /opt/quads/db/
 /usr/bin/chown -R nginx:nginx /var/www/html/visual/
 /usr/bin/chown -R nginx:nginx /var/www/html/instack/
+/usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
 /usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
