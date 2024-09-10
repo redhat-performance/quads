@@ -158,6 +158,7 @@ rm -rf %{buildroot}
 /usr/bin/systemctl enable nginx
 /usr/bin/systemctl enable haveged
 source /etc/profile.d/quads.sh
+/usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432 ; sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf ; /usr/bin/systemctl start quads-db ; cd /var/lib/pgsql ; sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 echo "======================================================="
