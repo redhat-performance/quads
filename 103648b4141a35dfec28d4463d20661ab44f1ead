@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67f82629_0b8fb860",
+        "filename": "rpm/quads.spec",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1038318
+      },
+      "writtenOn": "2024-09-11T00:25:28Z",
+      "side": 1,
+      "message": "Do we update SELinux fcontext anywhere?",
+      "revId": "103648b4141a35dfec28d4463d20661ab44f1ead",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
