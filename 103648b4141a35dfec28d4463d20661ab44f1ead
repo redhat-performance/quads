@@ -16,6 +16,24 @@
       "message": "Do we update SELinux fcontext anywhere?",
       "revId": "103648b4141a35dfec28d4463d20661ab44f1ead",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3b7271f_e36b4986",
+        "filename": "rpm/quads.spec",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-11T06:30:17Z",
+      "side": 1,
+      "message": "No, we typically don\u0027t recommend leaving SELinux enabled we just want the RPM installation not to fail and don\u0027t forsee a relabel where this is needed.\n\nWe could employ a:  semanage fcontext -a -t postgresql_db_t /opt/quads/db/data here but this isn\u0027t an RFE to bring in selinux dependencies/support either.\n\nThat would bring in the following dependencies:\n\n\npolicycoreutils-python-utils                     noarch                     \n\nDeps:\n\ncheckpolicy\npython3-audit\npython3-libsemanage\npython3-policycoreutils\npython3-setools\n\nNot against it but for scope of this change not needed either, will discuss.",
+      "parentUuid": "67f82629_0b8fb860",
+      "revId": "103648b4141a35dfec28d4463d20661ab44f1ead",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
