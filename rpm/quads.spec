@@ -43,6 +43,7 @@ Requires: python3-requests >= 2.28.1
 Requires: python3-aiohttp >= 3.8.5
 Requires: git >= 2.1
 Requires: cronie >= 1.0
+Requires: policycoreutils-python-utils >= 3.5
 Requires: ipmitool >= 1.8.0
 Requires: python3-paramiko >= 2.12
 Requires: python3-wtforms >= 2.2.0
@@ -153,6 +154,13 @@ rm -rf %{buildroot}
 /usr/bin/chown -R nginx:nginx /var/www/html/visual/
 /usr/bin/chown -R nginx:nginx /var/www/html/instack/
 /usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
+/usr/sbin/semanage port -a -t http_port_t -p tcp 5000 2>/dev/null
+/usr/sbin/semanage port -a -t http_port_t -p tcp 5001 2>/dev/null
+/usr/bin/chcon -R --type=httpd_sys_content_t /var/www/html
+/usr/sbin/semanage fcontext -a -t httpd_sys_content_t /var/www/html 2>/dev/null
+/usr/sbin/restorecon -R /var/www/html
+/usr/sbin/semanage fcontext -a -t postgresql_db_t "/opt/quads/db/data(/.*)?" 2>/dev/null
+/usr/sbin/restorecon -R /opt/quads/db/data
 /usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
