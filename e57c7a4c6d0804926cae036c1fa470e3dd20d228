@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b1ad928_ab76c0ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-13T16:55:48Z",
+      "side": 1,
+      "message": "self-approving docs patch.",
+      "revId": "e57c7a4c6d0804926cae036c1fa470e3dd20d228",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
