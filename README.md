@@ -281,10 +281,10 @@ su - wordpress -s /bin/bash
 wp post delete --force $(wp post list --post_type='revision' --format=ids)
 ```
 #### QUADS Move Command
-   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild_hosts.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
+   - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/move_and_rebuild.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
 ### Making QUADS Run
-   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/master/cron/quads) to your liking, adjust as needed.
+   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/latest/cron/quads) to your liking, adjust as needed.
 
 #### Major Components
 
@@ -469,9 +469,9 @@ In the above example the default move command called ```/bin/echo``` for illustr
 quads --move-hosts --move-command quads/tools/move_and_rebuild_hosts.py
 ```
 
-* You can modify the default settings via the `default_move_command` setting in [quads](https://github.com/redhat-performance/quads/blob/master/src/quads/cli/cli.py).
+* You can modify the default settings via the `default_move_command` setting in [quads](https://github.com/redhat-performance/quads/blob/latest/src/quads/cli/cli.py).
 
-* You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/master/quads/tools/move_and_rebuild.py) script as an example.  It's useful to note that with `quads/tools/move_and_rebuild.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
+* You can look at the [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/move_and_rebuild.py) tool as an example.  It's useful to note that with `move_and_rebuild.py` passing a fourth argument will result in only the network automation running and the actual host provisioning will be skipped.  You should review this script and adapt it to your needs, we try to make variables for everything but some assumptions are made to fit our running environments.
 
 ## QUADS Reporting
 
@@ -712,7 +712,7 @@ for host in $(cat /tmp/retired_hosts); do yes | quads --shrink --host $host --no
 Occasionally you'll want to extend the lifetime of a particular assignment. QUADS lets you do this with one command but you'll want to double-check things first.
 In this example we'll be extending the assignment end date for cloud02
 
-In QUADS version `1.1.4` or higher or the current `master` branch you can extend a cloud environment with a simple command.
+In QUADS version `1.1.4` or higher or the current `latest` branch you can extend a cloud environment with a simple command.
 
 ```bash
 quads --extend --cloud cloud02 --weeks 2 --check
@@ -1297,7 +1297,7 @@ quads --validate-env --cloud cloud01
 ```
 
 ### Mapping Internal VLAN Interfaces to Problem Hosts
-You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/master/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
+You might have noticed that we configure our [Foreman](https://github.com/redhat-performance/quads/tree/latest/templates/foreman) templates to drop `172.{16,17,18,19}.x` internal VLAN interfaces which correspond to the internal, QUADS-managed multi-tenant interfaces across a set of hosts in a cloud assignment.
 
 The _first two octets_ here can be substituted by the _first two octets of your systems public network_ in order to determine from `validate_env.py --debug` which host internal interfaces have issues or are unreachable.
 
@@ -1315,7 +1315,7 @@ The _first two octets_ here can be substituted by the _first two octets of your 
 
 ![validation_2](/image/troubleshoot_validation2.png?raw=true)
 
-This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/master/quads/tools/validate_env.py#L143)
+This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/validate_env.py#L276)
 
 ## Contact QUADS Developers
 
