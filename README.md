@@ -317,9 +317,10 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 #### Define Initial Cloud Environments
    - Define the various cloud environments
    - These are the isolated environments QUADS will use and provision into for you.
-   - Note that **cloud01** is the designated "Spare Pool" where servers will go when they are first added and also when they have no active assignments to move to for a workload.  This environment is automatically created for you.  You can name it [anything you want](https://github.com/redhat-performance/quads/blob/latest/conf/quads.yml#L7) by editing the QUADS configuration file `/opt/quads/conf/quads.yml`
+   - Note that **cloud01** is the designated "Spare Pool" where servers will go when they are first added and also when they have no active assignments to move to for a workload.  You can name it [anything you want](https://github.com/redhat-performance/quads/blob/latest/conf/quads.yml#L7) by editing the QUADS configuration file `/opt/quads/conf/quads.yml`
 
 ```bash
+quads --define-cloud --cloud cloud01
 quads --define-cloud --cloud cloud02 --description "02 Cloud Environment"
 quads --define-cloud --cloud cloud03 --description "03 Cloud Environment"
 ```
