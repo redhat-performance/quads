@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d28a4a2_2fe525b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-18T16:43:46Z",
+      "side": 1,
+      "message": "self-approving since it\u0027s related to previous patch.",
+      "revId": "5d3e99f59c66cd4199fa2836fe462e653ffc4442",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
