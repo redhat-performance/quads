@@ -168,6 +168,16 @@ rm -rf %{buildroot}
 /usr/bin/systemctl enable haveged
 /usr/bin/systemctl disable abrtd 2>/dev/null
 /usr/bin/systemctl stop abrtd 2>/dev/null
+/usr/bin/systemctl disable abrt-ccpp 2>/dev/null
+/usr/bin/systemctl stop abrt-ccpp 2>/dev/null
+/usr/bin/systemctl disable abrt-oops 2>/dev/null
+/usr/bin/systemctl stop abrt-oops 2>/dev/null
+/usr/bin/systemctl disable abrt-vmcore 2>/dev/null
+/usr/bin/systemctl stop abrt-vmcore 2>/dev/null
+/usr/bin/systemctl disable abrt-journal-core 2>/dev/null
+/usr/bin/systemctl stop abrt-journal-core 2>/dev/null
+/usr/bin/systemctl disable abrt-xorg 2>/dev/null
+/usr/bin/systemctl stop abrt-xorg 2>/dev/null
 source /etc/profile.d/quads.sh
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432 ; sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf ; /usr/bin/systemctl start quads-db ; cd /var/lib/pgsql ; sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" 2>/dev/null
 
