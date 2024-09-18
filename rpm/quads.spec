@@ -179,11 +179,14 @@ rm -rf %{buildroot}
 /usr/bin/systemctl disable abrt-pstoreoops 2>/dev/null
 /usr/bin/systemctl stop abrt-pstoreoops 2>/dev/null
 source /etc/profile.d/quads.sh
+mkdir -p /var/run/postgresql
+chown -R postgres:postgres /var/run/postgresql
+/usr/bin/chcon -Rt postgresql_var_run_t /run/postgresql
+/usr/sbin/semanage fcontext -a -t postgresql_var_run_t /run/postgresql 2>/dev/null
+/usr/sbin/restorecon -R /run/postgresql
 /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
-sleep 2
 sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
 /usr/bin/systemctl start quads-db
-sleep 2
 cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 echo "======================================================="
