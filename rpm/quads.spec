@@ -179,7 +179,12 @@ rm -rf %{buildroot}
 /usr/bin/systemctl disable abrt-pstoreoops 2>/dev/null
 /usr/bin/systemctl stop abrt-pstoreoops 2>/dev/null
 source /etc/profile.d/quads.sh
-/usr/bin/postgresql-setup --initdb --unit quads-db --port 5432 ; sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf ; /usr/bin/systemctl start quads-db ; cd /var/lib/pgsql ; sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" 2>/dev/null
+/usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
+sleep 2
+sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
+/usr/bin/systemctl start quads-db
+sleep 2
+cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
 echo "======================================================="
 echo " Start QUADS and initialize DB for first time installs "
