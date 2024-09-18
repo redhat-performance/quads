@@ -33,6 +33,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Adding New Hosts to QUADS](#adding-new-hosts-to-quads)
             * [Define Initial Cloud Environments](#define-initial-cloud-environments)
             * [Define Host in QUADS and Foreman](#define-host-in-quads-and-foreman)
+              * [Define your Server Models](#define-your-server-models)
+              * [Define your QUADS Hosts](#define-your-quads-hosts)
             * [Define Host Interfaces in QUADS](#define-host-interfaces-in-quads)
          * [How Provisioning Works](#how-provisioning-works)
             * [QUADS Move Host Command](#quads-move-host-command)
@@ -315,28 +317,54 @@ wp post delete --force $(wp post list --post_type='revision' --format=ids)
 #### Define Initial Cloud Environments
    - Define the various cloud environments
    - These are the isolated environments QUADS will use and provision into for you.
+   - Note that **cloud01** is the designated "Spare Pool" where servers will go when they are first added and also when they have no active assignments to move to for a workload.  This environment is automatically created for you.  You can name it [anything you want](https://github.com/redhat-performance/quads/blob/latest/conf/quads.yml#L7) by editing the QUADS configuration file `/opt/quads/conf/quads.yml`
 
 ```bash
-quads --define-cloud --cloud cloud01 --description "Primary Cloud Environment"
 quads --define-cloud --cloud cloud02 --description "02 Cloud Environment"
 quads --define-cloud --cloud cloud03 --description "03 Cloud Environment"
 ```
 
 #### Define Host in QUADS and Foreman
 
+##### Define your Server Models
+
+* Look for the `models:` [key/value pair](https://github.com/redhat-performance/quads/blob/latest/conf/quads.yml#L184) and add ones that accurately describe your fleet.
+* This can be any identifiable string, we have added some stock ones we use for example but anything that makes sense to you to distinguish system models, sub-models etc that works for your needs e.g. R750-IL-XG might be a sub-model of a Dell R750.
+* Models are used for filtering search, availability and other useful features and it's a mandatory data element you need to provide.
+
+
+```
+vi /opt/quads/conf/quads.yml
+```
+
+```
+models: R620,R630,R640,R650,R930,R730XD,FC640
+```
+
+Now save this file and restart the QUADS server daemon.
+
+```
+systemctl restart quads-server
+```
+
+You will need to do this when you introduce new system models into your fleet if they are new.
+
+##### Define your QUADS Hosts
+
    - Define the hosts in the environment (Foreman Example)
      - Note the ```--host-type``` parameter, this is a mandatory, free-form label that can be anything.  It will be used later for ```post-config``` automation and categorization.
      - If you don't want systems to be reprovisioned when they move into a cloud environment append `--no-wipe` to the define command.
      - We are excluding anything starting with mgmt- and including servers with the name r630.
+     - Note that you **must define the model(s) of systems before you define them** in the previous step.
 
 ```bash
-for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads --define-host $h --default-cloud cloud01 --host-type general; done
+for h in $(hammer host list --per-page 1000 | egrep -v "mgmt|c08-h30"| grep r630 | awk '{ print $3 }') ; do quads --define-host $h --default-cloud cloud01 --host-type general --model R630; done
 ```
 
    - The command **without Foreman** would be simply:
 
 ```bash
-quads --define-host --host <hostname> --default-cloud cloud01 --host-type general
+quads --define-host --host <hostname> --default-cloud cloud01 --host-type general --model R630
 ```
 
 #### Define Host Interfaces in QUADS
