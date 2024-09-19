@@ -892,9 +892,10 @@ class QuadsCli:
                 if response.status_code == 200:
                     self.logger.info("Assignment updated.")
             else:
-                if not self.cli_args.get("cloudticket"):
-                    self.logger.warning("No ticket provided.")
-                self.logger.warning("No assignment created or updated.")
+                if self.cli_args.get("cloud") != conf.get("spare_pool_name"):
+                    if not self.cli_args.get("cloudticket"):
+                        self.logger.warning("No ticket provided.")
+                    self.logger.warning("No assignment created or updated.")
 
         except ConnectionError:  # pragma: no cover
             raise CliException("Could not connect to the quads-server, verify service is up and running.")
