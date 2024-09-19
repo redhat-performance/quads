@@ -15,7 +15,7 @@
 %define name quads-dev
 %define reponame quads
 %define branch latest
-%define version 2.0.0
+%define version 2.0.5
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -191,6 +191,7 @@ if [ "$1" -eq 1 ]; then
     sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
     /usr/bin/systemctl start quads-db
     cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+    /usr/bin/systemctl start nginx
 fi
 
 if [ "$1" -eq 2 ]; then
@@ -227,6 +228,16 @@ fi;
 find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
 
 %changelog
+
+* Thu Sep 19 2024 Will Foster <wfoster@redhat.com>
+- 2.0.5 Release
+- multiple roles support to auth
+- webui fixes/updates
+- packaging fixes
+- huge performance improvement to quads --regen-heatmap
+- SELinux support for QUADS
+- filter added to available API endpoint
+- many other bug fixes
 
 * Thu Jun 20 2024 Will Foster <wfoster@redhat.com>
 * 2.0.0 Release

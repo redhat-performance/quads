@@ -80,7 +80,7 @@ class _Config(_ConfigBase):
 
     FPING_TIMEOUT = 10000
 
-    QUADSVERSION = "2.0.0"
+    QUADSVERSION = "2.0.5"
     QUADSCODENAME = "bowie"
 
     SUPPORTED = [
