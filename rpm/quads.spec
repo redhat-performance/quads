@@ -161,6 +161,7 @@ rm -rf %{buildroot}
 /usr/sbin/restorecon -R /var/www/html
 /usr/sbin/semanage fcontext -a -t postgresql_db_t "/opt/quads/db/data(/.*)?" 2>/dev/null
 /usr/sbin/restorecon -R /opt/quads/db/data
+/usr/sbin/setsebool httpd_can_network_connect 1 -P
 /usr/bin/systemctl enable quads-db
 /usr/bin/systemctl enable quads-server
 /usr/bin/systemctl enable quads-web
