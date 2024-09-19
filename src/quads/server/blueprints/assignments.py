@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, jsonify, request, Response, make_response
 
 from quads.server.blueprints import check_access
@@ -127,7 +129,7 @@ def create_assignment() -> Response:
     ticket = data.get("ticket")
     qinq = data.get("qinq")
     wipe = data.get("wipe")
-    cc_user = data.get("cc_user")
+    cc_user = data.get("ccuser")
 
     required_fields = [
         "description",
@@ -145,7 +147,7 @@ def create_assignment() -> Response:
             return make_response(jsonify(response), 400)
 
     if cc_user:
-        cc_user = cc_user.split(",")
+        cc_user = re.split(r"[, ]+", cc_user)
 
     if cloud_name:
         _cloud = CloudDao.get_cloud(cloud_name)
