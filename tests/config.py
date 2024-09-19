@@ -1,4 +1,5 @@
 """Template responses and requests for API testing."""
+
 from datetime import datetime, timedelta
 
 # --------------------
@@ -318,7 +319,7 @@ ASSIGNMENT_1_REQUEST = {
     "description": "Test allocation.",
     "owner": "grafuls",
     "ticket": "1",
-    "cc_user": "gonza",
+    "ccuser": "gonza",
 }
 ASSIGNMENT_1_RESPONSE = {
     "active": True,
@@ -410,7 +411,7 @@ ASSIGNMENT_2_REQUEST = {
     "description": "Test allocation.",
     "owner": "grafuls",
     "ticket": "2",
-    "cc_user": "gonza",
+    "ccuser": "gonza",
 }
 ASSIGNMENT_2_RESPONSE = {
     "active": True,
