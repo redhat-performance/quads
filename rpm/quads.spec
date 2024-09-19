@@ -179,16 +179,30 @@ rm -rf %{buildroot}
 /usr/bin/systemctl disable abrt-pstoreoops 2>/dev/null
 /usr/bin/systemctl stop abrt-pstoreoops 2>/dev/null
 source /etc/profile.d/quads.sh
-mkdir -p /var/run/postgresql
-chown -R postgres:postgres /var/run/postgresql
-/usr/bin/chcon -Rt postgresql_var_run_t /run/postgresql
-/usr/sbin/semanage fcontext -a -t postgresql_var_run_t /run/postgresql 2>/dev/null
-/usr/sbin/restorecon -R /run/postgresql
-/usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
-sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
-/usr/bin/systemctl start quads-db
-cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+# New Installation Steps Only
+if [ "$1" -eq 1 ]; then
+    mkdir -p /var/run/postgresql
+    chown -R postgres:postgres /var/run/postgresql
+    /usr/bin/chcon -Rt postgresql_var_run_t /run/postgresql
+    /usr/sbin/semanage fcontext -a -t postgresql_var_run_t /run/postgresql 2>/dev/null
+    /usr/sbin/restorecon -R /run/postgresql
+    /usr/bin/postgresql-setup --initdb --unit quads-db --port 5432
+    sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
+    /usr/bin/systemctl start quads-db
+    cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+fi
 
+if [ "$1" -eq 2 ]; then
+echo "======================================================="
+echo " For package upgrades restart QUADS app stack only     "
+echo "======================================================="
+echo "                                                       "
+echo "        systemctl restart quads-{server,web}           "
+echo "                                                       "
+echo "======================================================="
+fi
+
+if [ "$1" -eq 1 ]; then
 echo "======================================================="
 echo " Start QUADS and initialize DB for first time installs "
 echo "======================================================="
@@ -197,20 +211,14 @@ echo "        systemctl start quads-{db,server,web}          "
 echo "                                                       "
 echo "        flask --app quads.server.app init-db           "
 echo "                                                       "
-echo "                                                       "
 echo "======================================================="
-echo " For package upgrades restart QUADS app stack only     "
-echo "======================================================="
-echo "                                                       "
-echo "        systemctl restart quads-{server,web}           "
-echo "                                                       "
-echo "======================================================="
+fi
 
 %preun
 if [ "$1" -eq 0 ]; then
-  /usr/bin/systemctl disable quads-web
-  /usr/bin/systemctl disable quads-server
-  /usr/bin/systemctl disable quads-db
+    /usr/bin/systemctl disable quads-web
+    /usr/bin/systemctl disable quads-server
+    /usr/bin/systemctl disable quads-db
 fi;
 :;
 
