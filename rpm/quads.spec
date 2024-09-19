@@ -178,6 +178,7 @@ rm -rf %{buildroot}
 /usr/bin/systemctl stop abrt-xorg 2>/dev/null
 /usr/bin/systemctl disable abrt-pstoreoops 2>/dev/null
 /usr/bin/systemctl stop abrt-pstoreoops 2>/dev/null
+/usr/bin/systemctl daemon-reload
 source /etc/profile.d/quads.sh
 # New Installation Steps Only
 if [ "$1" -eq 1 ]; then
