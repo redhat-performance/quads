@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47aa1d3c_cf99c8d1",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-09-23T08:36:11Z",
+      "side": 1,
+      "message": "The same method name exists thrice.",
+      "revId": "8da870a8981232b9bb3cf8a9a3da9feedfb25217",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bb3603f_52cb9b50",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-09-23T08:36:11Z",
+      "side": 1,
+      "message": "```suggestion\n            link[\u0027href\u0027] \u003d f\"content/{hl.replace(\".html\",\"\")}\"\n```\nlink[\u0027href\u0027] \u003d f\"content/{hl.replace(\u0027.html\u0027,\u0027\u0027)}\" ??",
+      "revId": "8da870a8981232b9bb3cf8a9a3da9feedfb25217",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
