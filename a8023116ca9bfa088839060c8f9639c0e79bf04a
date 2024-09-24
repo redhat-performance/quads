@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2350216_ee4f13b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 27
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2024-09-24T19:42:08Z",
+      "side": 1,
+      "message": "Please see my suggestion for a possible safeguard against easily breaking the web application.  For example if you:\n\nmkdir /opt/quads/web/Some_Menu -p\necho http://example.com/ \u003e /opt/quads/web/Some_Menu/Example1\n\nThe above will work; however if you do the following in addition:\n\nmkdir /opt/quads/web/Some_Menu/Nested_Menu -p\necho http://example.com/ \u003e /opt/quads/web/Some_Menu/Nested_Menu/Example2\n\nthe code as it is will try and open \"Nested_Menu\" as a file, even though it\u0027s a directory, and will cause an internal server error until the directory is deleted.",
+      "revId": "a8023116ca9bfa088839060c8f9639c0e79bf04a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afbab56b_157d8705",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 27
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1006961
+      },
+      "writtenOn": "2024-09-24T19:42:08Z",
+      "side": 1,
+      "message": "Please change this:\n   sub_files \u003d os.listdir(str(sub_path))\n\nTo the following:\n   sub_files \u003d [d.name for d in os.scandir(sub_path) if not d.is_dir() and d.name not in EXCLUDE_DIRS]\n\nOtherwise, if you create nested directories in the WEB_CONTENT_PATH, they will be mistaken as direct links, and further down any subdirectory will get caught with the open() call as \"f\" (file type) and cause an internal server error.\n\nThis way, you safeguard against directories nested inside directories.\n\nIf however, nested menus are desired, we will have to figure out some form of recursion to correctly scan the WEB_CONTENT_PATH for multiple levels of subdirectories.",
+      "revId": "a8023116ca9bfa088839060c8f9639c0e79bf04a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
