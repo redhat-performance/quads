@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8944448_f3820343",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-24T16:31:42Z",
+      "side": 1,
+      "message": "This is actually a very substantial change to push into latest but since we\u0027ve essentially been running HEAD the entire time since 2.0 was released I think it\u0027s fine, in other words there is no turning back.\n\nIn a pinch we could create a branch off the 2.0.5 git tag to spin an RPM but let\u0027s hope that\u0027s not needed, I feel like if that was needed we\u0027d already seen it after dozens and dozens of assignments have already gone out.\n\nWe\u0027re going to be in a weird state when this is pushed because the RPM code/content and application workflows have had a major piece removed and reworked.  This means the docs once pushed will essentially be ahead of the published package so we might consider just spinning a 2.1.0 very soon to close this window.",
+      "revId": "577fa37688458eaf543b29c288e3a80ed9758ca9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
