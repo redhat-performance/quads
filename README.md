@@ -227,7 +227,7 @@ servername=$(hostname) ; sed -i -e "s/quads.example.com/$servername/" /etc/nginx
 Lastly, restart nginx:
 
 ```
-sytemctl restart nginx
+systemctl restart nginx
 ```
 
 ### Installing other QUADS Components
