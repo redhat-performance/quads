@@ -52,6 +52,27 @@ def get_dynamic_navigation():
                 link["href"] = f.readline().strip()
             link["text"] = file.replace("_", " ")
             links.append(link)
+
+    numbered_links = []
+    unnumbered_links = []
+    for link in links:
+        ln = link["text"]
+        try:
+            lnum = int(ln.split()[0])
+            numbered_links.append(link)
+        except:
+            unnumbered_links.append(link)
+
+    sorted_numbered_links = sorted(numbered_links, key=lambda x: x["text"])
+    sorted_unnumbered_links = sorted(unnumbered_links, key=lambda x: x["text"])
+    stripped_numbered_links = []
+
+    for link in sorted_numbered_links:
+        link["text"] = " ".join(link["text"].split()[1:])
+        stripped_numbered_links.append(link)
+
+    links = stripped_numbered_links + sorted_unnumbered_links
+
     dynamic_navigation["links"] = links
 
     submenus = [d.name for d in os.scandir(WEB_CONTENT_PATH) if d.is_dir() and d.name not in EXCLUDE_DIRS]
@@ -77,6 +98,27 @@ def get_dynamic_navigation():
             link["text"] = dl.replace("_", " ")
             sub_links.append(link)
 
+        numbered_sub_links = []
+        unnumbered_sub_links = []
+        stripped_numbered_sub_links = []
+
+        for sl in sub_links:
+            sl_name = sl["text"]
+            try:
+                sl_num = int(sl_name.split()[0])
+                numbered_sub_links.append(sl)
+            except:
+                unnumbered_sub_links.append(sl)
+
+        sorted_numbered_sub_links = sorted(numbered_sub_links, key=lambda x: x["text"])
+        sorted_unnumbered_sub_links = sorted(unnumbered_sub_links, key=lambda x: x["text"])
+        stripped_numbered_sub_links = []
+
+        for sl in sorted_numbered_sub_links:
+            sl["text"] = " ".join(sl["text"].split()[1:])
+            stripped_numbered_sub_links.append(sl)
+
+        sub_links = stripped_numbered_sub_links + sorted_unnumbered_sub_links
         menus[sub] = sub_links
     dynamic_navigation["menus"] = menus
 
@@ -240,6 +282,7 @@ def create_vlans():
 def visuals(when):
     path = os.path.join(WEB_CONTENT_PATH, "visual")
     file_paths = get_file_paths(path)
+    print(file_paths)
     for file in file_paths:
         if when in file:
             return render_template(file)
