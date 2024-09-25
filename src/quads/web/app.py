@@ -52,18 +52,64 @@ def get_dynamic_navigation():
                 link["href"] = f.readline().strip()
             link["text"] = file.replace("_", " ")
             links.append(link)
+
+    numbered_links = []
+    unnumbered_links = []
+    for link in links:
+        ln = link["text"]
+        try:
+            lnum = int(ln.split()[0])
+            numbered_links.append(link)
+        except:
+            unnumbered_links.append(link)
+
+    sorted_numbered_links = sorted(numbered_links, key=lambda x: x["text"])
+    sorted_unnumbered_links = sorted(unnumbered_links, key=lambda x: x["text"])
+    stripped_numbered_links = []
+
+    for link in sorted_numbered_links:
+        link["text"] = " ".join(link["text"].split()[1:])
+        stripped_numbered_links.append(link)
+
+    links = stripped_numbered_links + sorted_unnumbered_links
+
     dynamic_navigation["links"] = links
 
     submenus = [d.name for d in os.scandir(WEB_CONTENT_PATH) if d.is_dir() and d.name not in EXCLUDE_DIRS]
+    numbered_submenus = []
+    unnumbered_submenus = []
+    for sm in submenus:
+        try:
+            sm_num = int(sm.split("_")[0])
+            numbered_submenus.append(sm)
+        except:
+            unnumbered_submenus.append(sm)
+
+    sorted_numbered_submenus = sorted(numbered_submenus, key=lambda x: x)
+    sorted_unnumbered_submenus = sorted(unnumbered_submenus, key=lambda x: x)
+    stripped_numbered_submenus = []
+    stripped_unnumbered_submenus = []
+
+    for sm in sorted_numbered_submenus:
+        sm_dir = sm
+        sm = "_".join(sm.split("_")[1:])
+        stripped_numbered_submenus.append({"dir": sm_dir, "name": sm})
+
+    for sm in sorted_unnumbered_submenus:
+        sm_dir = sm
+        stripped_unnumbered_submenus.append({"dir": sm_dir, "name": sm})
+
+    submenus = stripped_numbered_submenus + stripped_unnumbered_submenus
+
     for sub in submenus:
         sub_links = []
-        sub_path = os.path.join(WEB_CONTENT_PATH, sub)
+        sub_path = os.path.join(WEB_CONTENT_PATH, sub["dir"])
         sub_files = [d.name for d in os.scandir(sub_path) if not d.is_dir() and d.name not in EXCLUDE_DIRS]
         html_links = [file for file in sub_files if file.endswith(".html")]
         for hl in html_links:
             href = url_for(
                 "content.dynamic_content_sub",
-                directory=sub,
+                directory=sub["dir"],
                 page=hl.replace(".html", ""),
             )
             link = {"href": href, "text": hl.replace(".html", "").replace("_", " ")}
@@ -72,12 +118,33 @@ def get_dynamic_navigation():
         direct_links = [file for file in sub_files if not file.endswith(".html") and not file in EXCLUDE_DIRS]
         for dl in direct_links:
             link = {}
-            with open(os.path.join(WEB_CONTENT_PATH, sub, dl)) as f:
+            with open(os.path.join(WEB_CONTENT_PATH, sub["dir"], dl)) as f:
                 link["href"] = f.readline().strip()
             link["text"] = dl.replace("_", " ")
             sub_links.append(link)
 
-        menus[sub] = sub_links
+        numbered_sub_links = []
+        unnumbered_sub_links = []
+        stripped_numbered_sub_links = []
+
+        for sl in sub_links:
+            sl_name = sl["text"]
+            try:
+                sl_num = int(sl_name.split()[0])
+                numbered_sub_links.append(sl)
+            except:
+                unnumbered_sub_links.append(sl)
+
+        sorted_numbered_sub_links = sorted(numbered_sub_links, key=lambda x: x["text"])
+        sorted_unnumbered_sub_links = sorted(unnumbered_sub_links, key=lambda x: x["text"])
+        stripped_numbered_sub_links = []
+
+        for sl in sorted_numbered_sub_links:
+            sl["text"] = " ".join(sl["text"].split()[1:])
+            stripped_numbered_sub_links.append(sl)
+
+        sub_links = stripped_numbered_sub_links + sorted_unnumbered_sub_links
+        menus[sub["name"]] = sub_links
     dynamic_navigation["menus"] = menus
 
     return dynamic_navigation
@@ -240,6 +307,7 @@ def create_vlans():
 def visuals(when):
     path = os.path.join(WEB_CONTENT_PATH, "visual")
     file_paths = get_file_paths(path)
+    print(file_paths)
     for file in file_paths:
         if when in file:
             return render_template(file)
