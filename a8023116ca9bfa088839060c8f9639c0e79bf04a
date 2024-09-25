@@ -33,6 +33,24 @@
       "message": "Please change this:\n   sub_files \u003d os.listdir(str(sub_path))\n\nTo the following:\n   sub_files \u003d [d.name for d in os.scandir(sub_path) if not d.is_dir() and d.name not in EXCLUDE_DIRS]\n\nOtherwise, if you create nested directories in the WEB_CONTENT_PATH, they will be mistaken as direct links, and further down any subdirectory will get caught with the open() call as \"f\" (file type) and cause an internal server error.\n\nThis way, you safeguard against directories nested inside directories.\n\nIf however, nested menus are desired, we will have to figure out some form of recursion to correctly scan the WEB_CONTENT_PATH for multiple levels of subdirectories.",
       "revId": "a8023116ca9bfa088839060c8f9639c0e79bf04a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4702eaa2_66496cfd",
+        "filename": "src/quads/web/app.py",
+        "patchSetId": 27
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-09-25T05:47:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "afbab56b_157d8705",
+      "revId": "a8023116ca9bfa088839060c8f9639c0e79bf04a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
