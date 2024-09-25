@@ -14,8 +14,8 @@
 
 %define name quads-dev
 %define reponame quads
-%define branch latest
-%define version 2.0.5
+%define branch 2.1
+%define version 2.1.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Summary: Automated future scheduling, documentation, end-to-end provisioning and assignment of servers and networks.
@@ -224,6 +224,10 @@ fi;
 find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
 
 %changelog
+
+* Wed Sep 25 2024 Will Foster <wfoster@redhat.com>
+- 2.1.0 Alpha
+- Remove Wordpress entirely, serve wiki from quads-web
 
 * Thu Sep 19 2024 Will Foster <wfoster@redhat.com>
 - 2.0.5 Release
