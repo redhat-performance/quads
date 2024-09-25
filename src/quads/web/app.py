@@ -88,6 +88,12 @@ def index():
     return redirect(url_for("assignments"))
 
 
+@flask_app.route("/favicon.ico")
+def favicon():
+    path = os.path.join(WEB_CONTENT_PATH, "static")
+    return send_from_directory(os.path.join(WEB_CONTENT_PATH, "static"),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @flask_app.route("/assignments", methods=["GET", "POST"])
 def assignments():
     headers = ["NAME", "SUMMARY", "OWNER", "REQUEST", "STATUS", "OSPENV", "OCPINV"]
