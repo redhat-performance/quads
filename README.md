@@ -22,6 +22,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
             * [Using SSL with Flask API and QUADS](#using-ssl-with-flask-api-and-quads)
          * [QUADS Wiki](#quads-wiki)
             * [Dynamic Wiki Content](#dynamic-wiki-content)
+              * [Ordering Dynamic Wiki Content](#ordering-elements-in-the-dynamic-wiki-content)
          * [Installing other QUADS Components](#installing-other-quads-components)
             * [QUADS Move Command](#quads-move-command)
          * [Making QUADS Run](#making-quads-run)
@@ -234,18 +235,18 @@ systemctl restart nginx
    - Any files without extensions will be considered direct links with the content of it being only the hyperlink in plain text.
    - The html files should be structured for the correct jinja templating that is expected like this:
 
-    ```
+```
     {% extends "base.html" %}
     {% block title %} INSERT TITLE HERE {% endblock %}
 
     {% block page_content %}
     INSERT HTML CONTENT HERE
     {% endblock %}
-    ```
+```
 
    - For static files such as images and css, all files go on the root `/static` directory and the src href has to be passed via `url_for` like this:
 
-    ```
+```
         <img
           loading="lazy"
           decoding="async"
@@ -255,7 +256,23 @@ systemctl restart nginx
           width="1030"
           height="542"
         />
-    ```
+```
+
+##### Ordering Elements in the Dynamic Wiki Content
+   - The type of content in the `/opt/quads/web` directory are either files or directories.
+   - Flat files are either html files which follow the jinja templating, or direct links files which contain a link to an external resource.
+   - Directories are translated into sub-menus and in turn can contain flat files as described above.
+   - In order to control the ordering of various elements, they can be named with numeric prefixes.
+   - Custom flat file elements are listed first, followed by sub-menu (Directory) elements.
+   - Example of unnumbered content is as follows.  In this example, you will have a menu that contains `Chat`, `Contact`, `FAQ`, and `Usage`, followed by the Submenus `Docs`, `Resources` and `Tickets`
+
+![Unordered Content](/image/Menus-Unnumbered.png)
+
+   - If you wish to order them, rename your files and directories and add integer prefixes.  For example, the following will list the numbered elements followed by the un-numbered elements and would yield: `FAQ`, `Usage`, `Chat`, `Contact`, followed by the Submenus `Tickets`, `Resources` and `Docs` in that order.
+
+![Ordered Content](/image/Menus-Numbered.png)
+
+
 
 ### Installing other QUADS Components
 
