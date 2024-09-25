@@ -257,6 +257,22 @@ systemctl restart nginx
         />
     ```
 
+##### Ordering Elements in the Dynamic Wiki Content
+   - The type of content in the `/opt/quads/web` directory are either files or directories.
+   - Flat files are either html files which follow the jinja templating, or direct links files which contain a link to an external resource.
+   - Directories are translated into sub-menus and in turn can contain flat files as described above.
+   - In order to control the ordering of various elements, they can be named with numeric prefixes.
+   - Custom flat file elements are listed first, followed by sub-menu (Directory) elements.
+   - Example of unnumbered content is as follows.  In this example, you will have a menu that contains `Chat`, `Contact`, `FAQ`, and `Usage`, followed by the Submenus `Docs`, `Resources` and `Tickets`
+
+![Unordered Content](/image/image/Menus-Unnumbered.png)
+
+   - If you wish to order them, rename your files and directories and add integer prefixes.  For example, the following will list the numbered elements followed by the un-numbered elements and would yield: `FAQ`, `Usage`, `Chat`, `Contact`, followed by the Submenus `Tickets`, `Resources` and `Docs` in that order.
+
+![Ordered Content](/image/image/Menus-Numbered.png)
+
+
+
 ### Installing other QUADS Components
 
 #### QUADS Move Command
