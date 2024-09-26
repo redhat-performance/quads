@@ -125,7 +125,7 @@ class CloudOperations:
         """
         This method returns the broken hosts
         """
-        broken_hosts = self.__quads_api.filter_hosts({"broken": False})
+        broken_hosts = self.__quads_api.filter_hosts({"broken": True})
         return [host for host in broken_hosts if domain in host.name]
 
     def get_unmanaged_hosts(self, exclude_hosts: str):
