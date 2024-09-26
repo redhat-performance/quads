@@ -329,6 +329,7 @@ ASSIGNMENT_1_RESPONSE = {
     "created_at": "___",
     "description": "Test allocation.",
     "id": 1,
+    "is_self_schedule": False,
     "notification": {
         "assignment_id": 1,
         "fail": False,
@@ -376,6 +377,7 @@ ASSIGNMENT_1_UPDATE_RESPONSE = {
     "created_at": "___",
     "description": "Updated description.",
     "id": 1,
+    "is_self_schedule": False,
     "notification": {
         "assignment_id": 1,
         "fail": False,
@@ -421,6 +423,7 @@ ASSIGNMENT_2_RESPONSE = {
     "created_at": "___",
     "description": "Test allocation.",
     "id": 2,
+    "is_self_schedule": False,
     "notification": {
         "assignment_id": 2,
         "fail": False,
@@ -481,6 +484,7 @@ SCHEDULE_1_RESPONSE = {
         "created_at": "Tue, 07 Mar 2023 11:36:53 GMT",
         "description": "Test allocation.",
         "id": 1,
+        "is_self_schedule": False,
         "notification": {
             "assignment_id": 1,
             "fail": False,
@@ -518,6 +522,7 @@ SCHEDULE_1_RESPONSE = {
     "host": {
         "broken": False,
         "build": False,
+        "can_self_schedule": True,
         "cloud": {
             "id": 1,
             "last_redefined": "Tue, 07 Mar 2023 11:36:53 GMT",
@@ -563,6 +568,7 @@ SCHEDULE_2_RESPONSE = {
         "created_at": "Tue, 07 Mar 2023 11:36:53 GMT",
         "description": "Test allocation.",
         "id": 2,
+        "is_self_schedule": False,
         "notification": {
             "assignment_id": 2,
             "fail": False,
@@ -600,6 +606,7 @@ SCHEDULE_2_RESPONSE = {
     "host": {
         "broken": False,
         "build": False,
+        "can_self_schedule": True,
         "cloud": {
             "id": 1,
             "last_redefined": "Tue, 07 Mar 2023 11:36:53 GMT",

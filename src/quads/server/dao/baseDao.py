@@ -1,7 +1,8 @@
-from quads.server.models import Interface, Disk, Memory, Processor, Host, db
 from flask import current_app
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
+
+from quads.server.models import Disk, Host, Interface, Memory, Processor, db
 
 FILTERING_OPERATORS = {
     "==": "eq",
@@ -65,7 +66,9 @@ class BaseDao:
             return False
 
     @classmethod
-    def create_query_select(cls, model, filters=None, columns=None, group_by=None, order_by=None):
+    def create_query_select(
+        cls, model, filters=None, columns=None, group_by=None, order_by=None
+    ):
         """
         Create a query to select data from a model with filters and columns.
         :param model: The model to query.
@@ -111,7 +114,9 @@ class BaseDao:
                         % FILTERING_OPERATORS[op]
                     )
                 except IndexError:  # pragma: no cover
-                    raise Exception("Invalid filter operator: %s" % FILTERING_OPERATORS[op])
+                    raise Exception(
+                        "Invalid filter operator: %s" % FILTERING_OPERATORS[op]
+                    )
                 if value == "null":
                     value = None
                 query = query.filter(getattr(column, attr)(value))
