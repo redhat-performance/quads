@@ -4,15 +4,15 @@ from sqlalchemy import Boolean, func
 
 from quads.config import Config
 from quads.server.dao.baseDao import (
-    BaseDao,
-    OPERATORS,
     MAP_HOST_META,
-    EntryNotFound,
+    OPERATORS,
+    BaseDao,
     EntryExisting,
+    EntryNotFound,
     InvalidArgument,
 )
 from quads.server.dao.cloud import CloudDao
-from quads.server.models import db, Host, Cloud
+from quads.server.models import Cloud, Host, db
 
 
 class HostDao(BaseDao):

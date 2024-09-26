@@ -1,18 +1,26 @@
 from datetime import datetime
 from typing import List, Type
-from sqlalchemy import and_, Boolean
-from sqlalchemy.orm import RelationshipProperty, relationship
+
+from sqlalchemy import Boolean, and_
 
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError, OPERATORS
+from quads.server.dao.baseDao import (
+    OPERATORS,
+    BaseDao,
+    EntryNotFound,
+    InvalidArgument,
+    SQLError,
+)
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
-from quads.server.models import db, Host, Schedule, Cloud, Assignment
+from quads.server.models import Assignment, Cloud, Host, Schedule, db
 
 
 class ScheduleDao(BaseDao):
     @classmethod
-    def create_schedule(cls, start: datetime, end: datetime, assignment: Assignment, host: Host) -> Schedule:
+    def create_schedule(
+        cls, start: datetime, end: datetime, assignment: Assignment, host: Host
+    ) -> Schedule:
         _schedule_obj = Schedule(start=start, end=end, assignment=assignment, host=host)
         db.session.add(_schedule_obj)
         cls.safe_commit()
@@ -83,7 +91,9 @@ class ScheduleDao(BaseDao):
             query = query.filter(Schedule.host == host)
         if cloud:
             assignments = AssignmentDao.get_all_cloud_assignments(cloud)
-            query = query.join(Assignment).filter(Assignment.id.in_((ass.id for ass in assignments)))
+            query = query.join(Assignment).filter(
+                Assignment.id.in_((ass.id for ass in assignments))
+            )
         future_schedules = query.all()
         return future_schedules
 
@@ -135,7 +145,9 @@ class ScheduleDao(BaseDao):
                     if value:
                         value = datetime.strptime(value, "%Y-%m-%dT%H:%M")
                 except ValueError:
-                    raise InvalidArgument(f"Invalid date format for {first_field}: {value}")
+                    raise InvalidArgument(
+                        f"Invalid date format for {first_field}: {value}"
+                    )
 
             if fields[0].lower() != "group_by":
                 filter_tuples.append(
@@ -146,7 +158,9 @@ class ScheduleDao(BaseDao):
                     )
                 )
         try:
-            _schedules = ScheduleDao.create_query_select(Schedule, filters=filter_tuples, group_by=group_by)
+            _schedules = ScheduleDao.create_query_select(
+                Schedule, filters=filter_tuples, group_by=group_by
+            )
         except Exception as e:
             raise InvalidArgument(str(e))
         return _schedules
@@ -177,7 +191,9 @@ class ScheduleDao(BaseDao):
                     end_date = datetime.strptime(end, "%Y-%m-%dT%H:%M")
                     end = end_date
                 except ValueError:
-                    raise InvalidArgument("end argument must be a datetime object or a correct datetime format string")
+                    raise InvalidArgument(
+                        "end argument must be a datetime object or a correct datetime format string"
+                    )
             elif not isinstance(end, datetime):
                 raise InvalidArgument("end argument must be a datetime object")
             query = query.filter(Schedule.end <= end)
@@ -194,7 +210,9 @@ class ScheduleDao(BaseDao):
         return filter_schedules
 
     @staticmethod
-    def get_current_schedule(date: datetime = None, host: Host = None, cloud: Cloud = None) -> List[Type[Schedule]]:
+    def get_current_schedule(
+        date: datetime = None, host: Host = None, cloud: Cloud = None
+    ) -> List[Type[Schedule]]:
         query = db.session.query(Schedule)
         if cloud:
             query = query.join(Assignment).filter(Assignment.cloud == cloud)
