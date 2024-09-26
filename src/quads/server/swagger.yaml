@@ -1443,6 +1443,27 @@ paths:
         '201':
           description: Created
 
+  /assignments/self/:
+    post:
+      summary: Create a new self assignment
+      tags:
+        - Assignments
+      requestBody:
+        description: Body request with *assignment* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          text/plain:
+            schema:
+              type: string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '201':
+          description: Created
+
   /assignments/{assignment_id}/:
     get:
       summary: Returns an assignment by id
