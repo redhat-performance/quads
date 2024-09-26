@@ -12,6 +12,7 @@ from quads.server.dao.baseDao import (
     InvalidArgument,
 )
 from quads.server.models import Assignment, Cloud, Schedule, db
+from quads.config import Config
 
 
 class CloudDao(BaseDao):
