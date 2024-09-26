@@ -677,4 +677,4 @@ class TestAvailable(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("available")
 
-        assert str(ex.value) == "Cloud not found: BADCLOUD"
+        assert str(ex.value) == "No clouds found with the given filters"

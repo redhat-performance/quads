@@ -35,9 +35,7 @@ def validate_fixture(request):
     ass.wipe = True
     BaseDao.safe_commit()
     host = HostDao.get_host(HOST1)
-    schedule = ScheduleDao.create_schedule(
-        start=yesterday, end=tomorrow, assignment=ass, host=host
-    )
+    schedule = ScheduleDao.create_schedule(start=yesterday, end=tomorrow, assignment=ass, host=host)
     assert schedule
 
 
@@ -82,4 +80,4 @@ class TestValidateEnv(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("validate_env")
 
-        assert str(ex.value) == "Cloud not found: cloud02"
+        assert str(ex.value) == "No clouds found with the given filters"

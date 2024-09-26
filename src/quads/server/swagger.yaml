@@ -180,35 +180,6 @@ paths:
         - BearerAuth: [ ]
 
   /clouds/{cloudName}/:
-    get:
-      summary: Returns a cloud by name
-      tags:
-        - Clouds
-      parameters:
-        - name: cloudName
-          in: path
-          description: Cloud name
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Cloud name
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Cloud'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     delete:
       summary: Delete cloud by cloud name
       tags:
@@ -225,6 +196,32 @@ paths:
           description: Deleted Cloud
       security:
         - BearerAuth: [ ]
+
+  /clouds/free/:
+    get:
+      summary: Returns all free clouds that are available for new assignments
+      tags:
+        - Clouds
+      responses:
+        '200':
+          description: Free clouds
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cloud'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /clouds/summary/:
     get:
@@ -1428,6 +1425,27 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       summary: Add a new assignment
+      tags:
+        - Assignments
+      requestBody:
+        description: Body request with *assignment* details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          text/plain:
+            schema:
+              type: string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '201':
+          description: Created
+
+  /assignments/self/:
+    post:
+      summary: Create a new self assignment
       tags:
         - Assignments
       requestBody:

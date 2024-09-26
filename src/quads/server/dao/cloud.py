@@ -1,15 +1,17 @@
+from datetime import datetime
 from typing import List, Optional, Type
 
-from sqlalchemy import Boolean
+from sqlalchemy import Boolean, and_, or_
 
 from quads.server.dao.baseDao import (
+    OPERATORS,
     BaseDao,
     EntryExisting,
     EntryNotFound,
-    OPERATORS,
     InvalidArgument,
 )
-from quads.server.models import db, Cloud
+from quads.server.models import Assignment, Cloud, Schedule, db
+from quads.config import Config
 
 
 class CloudDao(BaseDao):
@@ -69,6 +71,26 @@ class CloudDao(BaseDao):
         return clouds
 
     @staticmethod
+    def get_free_clouds() -> List[Cloud]:
+        free_clouds = (
+            db.session.query(Cloud)
+            .outerjoin(Assignment, Cloud.id == Assignment.cloud_id)
+            .outerjoin(Schedule, Assignment.id == Schedule.assignment_id)
+            .filter(
+                Cloud.name != Config["spare_pool_name"],
+                or_(
+                    Schedule.end <= datetime.now(),
+                    Assignment.id == None,
+                    Schedule.id == None,
+                ),
+            )
+            .order_by(Cloud.name.asc())
+            .distinct()
+            .all()
+        )
+        return free_clouds
+
+    @staticmethod
     def filter_clouds_dict(data: dict) -> List[Type[Cloud]]:
         filter_tuples = []
         operator = "=="
@@ -103,6 +125,8 @@ class CloudDao(BaseDao):
             )
         if filter_tuples:
             _clouds = CloudDao.create_query_select(Cloud, filters=filter_tuples)
+            if not _clouds:
+                raise EntryNotFound("No clouds found with the given filters")
         else:
             _clouds = CloudDao.get_clouds()
         return _clouds
