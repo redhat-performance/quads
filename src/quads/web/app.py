@@ -3,13 +3,15 @@ import os
 import re
 from datetime import datetime, time
 
-from flask import Flask, abort, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, g, jsonify, redirect, render_template, request, url_for
 
 from quads.config import Config
 from quads.quads_api import APIBadRequest, APIServerException
 from quads.quads_api import QuadsApi as Quads
 from quads.tools.external.foreman import Foreman
 from quads.web.blueprints.dynamic_content import dynamic_content_bp
+from quads.web.blueprints.instack import instack_bp
+from quads.web.blueprints.visual import visual_bp
 from quads.web.controller.CloudOperations import CloudOperations
 from quads.web.forms import ModelSearchForm
 
@@ -17,6 +19,8 @@ flask_app = Flask(__name__)
 flask_app.url_map.strict_slashes = False
 flask_app.secret_key = "flask rocks!"
 flask_app.register_blueprint(dynamic_content_bp)
+flask_app.register_blueprint(visual_bp)
+flask_app.register_blueprint(instack_bp)
 
 quads = Quads(Config)
 loop = asyncio.new_event_loop()
@@ -44,7 +48,9 @@ def get_dynamic_navigation():
     for file in files:
         link = {}
         if file.endswith(".html"):
-            link["href"] = url_for("content.dynamic_content", page=f"{file.replace('.html','')}")
+            link["href"] = url_for(
+                "content.dynamic_content", page=f"{file.replace('.html','')}"
+            )
             link["text"] = file.replace(".html", "").replace("_", " ")
             links.append(link)
         else:
@@ -115,7 +121,11 @@ def get_dynamic_navigation():
             link = {"href": href, "text": hl.replace(".html", "").replace("_", " ")}
             sub_links.append(link)
 
-        direct_links = [file for file in sub_files if not file.endswith(".html") and not file in EXCLUDE_DIRS]
+        direct_links = [
+            file
+            for file in sub_files
+            if not file.endswith(".html") and not file in EXCLUDE_DIRS
+        ]
         for dl in direct_links:
             link = {}
             with open(os.path.join(WEB_CONTENT_PATH, sub["dir"], dl)) as f:
@@ -170,8 +180,12 @@ def assignments():
     clouds_summary = cloud_operation.get_cloud_summary_report()
     daily_utilization = cloud_operation.get_daily_utilization()
     managed_nodes = cloud_operation.get_managed_nodes()
-    domain_broken_hosts = cloud_operation.get_domain_broken_hosts(domain=Config["domain"])
-    unmanaged_hosts = cloud_operation.get_unmanaged_hosts(exclude_hosts=Config["exclude_hosts"])
+    domain_broken_hosts = cloud_operation.get_domain_broken_hosts(
+        domain=Config["domain"]
+    )
+    unmanaged_hosts = cloud_operation.get_unmanaged_hosts(
+        exclude_hosts=Config["exclude_hosts"]
+    )
     return render_template(
         "wiki/assignments.html",
         headers=headers,
@@ -200,14 +214,19 @@ def available():
 @flask_app.route("/results")
 def search_results(search):
     available_hosts_list = available_hosts(search)
-    return render_template("wiki/available.html", form=search, available_hosts=available_hosts_list)
+    return render_template(
+        "wiki/available.html", form=search, available_hosts=available_hosts_list
+    )
 
 
 @flask_app.route("/available_hosts")
 def available_hosts(search):
     models = search.data["model"]
     try:
-        start, end = [datetime.strptime(date, "%Y-%m-%d").date() for date in search.data["date_range"].split(" - ")]
+        start, end = [
+            datetime.strptime(date, "%Y-%m-%d").date()
+            for date in search.data["date_range"].split(" - ")
+        ]
         start = datetime.combine(start, time(hour=22)).strftime("%Y-%m-%dT%H:%M")
         end = datetime.combine(end, time(hour=22)).strftime("%Y-%m-%dT%H:%M")
     except ValueError:
@@ -220,7 +239,9 @@ def available_hosts(search):
             hosts = [host for host in hosts if host.model in models]
 
         available_hosts = []
-        currently_scheduled = [schedule.host_id for schedule in quads.get_current_schedules()]
+        currently_scheduled = [
+            schedule.host_id for schedule in quads.get_current_schedules()
+        ]
         for host in hosts:
             current = True if host.id in currently_scheduled else False
             host_dict = {
@@ -247,7 +268,9 @@ def available_hosts(search):
 @flask_app.route("/dashboard")
 def create_inventory():
     all_hosts = loop.run_until_complete(foreman.get_all_hosts())
-    blacklist = re.compile("|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")]))
+    blacklist = re.compile(
+        "|".join([re.escape(word) for word in Config["exclude_hosts"].split("|")])
+    )
     hosts = {}
     for host, properties in all_hosts.items():
         if not blacklist.search(host):
@@ -301,27 +324,6 @@ def create_vlans():
     cloud_operation = CloudOperations(quads_api=quads, foreman=foreman, loop=loop)
     vlans = cloud_operation.get_vlans_list()
     return render_template("wiki/vlans.html", vlans=vlans)
-
-
-@flask_app.route("/visual/<when>")
-def visuals(when):
-    path = os.path.join(WEB_CONTENT_PATH, "visual")
-    file_paths = get_file_paths(path)
-    print(file_paths)
-    for file in file_paths:
-        if when in file:
-            return render_template(file)
-    return abort(404)
-
-
-@flask_app.route("/instack/<host>")
-def instack(host):
-    path = os.path.join(WEB_CONTENT_PATH, "instack")
-    file_paths = get_file_paths(path)
-    for file in file_paths:
-        if host in file:
-            return render_template(file)
-    return abort(404)
 
 
 def get_file_paths(web_path: str = WEB_CONTENT_PATH):
