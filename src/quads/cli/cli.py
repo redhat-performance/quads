@@ -463,32 +463,23 @@ class QuadsCli:
 
     def action_free_cloud(self):
         try:
-            _clouds = self.quads.get_clouds()
+            _clouds = self.quads.get_free_clouds()
         except (APIServerException, APIBadRequest) as ex:
             raise CliException(str(ex))
-        _clouds = [_c for _c in _clouds if _c.name != "cloud01"]
         for cloud in _clouds:
-            try:
-                _future_sched = self.quads.get_future_schedules({"cloud": cloud.name})
-                _active_ass = self.quads.get_active_cloud_assignment(cloud.name)
-            except (APIServerException, APIBadRequest) as ex:
-                raise CliException(str(ex))
-            if len(_future_sched) or _active_ass:
-                continue
-            else:
-                cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-                last_redefined = datetime.strptime(str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z")
-                lock_release = last_redefined + timedelta(hours=cloud_reservation_lock)
-                cloud_string = f"{cloud.name}"
-                if lock_release > datetime.now():
-                    time_left = lock_release - datetime.now()
-                    hours = time_left.total_seconds() // 3600
-                    minutes = (time_left.total_seconds() % 3600) // 60
-                    cloud_string += " (reserved: %dhr %dmin remaining)" % (
-                        hours,
-                        minutes,
-                    )
-                self.logger.info(cloud_string)
+            cloud_reservation_lock = int(conf["cloud_reservation_lock"])
+            last_redefined = datetime.strptime(str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z")
+            lock_release = last_redefined + timedelta(hours=cloud_reservation_lock)
+            cloud_string = f"{cloud.name}"
+            if lock_release > datetime.now():
+                time_left = lock_release - datetime.now()
+                hours = time_left.total_seconds() // 3600
+                minutes = (time_left.total_seconds() % 3600) // 60
+                cloud_string += " (reserved: %dhr %dmin remaining)" % (
+                    hours,
+                    minutes,
+                )
+            self.logger.info(cloud_string)
 
     def action_available(self):
         kwargs = {}

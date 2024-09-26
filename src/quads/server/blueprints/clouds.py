@@ -1,11 +1,11 @@
 import json
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request, Response, make_response
-from quads.server.dao.assignment import AssignmentDao
+from flask import Blueprint, Response, jsonify, make_response, request
 
 from quads.config import Config
 from quads.server.blueprints import check_access
+from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
@@ -47,6 +47,13 @@ def get_clouds() -> Response:
     :return: The list of clouds
     """
     if request.args:
+        if "free" in request.args.keys():
+            value = request.args.get("free")
+            value = value.lower() in ["true", "y", 1, "yes"]
+            if value:
+                _clouds = CloudDao.get_free_clouds()
+            return jsonify([_cloud.as_dict() for _cloud in _clouds])
+
         try:
             _clouds = CloudDao.filter_clouds_dict(request.args)
         except (EntryNotFound, InvalidArgument) as ex:
@@ -60,6 +67,21 @@ def get_clouds() -> Response:
     else:
         _clouds = CloudDao.get_clouds()
     return jsonify([_cloud.as_dict() for _cloud in _clouds] if _clouds else {})
+
+
+@cloud_bp.route("/free/")
+def get_free_clouds() -> Response:
+    """
+    Returns a list of all free clouds in the database.
+        ---
+        tags:
+          - API
+
+    :return: The list of free clouds
+    """
+    _clouds = CloudDao.get_free_clouds()
+
+    return jsonify([_cloud.as_dict() for _cloud in _clouds])
 
 
 @cloud_bp.route("/", methods=["POST"])

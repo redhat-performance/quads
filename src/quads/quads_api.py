@@ -167,12 +167,20 @@ class QuadsApi:
             clouds.append(Cloud(**cloud))
         return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
 
+    def get_free_clouds(self) -> List[Cloud]:
+        response = self.get("clouds/free/")
+        clouds = []
+        for cloud in response.json():
+            clouds.append(Cloud(**cloud))
+        return clouds
+
     def get_cloud(self, cloud_name) -> Optional[Cloud]:
         cloud_obj = None
-        response = self.get(os.path.join("clouds", cloud_name))
+        response = self.get(f"clouds?name={cloud_name}")
         obj_json = response.json()
         if obj_json:
-            cloud_obj = Cloud(**obj_json)
+            cloud_resposne = obj_json[0]
+            cloud_obj = Cloud(**cloud_resposne)
         return cloud_obj
 
     def insert_cloud(self, data) -> Response:

@@ -1,9 +1,10 @@
 from datetime import datetime
-from flask import Blueprint, jsonify, request, Response, make_response
+
+from flask import Blueprint, Response, jsonify, make_response, request
 
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
