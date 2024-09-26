@@ -489,9 +489,7 @@ class QuadsCli:
             raise CliException(str(ex))
         for cloud in _clouds:
             cloud_reservation_lock = int(conf["cloud_reservation_lock"])
-            last_redefined = datetime.strptime(
-                str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z"
-            )
+            last_redefined = datetime.strptime(str(cloud.last_redefined), "%a, %d %b %Y %H:%M:%S %Z")
             lock_release = last_redefined + timedelta(hours=cloud_reservation_lock)
             cloud_string = f"{cloud.name}"
             if lock_release > datetime.now():
