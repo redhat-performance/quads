@@ -1,15 +1,18 @@
 import asyncio
 import os
 import re
+
 from datetime import datetime, time
 
-from flask import Flask, abort, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, g, jsonify, redirect, render_template, request, url_for
 
 from quads.config import Config
 from quads.quads_api import APIBadRequest, APIServerException
 from quads.quads_api import QuadsApi as Quads
 from quads.tools.external.foreman import Foreman
 from quads.web.blueprints.dynamic_content import dynamic_content_bp
+from quads.web.blueprints.instack import instack_bp
+from quads.web.blueprints.visual import visual_bp
 from quads.web.controller.CloudOperations import CloudOperations
 from quads.web.forms import ModelSearchForm
 
@@ -17,6 +20,8 @@ flask_app = Flask(__name__)
 flask_app.url_map.strict_slashes = False
 flask_app.secret_key = "flask rocks!"
 flask_app.register_blueprint(dynamic_content_bp)
+flask_app.register_blueprint(visual_bp, url_prefix="/visual")
+flask_app.register_blueprint(instack_bp, url_prefix="/instack")
 
 quads = Quads(Config)
 loop = asyncio.new_event_loop()
@@ -58,7 +63,7 @@ def get_dynamic_navigation():
     for link in links:
         ln = link["text"]
         try:
-            lnum = int(ln.split()[0])
+            int(ln.split()[0])
             numbered_links.append(link)
         except:
             unnumbered_links.append(link)
@@ -80,7 +85,7 @@ def get_dynamic_navigation():
     unnumbered_submenus = []
     for sm in submenus:
         try:
-            sm_num = int(sm.split("_")[0])
+            int(sm.split("_")[0])
             numbered_submenus.append(sm)
         except:
             unnumbered_submenus.append(sm)
@@ -130,14 +135,13 @@ def get_dynamic_navigation():
         for sl in sub_links:
             sl_name = sl["text"]
             try:
-                sl_num = int(sl_name.split()[0])
+                int(sl_name.split()[0])
                 numbered_sub_links.append(sl)
             except:
                 unnumbered_sub_links.append(sl)
 
         sorted_numbered_sub_links = sorted(numbered_sub_links, key=lambda x: x["text"])
         sorted_unnumbered_sub_links = sorted(unnumbered_sub_links, key=lambda x: x["text"])
-        stripped_numbered_sub_links = []
 
         for sl in sorted_numbered_sub_links:
             sl["text"] = " ".join(sl["text"].split()[1:])
@@ -301,37 +305,6 @@ def create_vlans():
     cloud_operation = CloudOperations(quads_api=quads, foreman=foreman, loop=loop)
     vlans = cloud_operation.get_vlans_list()
     return render_template("wiki/vlans.html", vlans=vlans)
-
-
-@flask_app.route("/visual/<when>")
-def visuals(when):
-    path = os.path.join(WEB_CONTENT_PATH, "visual")
-    file_paths = get_file_paths(path)
-    print(file_paths)
-    for file in file_paths:
-        if when in file:
-            return render_template(file)
-    return abort(404)
-
-
-@flask_app.route("/instack/<host>")
-def instack(host):
-    path = os.path.join(WEB_CONTENT_PATH, "instack")
-    file_paths = get_file_paths(path)
-    for file in file_paths:
-        if host in file:
-            return render_template(file)
-    return abort(404)
-
-
-def get_file_paths(web_path: str = WEB_CONTENT_PATH):
-    file_paths = []
-    for root, dirs, files in os.walk(web_path):
-        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
-        for file in files:
-            file_path = os.path.join(root, file)
-            file_paths.append(file_path)
-    return file_paths
 
 
 if __name__ == "__main__":
