@@ -29,13 +29,13 @@
                 >Visualizations</a>
                 <ul class="dropdown-menu" aria-labelledby="visualizationsDropdown">
                     <li>
-                        <a class="dropdown-item" href="{{ url_for("visuals", when="current") }}">Current Month Visualization Map</a>
+                        <a class="dropdown-item" href="{{ url_for("visual.visuals", when="current") }}">Current Month Visualization Map</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{ url_for("visuals", when="next") }}">Next Month Visualization Map</a>
+                        <a class="dropdown-item" href="{{ url_for("visual.visuals", when="next") }}">Next Month Visualization Map</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{ url_for("visuals", when="current") }}">All Month Visualization Map</a>
+                        <a class="dropdown-item" href="{{ url_for("visual.index") }}">All Month Visualization Map</a>
                     </li>
                 </ul>
             </li>
