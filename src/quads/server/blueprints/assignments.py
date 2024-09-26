@@ -1,7 +1,9 @@
 import re
 
 from flask import Blueprint, jsonify, request, Response, make_response
+from quads.server.dao.schedule import ScheduleDao
 
+from quads.config import Config
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
@@ -192,7 +194,113 @@ def create_assignment() -> Response:
     return jsonify(_assignment_obj.as_dict())
 
 
-@assignment_bp.route("/<assignment_id>", methods=["PATCH"])
+@assignment_bp.route("/self/", methods=["POST"])
+@check_access(["user"])
+def create_self_assignment() -> Response:
+    """
+    Creates a new self assignment in the database.
+        ---
+        tags:
+          - API
+
+    :return: The created object as a json
+    """
+    data = request.get_json()
+
+    _cloud = None
+    _vlan = None
+    cloud_name = data.get("cloud")
+    vlan = data.get("vlan")
+    description = data.get("description")
+    owner = data.get("owner")
+    ticket = data.get("ticket")
+    qinq = data.get("qinq")
+    wipe = data.get("wipe")
+    cc_user = data.get("cc_user")
+
+    required_fields = [
+        "description",
+        "owner",
+    ]
+
+    for field in required_fields:
+        if not data.get(field):
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Missing argument: {field}",
+            }
+            return make_response(jsonify(response), 400)
+
+    if cc_user:
+        cc_user = cc_user.split(",")
+
+    if cloud_name:
+        _cloud = CloudDao.get_cloud(cloud_name)
+        if not _cloud:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Cloud not found: {cloud_name}",
+            }
+            return make_response(jsonify(response), 400)
+        _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
+        if _assignment:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"There is an already active assignment for {cloud_name}",
+            }
+            return make_response(jsonify(response), 400)
+    else:
+
+        _clouds = CloudDao.get_clouds()
+        _clouds = [_c for _c in _clouds if _c.name != Config["spare_pool_name"]]
+        _free_clouds = []
+        for cloud in _clouds:
+            _future_sched = ScheduleDao.get_future_schedules(cloud=cloud)
+            _active_ass = AssignmentDao.get_active_cloud_assignment(cloud)
+            if len(_future_sched) or _active_ass:
+                continue
+            else:
+                _free_clouds.append(cloud)
+
+        if not _free_clouds:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "No free clouds available",
+            }
+            return make_response(jsonify(response), 400)
+        _cloud = _free_clouds[0]
+
+    if vlan:
+        _vlan = VlanDao.get_vlan(int(vlan))
+        if not _vlan:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Vlan not found: {vlan}",
+            }
+            return make_response(jsonify(response), 400)
+
+    kwargs = {
+        "description": description,
+        "owner": owner,
+        "ticket": ticket,
+        "qinq": qinq,
+        "wipe": wipe,
+        "ccuser": cc_user,
+        "is_self_schedule": True,
+        "cloud": _cloud.name,
+    }
+    if _vlan:
+        kwargs["vlan_id"] = int(vlan)
+    _assignment_obj = AssignmentDao.create_assignment(**kwargs)
+    return jsonify(_assignment_obj.as_dict())
+
+
+@assignment_bp.route("/<assignment_id>/", methods=["PATCH"])
 @check_access(["admin"])
 def update_assignment(assignment_id: str) -> Response:
     """
@@ -203,8 +311,6 @@ def update_assignment(assignment_id: str) -> Response:
           - in: path
             name: assignment_id  # The id of the assignment to update. This is a required parameter.
                 It must be passed as part of the URL path, not as a query string or request body parameter.
-                Example usage would be /api/v3/assignments/&lt;assignment_id&gt; where &lt;assignment_id&gt;
-                is replaced with the actual value for that field (e.g., /api/v3/assignments/12345). Note that
 
     :param assignment_id: str: Identify which assignment to update
     :return: A json object containing the updated assignment

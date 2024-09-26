@@ -30,6 +30,11 @@ def mark_repaired():
     assert not host.broken
 
 
+def mark_unretired():
+    host = HostDao.update_host(HOST2, retired=False)
+    assert not host.retired
+
+
 @pytest.fixture
 def remove_host(request):
     finalizer()
@@ -52,6 +57,13 @@ def mark_host_broken(request):
     request.addfinalizer(mark_repaired)
     host = HostDao.update_host(HOST1, broken=True)
     assert host.broken
+
+
+@pytest.fixture
+def mark_host_retired(request):
+    request.addfinalizer(mark_unretired)
+    host = HostDao.update_host(HOST2, retired=True)
+    assert host.retired
 
 
 class TestHost(TestBase):
@@ -171,6 +183,12 @@ class TestHost(TestBase):
         assert self._caplog.messages[0] == HOST2
         assert len(self._caplog.messages) == 1
 
+    def test_ls_host_filter_retired(self, mark_host_retired):
+        self.quads_cli_call("ls_hosts")
+
+        assert self._caplog.messages[0] == HOST1
+        assert len(self._caplog.messages) == 1
+
     def test_ls_host_filter_bad_model(self, mark_host_broken):
         self.cli_args["filter"] = f"model==BADMODEL"
 
@@ -183,10 +201,7 @@ class TestHost(TestBase):
 
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("ls_hosts")
-        assert (
-            str(ex.value)
-            == "A filter was defined but not parsed correctly. Check filter operator."
-        )
+        assert str(ex.value) == "A filter was defined but not parsed correctly. Check filter operator."
 
     def test_ls_host_filter_bad_param(self):
         self.cli_args["filter"] = f"badparam==badvalue"
@@ -238,10 +253,7 @@ class TestHost(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("processors")
 
-        assert (
-            str(ex.value)
-            == "Missing option. --host option is required for --ls-processors."
-        )
+        assert str(ex.value) == "Missing option. --host option is required for --ls-processors."
 
     def test_ls_processors_no_processor(self):
         self.cli_args["host"] = HOST2
