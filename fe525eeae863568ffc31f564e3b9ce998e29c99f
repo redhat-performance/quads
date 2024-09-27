@@ -24,6 +24,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00150ce9_f0c820db",
+        "filename": "README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-27T16:20:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "1879fd7a_cab58838",
+      "range": {
+        "startLine": 186,
+        "startChar": 103,
+        "endLine": 186,
+        "endChar": 133
+      },
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00870c92_1b5b8862",
@@ -37,6 +61,24 @@
       "writtenOn": "2024-09-27T16:15:21Z",
       "side": 1,
       "message": "might be better to sort these alphabetically",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdb6b315_f5090aa4",
+        "filename": "setup.cfg",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-27T16:20:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "00870c92_1b5b8862",
       "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
@@ -58,6 +100,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5f838a_c249841e",
+        "filename": "src/quads/web/controller/CloudOperations.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-27T16:20:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "6e5f5c12_037c98ca",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97e9b71a_d648db87",
@@ -71,6 +131,24 @@
       "writtenOn": "2024-09-27T16:14:34Z",
       "side": 1,
       "message": "duplicated return, can be once outside the if-else.",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d30947b8_630fa3f3",
+        "filename": "src/quads/web/controller/CloudOperations.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-09-27T16:20:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "97e9b71a_d648db87",
       "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
