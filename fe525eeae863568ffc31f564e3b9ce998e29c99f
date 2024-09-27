@@ -26,6 +26,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "00870c92_1b5b8862",
+        "filename": "setup.cfg",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-09-27T16:15:21Z",
+      "side": 1,
+      "message": "might be better to sort these alphabetically",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6e5f5c12_037c98ca",
         "filename": "src/quads/web/controller/CloudOperations.py",
         "patchSetId": 4
