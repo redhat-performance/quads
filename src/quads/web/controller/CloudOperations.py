@@ -57,8 +57,12 @@ class CloudOperations:
         """
         _host_count = len(self.__quads_api.filter_hosts({"broken": False, "retired": False}))
         _schedules = len(self.__quads_api.get_current_schedules())
-        _daily_utilization = _schedules * 100 // _host_count
-        return int(_daily_utilization)
+        if int(_host_count) == "0":
+            _daily_utilization = "0"
+            return int(_daily_utilization)
+        else:
+            _daily_utilization = _schedules * 100 // _host_count
+            return int(_daily_utilization)
 
     def get_cloud_summary_report(self) -> list:
         """
