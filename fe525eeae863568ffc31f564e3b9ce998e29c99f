@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1879fd7a_cab58838",
+        "filename": "README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-09-27T16:14:34Z",
+      "side": 1,
+      "message": "I would put the quads-api.md link on the \"QUADS API\" string instead of \"available\"",
+      "range": {
+        "startLine": 186,
+        "startChar": 103,
+        "endLine": 186,
+        "endChar": 133
+      },
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e5f5c12_037c98ca",
+        "filename": "src/quads/web/controller/CloudOperations.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-09-27T16:14:34Z",
+      "side": 1,
+      "message": "you are evaluating an int against a string.\nremove the quotes on the 0.",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97e9b71a_d648db87",
+        "filename": "src/quads/web/controller/CloudOperations.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-09-27T16:14:34Z",
+      "side": 1,
+      "message": "duplicated return, can be once outside the if-else.",
+      "revId": "fe525eeae863568ffc31f564e3b9ce998e29c99f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
