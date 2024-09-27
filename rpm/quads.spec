@@ -153,7 +153,6 @@ rm -rf %{buildroot}
 /usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
 /usr/sbin/semanage port -a -t http_port_t -p tcp 5000 2>/dev/null
 /usr/sbin/semanage port -a -t http_port_t -p tcp 5001 2>/dev/null
-/usr/bin/chcon -R --type=httpd_sys_content_t /var/www/html
 /usr/sbin/semanage fcontext -a -t postgresql_db_t "/opt/quads/db/data(/.*)?" 2>/dev/null
 /usr/sbin/restorecon -R /opt/quads/db/data
 /usr/sbin/setsebool httpd_can_network_connect 1 -P
