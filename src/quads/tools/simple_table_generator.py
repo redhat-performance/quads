@@ -167,8 +167,12 @@ class HostGenerate:
 
         total_hosts = len(hosts)
         total_use = len(total_current_schedules)
-        utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
-        utilization_daily = total_use * 100 // total_hosts
+        if int(total_hosts) == 0:
+            utilization_daily = 0
+            utilization = 0
+        else:
+            utilization = 100 - (non_allocated_count * 100 // (_days * total_hosts))
+            utilization_daily = total_use * 100 // total_hosts
         with open(os.path.join(Config.TEMPLATES_PATH, "simple_table_emoji")) as _file:
             template = Template(_file.read())
         content = template.render(
