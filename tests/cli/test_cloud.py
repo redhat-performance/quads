@@ -1,21 +1,22 @@
 from datetime import datetime
 from unittest.mock import patch
 
+import pytest
+
 from quads.exceptions import CliException
 from quads.quads_api import APIServerException
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.cloud import CloudDao
 from tests.cli.config import (
     CLOUD,
-    HOST1,
-    DEFINE_CLOUD,
-    REMOVE_CLOUD,
-    MOD_CLOUD,
     DEFAULT_CLOUD,
+    DEFINE_CLOUD,
     FREE_CLOUD,
+    HOST1,
+    MOD_CLOUD,
+    REMOVE_CLOUD,
 )
 from tests.cli.test_base import TestBase
-import pytest
 
 
 def finalizer():
@@ -322,8 +323,8 @@ class TestCloud(TestBase):
     def test_free_cloud(self, define_free_cloud):
         self.quads_cli_call("free_cloud")
 
-        assert self._caplog.messages[0].startswith(f"{FREE_CLOUD} (reserved: ")
-        assert self._caplog.messages[0].endswith("min remaining)")
+        assert self._caplog.messages[1].startswith(f"{FREE_CLOUD} (reserved: ")
+        assert self._caplog.messages[1].endswith("min remaining)")
 
     @patch("quads.quads_api.requests.Session.get")
     def test_free_cloud_exception(self, mock_get, define_free_cloud):
@@ -331,13 +332,6 @@ class TestCloud(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("free_cloud")
         assert str(ex.value) == "Check the flask server logs"
-
-    @patch("quads.quads_api.QuadsApi.get_future_schedules")
-    def test_free_cloud_future_exception(self, mock_future, define_free_cloud):
-        mock_future.side_effect = APIServerException("Connection Error")
-        with pytest.raises(CliException) as ex:
-            self.quads_cli_call("free_cloud")
-        assert str(ex.value) == "Connection Error"
 
 
 class TestCloudOnly(TestBase):

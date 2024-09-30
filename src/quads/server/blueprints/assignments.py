@@ -1,14 +1,14 @@
 import re
 
-from flask import Blueprint, jsonify, request, Response, make_response
+from flask import Blueprint, Response, jsonify, make_response, request
+from sqlalchemy import inspect
 
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
-from quads.server.dao.baseDao import EntryNotFound, InvalidArgument, BaseDao
+from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument
 from quads.server.dao.cloud import CloudDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import Assignment
-from sqlalchemy import inspect
 
 assignment_bp = Blueprint("assignments", __name__)
 
@@ -225,7 +225,7 @@ def update_assignment(assignment_id: str) -> Response:
         value = data.get(attr.key)
         if value is not None:
             if attr.key == "ccuser":
-                value = value.split(",")
+                value = re.split(r"[, ]+", value)
                 value = [user.strip() for user in value]
             if attr.key == "cloud":
                 _cloud = CloudDao.get_cloud(value)
