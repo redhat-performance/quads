@@ -1,16 +1,16 @@
 import os
-import requests
-
 from json import JSONDecodeError
-from typing import Optional, List
-from requests import Response
-from requests.auth import HTTPBasicAuth
-from requests.adapters import HTTPAdapter, Retry
+from typing import List, Optional
 from urllib import parse as url_parse
 from urllib.parse import urlencode
 
+import requests
+from requests import Response
+from requests.adapters import HTTPAdapter, Retry
+from requests.auth import HTTPBasicAuth
+
 from quads.config import Config
-from quads.server.models import Host, Cloud, Schedule, Interface, Vlan, Assignment
+from quads.server.models import Assignment, Cloud, Host, Interface, Schedule, Vlan
 
 
 class APIServerException(Exception):
@@ -40,11 +40,15 @@ class QuadsApi:
         self.session = requests.Session()
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
         self.session.mount("http://", HTTPAdapter(max_retries=retries))
-        self.auth = HTTPBasicAuth(self.config.get("quads_api_username"), self.config.get("quads_api_password"))
+        self.auth = HTTPBasicAuth(
+            self.config.get("quads_api_username"), self.config.get("quads_api_password")
+        )
 
     # Base functions
     def get(self, endpoint: str) -> Response:
-        _response = self.session.get(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
+        _response = self.session.get(
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
+        )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -84,7 +88,9 @@ class QuadsApi:
         return _response
 
     def delete(self, endpoint) -> Response:
-        _response = self.session.delete(os.path.join(self.base_url, endpoint), verify=False, auth=self.auth)
+        _response = self.session.delete(
+            os.path.join(self.base_url, endpoint), verify=False, auth=self.auth
+        )
         if _response.status_code == 500:
             raise APIServerException("Check the flask server logs")
         if _response.status_code == 400:
@@ -167,12 +173,20 @@ class QuadsApi:
             clouds.append(Cloud(**cloud))
         return [cloud for cloud in sorted(clouds, key=lambda x: x.name)]
 
+    def get_free_clouds(self) -> List[Cloud]:
+        response = self.get("clouds/free/")
+        clouds = []
+        for cloud in response.json():
+            clouds.append(Cloud(**cloud))
+        return clouds
+
     def get_cloud(self, cloud_name) -> Optional[Cloud]:
         cloud_obj = None
-        response = self.get(os.path.join("clouds", cloud_name))
+        response = self.get(f"clouds?name={cloud_name}")
         obj_json = response.json()
         if obj_json:
-            cloud_obj = Cloud(**obj_json)
+            cloud_response = obj_json[0]
+            cloud_obj = Cloud(**cloud_response)
         return cloud_obj
 
     def insert_cloud(self, data) -> Response:

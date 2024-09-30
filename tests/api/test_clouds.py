@@ -78,14 +78,15 @@ class TestReadClouds:
         cloud_name = f"cloud{str(cloud_id).zfill(2)}"
         response = unwrap_json(
             test_client.get(
-                f"/api/v3/clouds/{cloud_name}",
+                f"/api/v3/clouds?name={cloud_name}",
                 headers=auth_header,
             )
         )
+        cloud = response.json[0]
         assert response.status_code == 200
-        assert response.json["id"] == cloud_id
-        assert response.json["name"] == cloud_name
-        assert response.json["last_redefined"] is not None
+        assert cloud["id"] == cloud_id
+        assert cloud["name"] == cloud_name
+        assert cloud["last_redefined"] is not None
 
     def test_valid_multiple(self, test_client, auth):
         """
@@ -108,6 +109,27 @@ class TestReadClouds:
             assert response.json[cloud_id - 1]["name"] == cloud_name
             assert response.json[cloud_id - 1]["last_redefined"] is not None
 
+    def test_free_cloud(self, test_client, auth):
+        """
+        | GIVEN: Clouds from test_valid in database and user logged in
+        | WHEN: User tries to read all free clouds
+        | THEN: User should be able to read all free clouds
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.get(
+                "/api/v3/clouds/free/",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert len(response.json) == 9
+        for cloud_id in range(2, 11):
+            cloud_name = f"cloud{str(cloud_id).zfill(2)}"
+            assert response.json[cloud_id - 2]["id"] == cloud_id
+            assert response.json[cloud_id - 2]["name"] == cloud_name
+            assert response.json[cloud_id - 2]["last_redefined"] is not None
+
     def test_invalid_not_found_single(self, test_client, auth):
         """
         | GIVEN: Clouds from test_valid in database and user logged in
@@ -117,11 +139,11 @@ class TestReadClouds:
         auth_header = auth.get_auth_header()
         cloud_name = "cloud11"
         response = unwrap_json(
-            test_client.get(f"/api/v3/clouds/{cloud_name}", headers=auth_header)
+            test_client.get(f"/api/v3/clouds?name={cloud_name}", headers=auth_header)
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
-        assert response.json["message"] == "Cloud not found: cloud11"
+        assert response.json["message"] == "No clouds found with the given filters"
 
     def test_invalid_filter(self, test_client, auth):
         """

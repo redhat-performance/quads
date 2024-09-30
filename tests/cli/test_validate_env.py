@@ -1,9 +1,8 @@
 import logging
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import pytest
-
-from unittest.mock import patch
 
 from quads.config import Config
 from quads.exceptions import CliException
@@ -82,4 +81,4 @@ class TestValidateEnv(TestBase):
         with pytest.raises(CliException) as ex:
             self.quads_cli_call("validate_env")
 
-        assert str(ex.value) == "Cloud not found: cloud02"
+        assert str(ex.value) == "No clouds found with the given filters"
