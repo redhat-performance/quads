@@ -93,6 +93,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Validate Only a Specific Cloud](#validate-only-a-specific-cloud)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
       * [Contact QUADS Developers](#contact-quads-developers)
+      * [Validating after Removing Hosts](#validating-after-removing-hosts)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
@@ -1339,6 +1340,59 @@ The _first two octets_ here can be substituted by the _first two octets of your 
 ![validation_2](/image/troubleshoot_validation2.png?raw=true)
 
 This mapping feeds into our [VLAN network validation code](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/validate_env.py#L276)
+
+### Validating after Removing Hosts
+* There is currently a corner-case [bug](https://github.com/redhat-performance/quads/issues/361) where removing host(s) prior to the assignment being released may make `quads --validate-env` do nothing.
+* You'll need to workaround this in the Postgres database:
+
+  - Connect to postgres
+```
+sudo -u postgres psql
+```
+  - Connect to the QUADS database
+```
+postgres=# \c quads;
+You are now connected to database "quads" as user "postgres".
+```
+  - Find the ID of your problem environment
+```
+quads=# select * from clouds where name = 'cloud17';
+ id |  name   |   last_redefined
+----+---------+---------------------
+ 18 | cloud17 | 2024-10-01 06:00:00
+(1 row)
+```
+  - Look at the flags set for that environment, specifically `provisioned` if it's `f` or `t` (true or false)
+```
+quads=# select * from assignments where cloud_id = 18;
+```
+
+```
+ id | active | provisioned | validated |   description    |  owner  | ticket | qinq | wipe |
+                                                                         | cloud_id | vlan_id |        created_at
+----+--------+-------------+-----------+------------------+---------+--------+------+------+-------------------------------------------------------
+-------------------------------------------------------------------------+----------+---------+--------------------------
+ 54 | t      | f           | f         | template testing | wfoster | 3798   |    0 | t    | \x80059545000000000000008c1673716c616c6368656d792e6578
+654c6973749493945d94288c0767726166756c73948c066b616d62697a9465859452942e |       18 |         | 2024-10-01 06:00:07.0437
+(1 row)
+```
+  - Now toggle the `provisioned` flag to True (`t`)
+```
+quads=# update assignments set provisioned = true where id = 54;
+UPDATE 1
+```
+  - Check one more time, it should have updated.
+```
+quads=# select * from assignments where cloud_id = 18;
+ id | active | provisioned | validated |   description    |  owner  | ticket | qinq | wipe |
+                                                                         | cloud_id | vlan_id |        created_at
+----+--------+-------------+-----------+------------------+---------+--------+------+------+-------------------------------------------------------
+-------------------------------------------------------------------------+----------+---------+--------------------------
+ 54 | t      | t           | f         | template testing | wfoster | 3798   |    0 | t    | \x80059545000000000000008c1673716c616c6368656d792e6578
+654c6973749493945d94288c0767726166756c73948c066b616d62697a9465859452942e |       18 |         | 2024-10-01 06:00:07.0437
+(1 row)
+```
+  - Now your new assignment should get proper attention from `quads --validate-env`
 
 ## Contact QUADS Developers
 
