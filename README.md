@@ -92,8 +92,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Skipping Past Network and Systems Validation per Host](#skipping-past-network-and-systems-validation-per-host)
          * [Validate Only a Specific Cloud](#validate-only-a-specific-cloud)
          * [Mapping Internal VLAN Interfaces to Problem Hosts](#mapping-internal-vlan-interfaces-to-problem-hosts)
+         * [Validating after Removing Hosts](#validating-after-removing-hosts)
       * [Contact QUADS Developers](#contact-quads-developers)
-      * [Validating after Removing Hosts](#validating-after-removing-hosts)
       * [QUADS Talks and Media](#quads-talks-and-media)
 
 ## What does it do?
