@@ -224,6 +224,9 @@ find /opt/quads/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
 
 %changelog
 
+* Wed Oct 02 2024 Will Foster <wfoster@redhat.com>
+- 2.1.0 Release
+
 * Wed Sep 25 2024 Will Foster <wfoster@redhat.com>
 - 2.1.0 Alpha
 - Remove Wordpress entirely, serve wiki from quads-web
