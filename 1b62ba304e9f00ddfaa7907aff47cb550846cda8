@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19add95e_bcf259d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-10-03T18:48:30Z",
+      "side": 1,
+      "message": "Thanks for working on this @athiruma@redhat.com can you please add this to your commit message:\n\nfixes: https://github.com/redhat-performance/quads/issues/533",
+      "revId": "1b62ba304e9f00ddfaa7907aff47cb550846cda8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
