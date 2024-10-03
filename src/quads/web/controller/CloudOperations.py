@@ -1,6 +1,7 @@
-from datetime import datetime
 import re
+from datetime import datetime
 
+from quads.config import Config
 from quads.quads_api import APIBadRequest, APIServerException
 
 
@@ -71,15 +72,22 @@ class CloudOperations:
         for cloud in self.__get_cloud_summary():
             if cloud.get("count") > 0:
                 cloud_name = cloud.get("name")
-                scheduled_hosts = len(self.__quads_api.get_current_schedules({"cloud": cloud_name}))
-                moved_hosts = len(self.__quads_api.filter_hosts({"cloud": cloud_name}))
-                try:
+                cloud["description"] = cloud["description"] if cloud["description"] else Config["spare_pool_description"]
+                is_valid = cloud["validated"] or cloud_name == "cloud01"
+                percent = 100
+                if not is_valid:
+                    scheduled_hosts = len(self.__quads_api.get_current_schedules({"cloud": cloud_name}))
+                    moved_hosts = len(self.__quads_api.filter_hosts({"cloud": cloud_name}))
                     percent = (moved_hosts / scheduled_hosts) * 100
-                except Exception as err:
-                    percent = 0
-                if cloud_name == "cloud01":
-                    percent = 100
+                cloud["is_valid"] = is_valid
                 cloud["percent"] = int(percent)
+                if Config["openstack_management"]:
+                    cloud["href_url_openstack"] = f"{Config['quads_url']}/instanck/{cloud_name}/_instackenv.json" if is_valid else "#"
+                    cloud["href_url_text_openstack"] = "download" if is_valid else "validating..."
+                if Config["openshift_management"]:
+                    cloud["href_url_openshift"] = f"{Config['quads_url']}/instanck/{cloud_name}/_ocpinventory.json" if is_valid else "#"
+                    cloud["href_url_text_openshift"] = "download" if is_valid else "validating..."
+                cloud["href_color"] = "link-success" if is_valid else "link-danger"
                 clouds_summary.append(cloud)
         return clouds_summary
 
