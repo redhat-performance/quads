@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "63338a71_93cf095e",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1037546
+      },
+      "writtenOn": "2024-10-04T15:59:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15930fc3_15c35f05",
+      "revId": "71b568a8bf5771abeb736931398f8178f55438f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d1960b93_e159eac6",
         "filename": "src/quads/web/templates/wiki/assignments.html",
         "patchSetId": 3
