@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b2d93ae_22e07d73",
+        "filename": "requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-10-04T11:45:46Z",
+      "side": 1,
+      "message": "We can\u0027t include this library, it doesn\u0027t exist in Fedora 😊",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 17
+      },
+      "revId": "3fcccd2df735ef23ca7c2f6d323d1893f6bc50f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
