@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07573872_327c8821",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-04T12:42:01Z",
+      "side": 1,
+      "message": "Add another `if` to remove progress-bar-striped class when progress is at 100%.",
+      "revId": "b22b53b9c6b74f8f1b705816452ba8d0239ee429",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
