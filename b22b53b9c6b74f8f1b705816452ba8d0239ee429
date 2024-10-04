@@ -34,6 +34,24 @@
       "parentUuid": "07573872_327c8821",
       "revId": "b22b53b9c6b74f8f1b705816452ba8d0239ee429",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1128ddd_eff3d157",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-04T12:59:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5ff2c13_73ddce1c",
+      "revId": "b22b53b9c6b74f8f1b705816452ba8d0239ee429",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
