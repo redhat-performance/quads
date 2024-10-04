@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a33e416a_84d0260a",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-04T13:14:43Z",
+      "side": 1,
+      "message": "bar should remain yellow while the cloud is not validated even if the systems are already 100% moved.",
+      "revId": "71b568a8bf5771abeb736931398f8178f55438f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1960b93_e159eac6",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-04T13:14:43Z",
+      "side": 1,
+      "message": "when this is still validating the `validating...` text is an hyperlink to https://quads2-stage.rdu2.scalelab.redhat.com/assignments#.\nThis should be just plain text with no hyperlinks.",
+      "revId": "71b568a8bf5771abeb736931398f8178f55438f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
