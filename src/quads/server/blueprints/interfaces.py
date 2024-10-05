@@ -69,7 +69,7 @@ def create_interface(hostname: str) -> Response:
             return make_response(jsonify(response), 400)
 
     speed = data.get("speed")
-    if speed and not speed > 0:
+    if int(speed) and not int(speed) > 0:
         response = {
             "status_code": 400,
             "error": "Bad Request",
