@@ -42,6 +42,8 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
         * [Server Availability Overview Report](#server-availability-overview-report)
         * [Assignment Scheduling Statistics](#assignment-scheduling-statistics)
         * [Upcoming Scheduled Assignments Report](#upcoming-scheduled-assignments-report)
+      * [Customizing Environment Web Details](#customizing-environment-web-details)
+        * [Changing the Default Lab Name](#changing-the-default-lab-name)
       * [Common Administration Tasks](#common-administration-tasks)
          * [Creating a New Cloud Assignment and Schedule](#creating-a-new-cloud-assignment-and-schedule)
             * [QUADS VLAN Options](#quads-vlan-options)
@@ -573,6 +575,19 @@ Month   | Scheduled|  Systems|  % Utilized|
 ```
 
 Additionally, you can pass `--year` instead for a report for every month in that year.
+
+## Customizing Environment Web Details
+### Changing the Default Lab Name
+Until [this RFE](https://github.com/redhat-performance/quads/issues/537) is completed you'll need to change your lab name, or what you want to call your QUADS-managed environment in two separate `quads-web` files:
+
+* Edit the [inventory.html](https://github.com/redhat-performance/quads/blob/latest/src/quads/web/templates/wiki/inventory.html#L5)
+* Edit the [navbar.html](https://github.com/redhat-performance/quads/blob/latest/src/quads/web/templates/navbar.html#L2)
+
+Restart `quads-web` to take effect.
+
+```
+systemctl restart quads-web
+```
 
 ## Common Administration Tasks
 

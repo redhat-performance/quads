@@ -9,7 +9,7 @@
 #### Our upstream repository is located here:
 #### https://copr.fedorainfracloud.org/coprs/quadsdev/QUADS
 ####
-#### Note: quads-dev = latest master branch
+#### Note: quads-dev = latest development branch or changes
 ####       quads     = latest stable release
 
 %define name quads-dev
