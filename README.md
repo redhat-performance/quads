@@ -938,9 +938,8 @@ Resource properly removed
 ```
 
 ## Using the QUADS JSON API
-* All QUADS actions under the covers uses the JSON API v2
+* All QUADS actions under the covers uses the JSON API v3
    - Please [read about the QUADS RESTful API here](/docs/quads-api.md)
-* This is a systemd service you can start and interact with and listens on localhost ```TCP/8080```
 
 ## Additional Tools and Commands
 
