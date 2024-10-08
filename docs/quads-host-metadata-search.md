@@ -1,7 +1,7 @@
 QUADS Metadata Model and Search Library
 ======================================
 
-In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
+In QUADS `1.1.4` and above we've implemented a metadata model in the QUADS database that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
 
 ![quads](../image/quads.png)
 
@@ -18,6 +18,32 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
    * [Querying Host Status](#querying-host-status)
      * [Example Filter Searches](#example-status-filter-searches)
 ## How to Import Host Metadata
+
+### Gathering Metadata via lshw Tools
+  * We use the popular [lshw](https://linux.die.net/man/1/lshw) tool to gather hardware details into JSON
+  * We ship a tool called `lshw2meta.py` to transform this into a format for updating host metadata into QUADS.
+
+First, install `lshw` on your target host(s)
+
+```
+dnf install lshw
+```
+
+Next run `lshw` to capture all the hardware details of your host in JSON.
+
+```
+lshw -json > $(hostname).json
+```
+
+Next, copy the JSON file(s) over to `quads:/var/www/html/lshw`
+
+Now use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
+
+```
+cd /var/www/html/lshw
+python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
+```
+
 ### Modify YAML Host Data
   * Host metadata uses a standard YAML key/value pair format, here's a [reference example](../conf/hosts_metadata.yml)
   * Host metadata is not required unless you want to use it, **it is entirely optional**

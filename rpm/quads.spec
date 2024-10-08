@@ -50,6 +50,7 @@ Requires: python3-wtforms >= 2.2.0
 Requires: python3-pexpect >= 4.8.0
 Requires: python3-argcomplete >= 2.0.0
 Requires: python3-requests >= 2.28.1
+Requires: python3-jsonpath-ng >= 1.5
 Requires: haveged >= 1.8
 Requires: python3-GitPython >= 3.1.40
 Requires: python3-flask >= 2.2.2
@@ -149,6 +150,7 @@ rm -rf %{buildroot}
 /usr/bin/mkdir -p /opt/quads/db/data/
 /usr/bin/mkdir -p /opt/quads/web/visual/
 /usr/bin/mkdir -p /opt/quads/web/instack/
+/usr/bin/mkdir -p /var/www/html/lshw
 /usr/bin/chown -R postgres:postgres /opt/quads/db/
 /usr/bin/chcon -Rt postgresql_db_t /opt/quads/db/data
 /usr/sbin/semanage port -a -t http_port_t -p tcp 5000 2>/dev/null
