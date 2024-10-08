@@ -45,7 +45,7 @@ Now on your QUADS host use the `lshw2meta.py` tool to convert this data and impo
 python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
 ```
 
-### Gathering Metadata via lswh Tools Remotely
+### Gathering Metadata via lshw Tools Remotely
   * We also provide an `lshw.py` tool which can be used to gather `lshw` JSON data remotely over SSH
   * This assumes you have root SSH keys on each remote system.
   * This assumes all of your hosts are in `cloud01` and powered on and accessible
