@@ -1,7 +1,7 @@
 QUADS Metadata Model and Search Library
 ======================================
 
-In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
+In QUADS `1.1.4` and above we've implemented a metadata model in the QUADS database that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
 
 ![quads](../image/quads.png)
 
