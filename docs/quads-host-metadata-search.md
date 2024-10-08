@@ -20,7 +20,7 @@ In QUADS `1.1.4` and above we've implemented a metadata model in the QUADS datab
    * [Querying Host Status](#querying-host-status)
      * [Example Filter Searches](#example-status-filter-searches)
 ## How to Import Host Metadata
-  * Host metadata can be gathered by both editing and importing YAML files or directly via `lshw` locally on each host or remotely.
+  * Host metadata can be gathered by both editing and importing YAML files or directly via `lshw` locally on each host or remotely en-masse.
 
 ### Gathering Metadata via lshw Tools Locally
   * We can use the popular [lshw](https://linux.die.net/man/1/lshw) tool to gather hardware details into JSON
@@ -38,9 +38,8 @@ Next run `lshw` to capture all the hardware details of your host in JSON.
 lshw -json > $(hostname).json
 ```
 
-Next, copy the JSON file(s) over to `quads:/var/www/html/lshw`
-
-Now use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
+Next, copy the JSON file(s) over to your QUADS host `quads:/opt/quads/lshw`
+Now on your QUADS host use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
 
 ```
 python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
