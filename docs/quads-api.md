@@ -13,7 +13,7 @@ For more details on the API, please refer to our [Swagger Documentation](https:/
 
 ## Using the QUADS REST API
 * All QUADS actions under the covers uses the REST API v3
-* This is a local systemd service you can start and interact with and listens on localhost `TCP/8080`
+* This is a gunicorn wsgi service on localhost/5000 managed via the `quads-server` systemd service reverse-proxied by nginx.
 
 ```bash
 systemctl enable quads-server.service

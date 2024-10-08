@@ -10,7 +10,7 @@ from quads.quads_api import QuadsApi
 
 quads = QuadsApi(Config)
 
-MD_DIR = "/var/www/html/lshw"
+MD_DIR = "/opt/quads/lshw"
 DISK_TYPES = {"nvme": "nvm", "sata": "ata", "scsi": "scsi"}
 
 

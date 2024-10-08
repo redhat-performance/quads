@@ -179,7 +179,7 @@ cloud_reservation_lock: 48
 # into QUADS to silence expiration notices if an expiration request is
 # submitted, only when it's executed will notifications cease.
 # Unless you have done custom modification of notify.py/QUADS to tie toggling
-# MongoDB flags for 'message' you want to leave this alone.
+# database flags for 'message' you want to leave this alone.
 # Leaving the below to True will include a message in expiration notifications
 # that users can ignore future expiration warnings if they have already
 # submitted an extension request but it hasn't been executed yet.
