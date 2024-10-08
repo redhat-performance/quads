@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "835f9143_d7dc090f",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-08T15:52:04Z",
+      "side": 1,
+      "message": "this cmd is not necessary",
+      "revId": "27122038bcb3c6b884393a51f5144f4c2e5d3882",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
