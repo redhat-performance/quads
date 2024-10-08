@@ -6,7 +6,7 @@ from quads.tools.external.ssh_helper import SSHHelper
 
 quads = QuadsApi(Config)
 
-LSHW_OUTPUT_DIR = "/var/www/html/lshw/"
+LSHW_OUTPUT_DIR = "/opt/quads/lshw/"
 
 
 def run_lshw(hostname: str, file_path: str) -> None:

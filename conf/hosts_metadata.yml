@@ -1,4 +1,4 @@
-# Data file for populating MongoDB with hosts metadata
+# Data file for populating the database with hosts metadata
 
 - name: example1.com
   model: 1029U-TRTP

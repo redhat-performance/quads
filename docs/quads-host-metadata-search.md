@@ -1,11 +1,13 @@
 QUADS Metadata Model and Search Library
 ======================================
 
-In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
+In QUADS `1.1.4` and above we've implemented a metadata model in the QUADS database that captures information about host hardware, model, and other useful information.  We'll be expanding this as time progresses.
 
 ![quads](../image/quads.png)
 
   * [How to Import Host Metadata](#how-to-import-host-metadata)
+     * [Gathering Metadata via lshw Tools Locally](#gathering-metadata-via-lshw-tools-locally)
+     * [Gathering Metadata via lshw Tools Remotely](#gathering-metadata-via-lshw-tools-remotely)
      * [Modify YAML Host Data](#modify-yaml-host-data)
      * [Add any Supporting Model Type](#add-any-supporting-model-type)
      * [Importing Host Metadata](#importing-host-metadata)
@@ -18,6 +20,48 @@ In QUADS `1.1.4` and above we've implemented a metadata model in MongoDB that ca
    * [Querying Host Status](#querying-host-status)
      * [Example Filter Searches](#example-status-filter-searches)
 ## How to Import Host Metadata
+  * Host metadata can be gathered by both editing and importing YAML files or directly via `lshw` locally on each host or remotely.
+
+### Gathering Metadata via lshw Tools Locally
+  * We can use the popular [lshw](https://linux.die.net/man/1/lshw) tool to gather hardware details into JSON
+  * We ship a tool called `lshw2meta.py` to transform this into a format for updating host metadata into QUADS.
+
+First, install `lshw` on your target host(s)
+
+```
+dnf install lshw
+```
+
+Next run `lshw` to capture all the hardware details of your host in JSON.
+
+```
+lshw -json > $(hostname).json
+```
+
+Next, copy the JSON file(s) over to `quads:/var/www/html/lshw`
+
+Now use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
+
+```
+python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
+```
+
+### Gathering Metdata via lswh Tools Remotely
+  * We also provide an `lshw.py` tool which can be used to gather `lshw` JSON data remotely over SSH
+  * This assumes you have root SSH keys on each remote system.
+  * This assumes all of your hosts are in `cloud01` and powered on and accessible
+  * This assumes you have `lshw` installed as well on every remote host
+
+First, gather all of the JSON metadata from the hosts:
+```
+python3 /usr/lib/python3.12/site-packages/quads/tools/lshw.py
+```
+
+Now import them all via `lshw2meta.py`
+```
+python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
+```
+
 ### Modify YAML Host Data
   * Host metadata uses a standard YAML key/value pair format, here's a [reference example](../conf/hosts_metadata.yml)
   * Host metadata is not required unless you want to use it, **it is entirely optional**
