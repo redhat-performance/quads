@@ -23,7 +23,7 @@ General guidelines of how to setup your network switches, servers and DNS for QU
         * [Define Publicly Routable VLANS on TOR Switches](#define-publicly-routable-vlans-on-tor-switches)
         * [Define Publicly Routable VLANS on Distribution Switches](#define-publicly-routable-vlans-on-distribution-switches)
         * [Generate a Skeleton VLANS YAML config](#generate-a-skeleton-vlans-yaml-config)
-        * [Run Tool to Import VLANS into MongoDB](#run-tool-to-import-vlans-into-mongodb)
+        * [Run Tool to Import VLANS into the Database](#run-tool-to-import-vlans-into-the-database)
 
 ## Network Architecture
    - We use top-of-rack switches that connect up to two distribution switches (Juniper QFX5200 currently)
@@ -388,11 +388,11 @@ vi /opt/quads/conf/vlans.yml
 
    - These settings should match the physical routable VLAN interfaces that you have defined on your switches, along with their VLAN ID.
 
-### Run Tool to Import VLANS into MongoDB
+### Run Tool to Import VLANS into the Database
 
-Lastly, run the import tool to parse the VLAN YAML config and define these VLANs into your QUADS MongoDB.
+Lastly, run the import tool to parse the VLAN YAML config and define these VLANs into your QUADS database.
 
 ```
 cd /opt/quads/
-python quads/tools/vlan_yaml_to_mongo.py --yaml /opt/quads/conf/vlans.yml
+python3 /usr/lib/python3.12/site-packages/quads/tools/vlan_yaml_to_db.py --yaml /opt/quads/conf/vlans.yml
 ```
