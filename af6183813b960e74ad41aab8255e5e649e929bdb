@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dff58d0c_c6d1a576",
+        "filename": "cron/quads",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-09T12:49:26Z",
+      "side": 1,
+      "message": "doesn\u0027t the quote inside the echo need to be escaped? E.g.: \\\"",
+      "revId": "af6183813b960e74ad41aab8255e5e649e929bdb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
