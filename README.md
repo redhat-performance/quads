@@ -284,6 +284,17 @@ systemctl restart nginx
 
 ### Making QUADS Run
    - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/latest/cron/quads) to your liking, adjust as needed.
+   - We ship an example cron file you can drop directly in via the following command which should work out of the box but has its entries commented out.
+
+```
+crontab /opt/quads/conf/quads.cron.example
+```
+
+Now you can uncomment the QUADS services to enable them running on a configurable schedule:
+
+```
+crontab -e
+```
 
 #### Major Components
 
