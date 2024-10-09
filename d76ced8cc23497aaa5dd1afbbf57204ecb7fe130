@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2c1d060_113b589e",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-10-09T15:21:23Z",
+      "side": 1,
+      "message": "@grafuls@redhat.com shouldn\u0027t this be `/api/v3`",
+      "range": {
+        "startLine": 248,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 38
+      },
+      "revId": "d76ced8cc23497aaa5dd1afbbf57204ecb7fe130",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
