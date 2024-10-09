@@ -26,20 +26,21 @@ In QUADS `1.1.4` and above we've implemented a metadata model in the QUADS datab
   * We can use the popular [lshw](https://linux.die.net/man/1/lshw) tool to gather hardware details into JSON
   * We ship a tool called `lshw2meta.py` to transform this into a format for updating host metadata into QUADS.
 
-First, install `lshw` on your target host(s)
+First, install `lshw` on your target QUADS-managed host(s)
 
 ```
 dnf install lshw
 ```
 
-Next run `lshw` to capture all the hardware details of your host in JSON.
+Next run `lshw` to capture all the hardware details of each remote host in JSON.
 
 ```
 lshw -json > $(hostname).json
 ```
 
-Next, copy the JSON file(s) over to your QUADS host `quads:/opt/quads/lshw`
-Now on your QUADS host use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
+Next, copy the JSON file(s) over to your QUADS host here: `quads:/opt/quads/lshw/`
+
+Now, back on your QUADS host use the `lshw2meta.py` tool to convert this data and import it directly into the QUADS database for each host.
 
 ```
 python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
@@ -51,7 +52,7 @@ python3 /usr/lib/python3.12/site-packages/quads/tools/lshw2meta.py
   * This assumes all of your hosts are in `cloud01` and powered on and accessible
   * This assumes you have `lshw` installed as well on every remote host
 
-First, gather all of the JSON metadata from the hosts:
+First, gather all of the JSON metadata from your remote QUADS-managed host(s):
 ```
 python3 /usr/lib/python3.12/site-packages/quads/tools/lshw.py
 ```
@@ -92,11 +93,11 @@ quads --export-host-details /tmp/my_host_data.yml
 ```
 
 ## Querying Host Information
-  * A new sub-command of `--filter` has been added to the `--ls-available` and `--ls-hosts` commands.
+  * The sub-command `--filter` can be used with `--ls-available` and `--ls-hosts` commands.
 
-| Component              | Field Type | Syntax                       | Operators       |
+| Component              | Field Type | Description                  | Operators       |
 |------------------------|------------|------------------------------|-----------------|
-| model                  |  string    | exact match                  | ==,!=           |
+| model                  |  string    | defined system model         | ==,!=           |
 | disks.size_gb          |  integer   | disk size in GB              | ==,!=,<,<=,>,>= |
 | disks.disks_type       |  string    | nvme,sata,ssd                | ==,!=           |
 | disks.count            |  integer   | number of disks              | ==,!=,<,<=,>,>= |
@@ -104,18 +105,39 @@ quads --export-host-details /tmp/my_host_data.yml
 | interfaces.name        |  string    | name of interface            | ==,!=           |
 | interfaces.mac_address |  string    | mac address                  | ==,!=           |
 | interfaces.switch_port |  string    | switch port                  | ==,!=           |
+| interfaces.switch_ip   |  string    | switch ip address per port   | ==,!=           |
 | interfaces.speed       |  integer   | link speed                   | ==,!=,<,<=,>,>= |
 | interfaces.vendor      |  string    | interface vendor             | ==,!=           |
 | interfaces.maintenance |  boolean   | interface maintenance status | ==,!=           |
+| interfaces.bios_id     |  string    | interface BIOS boot devname  | ==,!=           |
 | build                  |  boolean   | build status                 | ==,!=           |
 | validated              |  boolean   | validated status             | ==,!=           |
 | broken                 |  boolean   | broken status                | ==,!=           |
 | retired                |  boolean   | retired status               | ==,!=           |
-| switch_config_applied  |  boolean   | switch configuration status  | ==,!=           |
-
+| switch_config_applied  |  boolean   | host switch config status    | ==,!=           |
+| memory.handle          |  string    | DIMM details                 | ==,!=           |
+| memory.size_gb         |  integer   | amount of system memory      | ==,!=,<,<=,>,>= |
+| processors.handle      |  string    | CPU details                  | ==,!=           |
+| processors.vendor      |  string    | CPU vendor information       | ==,!=           |
+| processors.product     |  string    | CPU model information        | ==,!=           |
+| processors.cores       |  integer   | CPU cores in the system      | ==,!=,<,<=,>,>= |
+| processors.threads     |  integer   | CPU threads in the system    | ==,!=,<,<=,>,>= |
 
 ### Example Filter Searches
   * Accepted operators are `==, !=, <, <=, >, >=`
+  * For the REST API the operators must be appended to the key like so `disks.size_gb__gte=2000`
+
+| Operator | Appended |
+|----------|----------|
+| ==       |          |
+| !=       | __ne     |
+| <        | __lt     |
+| <=       | __lte    |
+| >        | __gt     |
+| >=       | __gte    |
+| like     | __like   |
+| ilike    | __ilike  |
+| in       | __in     |
 
 #### Example Hardware Filter Searches
 
@@ -124,11 +146,21 @@ quads --export-host-details /tmp/my_host_data.yml
 ```
 quads --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "disks.disk_type==nvme,disks.size_gb>=2000"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/available?start=2020-07-20T17:00&end=2020-07-22T13:00&disks.disk_type=nvme&disks.size_gb__gte=2000
+```
 
   * Search for systems with SATA disks available from `2020-07-20 17:00` until `2020-07-22 13:00`
 
 ```
 quads --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "disks.disk_type==sata"
+```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/available?start=2020-07-20T17:00&end=2020-07-22T13:00&disks.disk_type=sata
 ```
 
   * Search for systems of model type `1029U-TRTP` available from `2020-07-20 17:00` until `2020-07-22 13:00`
@@ -136,17 +168,32 @@ quads --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07
 ```
 quads --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "model==1029U-TRTP"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/available?start=2020-07-20T17:00&end=2020-07-22T13:00&model=1029U-TRTP
+```
 
   * Search for systems with **two NVMe** disks **and** disk size of **more than** 2TB, available from `2020-07-20 17:00` until `2020-07-22 13:00`
 
 ```
 quads --ls-available --schedule-start "2020-07-20 17:00" --schedule-end "2020-07-22 13:00" --filter "disks.disk_type==nvme,disks.count>2, disks.size_gb<2000"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/available?start=2020-07-20T17:00&end=2020-07-22T13:00&disks.disk_type=nvme&disks.count__gt=2&disks.size_gb__lt=2000
+```
 
   * Search all systems by model and number of interfaces.
 
 ```
 quads --ls-hosts --filter "model==FC640,interfaces__size==5"
+```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?model=FC640&interfaces__size=5
 ```
 
 #### Example Network Filter Searches
@@ -157,6 +204,11 @@ quads --ls-hosts --filter "model==FC640,interfaces__size==5"
 ```
 quads --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?interfaces.mac_address=ac:1f:6b:2d:19:48
+```
 
   * Find hosts by switch IP address.
   * Shows all hosts connected to a particular switch
@@ -164,12 +216,22 @@ quads --ls-hosts --filter "interfaces.mac_address==ac:1f:6b:2d:19:48"
 ```
 quads --ls-host --filter "interfaces.ip_address==10.1.34.216"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?interfaces.ip_address=10.1.34.216
+```
 
   * Find hosts by physical switchport
   * Shows all hosts that have a specific physical switchport name
 
 ```
 quads --ls-host --filter "interfaces.switch_port==et-0/0/7:1"
+```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?interfaces.switch_port=et-0/0/7:1
 ```
 
 ##### Combined Network Search Example
@@ -179,6 +241,11 @@ quads --ls-host --filter "interfaces.switch_port==et-0/0/7:1"
 
 ```
 quads --ls-hosts --filter "interfaces.ip_address==10.1.34.216,interfaces.switch_port==et-0/0/7:1"
+```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?interfaces.ip_address=10.1.34.216&interfaces.switch_port=et-0/0/7:1
 ```
 
 ## Querying Host Status
@@ -192,9 +259,19 @@ quads --ls-hosts --filter "interfaces.ip_address==10.1.34.216,interfaces.switch_
 ```
 quads --ls-hosts --filter "retired==True"
 ```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?retired=True
+```
 
   * List retired hosts and filter by model
 
 ```
 quads --ls-hosts --filter "retired==True,model==1029P"
+```
+  * Via the API
+
+```
+curl https://quads.example.com/api/v3/hosts?retired=True&model=1029P
 ```
