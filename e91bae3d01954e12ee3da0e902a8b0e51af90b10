@@ -48,6 +48,30 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebda2c47_52b63616",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-10-09T09:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ede5fe47_24bc0dce",
+      "range": {
+        "startLine": 41,
+        "startChar": 59,
+        "endLine": 41,
+        "endChar": 68
+      },
+      "revId": "e91bae3d01954e12ee3da0e902a8b0e51af90b10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c9fdfaa_e2ceef1b",
@@ -61,6 +85,30 @@
       "writtenOn": "2024-10-09T09:18:53Z",
       "side": 1,
       "message": "string with \u003d\u003d,!\u003d operators only",
+      "range": {
+        "startLine": 108,
+        "startChar": 28,
+        "endLine": 108,
+        "endChar": 35
+      },
+      "revId": "e91bae3d01954e12ee3da0e902a8b0e51af90b10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e34e734_89a073f6",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2024-10-09T09:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c9fdfaa_e2ceef1b",
       "range": {
         "startLine": 108,
         "startChar": 28,
