@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6a1f7a7_77e20d37",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-09T09:18:53Z",
+      "side": 1,
+      "message": "I would remove `quadshost:` since it\u0027s confusing and you already mention `over to your QUADS host`",
+      "range": {
+        "startLine": 41,
+        "startChar": 59,
+        "endLine": 41,
+        "endChar": 68
+      },
+      "revId": "e91bae3d01954e12ee3da0e902a8b0e51af90b10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c9fdfaa_e2ceef1b",
+        "filename": "docs/quads-host-metadata-search.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-09T09:18:53Z",
+      "side": 1,
+      "message": "string with \u003d\u003d,!\u003d operators only",
+      "range": {
+        "startLine": 108,
+        "startChar": 28,
+        "endLine": 108,
+        "endChar": 35
+      },
+      "revId": "e91bae3d01954e12ee3da0e902a8b0e51af90b10",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
