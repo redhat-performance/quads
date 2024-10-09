@@ -116,6 +116,7 @@ cp -rf systemd/quads-server.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-web.service %{buildroot}/etc/systemd/system/
 cp -rf systemd/quads-db.service %{buildroot}/etc/systemd/system/
 cp -rf conf/logrotate_quads.conf %{buildroot}/etc/logrotate.d/
+cp -rf cron/quads %{buildroot}/opt/quads/conf/quads.cron.example
 cp -rf container/etc/nginx/conf.d/apiv3.conf %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/nginx/conf.d/apiv3_ssl.conf.example %{buildroot}/etc/nginx/conf.d/
 cp -rf container/etc/postfix/postfix-files.d/quads.cf %{buildroot}/etc/postfix/postfix-files.d/
@@ -135,6 +136,7 @@ rm -rf %{buildroot}
 /etc/profile.d/quads.sh
 /etc/nginx/*
 /opt/quads/conf/logrotate_quads.conf
+/opt/quads/conf/quads.cron.example
 /usr/bin/quads
 %config(noreplace) /opt/quads/conf/quads.yml
 %config(noreplace) /opt/quads/conf/vlans.yml
@@ -188,6 +190,7 @@ if [ "$1" -eq 1 ]; then
     sed -i 's/ident/password/g' /opt/quads/db/data/pg_hba.conf
     /usr/bin/systemctl start quads-db
     /usr/bin/systemctl start haveged
+    /usr/bin/crontab /opt/quads/conf/quads.cron.example
     cd /var/lib/pgsql && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
     /usr/bin/systemctl start nginx
 fi
