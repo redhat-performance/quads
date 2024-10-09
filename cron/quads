@@ -22,7 +22,7 @@ SHELL=/bin/bash
 ##### CONTAINER QUADS SERVER ENTRIES
 ##### ONLY USE WITH CONTAINER DEPLOYMENT
 ########################################
-# * * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "podman exec quads quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
+# * * * * * flock -n /tmp/moveandrebuild.lock -c "echo '=== Move and Rebuild == Started @ ' $(date) ; podman exec quads quads --move-hosts ; echo '=== Move and Rebuild == Finished @ ' $(date)" 1>/dev/null 2>&1
 # * * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "podman exec quads quads --validate-env" ) 1>/dev/null 2>&1
 # 0 0 * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "podman exec quads quads --notify" ) 1>/dev/null 2>&1
 # 0 0 * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/heatmap.lock -c "podman exec quads quads --regen-heatmap" ) 1>/dev/null 2>&1
@@ -35,7 +35,7 @@ SHELL=/bin/bash
 ##### (RECOMMENDED)
 #########################################
 #########################################
-#*/5 * * * * ( echo "=== Move and Rebuild == @ " $(date) ; flock -n /tmp/moveandrebuild.lock -c "quads --move-hosts" ) 1>>/var/log/move-and-rebuild.log 2>&1
+#*/5 * * * * flock -n /tmp/moveandrebuild.lock -c "echo '=== Move and Rebuild == Started @ ' $(date) ; quads --move-hosts ; echo '=== Move and Rebuild == Finished @ ' $(date)" 1>>/var/log/move-and-rebuild.log 2>&1
 #*/25 * * * * ( echo "=== Validating == @ " $(date) ; flock -n /tmp/validateenv.lock -c "quads --validate-env" ) 1>>/var/log/validate-env.log 2>&1
 #*/10 * * * * ( echo "=== Sending Notifications == @ " $(date) ; flock -n /tmp/notify.lock -c "quads --notify" ) 1>>/var/log/quads-notify.log 2>&1
 #*/20 * * * * ( echo "=== Regenerate Heat Map == @ " $(date) ; flock -n /tmp/heatmap.lock -c "quads --regen-heatmap" ) 1>/dev/null 2>&1
