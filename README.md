@@ -283,7 +283,13 @@ systemctl restart nginx
    - QUADS relies on calling an external script, trigger or workflow to enact the actual provisioning of machines. You can look at and modify our [move-and-rebuild-hosts](https://github.com/redhat-performance/quads/blob/latest/src/quads/tools/move_and_rebuild.py) tool to suit your environment for this purpose.  Read more about this in the [move-host-command](https://github.com/redhat-performance/quads#quads-move-host-command) section below.
 
 ### Making QUADS Run
-   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with cron, please copy and modify our [example cron commands](https://raw.githubusercontent.com/redhat-performance/quads/latest/cron/quads) to your liking, adjust as needed.
+   - QUADS is a passive service and does not do anything you do not tell it to do.  We control QUADS with [cron commands](https://raw.githubusercontent.com/redhat-performance/quads/latest/cron/quads).
+   - We ship an example cron file and install it for you that should work out of the box, it just has entries commented out.
+   - To enable QUADS services to run you'll need to **uncomment them**.
+
+```
+crontab -e
+```
 
 #### Major Components
 
