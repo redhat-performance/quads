@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7bfcaf2_c80c1129",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-09T09:08:47Z",
+      "side": 1,
+      "message": "remove `or not cloud.is_valid` for bg-danger",
+      "range": {
+        "startLine": 32,
+        "startChar": 165,
+        "endLine": 32,
+        "endChar": 187
+      },
+      "revId": "3dc37098c9628ff2e74b9e40a1442ec166046880",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59a92c56_fcec5ebe",
+        "filename": "src/quads/web/templates/wiki/assignments.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2024-10-09T09:08:47Z",
+      "side": 1,
+      "message": "double negation ^, should be only once",
+      "range": {
+        "startLine": 32,
+        "startChar": 233,
+        "endLine": 32,
+        "endChar": 255
+      },
+      "revId": "3dc37098c9628ff2e74b9e40a1442ec166046880",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
