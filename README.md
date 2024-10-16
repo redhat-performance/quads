@@ -69,6 +69,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
          * [Modify a Host Interface](#modify-a-host-interface)
          * [Remove a Host Interface](#remove-a-host-interface)
       * [Using the QUADS JSON API](#using-the-quads-json-api)
+      * [Filtering Systems by Hardware Capability](#filtering-systems-by-hardware-capability)
       * [Additional Tools and Commands](#additional-tools-and-commands)
          * [Verify or Correct Cloud and Host Network Switch Settings](#verify-or-correct-cloud-and-host-network-switch-settings)
          * [Modify or check a specific Host Network Switch Settings](#modify-or-check-a-specific-host-network-switch-settings)
@@ -143,7 +144,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 |------|---------------|---------|
 | General Architecture Overview | [docs](/docs/quads-workflow.md) | Architecture overview |
 | Install and Setup Foreman/Satellite | [docs](https://theforeman.org/manuals/nightly/#3.InstallingForeman) | Not covered here |
-| Setup Foreman/Satellite Validation Templates | [examples](/templates/README.md) | Templates for internal interface configs |
+| Setup Foreman/Satellite Validation Templates | [examples](/templates) | Templates for internal interface configs |
 | Prepare Host and Network Environment | [docs](/docs/switch-host-setup.md) | Covers Juniper Environments, IPMI, Foreman |
 | Install QUADS | [docs](#installing-quads) | Install via RPM |
 | Enable SSL | [docs](#using-ssl-with-flask-api-and-quads) | Optionally enable SSL for API, Web |
@@ -151,6 +152,7 @@ QUADS automates the future scheduling, end-to-end provisioning and delivery of b
 | Configure QUADS Crons | [docs](#making-quads-run) |  Tell QUADS how to manage your infrastructure |
 | Add Clouds and Hosts | [docs](#adding-new-hosts-to-quads) | Configure your hosts and environments in QUADS |
 | Host Metadata Model and Search | [docs](/docs/quads-host-metadata-search.md) | Host metadata info and filtering |
+| Using the JSON API | [docs](/quads-api.md) | Interacting with the RESTful JSON API |
 | Using JIRA with QUADS | [docs](/docs/using-jira-with-quads.md) | Optional JIRA tools and library for QUADS |
 
 ## QUADS Workflow
@@ -944,8 +946,10 @@ Resource properly removed
 ```
 
 ## Using the QUADS JSON API
-* All QUADS actions under the covers uses the JSON API v3
-   - Please [read about the QUADS RESTful API here](/docs/quads-api.md)
+* All QUADS actions under the covers uses the [JSON API v3](/docs/quads-api.md)
+
+## Filtering Systems by Hardware Capability
+* We provide a flexible host hardware [metadata and filtering model](/docs/quads-host-metadata-search.md) via the API.
 
 ## Additional Tools and Commands
 
