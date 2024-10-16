@@ -606,7 +606,7 @@ Creating a new schedule and assigning machines is currently done through the QUA
    -  **description** (this will appear on the assignments dynamic wiki)
    -  **cloud-owner** (for associating ownership and usage notifications)
    -  *force* (needed for re-using an existing cloud)
-   -  *cc-users* (Add additional people to the notifications)
+   -  *cc-users* (Add additional people to notifications, comma-separated)
    -  *cloud-ticket* (RT ticket used for the work, also appears in the assignments dynamic wiki)
    -  *wipe* (whether to reprovision machines going into this cloud, default is 1 or wipe.
 
@@ -651,7 +651,7 @@ quads --mod-cloud --cloud cloud03 --vlan none
 #### Defining a New Cloud
 
 ```bash
-quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --cloud-owner epresley --cc-users "jdoe jhoffa" --cloud-ticket 423625 --qinq 1
+quads --define-cloud --cloud cloud03 --description "Messaging AMQ" --cloud-owner epresley --cc-users "jdoe, jhoffa" --cloud-ticket 423625 --qinq 1
 ```
 
    * Note: in QUADS `1.1.4` you can change any of these values selectively via the `--mod-cloud` command [described below](#modifying-cloud-level-attributes).
@@ -1045,7 +1045,7 @@ quads --mod-cloud --cloud cloud02 --cloud-owner jhoffa
 ```
 
 ```bash
-quads --mod-cloud --cloud cloud04 --cc-users "tpetty fmercury"
+quads --mod-cloud --cloud cloud04 --cc-users "tpetty, fmercury"
 ```
 
 ```bash
