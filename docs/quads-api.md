@@ -5,13 +5,18 @@ We provide a RESTful API based on Flask endpoints with QUADS.
 For more details on the API, please refer to our [Swagger Documentation](https://app.swaggerhub.com/apis-docs/RedHatScale/quads/3.0.0).
 
 * [Using the QUADS REST API](#using-the-quads-rest-api)
-    * [Authentication](#authentication)
-    * [API GET Operations](#api-get-operations)
-    * [API POST Operations](#api-post-operations)
-    * [Working Examples](#working-examples)
-    * [More Examples with API POST](#more-examples-with-api-post)
+  * [Authentication](#authentication)
+    * [Example Login Request](#example-login-request)
+  * [API GET Operations](#api-get-operations)
+  * [API POST Operations](#api-post-operations)
+  * [Working Examples](#working-examples)
+    * [Query Hosts on a Specific Cloud](#query-hosts-on-a-specific-cloud)
+    * [Query a Model Type by Cloud](#query-a-model-type-by-cloud)
+    * [Query a Host Schedule](#query-a-host-schedule)
+  * [More Examples with API POST](#more-examples-with-api-post)
+    * [Define a Host via API POST](#define-a-host-via-api-post)
 
-## Using the QUADS REST API
+# Using the QUADS REST API
 * All QUADS actions under the covers uses the REST API v3
 * This is a gunicorn wsgi service on localhost/5000 managed via the `quads-server` systemd service reverse-proxied by nginx.
 
@@ -75,7 +80,7 @@ curl http://localhost/api/v3/hosts | python -m json.tool
 * All GET requests are open with no authentication required.
 * All other requests require a valid token to be passed in the `Authorization` header.
 
-### Example login request:
+### Example Login Request
 
 ```bash
 curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localhost/api/v3/login/'
@@ -84,14 +89,14 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
   - Response:
 ```json
 {
-    "auth_token":"7h1515@v3ryl0n6@ndcr1p71c70k3n",
+    "auth_token":"YOUR_AUTH_TOKEN_EXAMPLE",
     "message":"Successful login",
     "status":"success",
     "status_code":201
 }
 ```
 
-### API GET Operations
+## API GET Operations
 * The following commands can be queried via curl or some other http mechanism to do basic metadata queries:
   * ```curl http://localhost/```
     - `/api/v3/version`             Obtain QUADS current version
@@ -103,7 +108,7 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
     - `/api/v3/clouds/summary`      Obtain a full summary of clouds, tickets, descriptions
     - `/api/v3/moves`               Obtain a list of hosts with their current and future clouds
 
-### API POST Operations
+## API POST Operations
 * The following construct can be used via http ```POST``` to receive more detailed data by providing granular criteria to return JSON body data:
   * You can combine one of many POST query types with multiple POST metadata objects.
   * There is limited support for data modification via POST as well documented below.
@@ -113,8 +118,8 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
     - ```/api/v3/schedules```    AKA _add host schedule_ used for adding a new host schedule.
     - ```/api/v3/interfaces```   Add an interface to a QUADS-managed host
 
-## Working Examples:
-### Query hosts on a specific cloud
+## Working Examples
+### Query Hosts on a Specific Cloud
 ```bash
 curl http://localhost/api/v3/hosts?cloud=cloud04 | python3 -m json.tool
 ```
@@ -150,7 +155,18 @@ curl http://localhost/api/v3/hosts?cloud=cloud04 | python3 -m json.tool
 ]
 ```
 
-### Query a host schedule
+### Query a Model Type by Cloud
+* Find all 1029U-TN10RT in a certain environment
+```bash
+curl -s -X GET "http://localhost/api/v3/hosts?cloud=cloud17&model=1029U-TN10RT" | jq | grep -A1 model
+```
+* Response
+```
+    "model": "1029U-TN10RT",
+    "name": "f04-h16-000-1029u.example.com",
+```
+
+### Query a Host Schedule
 
 ```bash
 curl http://localhost/api/v3/schedules?host=host01.example.com | python3 -m json.tool
