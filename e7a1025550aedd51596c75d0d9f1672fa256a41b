@@ -33,6 +33,24 @@
       "message": "Verified against the tree: search_results and available_hosts are only reached in-process from /available (wiki.py:93 and :100), and there are no url_for or template links to /results or /available_hosts. The three removed templates have no include or extends references left. Looks good.",
       "revId": "e7a1025550aedd51596c75d0d9f1672fa256a41b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1f1e80b_a63e3045",
+        "filename": "src/quads/web/blueprints/wiki.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-07T16:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca73fedf_3b1d77be",
+      "revId": "e7a1025550aedd51596c75d0d9f1672fa256a41b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ],
   "submitRequirementResults": []
