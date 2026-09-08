@@ -1,5 +1,5 @@
 from flask import current_app
-from sqlalchemy import func
+from sqlalchemy import Integer, func
 from sqlalchemy.exc import SQLAlchemyError
 
 from quads.server.models import Disk, Interface, Memory, Processor, db
@@ -164,6 +164,7 @@ class BaseDao:
                 column_name, op, value = expression
             except ValueError:  # pragma: no cover
                 raise Exception("Invalid filter: %s" % expression)
+            field_reference = column_name
             if op not in FILTERING_OPERATORS:
                 raise Exception("Invalid filter operation: %s" % op)
 
@@ -197,6 +198,19 @@ class BaseDao:
 
             if value == "null":
                 value = None
+
+            try:
+                col_type = column.property.columns[0].type
+            except (AttributeError, IndexError):  # pragma: no cover
+                col_type = None
+            if isinstance(col_type, Integer) and not isinstance(value, bool):
+                try:
+                    if isinstance(value, list):
+                        value = [int(v) for v in value]
+                    elif value is not None:
+                        value = int(value)
+                except (TypeError, ValueError):
+                    raise InvalidArgument(f"Invalid value for {field_reference}: {value}")
 
             if column_name in AGGREGATION_FUNCTIONS and attrs[1] in VALID_ATTRIBUTES.get(column_name, []):
                 if column_name == "interfaces" and attrs[1] == "count":

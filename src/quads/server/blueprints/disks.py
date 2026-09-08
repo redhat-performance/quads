@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, Response, jsonify, make_response, request
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.disk import DiskDao
 from quads.server.dao.host import HostDao
@@ -25,6 +25,9 @@ def get_disk_types() -> Response:
 
 @disk_bp.route("/<disk_id>")
 def get_disk(disk_id: int) -> Response:
+    disk_id, error_response = parse_int_or_response(disk_id, "disk")
+    if error_response:
+        return error_response
     _disk = DiskDao.get_disk(disk_id)
     if not _disk:
         response = {

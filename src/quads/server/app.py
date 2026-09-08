@@ -3,7 +3,7 @@
 
 import click
 from datetime import datetime
-from flask import Flask, Blueprint, jsonify, Response
+from flask import Flask, Blueprint, jsonify, make_response, Response
 from flask.json.provider import DefaultJSONProvider
 from flask_security import SQLAlchemySessionUserDatastore
 from flask_cors import CORS
@@ -13,6 +13,7 @@ from quads.server.database import check_db_timezone_consistency
 from quads.server.database import create_user, modify_user, remove_user, populate, drop_all
 from quads.server.database import init_db as db_init
 from quads.server.extensions import basic_auth, security, login_manager
+from quads.server.dao.baseDao import InvalidArgument
 from quads.server.models import User, db, Role, migrate
 from quads.helpers.timeutil import format_http_date
 from quads.plugins.manager import get_plugin_manager
@@ -104,6 +105,33 @@ def create_app(test_config=None) -> Flask:
                 "error_description": "Unauthorized",
                 "message": "You don't have right permissions for this resource",
             }
+        )
+
+    @flask_app.errorhandler(ValueError)
+    @flask_app.errorhandler(TypeError)
+    def error_bad_request(ex) -> Response:
+        return make_response(
+            jsonify(
+                {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": "Invalid request",
+                }
+            ),
+            400,
+        )
+
+    @flask_app.errorhandler(InvalidArgument)
+    def error_invalid_argument(ex) -> Response:
+        return make_response(
+            jsonify(
+                {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": str(ex),
+                }
+            ),
+            400,
         )
 
     @flask_app.cli.command("init-db")

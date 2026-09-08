@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, jsonify, make_response, request
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.processor import ProcessorDao
@@ -17,6 +17,9 @@ def get_all_processors() -> Response:
 
 @processor_bp.route("/<processor_id>")
 def get_processor(processor_id: int) -> Response:
+    processor_id, error_response = parse_int_or_response(processor_id, "processor")
+    if error_response:
+        return error_response
     _processor = ProcessorDao.get_processor(processor_id)
     if not _processor:
         response = {

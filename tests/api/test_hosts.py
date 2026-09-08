@@ -514,3 +514,27 @@ class TestDeleteHosts:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Host not found: {HOST_1_REQUEST['name']}"
+
+
+class TestGetHostsInvalidFilter:
+    def test_non_numeric_id_filter(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User filters hosts by a non-numeric id
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/hosts?id=abc"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert "Invalid value for id" in response.json["message"]
+
+    def test_non_numeric_disk_count_filter(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User filters hosts by a non-numeric disk count
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/hosts?disks.count=abc"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert "Invalid value for disks.count" in response.json["message"]

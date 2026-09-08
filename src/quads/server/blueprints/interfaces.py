@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, jsonify, make_response, request
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.interface import InterfaceDao
@@ -17,6 +17,9 @@ def get_all_interfaces() -> Response:
 
 @interface_bp.route("/<interface_id>")
 def get_interfaces(interface_id: int) -> Response:
+    interface_id, error_response = parse_int_or_response(interface_id, "interface")
+    if error_response:
+        return error_response
     _interface = InterfaceDao.get_interface(interface_id)
     if not _interface:
         response = {

@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, jsonify, make_response, request
 from sqlalchemy import inspect
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.notification import NotificationDao
 from quads.server.models import Notification
@@ -17,6 +17,9 @@ def get_all_notifications() -> Response:
 
 @notification_bp.route("/<notification_id>")
 def get_notification(notification_id: int) -> Response:
+    notification_id, error_response = parse_int_or_response(notification_id, "notification")
+    if error_response:
+        return error_response
     _notification = NotificationDao.get_notification(notification_id)
     if not _notification:
         response = {
