@@ -18,6 +18,7 @@ from quads.server.dao.host import HostDao
 from quads.server.dao.notification import NotificationDao
 from quads.server.dao.schedule import ScheduleDao
 from quads.server.models import db
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from quads.server.dao.vlan import VlanDao
 
 logger = logging.getLogger(__name__)
@@ -270,31 +271,6 @@ def create_schedule() -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    _assignment = AssignmentDao.get_active_cloud_assignment(_cloud)
-    if not _assignment:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"No active assignment for cloud: {cloud}",
-        }
-        return make_response(jsonify(response), 400)
-    if not _assignment.is_self_schedule and "admin" not in [role.name for role in g.current_user.roles]:
-        response = {
-            "status_code": 403,
-            "error": "Forbidden",
-            "message": f"You({g.current_user.email}) don't have permission to create a schedule on {cloud}",
-        }
-        return make_response(jsonify(response), 403)
-
-    existing_schedules = ScheduleDao.get_current_schedule(cloud=_cloud)
-    if _assignment.is_self_schedule and len(existing_schedules) >= Config.get("ssm_host_limit", 10):
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": f"Cloud {cloud} has reached the maximum number of hosts",
-        }
-        return make_response(jsonify(response), 400)
-
     if not hostname:
         response = {
             "status_code": 400,
@@ -312,78 +288,146 @@ def create_schedule() -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    if _assignment.is_self_schedule:
-        if not _host.can_self_schedule:
+    try:
+        _cloud_locked = CloudDao.get_cloud_for_update(cloud)
+        if not _cloud_locked:
+            db.session.rollback()
             response = {
                 "status_code": 400,
                 "error": "Bad Request",
-                "message": f"Host {hostname} is not allowed to self-schedule",
+                "message": f"Cloud not found: {cloud}",
             }
             return make_response(jsonify(response), 400)
 
-        start = datetime.now()
+        _assignment = AssignmentDao.get_active_cloud_assignment(_cloud_locked)
+        if not _assignment:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"No active assignment for cloud: {cloud}",
+            }
+            return make_response(jsonify(response), 400)
+        if not _assignment.is_self_schedule and "admin" not in [role.name for role in g.current_user.roles]:
+            db.session.rollback()
+            response = {
+                "status_code": 403,
+                "error": "Forbidden",
+                "message": f"You({g.current_user.email}) don't have permission to create a schedule on {cloud}",
+            }
+            return make_response(jsonify(response), 403)
 
-        ssm_deadline_day = Config.get("ssm_deadline_day", "sunday").lower()
-        ssm_deadline_hour = Config.get("ssm_deadline_hour", "21")
-        ssm_default_lifetime = Config.get("ssm_default_lifetime", 1)
+        existing_schedules = ScheduleDao.get_current_schedule(cloud=_cloud_locked)
+        if _assignment.is_self_schedule and len(existing_schedules) >= Config.get("ssm_host_limit", 10):
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Cloud {cloud} has reached the maximum number of hosts",
+            }
+            return make_response(jsonify(response), 400)
 
-        day_mapping = {day.lower(): i for i, day in enumerate(day_name)}
-        target_day = day_mapping.get(ssm_deadline_day)
-        current_day = start.weekday()
+        _host_map = HostDao.get_hosts_for_update([hostname])
+        _host = _host_map.get(hostname)
+        if not _host:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"Host not found: {hostname}",
+            }
+            return make_response(jsonify(response), 400)
 
-        days_ahead = target_day - current_day
-        if days_ahead < ssm_default_lifetime:
-            end = start.replace(hour=ssm_deadline_hour, minute=0, second=0, microsecond=0) + timedelta(days=days_ahead)
+        if _assignment.is_self_schedule:
+            if not _host.can_self_schedule:
+                db.session.rollback()
+                response = {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": f"Host {hostname} is not allowed to self-schedule",
+                }
+                return make_response(jsonify(response), 400)
+
+            start = datetime.now()
+
+            ssm_deadline_day = Config.get("ssm_deadline_day", "sunday").lower()
+            ssm_deadline_hour = Config.get("ssm_deadline_hour", "21")
+            ssm_default_lifetime = Config.get("ssm_default_lifetime", 1)
+
+            day_mapping = {day.lower(): i for i, day in enumerate(day_name)}
+            target_day = day_mapping.get(ssm_deadline_day)
+            current_day = start.weekday()
+
+            days_ahead = target_day - current_day
+            if days_ahead < ssm_default_lifetime:
+                end = start.replace(hour=ssm_deadline_hour, minute=0, second=0, microsecond=0) + timedelta(
+                    days=days_ahead
+                )
+            else:
+                end = start + timedelta(days=ssm_default_lifetime)
         else:
-            end = start + timedelta(days=ssm_default_lifetime)
-    else:
-        start = data.get("start")
-        end = data.get("end")
+            start = data.get("start")
+            end = data.get("end")
 
-    if not start or not end:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Missing argument: start or end",
-        }
-        return make_response(jsonify(response), 400)
+        if not start or not end:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Missing argument: start or end",
+            }
+            return make_response(jsonify(response), 400)
 
-    try:
-        _start = _parse_datetime_with_now(start)
-        _end = _parse_datetime_with_now(end)
-    except ValueError:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'",
-        }
-        return make_response(jsonify(response), 400)
+        try:
+            _start = _parse_datetime_with_now(start)
+            _end = _parse_datetime_with_now(end)
+        except ValueError:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DD HH:MM'",
+            }
+            return make_response(jsonify(response), 400)
 
-    if _start > _end:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date range for start or end, start must be before end",
-        }
-        return make_response(jsonify(response), 400)
+        if _start > _end:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Invalid date range for start or end, start must be before end",
+            }
+            return make_response(jsonify(response), 400)
 
-    if not ScheduleDao.is_host_available(hostname, _start, _end):
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Host is not available for the specified date range",
-        }
-        return make_response(jsonify(response), 400)
+        if not ScheduleDao.is_host_available(hostname, _start, _end):
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Host is not available for the specified date range",
+            }
+            return make_response(jsonify(response), 400)
 
-    try:
         _schedule_obj = ScheduleDao.create_schedule(start=_start, end=_end, assignment=_assignment, host=_host)
     except SQLError as ex:
+        db.session.rollback()
         response = {
             "status_code": 400,
             "error": "Bad Request",
             "message": str(ex),
         }
         return make_response(jsonify(response), 400)
+    except IntegrityError as ex:
+        db.session.rollback()
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": str(ex),
+        }
+        return make_response(jsonify(response), 400)
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
     if _assignment.notification.pre:
         try:
@@ -666,69 +710,105 @@ def create_schedules_batch() -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    _assignment = None
-    created_new_assignment = False
-    assignment_id = None
-
-    if should_create_assignment:
-        ccuser = data.get("ccuser")
-        if ccuser and isinstance(ccuser, str):
-            ccuser = re.split(r"[, ]+", ccuser)
-
-        kwargs = {
-            "description": description,
-            "owner": owner,
-            "ticket": ticket,
-            "qinq": data.get("qinq", 0),
-            "wipe": str(data.get("wipe", True)).lower() in ["true", "y", 1, "yes"],
-            "ccuser": ccuser,
-            "cloud": cloud_name,
-        }
-        if vlan_id:
-            _vlan = VlanDao.get_vlan(int(vlan_id))
-            kwargs["vlan_id"] = int(vlan_id)
-
-        try:
-            _assignment = AssignmentDao.create_assignment(**kwargs)
-            assignment_id = _assignment.id
-            created_new_assignment = True
-        except SQLError as ex:
+    try:
+        _cloud_locked = CloudDao.get_cloud_for_update(cloud_name)
+        if not _cloud_locked:
+            db.session.rollback()
             response = {
                 "status_code": 400,
                 "error": "Bad Request",
-                "message": f"Failed to create assignment: {ex}",
+                "message": f"Cloud not found: {cloud_name}",
             }
             return make_response(jsonify(response), 400)
-    else:
-        _assignment = existing_assignment
+
+        existing_assignment = AssignmentDao.get_active_cloud_assignment(_cloud_locked)
+        if should_create_assignment:
+            if existing_assignment:
+                db.session.rollback()
+                response = {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": f"There is already an active assignment for {cloud_name} (ID: {existing_assignment.id}, owner: {existing_assignment.owner}). Terminate it first or use existing assignment by omitting assignment parameters.",
+                }
+                return make_response(jsonify(response), 400)
+        elif not existing_assignment:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": f"No active assignment for cloud: {cloud_name}",
+            }
+            return make_response(jsonify(response), 400)
+
+        _host_map = HostDao.get_hosts_for_update(hostnames)
+        unavailable_hosts = []
+        for hostname in hostnames:
+            _host = _host_map.get(hostname)
+            if not _host:
+                unavailable_hosts.append(f"{hostname}: Host not found")
+                continue
+            if not ScheduleDao.is_host_available(hostname, _start, _end):
+                unavailable_hosts.append(f"{hostname}: Not available for specified date range")
+
+        if unavailable_hosts:
+            db.session.rollback()
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Some hosts are unavailable",
+                "unavailable_hosts": unavailable_hosts,
+            }
+            return make_response(jsonify(response), 400)
+
+        _assignment = None
+        assignment_id = None
+
+        if should_create_assignment:
+            ccuser = data.get("ccuser")
+            if ccuser and isinstance(ccuser, str):
+                ccuser = re.split(r"[, ]+", ccuser)
+
+            kwargs = {
+                "description": description,
+                "owner": owner,
+                "ticket": ticket,
+                "qinq": data.get("qinq", 0),
+                "wipe": str(data.get("wipe", True)).lower() in ["true", "y", 1, "yes"],
+                "ccuser": ccuser,
+                "cloud": cloud_name,
+            }
+            if vlan_id:
+                _vlan = VlanDao.get_vlan(int(vlan_id))
+                kwargs["vlan_id"] = int(vlan_id)
+
+            _assignment = AssignmentDao.create_assignment(commit=False, **kwargs)
+        else:
+            _assignment = existing_assignment
+
+        schedule_inputs = [(_start, _end, _assignment, _host_map[hostname]) for hostname in hostnames]
+        ScheduleDao.create_schedules(schedule_inputs, commit=False)
+        db.session.commit()
         assignment_id = _assignment.id
-
-    schedules_created = []
-    failed_schedules = []
-
-    for hostname in hostnames:
-        _host = HostDao.get_host(hostname)
-        try:
-            ScheduleDao.create_schedule(start=_start, end=_end, assignment=_assignment, host=_host)
-            schedules_created.append(hostname)
-        except SQLError as ex:
-            failed_schedules.append(f"{hostname}: {ex}")
-
-    if failed_schedules:
-        if created_new_assignment:
-            try:
-                _assignment.active = False
-                BaseDao.safe_commit()
-            except Exception:
-                pass
-
+        schedules_created = hostnames
+    except SQLError as ex:
+        db.session.rollback()
         response = {
             "status_code": 400,
             "error": "Bad Request",
-            "message": "Some schedules failed to create",
-            "failed_schedules": failed_schedules,
+            "message": f"Failed to create schedules: {ex}",
         }
         return make_response(jsonify(response), 400)
+    except IntegrityError as ex:
+        db.session.rollback()
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Failed to create schedules: {ex}",
+        }
+        return make_response(jsonify(response), 400)
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
     if _assignment.notification.pre:
         try:

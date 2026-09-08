@@ -27,6 +27,25 @@ class ScheduleDao(BaseDao):
         return _schedule_obj
 
     @classmethod
+    def create_schedules(cls, schedules: list, commit: bool = True) -> List[Schedule]:
+        """
+        Adds multiple schedules at once and commits them in a single transaction.
+
+        :param schedules: list of (start, end, assignment, host) tuples
+        :param commit: commit the transaction when True (default)
+        :return: list of created Schedule objects
+        """
+        _schedule_objs = [
+            Schedule(start=start, end=end, assignment=assignment, host=host)
+            for start, end, assignment, host in schedules
+        ]
+        for _schedule_obj in _schedule_objs:
+            db.session.add(_schedule_obj)
+        if commit:
+            cls.safe_commit()
+        return _schedule_objs
+
+    @classmethod
     def update_schedule(cls, sched_id: int, **kwargs) -> Schedule:
         """
         Updates a host in the database.

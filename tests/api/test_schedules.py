@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from types import SimpleNamespace
 from unittest.mock import patch, MagicMock, AsyncMock, mock_open
 from urllib.parse import urlencode
 
@@ -23,6 +24,7 @@ from tests.config import (
 )
 from tests.helpers import unwrap_json
 from quads.server.blueprints.schedules import _trigger_jira_notification
+from quads.server.dao.baseDao import SQLError
 
 prefill_settings = ["clouds, vlans, hosts, assignments"]
 prefill_schedule = ["clouds, vlans, hosts, assignments, schedules"]
@@ -1322,3 +1324,226 @@ class TestScheduleWriteRoutesInvalidInput:
         )
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
+
+
+class TestScheduleCreationRace:
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_batch_rechecks_availability_under_lock(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: A host becomes unavailable between the initial check and the locked re-check
+        | THEN: Batch creation fails atomically and no schedules are created
+        """
+        auth_header = auth.get_auth_header()
+        before = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        batch_request = {
+            "cloud": "cloud02",
+            "hostnames": ["host4.example.com", "host5.example.com"],
+            "start": "2040-05-08 10:00",
+            "end": "2040-05-09 22:00",
+        }
+        with patch(
+            "quads.server.dao.schedule.ScheduleDao.is_host_available",
+            side_effect=[True, True, False, False],
+        ):
+            response = unwrap_json(
+                test_client.post(
+                    "/api/v3/schedules/batch",
+                    json=batch_request,
+                    headers=auth_header,
+                )
+            )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert any("host4.example.com: Not available" in entry for entry in response.json["unavailable_hosts"])
+        after = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        assert len(after) == len(before)
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_single_rechecks_availability_under_lock(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: A host becomes unavailable between the initial check and the locked re-check
+        | THEN: Schedule creation fails and no schedule is created
+        """
+        auth_header = auth.get_auth_header()
+        before = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        schedule_request = {
+            "cloud": "cloud02",
+            "hostname": "host4.example.com",
+            "start": "2040-05-08 10:00",
+            "end": "2040-05-09 22:00",
+        }
+        with patch(
+            "quads.server.dao.schedule.ScheduleDao.is_host_available",
+            side_effect=[False],
+        ):
+            response = unwrap_json(
+                test_client.post(
+                    "/api/v3/schedules",
+                    json=schedule_request,
+                    headers=auth_header,
+                )
+            )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Host is not available for the specified date range"
+        after = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        assert len(after) == len(before)
+
+    @pytest.mark.parametrize("prefill", ["clouds, vlans, hosts"], indirect=True)
+    def test_batch_atomic_on_creation_failure(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans and hosts (no assignments)
+        | WHEN: Schedule creation fails after the assignment was created
+        | THEN: The whole batch is rolled back and no schedules or assignment remain
+        """
+        auth_header = auth.get_auth_header()
+        batch_request = {
+            "cloud": "cloud04",
+            "hostnames": ["host4.example.com"],
+            "start": "2027-05-08 10:00",
+            "end": "2027-05-09 22:00",
+            "description": "race test",
+            "owner": "tester",
+            "ticket": "673999",
+        }
+        with patch(
+            "quads.server.dao.schedule.ScheduleDao.create_schedules",
+            side_effect=SQLError("simulated failure"),
+        ):
+            response = unwrap_json(
+                test_client.post(
+                    "/api/v3/schedules/batch",
+                    json=batch_request,
+                    headers=auth_header,
+                )
+            )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assignments = unwrap_json(test_client.get("/api/v3/assignments", headers=auth_header)).json
+        assert all(assignment["ticket"] != "673999" for assignment in assignments)
+        schedules = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        assert all(schedule["assignment"]["ticket"] != "673999" for schedule in schedules)
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_batch_existing_assignment_terminated_before_lock(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: The active assignment disappears after the initial check but before the lock
+        | THEN: Batch creation is rejected inside the transaction
+        """
+        auth_header = auth.get_auth_header()
+        batch_request = {
+            "cloud": "cloud02",
+            "hostnames": ["host4.example.com"],
+            "start": "2040-05-08 10:00",
+            "end": "2040-05-09 22:00",
+        }
+        with patch("quads.server.dao.schedule.ScheduleDao.is_host_available", return_value=True):
+            with patch(
+                "quads.server.dao.assignment.AssignmentDao.get_active_cloud_assignment",
+                side_effect=[SimpleNamespace(), None],
+            ):
+                response = unwrap_json(
+                    test_client.post(
+                        "/api/v3/schedules/batch",
+                        json=batch_request,
+                        headers=auth_header,
+                    )
+                )
+        assert response.status_code == 400
+        assert response.json["message"] == "No active assignment for cloud: cloud02"
+
+    @pytest.mark.parametrize("prefill", ["clouds, vlans, hosts"], indirect=True)
+    def test_batch_new_assignment_created_concurrently(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans and hosts
+        | WHEN: Another actor creates the active assignment before the lock is taken
+        | THEN: Batch creation is rejected inside the transaction
+        """
+        auth_header = auth.get_auth_header()
+        batch_request = {
+            "cloud": "cloud04",
+            "hostnames": ["host4.example.com"],
+            "start": "2027-05-08 10:00",
+            "end": "2027-05-09 22:00",
+            "description": "race test",
+            "owner": "tester",
+            "ticket": "673998",
+        }
+        with patch("quads.server.dao.schedule.ScheduleDao.is_host_available", return_value=True):
+            with patch(
+                "quads.server.dao.assignment.AssignmentDao.get_active_cloud_assignment",
+                side_effect=[None, SimpleNamespace(id=99, owner="rival")],
+            ):
+                response = unwrap_json(
+                    test_client.post(
+                        "/api/v3/schedules/batch",
+                        json=batch_request,
+                        headers=auth_header,
+                    )
+                )
+        assert response.status_code == 400
+        assert "already an active assignment" in response.json["message"]
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_single_assignment_terminated_before_lock(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: The active assignment disappears after the initial check but before the lock
+        | THEN: Schedule creation is rejected inside the transaction
+        """
+        auth_header = auth.get_auth_header()
+        schedule_request = {
+            "cloud": "cloud02",
+            "hostname": "host4.example.com",
+            "start": "2040-05-08 10:00",
+            "end": "2040-05-09 22:00",
+        }
+        with patch("quads.server.dao.schedule.ScheduleDao.is_host_available", return_value=True):
+            with patch(
+                "quads.server.dao.assignment.AssignmentDao.get_active_cloud_assignment",
+                side_effect=[None],
+            ):
+                response = unwrap_json(
+                    test_client.post(
+                        "/api/v3/schedules",
+                        json=schedule_request,
+                        headers=auth_header,
+                    )
+                )
+        assert response.status_code == 400
+        assert response.json["message"] == "No active assignment for cloud: cloud02"
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_single_creation_failure_rolls_back(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: Schedule creation raises an error inside the locked transaction
+        | THEN: A 400 is returned and nothing is persisted
+        """
+        auth_header = auth.get_auth_header()
+        before = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        schedule_request = {
+            "cloud": "cloud02",
+            "hostname": "host4.example.com",
+            "start": "2040-05-08 10:00",
+            "end": "2040-05-09 22:00",
+        }
+        with patch("quads.server.dao.schedule.ScheduleDao.is_host_available", return_value=True):
+            with patch(
+                "quads.server.dao.schedule.ScheduleDao.create_schedule",
+                side_effect=SQLError("simulated failure"),
+            ):
+                response = unwrap_json(
+                    test_client.post(
+                        "/api/v3/schedules",
+                        json=schedule_request,
+                        headers=auth_header,
+                    )
+                )
+        assert response.status_code == 400
+        assert response.json["message"] == "simulated failure"
+        after = unwrap_json(test_client.get("/api/v3/schedules", headers=auth_header)).json
+        assert len(after) == len(before)
