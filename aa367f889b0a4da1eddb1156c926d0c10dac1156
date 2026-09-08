@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08ec2b79_2b010c7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T19:42:53Z",
+      "side": 1,
+      "message": "@kambiz@redhat.com nice catching this and filing a fix.  Because we have to limp by with the QUADS badfish library (separate / duplicated maintenance with upstream Badfish) let\u0027s also check the badfish development branch too and craft a PR for this there too.\n\nBecause upstream Badfish (https://github.com/quadsproject/badfish) is the upstream we can even create an issue there and link this to your gerrit patchset commit message.",
+      "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
