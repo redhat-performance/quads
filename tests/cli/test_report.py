@@ -123,6 +123,53 @@ class TestReportSelfScheduled(TestBase):
         assert "testuser" in output
         self.cli_args["months"] = None
 
+    def test_report_self_scheduled_includes_late_day_boundary(self, request, monkeypatch):
+        """Regression: a self-schedule created late in the end day (after 22:01)
+        must appear in a date-filtered report. Previously the report capped the
+        query end at 22:01, silently excluding schedules created later that day."""
+        import contextlib
+        import io
+        from types import SimpleNamespace
+
+        import quads.tools.reports as reports_module
+
+        today = datetime.now().replace(hour=23, minute=30, second=0, microsecond=0)
+        tomorrow = today + timedelta(weeks=2)
+        cloud = CloudDao.get_cloud(CLOUD)
+        host = HostDao.get_host(HOST2)
+        vlan = VlanDao.create_vlan("192.168.3.1", 124, "192.168.3.1/22", "255.255.255.255", 1)
+        assignment = AssignmentDao.create_assignment(
+            "[SSM] test",
+            "testuser",
+            "SSM-1234",
+            0,
+            False,
+            [""],
+            cloud.name,
+            vlan.vlan_id,
+            is_self_schedule=True,
+        )
+        schedule = ScheduleDao.create_schedule(today, tomorrow, assignment, host)
+        assert schedule
+
+        def cleanup():
+            ScheduleDao.remove_schedule(schedule.id)
+            AssignmentDao.remove_assignment(assignment.id)
+
+        request.addfinalizer(cleanup)
+
+        def fake_get_schedules(payload):
+            return ScheduleDao.filter_schedule_dict(payload)
+
+        monkeypatch.setattr(reports_module, "quads", SimpleNamespace(get_schedules=fake_get_schedules))
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            reports_module.report_self_scheduled(today - timedelta(days=30), today)
+        output = buf.getvalue()
+        assert "testuser" in output
+        assert "SSM-1234" in output
+
     def test_report_self_scheduled_empty(self, capsys):
         self.quads_cli_call("report_self_scheduled")
         output = capsys.readouterr().out

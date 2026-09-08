@@ -249,8 +249,8 @@ def report_detailed(_start, _end, export_format=None):
 
 
 def report_self_scheduled(_start, _end, export_format=None):
-    start = _start.replace(hour=21, minute=59, second=0)
-    end = _end.replace(hour=22, minute=1, second=0)
+    start = _start.replace(hour=0, minute=0, second=0)
+    end = _end.replace(hour=23, minute=59, second=59)
     _fmt = "%Y-%m-%dT%H:%M"
     payload = {
         "start__lte": end.strftime(_fmt),
