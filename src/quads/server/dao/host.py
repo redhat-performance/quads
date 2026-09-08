@@ -112,6 +112,13 @@ class HostDao(BaseDao):
         return hosts
 
     @staticmethod
+    def get_hosts_for_update(hostnames: List[str]) -> dict:
+        hosts = (
+            db.session.query(Host).filter(Host.name.in_(hostnames)).order_by(Host.name.asc()).with_for_update().all()
+        )
+        return {host.name: host for host in hosts}
+
+    @staticmethod
     def get_host_models():
         host_models = db.session.query(Host.model, func.count(Host.model)).group_by(Host.model).all()
         return host_models

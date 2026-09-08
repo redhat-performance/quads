@@ -25,6 +25,7 @@ class AssignmentDao(BaseDao):
         ostype: str = None,
         boot_order: str = None,
         is_self_schedule: bool = False,
+        commit: bool = True,
     ) -> Assignment:
         _cloud = CloudDao.get_cloud(cloud)
         notification = Notification()
@@ -54,9 +55,10 @@ class AssignmentDao(BaseDao):
         except Exception as ex:  # pragma: no cover
             print(ex)
         db.session.add(_assignment_obj)
-        result = cls.safe_commit()
-        if not result:
-            raise SQLError("Failed to commit assignment to database")
+        if commit:
+            result = cls.safe_commit()
+            if not result:
+                raise SQLError("Failed to commit assignment to database")
 
         return _assignment_obj
 

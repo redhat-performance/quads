@@ -65,6 +65,11 @@ class CloudDao(BaseDao):
         return cloud
 
     @staticmethod
+    def get_cloud_for_update(name) -> Optional[Cloud]:
+        cloud = db.session.query(Cloud).filter(Cloud.name == name).with_for_update().first()
+        return cloud
+
+    @staticmethod
     def get_clouds() -> List[Cloud]:
         clouds = db.session.query(Cloud).order_by(Cloud.name.asc()).all()
         return clouds
