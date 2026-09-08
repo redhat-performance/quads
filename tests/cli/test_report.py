@@ -58,7 +58,7 @@ def ssm_finalizer():
 def ssm_fixture(request):
     request.addfinalizer(ssm_finalizer)
 
-    today = datetime.now()
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     tomorrow = today + timedelta(weeks=2)
 
     cloud = CloudDao.get_cloud(CLOUD)
