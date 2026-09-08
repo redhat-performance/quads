@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76e13785_a2dbd380",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T23:53:05Z",
+      "side": 1,
+      "message": "Metadata nit: the `fixes:` link (line 9) points to issue #697, which is CLOSED and unrelated (\"Make all Reporting Output Python3-Rich Formatted\"). I could not find any tracked GitHub issue for the self-scheduled report cutoff/regression. Since this patchset now only fixes test independence (no product change), a `fixes:` link is misleading - consider dropping it or linking a real issue if one is filed.",
+      "revId": "534bbae0a4e8edb8c0ddfb30bb07636a34cb5262",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c9b16e0_d0784066",
+        "filename": "tests/cli/test_report.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T23:53:05Z",
+      "side": 1,
+      "message": "Re-reviewed PS2 (source fully reverted back to the 21:59/22:01 window, test-only change now). Verified the fix is sound: with the schedule start normalized to start-of-day, `schedule.start \u003c\u003d window.end` (00:00 \u003c\u003d 22:01) and `schedule.end \u003e\u003d window.start` (2 weeks ahead \u003e\u003d start-day 21:59) hold for the days/weeks/months/`--weeks 1` variants at any wall-clock time, removing the after-22:00 UTC time-of-day dependency that broke CI. The PS1 boundary test was removed together with its (reverted) source fix, which is consistent. Confirming the 22:01 cutoff is the intended 22:00 UTC teardown policy.",
+      "revId": "534bbae0a4e8edb8c0ddfb30bb07636a34cb5262",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
