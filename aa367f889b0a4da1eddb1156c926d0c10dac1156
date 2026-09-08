@@ -16,6 +16,23 @@
       "message": "@kambiz@redhat.com nice catching this and filing a fix.  Because we have to limp by with the QUADS badfish library (separate / duplicated maintenance with upstream Badfish) let\u0027s also check the badfish development branch too and craft a PR for this there too.\n\nBecause upstream Badfish (https://github.com/quadsproject/badfish) is the upstream we can even create an issue there and link this to your gerrit patchset commit message.",
       "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6c1fe78_90e8d6d5",
+        "filename": "src/quads/tools/external/badfish.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-08T19:43:53Z",
+      "side": 1,
+      "message": "os_deployment_resource stores a full host+path URL here, but find_virtual_media_resource stores just the bare path (line 1160). Both work today because each call site pairs the value with host_uri, but the two fields mean different things to whoever wires the next action, so it is easy to double-prefix or omit the host. Storing both the same way (both relative, or both full) would keep them interchangeable.",
+      "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
