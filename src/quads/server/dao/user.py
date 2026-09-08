@@ -1,5 +1,10 @@
 import uuid
+from datetime import datetime
 
+from sqlalchemy import DateTime
+from sqlalchemy.orm import ColumnProperty
+
+from quads.helpers.timeutil import parse_datetime
 from quads.server.dao.baseDao import BaseDao, EntryNotFound
 from quads.server.models import Role, User, db
 
@@ -40,6 +45,14 @@ class UserDao(BaseDao):
             if key == "password":
                 user.password = value
             elif hasattr(user, key):
+                prop = getattr(getattr(type(user), key, None), "property", None)
+                if (
+                    value is not None
+                    and isinstance(prop, ColumnProperty)
+                    and type(prop.columns[0].type) is DateTime
+                    and not isinstance(value, datetime)
+                ):
+                    value = parse_datetime(value)
                 setattr(user, key, value)
 
         cls.safe_commit()
