@@ -314,6 +314,98 @@ class TestCreateSchedule:
             )
             assert response.status_code == 201
 
+    @pytest.mark.parametrize("prefill", prefill_self_schedule, indirect=True)
+    @patch("quads.server.dao.schedule.datetime")
+    @patch("quads.server.blueprints.schedules.datetime")
+    def test_valid_self_string_deadline_hour(
+        self, mock_datetime_schedules, mock_datetime_dao, test_client, auth, prefill, monkeypatch
+    ):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and self_assignments
+        | WHEN: User self-schedules on the deadline day with a string ssm_deadline_hour
+        | THEN: The schedule is created instead of a TypeError from replace(hour=<str>)
+        """
+        monkeypatch.setattr(Config, "ssm_deadline_hour", "21")
+        monkeypatch.setattr(Config, "ssm_host_limit", 1000)
+        monkeypatch.setattr("quads.server.dao.schedule.ScheduleDao.is_host_available", lambda *a, **k: True)
+        auth_header = auth.get_auth_header()
+        req = SELF_SCHEDULE_1_REQUEST.copy()
+        req["hostname"] = "host5.example.com"
+
+        now = datetime(2080, 5, 12, 18, 40, 38)  # Sunday: deadline day, days_ahead == 0
+        mock_datetime_schedules.now.return_value = now
+        mock_datetime_dao.now.return_value = now
+
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=req,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+    @pytest.mark.parametrize("prefill", prefill_self_schedule, indirect=True)
+    @patch("quads.server.dao.schedule.datetime")
+    @patch("quads.server.blueprints.schedules.datetime")
+    def test_valid_self_end_after_start(
+        self, mock_datetime_schedules, mock_datetime_dao, test_client, auth, prefill, monkeypatch
+    ):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and self_assignments
+        | WHEN: User self-schedules at 22:00 on the deadline day with a 21:00 deadline
+        | THEN: The end date is after start instead of being rejected as invalid range
+        """
+        monkeypatch.setattr(Config, "ssm_host_limit", 1000)
+        monkeypatch.setattr("quads.server.dao.schedule.ScheduleDao.is_host_available", lambda *a, **k: True)
+        auth_header = auth.get_auth_header()
+        req = SELF_SCHEDULE_1_REQUEST.copy()
+        req["hostname"] = "host1.example.com"
+
+        now = datetime(2080, 5, 12, 22, 0, 0)  # Sunday 22:00, deadline hour 21:00
+        mock_datetime_schedules.now.return_value = now
+        mock_datetime_dao.now.return_value = now
+
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=req,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+    @pytest.mark.parametrize("prefill", prefill_self_schedule, indirect=True)
+    @patch("quads.server.dao.schedule.datetime")
+    @patch("quads.server.blueprints.schedules.datetime")
+    def test_valid_self_string_default_lifetime(
+        self, mock_datetime_schedules, mock_datetime_dao, test_client, auth, prefill, monkeypatch
+    ):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and self_assignments
+        | WHEN: ssm_default_lifetime is a string from config
+        | THEN: The schedule is created instead of a TypeError from int/str comparison
+        """
+        monkeypatch.setattr(Config, "ssm_default_lifetime", "1")
+        monkeypatch.setattr(Config, "ssm_host_limit", 1000)
+        monkeypatch.setattr("quads.server.dao.schedule.ScheduleDao.is_host_available", lambda *a, **k: True)
+        auth_header = auth.get_auth_header()
+        req = SELF_SCHEDULE_1_REQUEST.copy()
+        req["hostname"] = "host2.example.com"
+
+        now = datetime(2080, 5, 12, 18, 40, 38)  # Sunday: deadline day, days_ahead == 0
+        mock_datetime_schedules.now.return_value = now
+        mock_datetime_dao.now.return_value = now
+
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=req,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
     @pytest.mark.parametrize("prefill", prefill_self_non_schedule, indirect=True)
     def test_invalid_self_schedule_non(self, test_client, auth, prefill):
         """
