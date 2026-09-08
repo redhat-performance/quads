@@ -13,6 +13,7 @@ from jinja2 import Template
 from requests import Response
 
 from quads.config import Config
+from quads.helpers.timeutil import parse_datetime
 from quads.helpers.utils import first_day_month
 from quads.server.models import Schedule, Host
 
@@ -111,8 +112,8 @@ class HostGenerate:
                     if schedule.get("assignment_id") not in self.assignment_colors:
                         self.assignment_colors[schedule.get("assignment_id")] = len(self.assignment_colors) + 1
                     chosen_color = self.assignment_colors[schedule.get("assignment_id")]
-                    schedule_start_date = datetime.strptime(schedule.get("start").split(".")[0], "%Y-%m-%dT%H:%M:%S")
-                    schedule_end_date = datetime.strptime(schedule.get("end").split(".")[0], "%Y-%m-%dT%H:%M:%S")
+                    schedule_start_date = parse_datetime(schedule.get("start"))
+                    schedule_end_date = parse_datetime(schedule.get("end"))
                     if schedule_start_date <= cell_time <= schedule_end_date:
                         _day["display_description"] = schedule.get("description")
                         _day["display_owner"] = schedule.get("owner")

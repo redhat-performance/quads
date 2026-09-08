@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 import pytest
 
 from quads.config import Config
+from quads.helpers.timeutil import parse_http_date
 from tests.config import (
     SCHEDULE_1_REQUEST,
     SCHEDULE_1_RESPONSE,
@@ -598,6 +599,15 @@ class TestGetSchedules:
             )
         )
         assert response.status_code == 200
+        assert isinstance(response.json, dict)
+        schedules = [s for host_schedules in response.json.values() for s in host_schedules]
+        assert schedules
+        for schedule in schedules:
+            # Timestamps must be RFC 1123 GMT per the API contract (issue #709).
+            parse_http_date(schedule["start"])
+            parse_http_date(schedule["end"])
+            assert schedule["start"].endswith("GMT")
+            assert schedule["end"].endswith("GMT")
 
 
 class TestUpdateSchedule:
