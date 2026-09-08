@@ -145,6 +145,9 @@ def logout() -> Response:
         auth_token = ""
     if auth_token:
         resp = User.decode_auth_token(auth_token)
+        if not email(resp):
+            response = {"status": "fail", "message": resp}
+            return make_response(jsonify(response), 401)
         user = user_datastore.find_user(email=resp)
         if user:
             token_blacklist = TokenBlackList(token=auth_token)
