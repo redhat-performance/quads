@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5949af0a_86d4c9c4",
+        "filename": "src/quads/server/dao/user.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:49:33Z",
+      "side": 1,
+      "message": "Robustness (P3): getattr(type(user), key).property raises AttributeError for any key that passes hasattr(user, key) but is not an SQLAlchemy-instrumented attribute. Probed: is_active/is_authenticated/is_anonymous (properties) and get_id/verify_password (bound functions) -\u003e AttributeError -\u003e unhandled 500; PATCH /users (users.py:182) forwards arbitrary JSON keys (admin-only endpoint; in-repo callers send only real columns today, so no current trigger). For read-only properties setattr already raised pre-patch (same 500 class), but for plain functions/attrs (e.g. get_id) setattr previously succeeded as a harmless shadow and now 500s. Suggest guarding the access before .property:\n    attr \u003d getattr(type(user), key, None)\n    prop \u003d getattr(attr, \"property\", None)\n    if value is not None and isinstance(prop, ColumnProperty) and type(prop.columns[0].type) is DateTime and not isinstance(value, datetime):\n        value \u003d parse_datetime(value)\nThis also makes the intent explicit (the roles relationship is only safe today because getattr(prop, \"columns\", None) happens to be None).",
+      "revId": "7d790f6cbb6b717e28d3caeb02b31e5ae1a5be40",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3daf89d6_5f0948e0",
+        "filename": "src/quads/server/dao/user.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:49:33Z",
+      "side": 1,
+      "message": "Behavior note (non-blocking): parse_datetime raises ValueError on unparseable strings and on datetime.date objects, and both paths now surface as 500s, where pre-fix behavior differed. Garbage strings were a silent no-op before (the SQLAlchemy DateTime bind error was caught by safe_commit and rolled back, returning 200 with last_login null, i.e. the #681 symptom); datetime.date objects were accepted by SQLAlchemy DateTime directly. No current caller sends either (auth_helpers.py:48 sends datetime.now().isoformat(); JSON cannot produce date objects). If you want the API to answer 400 instead of 500, wrap the parse in try/except ValueError -\u003e 400 (PATCH currently catches only EntryNotFound).",
+      "revId": "7d790f6cbb6b717e28d3caeb02b31e5ae1a5be40",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
