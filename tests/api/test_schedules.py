@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 import pytest
 
 from quads.config import Config
+from quads.helpers.timeutil import ensure_utc, parse_datetime, parse_http_date
 from tests.config import (
     SCHEDULE_1_REQUEST,
     SCHEDULE_1_RESPONSE,
@@ -17,6 +18,8 @@ from tests.config import (
     SELF_SCHEDULE_2_RESPONSE,
     SELF_SCHEDULE_3_REQUEST,
     SELF_SCHEDULE_NON_REQUEST,
+    end_str,
+    start_str,
 )
 from tests.helpers import unwrap_json
 from quads.server.blueprints.schedules import _trigger_jira_notification
@@ -598,6 +601,21 @@ class TestGetSchedules:
             )
         )
         assert response.status_code == 200
+        assert isinstance(response.json, dict)
+        schedules = [s for host_schedules in response.json.values() for s in host_schedules]
+        assert schedules
+        for schedule in schedules:
+            # Timestamps must be RFC 1123 GMT per the API contract (issue #709),
+            # and must represent the exact UTC instant of the stored value.
+            parse_http_date(schedule["start"])
+            parse_http_date(schedule["end"])
+            assert schedule["start"].endswith("GMT")
+            assert schedule["end"].endswith("GMT")
+        cloud02_schedule = next(s for s in schedules if s["cloud"] == "cloud02")
+        expected_start = ensure_utc(parse_datetime(f"{start_str} 22:00"))
+        expected_end = ensure_utc(parse_datetime(f"{end_str} 22:00"))
+        assert parse_http_date(cloud02_schedule["start"]) == expected_start
+        assert parse_http_date(cloud02_schedule["end"]) == expected_end
 
 
 class TestUpdateSchedule:
