@@ -318,7 +318,7 @@ def create_schedule() -> Response:
             return make_response(jsonify(response), 403)
 
         existing_schedules = ScheduleDao.get_current_schedule(cloud=_cloud_locked)
-        if _assignment.is_self_schedule and len(existing_schedules) >= Config.get("ssm_host_limit", 10):
+        if _assignment.is_self_schedule and len(existing_schedules) >= int(Config.get("ssm_host_limit", 10)):
             db.session.rollback()
             response = {
                 "status_code": 400,
@@ -351,20 +351,30 @@ def create_schedule() -> Response:
             start = datetime.now()
 
             ssm_deadline_day = Config.get("ssm_deadline_day", "sunday").lower()
-            ssm_deadline_hour = Config.get("ssm_deadline_hour", "21")
-            ssm_default_lifetime = Config.get("ssm_default_lifetime", 1)
+            ssm_deadline_hour = int(Config.get("ssm_deadline_hour", "21"))
+            ssm_default_lifetime = float(Config.get("ssm_default_lifetime", "1"))
 
             day_mapping = {day.lower(): i for i, day in enumerate(day_name)}
             target_day = day_mapping.get(ssm_deadline_day)
             current_day = start.weekday()
 
-            days_ahead = target_day - current_day
+            days_ahead = (target_day - current_day) % 7
+            next_deadline = start.replace(hour=ssm_deadline_hour, minute=0, second=0, microsecond=0) + timedelta(
+                days=days_ahead
+            )
             if days_ahead < ssm_default_lifetime:
-                end = start.replace(hour=ssm_deadline_hour, minute=0, second=0, microsecond=0) + timedelta(
-                    days=days_ahead
-                )
+                end = next_deadline
             else:
-                end = start + timedelta(days=ssm_default_lifetime)
+                end = min(start + timedelta(days=ssm_default_lifetime), next_deadline)
+
+            if end <= start:
+                db.session.rollback()
+                response = {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": "Self-schedule deadline has already passed for today",
+                }
+                return make_response(jsonify(response), 400)
         else:
             start = data.get("start")
             end = data.get("end")
