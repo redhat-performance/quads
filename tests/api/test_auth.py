@@ -579,3 +579,27 @@ class TestLogout:
         assert response.status_code == 500
         assert response.json["status"] == "fail"
         assert response.json["message"] == "Test exception."
+
+    def test_invalid_wrong_token_does_not_lookup_user(self, test_client, monkeypatch):
+        """
+        | GIVEN: Logout endpoint receives an invalid auth token
+        | WHEN: decode_auth_token returns an error string
+        | THEN: The endpoint returns 401 without passing the error string to find_user
+        """
+        calls = []
+
+        def _fake_find_user(email=None, **kwargs):
+            calls.append(email)
+            return None
+
+        monkeypatch.setattr("quads.server.blueprints.auth.user_datastore.find_user", _fake_find_user)
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/logout",
+                json=dict(),
+                headers={"Authorization": "Bearer " + "invalid_token"},
+            )
+        )
+        assert response.status_code == 401
+        assert response.json["message"] == "Invalid token. Please log in again."
+        assert calls == []
