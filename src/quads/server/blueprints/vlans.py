@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, jsonify, make_response, request
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.vlan import VlanDao
 from quads.server.models import Vlan, db
@@ -10,6 +10,9 @@ vlan_bp = Blueprint("vlans", __name__)
 
 @vlan_bp.route("/<vlan_id>")
 def get_vlan(vlan_id: int) -> Response:
+    vlan_id, error_response = parse_int_or_response(vlan_id, "vlan")
+    if error_response:
+        return error_response
     _vlan = VlanDao.get_vlan(vlan_id)
     if not _vlan:
         status_code = 400

@@ -1,10 +1,23 @@
 import json
 from functools import wraps
 
-from flask import Response, request, g
+from flask import Response, jsonify, make_response, request, g
 
 from quads.config import Config
 from quads.server.models import Role, User, db
+
+
+def parse_int_or_response(value, resource_name):
+    """Parse a path ID, returning a 400 JSON response when it is not an integer."""
+    try:
+        return int(value), None
+    except (TypeError, ValueError):
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Invalid {resource_name} id: {value}",
+        }
+        return None, make_response(jsonify(response), 400)
 
 
 def is_valid_domain(email_address):

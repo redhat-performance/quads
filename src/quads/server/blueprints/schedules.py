@@ -9,7 +9,8 @@ from jinja2 import Template
 from flask import Blueprint, Response, current_app, g, jsonify, make_response, request
 
 from quads.config import Config
-from quads.server.blueprints import check_access
+from quads.helpers.timeutil import parse_datetime
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError
 from quads.server.dao.cloud import CloudDao
@@ -113,7 +114,10 @@ def get_schedules() -> Response:
 
 @schedule_bp.route("/<schedule_id>")
 def get_schedule(schedule_id: int) -> Response:
-    _schedule = ScheduleDao.get_schedule(int(schedule_id))
+    schedule_id, error_response = parse_int_or_response(schedule_id, "schedule")
+    if error_response:
+        return error_response
+    _schedule = ScheduleDao.get_schedule(schedule_id)
     if not _schedule:
         response = {
             "status_code": 400,
@@ -132,7 +136,19 @@ def get_current_schedule() -> Response:
     cloud_name = data.get("cloud")
     _kwargs = {}
     if date:
-        _kwargs["date"] = datetime.strptime(date, "%Y-%m-%dT%H:%M")
+        try:
+            _kwargs["date"] = datetime.strptime(date, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for date, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
     if hostname:
         host = HostDao.get_host(hostname)
         _kwargs["host"] = host
@@ -159,6 +175,34 @@ def get_hosts_range_schedule() -> Response:
     data = request.args.to_dict()
     start = data.get("start")
     end = data.get("end")
+    if start:
+        try:
+            start = parse_datetime(start)
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for start, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
+    if end:
+        try:
+            end = parse_datetime(end)
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for end, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
     _schedules = ScheduleDao.get_hosts_range_schedules(start, end)
     return jsonify({row[0]: row[1] for row in _schedules})
 
@@ -179,8 +223,20 @@ def get_utilization_stats() -> Response:
         return make_response(
             jsonify({"status_code": 400, "error": "Bad Request", "message": "start and end required"}), 400
         )
-    start_dt = datetime.strptime(start, "%Y-%m-%dT%H:%M")
-    end_dt = datetime.strptime(end, "%Y-%m-%dT%H:%M")
+    try:
+        start_dt = datetime.strptime(start, "%Y-%m-%dT%H:%M")
+        end_dt = datetime.strptime(end, "%Y-%m-%dT%H:%M")
+    except ValueError:
+        return make_response(
+            jsonify(
+                {
+                    "status_code": 400,
+                    "error": "Bad Request",
+                    "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'",
+                }
+            ),
+            400,
+        )
     stats = ScheduleDao.get_utilization_stats(start_dt, end_dt)
     return jsonify(stats)
 

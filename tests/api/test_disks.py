@@ -374,3 +374,16 @@ class TestDeleteDisks:
         assert response.status_code == 400
         assert response.json["error"] == "Bad Request"
         assert response.json["message"] == f"Disk not found: {invalid_id}"
+
+
+class TestGetDisksInvalidId:
+    def test_non_numeric_id(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User requests a disk with a non-numeric ID
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/disks/abc"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid disk id: abc"

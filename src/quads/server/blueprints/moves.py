@@ -7,7 +7,7 @@ from quads.server.blueprints import check_access
 from quads.server.dao.baseDao import EntryNotFound
 from quads.server.dao.host import HostDao
 from quads.server.dao.schedule import ScheduleDao
-from quads.server.models import Schedule
+from quads.server.models import MoveStatus, Schedule
 
 moves_bp = Blueprint("moves", __name__)
 
@@ -41,7 +41,19 @@ def get_moves() -> Response:
     _params = request.args.to_dict()
     result = []
     if _params.get("date"):
-        _date = datetime.strptime(_params.get("date"), "%Y-%m-%dT%H:%M")
+        try:
+            _date = datetime.strptime(_params.get("date"), "%Y-%m-%dT%H:%M")
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for date, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
     try:
         _hosts = HostDao.get_hosts()
         for host in _hosts:
@@ -71,6 +83,20 @@ def get_moves() -> Response:
 def get_all_move_status() -> Response:
     cloud = request.args.get("cloud")
     status = request.args.get("status")
+    if status:
+        try:
+            status = MoveStatus(status.lower()).value
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": f"Invalid status: {status}",
+                    }
+                ),
+                400,
+            )
     moves = ScheduleDao.get_active_moves(cloud=cloud, status=status)
     return jsonify([_progress_to_dict(m) for m in moves])
 

@@ -537,3 +537,39 @@ class TestExpirations:
         )
         assert response.status_code == 200
         assert response.json == []
+
+
+class TestGetAssignmentsInvalidId:
+    def test_non_numeric_assignment_id(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User requests an assignment with a non-numeric ID
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/assignments/abc/"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid assignment id: abc"
+
+    def test_non_numeric_id_filter(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User filters assignments by a non-numeric id
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/assignments?id=abc"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert "Invalid value for id" in response.json["message"]
+
+    def test_non_numeric_ssh_keys_id(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database and user logged in
+        | WHEN: User requests ssh keys for a non-numeric assignment ID
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(test_client.get("/api/v3/assignments/abc/ssh-keys", headers=auth_header))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid assignment id: abc"

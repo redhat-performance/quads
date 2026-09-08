@@ -213,3 +213,16 @@ class TestDeleteVLANs:
         )
         assert response.status_code == 200
         assert response.json["message"] == "Vlan deleted"
+
+
+class TestGetVlansInvalidId:
+    def test_non_numeric_id(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User requests a vlan with a non-numeric ID
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/vlans/abc"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid vlan id: abc"

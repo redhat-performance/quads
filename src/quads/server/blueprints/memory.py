@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, jsonify, make_response, request
 
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.baseDao import BaseDao
 from quads.server.dao.host import HostDao
 from quads.server.dao.memory import MemoryDao
@@ -17,6 +17,9 @@ def get_all_memory() -> Response:
 
 @memory_bp.route("/<memory_id>")
 def get_memory(memory_id: int) -> Response:
+    memory_id, error_response = parse_int_or_response(memory_id, "memory")
+    if error_response:
+        return error_response
     _memory = MemoryDao.get_memory(memory_id)
     if not _memory:
         response = {
