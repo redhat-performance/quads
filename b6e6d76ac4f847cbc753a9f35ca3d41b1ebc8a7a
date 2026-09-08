@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73ab711c_9851f913",
+        "filename": "src/quads/server/blueprints/auth.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:18:29Z",
+      "side": 1,
+      "message": "Type safety: validators.email() raises on a non-string subject, turning a former 401 into an unhandled 500 (P2).\n\nPyJWT \u003e\u003d2.10 rejects a non-string sub at decode (InvalidSubjectError, caught by decode_auth_token -\u003e 401), but requirements.txt allows PyJWT\u003e\u003d2.6.0 and 2.6.0-2.9.x do not validate sub: a token signed with the (static, source-public) SECRET_KEY (config.py:5, no production override) and \"sub\": 123 decodes fine there, then email(123) raises AttributeError here - unhandled -\u003e 500. Pre-patch the same input hit find_user(email\u003d123), which returns an empty result and a clean 401. Minimal fix: `if not isinstance(resp, str) or not email(resp):` - this also captures the intent of the issue\u0027s isinstance suggestion while remaining type-safe.",
+      "revId": "b6e6d76ac4f847cbc753a9f35ca3d41b1ebc8a7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98a8d8ae_73d1dc0f",
+        "filename": "src/quads/server/blueprints/auth.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:18:29Z",
+      "side": 1,
+      "message": "Guard uses validators.email as a proxy for \"token decode failed\" - this introduces a logout regression (P2).\n\ndecode_auth_token (models.py:322) returns either the token subject (a stored user email) or one of three literal error strings. The unambiguous failure signal is the decode branch itself, not whether the returned value is a validatable email:\n\n- Regression: a user whose stored email is rejected by validators.email can log in but can never log out. `flask add-user` (app.py:140) applies no email validation, and POST /api/v3/users (users.py:104) only checks is_valid_domain (which accepts e.g. a..b@example.com, rejected by validators.email; it accepts anything when `domain` is unset). For such a token: 401 here, token never blacklisted, and the same token still authorizes /api/v3/me, so the client stays logged in until expiry (~4h20m) with no way to recover. Pre-patch this case returned 200 and blacklisted the token.\n- Version drift: requirements.txt pins validators\u003e\u003d0.20.0 with no upper bound and the accepted-email set changed between versions (validators.email(\"user@localhost\") -\u003e True on 0.20.0, False on 0.35.0; \"user@example.com.\" similarly). Logout success now silently depends on the installed validators version; pre-patch it never did.\n\nSuggestion: make the failure explicit in decode_auth_token instead of validating the value - e.g. return None or raise a typed exception carrying the message, and map it to the current 401 + message in the endpoint. Minimal alternative that removes the proxy: match the three known error strings. (Note: the issue\u0027s suggested isinstance(resp, str) cannot work as written - both success and failure return values are strings.)",
+      "revId": "b6e6d76ac4f847cbc753a9f35ca3d41b1ebc8a7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e337b38_7f714f66",
+        "filename": "tests/api/test_auth.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:18:29Z",
+      "side": 1,
+      "message": "Coverage note (non-blocking): the new test covers the decode-failure strings only. Once the guard predicate is settled (see comments on auth.py:148), consider adding a case with a valid token whose subject is not accepted by validators.email so the new 401 branch is exercised beyond error strings.",
+      "revId": "b6e6d76ac4f847cbc753a9f35ca3d41b1ebc8a7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
