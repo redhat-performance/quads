@@ -9,6 +9,7 @@ from jinja2 import Template
 from flask import Blueprint, Response, current_app, g, jsonify, make_response, request
 
 from quads.config import Config
+from quads.helpers.timeutil import parse_datetime
 from quads.server.blueprints import check_access
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError
@@ -160,7 +161,13 @@ def get_hosts_range_schedule() -> Response:
     start = data.get("start")
     end = data.get("end")
     _schedules = ScheduleDao.get_hosts_range_schedules(start, end)
-    return jsonify({row[0]: row[1] for row in _schedules})
+    result = {}
+    for host, schedule_list in _schedules:
+        for schedule in schedule_list:
+            schedule["start"] = parse_datetime(schedule["start"])
+            schedule["end"] = parse_datetime(schedule["end"])
+        result[host] = schedule_list
+    return jsonify(result)
 
 
 @schedule_bp.route("/stats/build_delta")
