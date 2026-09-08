@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa1730c4_b35be08e",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:49:32Z",
+      "side": 1,
+      "message": "Minor (P3): int() silently truncates a fractional ssm_default_lifetime, which pre-fix worked. YAML \"1.5\" -\u003e float 1.5 -\u003e int(1.5) \u003d\u003d 1. Pre-fix, a float lifetime was supported end to end (days_ahead \u003c 1.5 and timedelta(days\u003d1.5) \u003d\u003e 36h); post-fix the branch selection at line 273 changes (days_ahead\u003d1: 1 \u003c 1.5 was True -\u003e deadline-window path, now 1 \u003c 1 is False -\u003e start + 1 day, so end lands after the 21:00 deadline) and the duration becomes 24h. selfservice.yml documents the value \"in days\" without excluding fractions; the shipped value (5) is an int. If fractions are unsupported, reject non-integers with a 400; otherwise keep the float. (The malformed-string case, ValueError -\u003e 500, equals the pre-fix TypeError class and is lower priority.)",
+      "revId": "c311dd628aab0e10999e7839a6ceba453a9d164c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52e4df0d_98f75f64",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T21:49:32Z",
+      "side": 1,
+      "message": "Semantics/question (P2 for weekday-deadline configs): this fallback also catches negative days_ahead, not just the issue\u0027s days_ahead\u003d\u003d0 case. When the configured ssm_deadline_day (:13 selfservice.yml, configurable) has a weekday index below today\u0027s, days_ahead \u003d target_day - current_day is negative: pre-fix those requests were rejected with 400 \"Invalid date range\"; post-fix they now pass with end \u003d start + ssm_default_lifetime, even when the NEXT deadline window falls inside the lifetime. docs/quads-self-schedule.md:94 says the end date is \"the next ssm_deadline_day/ssm_deadline_hour window if it falls within ssm_default_lifetime days\". Probe (patch applied): deadline\u003dWed 21:00, now\u003dSun 20:00, lifetime\u003d5 -\u003e days_ahead\u003d-4 -\u003e end \u003d Fri 20:00, while the next deadline is Wed 21:00 (3 days away) and should be used per the docs. Not a regression (pre-fix always rejected) and unreachable with the shipped sunday default, but the fix is incomplete for weekday deadlines. Suggest days_ahead \u003d (target_day - current_day) % 7 so the window branch picks the NEXT deadline, keeping this fallback for the same-day post-deadline case, plus a test with a weekday deadline.",
+      "revId": "c311dd628aab0e10999e7839a6ceba453a9d164c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
