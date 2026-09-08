@@ -18,6 +18,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0995703e_286bd902",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T19:51:31Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "08ec2b79_2b010c7b",
+      "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6c1fe78_90e8d6d5",
@@ -48,6 +66,42 @@
       "writtenOn": "2026-09-08T19:43:55Z",
       "side": 1,
       "message": "os_deployment_resource stores a full host+path URL here, but find_virtual_media_resource stores just the bare path (line 1160). Both work today because each call site pairs the value with host_uri, but the two fields mean different things to whoever wires the next action, so it is easy to double-prefix or omit the host. Storing both the same way (both relative, or both full) would keep them interchangeable.",
+      "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f293c005_5623293a",
+        "filename": "src/quads/tools/external/badfish.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T19:51:31Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "40ce24a1_30e2f4b2",
+      "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92ed1ec8_deee80d7",
+        "filename": "src/quads/tools/external/badfish.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T19:51:31Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d6c1fe78_90e8d6d5",
       "revId": "aa367f889b0a4da1eddb1156c926d0c10dac1156",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
