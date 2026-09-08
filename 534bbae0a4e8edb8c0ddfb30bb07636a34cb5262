@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "14726a4d_60958ac5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-08T23:54:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76e13785_a2dbd380",
+      "revId": "534bbae0a4e8edb8c0ddfb30bb07636a34cb5262",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7c9b16e0_d0784066",
         "filename": "tests/cli/test_report.py",
         "patchSetId": 2
