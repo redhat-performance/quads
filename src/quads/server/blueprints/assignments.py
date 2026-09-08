@@ -8,7 +8,7 @@ from flask import Blueprint, Response, jsonify, make_response, request, g, curre
 from sqlalchemy import inspect
 
 from quads.config import Config
-from quads.server.blueprints import check_access
+from quads.server.blueprints import check_access, parse_int_or_response
 from quads.server.dao.assignment import AssignmentDao
 from quads.server.dao.baseDao import BaseDao, EntryNotFound, InvalidArgument, SQLError
 from quads.server.dao.cloud import CloudDao
@@ -136,7 +136,10 @@ def get_assignment(assignment_id: str) -> Response:
     :param assignment_id: Get the assignment from the database
     :return: The assignment as a json object
     """
-    _assignment = AssignmentDao.get_assignment(int(assignment_id))
+    assignment_id, error_response = parse_int_or_response(assignment_id, "assignment")
+    if error_response:
+        return error_response
+    _assignment = AssignmentDao.get_assignment(assignment_id)
     if not _assignment:
         response = {
             "status_code": 400,
@@ -630,7 +633,10 @@ def delete_assignment(assignment_id) -> Response:
 @assignment_bp.route("/<assignment_id>/ssh-keys")
 @check_access(["admin", "user"])
 def get_assignment_ssh_keys(assignment_id) -> Response:
-    assignment = AssignmentDao.get_assignment(int(assignment_id))
+    assignment_id, error_response = parse_int_or_response(assignment_id, "assignment")
+    if error_response:
+        return error_response
+    assignment = AssignmentDao.get_assignment(assignment_id)
     if not assignment:
         return make_response(
             jsonify({"status_code": 404, "error": "Not Found", "message": "Assignment not found"}),

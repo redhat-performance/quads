@@ -79,3 +79,15 @@ class TestReadAvailable:
             )
             assert api_resp.status_code == 200
             assert api_resp.json == resp
+
+
+class TestAvailableInvalidInput:
+    def test_invalid_host_date(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User checks host availability with a malformed date
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/available/host1.example.com?start=bogus"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"

@@ -339,3 +339,26 @@ class TestMoveStatus:
             )
         )
         assert resp.status_code == 400
+
+
+class TestReadMovesInvalidInput:
+    def test_invalid_date(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User requests moves with a malformed date
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/moves/?date=bogus"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+
+    def test_invalid_status(self, test_client, auth):
+        """
+        | GIVEN: Client with defaults in database
+        | WHEN: User requests move progress with an invalid status
+        | THEN: API returns 400 JSON instead of a 500
+        """
+        response = unwrap_json(test_client.get("/api/v3/moves/progress/?status=bogus"))
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid status: bogus"

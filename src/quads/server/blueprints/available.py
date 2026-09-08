@@ -89,9 +89,33 @@ def is_available(hostname) -> Response:
     _params = request.args.to_dict()
     _start = _end = datetime.now()
     if _params.get("start"):
-        _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(minutes=1)
+        try:
+            _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(minutes=1)
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
     if _params.get("end"):
-        _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
+        try:
+            _end = datetime.strptime(_params.get("end"), "%Y-%m-%dT%H:%M")
+        except ValueError:
+            return make_response(
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid date format for start or end, correct format: 'YYYY-MM-DDTHH:MM'",
+                    }
+                ),
+                400,
+            )
     if _start > _end:
         _end = _start + timedelta(minutes=1)
 
