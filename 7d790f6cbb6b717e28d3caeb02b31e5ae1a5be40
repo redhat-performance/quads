@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9afb07dc_1f4614b1",
+        "filename": "src/quads/server/dao/user.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T00:07:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5949af0a_86d4c9c4",
+      "revId": "7d790f6cbb6b717e28d3caeb02b31e5ae1a5be40",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3daf89d6_5f0948e0",
         "filename": "src/quads/server/dao/user.py",
         "patchSetId": 1
