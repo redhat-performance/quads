@@ -187,5 +187,12 @@ def update_user(email: str) -> Response:
             "message": f"User not found: {email}",
         }
         return make_response(jsonify(response), 400)
+    except ValueError as error:
+        response = {
+            "status_code": 400,
+            "error": "Bad Request",
+            "message": f"Invalid value: {error}",
+        }
+        return make_response(jsonify(response), 400)
 
     return jsonify(_user_to_dict(user))
