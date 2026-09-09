@@ -16,6 +16,24 @@
       "message": "Direction is right and this is legit trust-boundary validation, so no argument with the goal. Two things before it lands.\n\nDRY: the 400 body dict is repeated by hand across ~20 sites, and this diff adds more. You already built parse_int_or_response here; instead of sprinkling try/except plus the inline dict everywhere, a single @app.errorhandler((ValueError, TypeError, InvalidArgument)) that returns the standard 400 would be smaller and complete.\n\nCoverage: it is incomplete. PATCH /schedules/\u003cid\u003e, PATCH /assignments/\u003cid\u003e, POST /assignments/terminate/\u003cid\u003e and DELETE /assignments/\u003cid\u003e still do a bare int(id) and 500 on non-numeric input, and a non-numeric body vlan in create-assignment/create-schedule also 500s. The global handler closes all of these; otherwise apply parse_int_or_response there too.",
       "revId": "45f61acb5be94855b14cf0d6ae02bb0783d49956",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87daca76_8dd96faa",
+        "filename": "src/quads/server/blueprints/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T08:44:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70b92100_a6e6aa62",
+      "revId": "45f61acb5be94855b14cf0d6ae02bb0783d49956",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
