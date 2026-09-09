@@ -16,6 +16,24 @@
       "message": "Heads up on two things.\n\nCoordination: this and 1248886 both edit schedules.py and both add from quads.helpers.timeutil import parse_datetime. A merge-tree of the two on the base hits a hard conflict at this import block (1248886 also rewrites the adjacent check_access import). The function-body hunks do not overlap, so it is just this import, but coordinate the order before both land.\n\nIssue link: the commit ends fixes: .../issues/7, but issue 7 is an unrelated RFE. This fixes #709, which you already cite in the body - point the fixes: link at #709.\n\nMinor: the new test only asserts the output ends with GMT and parses, not that it equals the expected UTC instant. A real timezone shift (the #709 defect) would still pass, so consider asserting the actual value.",
       "revId": "93b1ae464c5896d5ddbfbe7846a05ef1cc9b6bd4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba2345be_f5a0f619",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T08:31:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0cde510_fb96ee48",
+      "revId": "93b1ae464c5896d5ddbfbe7846a05ef1cc9b6bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
