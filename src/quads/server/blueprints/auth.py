@@ -6,7 +6,7 @@ from validators import email
 from quads.config import Config
 from quads.server.app import basic_auth, user_datastore
 from quads.server.blueprints import check_access, is_valid_domain
-from quads.server.models import Role, TokenBlackList, User, db
+from quads.server.models import AUTH_TOKEN_ERRORS, Role, TokenBlackList, User, db
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -145,6 +145,9 @@ def logout() -> Response:
         auth_token = ""
     if auth_token:
         resp = User.decode_auth_token(auth_token)
+        if resp in AUTH_TOKEN_ERRORS:
+            response = {"status": "fail", "message": resp}
+            return make_response(jsonify(response), 401)
         user = user_datastore.find_user(email=resp)
         if user:
             token_blacklist = TokenBlackList(token=auth_token)

@@ -268,6 +268,13 @@ class Role(Base, RoleMixin):
     description = Column(String(255))
 
 
+AUTH_TOKEN_ERRORS = (
+    "Token blacklisted. Please log in again.",
+    "Signature expired. Please log in again.",
+    "Invalid token. Please log in again.",
+)
+
+
 class User(Base, UserMixin):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -325,13 +332,13 @@ class User(Base, UserMixin):
             payload = decode(auth_token, current_app.config.get("SECRET_KEY"), algorithms="HS256")
             is_token_blacklisted = TokenBlackList.check_blacklist(auth_token)
             if is_token_blacklisted:
-                return "Token blacklisted. Please log in again."
+                return AUTH_TOKEN_ERRORS[0]
             else:
                 return payload["sub"]
         except ExpiredSignatureError:
-            return "Signature expired. Please log in again."
+            return AUTH_TOKEN_ERRORS[1]
         except InvalidTokenError:
-            return "Invalid token. Please log in again."
+            return AUTH_TOKEN_ERRORS[2]
 
 
 class TokenBlackList(Base):
