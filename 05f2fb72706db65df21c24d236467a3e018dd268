@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a73b4042_51869f2a",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T09:33:22Z",
+      "side": 1,
+      "message": "Nit (P3, optional): int(ssm_deadline_hour) silently truncates a fractional YAML hour (21.9 -\u003e 21:00). Still an improvement over the pre-fix 500, but a strict whole-hour rejection would match the fix intent.",
+      "revId": "05f2fb72706db65df21c24d236467a3e018dd268",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "140c5dc4_f5700095",
+        "filename": "tests/api/test_schedules.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T09:33:22Z",
+      "side": 1,
+      "message": "Nit (cosmetic, optional): two from email.utils import parsedate_to_datetime imports (also line 483) live inside test bodies; a module-top import would be cleaner.",
+      "revId": "05f2fb72706db65df21c24d236467a3e018dd268",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
