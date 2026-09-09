@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a1aad0b_8cfb3bf5",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "Same string-config class this change fixes remains here: with a quoted ssm_host_limit (\"10\") this raises TypeError -\u003e generic 400 \u0027Invalid request\u0027 on every self-schedule POST, before the newly coerced lines. Issue-672-style deployments stay broken. Follow-up: coerce all ssm_* values (ssm_host_limit, ssm_user_cloud_limit, ssm_enable/ssm_jira_create_ticket truthiness) with one helper.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1e048f9_641da645",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "Nit: int() silently truncates a fractional YAML hour (21.9 -\u003e 21:00) while float() preserves fractional lifetimes, and the same logical value behaves differently by quoting (\u002721.5\u0027 -\u003e generic ValueError 400). Whole-hour 0-23 validation would also cover OverflowError from .inf/oversized YAML (not handled by the ValueError/TypeError handlers -\u003e 500, pre-patch 400). P3.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f220f83_0dd2ab0d",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "Still permits an end after the 21:00 cutoff (issue 571: \u0027nothing runs beyond Sunday at 21:00\u0027). Shipped sunday/21/lifetime5: a Tuesday-after-21:00 request takes the fallback (days_ahead \u003d\u003d lifetime) and ends Sunday at request time-of-day (probe: Tue 22:30 -\u003e end Sun 22:30, host still occupied at the Sunday 22:00 admin run). Follow-up: clamp the fallback, end \u003d min(start + ssm_default_lifetime, next deadline window). Verified: Tue 22:30 -\u003e Sun 21:00; Tue 10:00 -\u003e exactly 5 days; full module 71 passed / 2 pre-existing env failures, no regression.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad5a179e_99440ca8",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "Good: surfaces the missed window instead of silently extending, which is what Gonzalo\u0027s line-369 comment asked for; pre-fix the same request already 400\u0027d, so this only makes the rejection explicit. Optional nits: ssm_default_lifetime \u003c\u003d 0 gets the same \u0027deadline passed\u0027 message (that is a config error), and at exactly 21:00:00 end \u003d\u003d start also 400s. P3.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11216d5d_38feef53",
+        "filename": "tests/api/test_schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "The four new 201-tests reuse host1/host2/host5, which the pre-existing test_valid_self and test_valid_self_limit also schedule, and the module-scoped prefill DB persists; those tests do not mock is_host_available, so any reordering breaks them (verified: weekday_wrap -\u003e test_valid_self_limit fails 400 \u003d\u003d 201). Use host3/host4, which are untouched, in the new 201-tests.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "602c8469_0312426a",
+        "filename": "tests/api/test_schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T21:54:00Z",
+      "side": 1,
+      "message": "Status-only assert: this test also passes on parent (parent 400s with \u0027Invalid date range for start or end...\u0027), so it does not pin the new branch or its message. Add assert response.json[\u0027message\u0027] \u003d\u003d \u0027Self-schedule deadline has already passed for today\u0027 so the PS5-\u003ePS6 semantic (reject with a clear error) is the thing under test.",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
