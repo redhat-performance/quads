@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "880da617_aea22a88",
+        "filename": "src/quads/server/app.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T08:43:31Z",
+      "side": 1,
+      "message": "Good, this closes the coverage gaps and the InvalidArgument handler returning the specific message is the right call.\n\nOne caution: @flask_app.errorhandler(ValueError) / (TypeError) are app-wide. A genuine server-side bug that happens to raise ValueError or TypeError (not client input, e.g. something in a plugin or config read) now comes back as a 400 \u0027Invalid request\u0027 with no stack trace. Flask only auto-logs unhandled exceptions; once a handler catches it, that log goes away, so real 500s get hidden as client errors. Consider logging the exception here (logger.exception(ex)) or narrowing the catch so genuine 500s stay visible.",
+      "revId": "bd0507c80f522ab456e162a4030a0cfcd962454e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
