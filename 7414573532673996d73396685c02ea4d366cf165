@@ -158,6 +158,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75e116d_55db17e5",
+        "filename": "tests/api/test_schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T22:05:45Z",
+      "side": 1,
+      "message": "Right, the module-scoped prefill makes the ordering fragile. Pushed ps7: the four new 201-tests now use host3/host4, which the existing tests don\u0027t touch.",
+      "parentUuid": "11216d5d_38feef53",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "602c8469_0312426a",
