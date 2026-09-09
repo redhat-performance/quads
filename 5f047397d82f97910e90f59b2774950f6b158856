@@ -54,6 +54,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f66cad98_edea117d",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T20:40:20Z",
+      "side": 1,
+      "message": "For weekday-deadline configs: when the deadline weekday is earlier than today\u0027s weekday, a raw difference goes negative (a Wednesday deadline on a Thursday gives -1). The % 7 wraps it into 0..6 so the next deadline day is chosen instead of a past date. This is the negative-days_ahead case from the earlier review.",
+      "parentUuid": "0941ced8_23a2bde1",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4a4eb56_d50acb9a",
