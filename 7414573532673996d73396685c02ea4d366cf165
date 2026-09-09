@@ -53,6 +53,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "791ffd97_ce9691af",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T22:05:42Z",
+      "side": 1,
+      "message": "Left int() as is: it fixes the actual string-default TypeError, and a fractional hour is a config typo. P3 as you noted.",
+      "parentUuid": "f1e048f9_641da645",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f220f83_0dd2ab0d",
