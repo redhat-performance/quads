@@ -122,3 +122,6 @@ tests/cli/artifacts/*
 tests/artifacts/*
 tests/tools/artifacts/*
 tests/artifacts/*
+
+# Gerrit HTTP credentials
+.gerrit_credentials
