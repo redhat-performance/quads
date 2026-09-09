@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0941ced8_23a2bde1",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2026-09-09T17:12:42Z",
+      "side": 1,
+      "message": "what is this for?",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4a4eb56_d50acb9a",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1004250
+      },
+      "writtenOn": "2026-09-09T17:12:42Z",
+      "side": 1,
+      "message": "why would end be sooner than start? if anything we should validate first and show an appropriate error",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
