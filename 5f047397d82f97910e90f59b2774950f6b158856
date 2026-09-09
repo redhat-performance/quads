@@ -69,6 +69,24 @@
       "message": "why would end be sooner than start? if anything we should validate first and show an appropriate error",
       "revId": "5f047397d82f97910e90f59b2774950f6b158856",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "874e5883_3d583e83",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T20:39:48Z",
+      "side": 1,
+      "message": "Fair point. Pushed ps6: instead of silently extending the end, this now validates and rejects with a 400 when the deadline window has already passed for today, so the case surfaces rather than being hidden. The self-schedule guard test was updated to expect the 400.",
+      "parentUuid": "b4a4eb56_d50acb9a",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
