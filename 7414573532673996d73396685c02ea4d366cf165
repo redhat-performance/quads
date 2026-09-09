@@ -191,6 +191,24 @@
       "message": "Status-only assert: this test also passes on parent (parent 400s with \u0027Invalid date range for start or end...\u0027), so it does not pin the new branch or its message. Add assert response.json[\u0027message\u0027] \u003d\u003d \u0027Self-schedule deadline has already passed for today\u0027 so the PS5-\u003ePS6 semantic (reject with a clear error) is the thing under test.",
       "revId": "7414573532673996d73396685c02ea4d366cf165",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfebf572_c852e737",
+        "filename": "tests/api/test_schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T22:05:47Z",
+      "side": 1,
+      "message": "Agreed, a status-only assert passes on parent. Pushed ps7: added assert response.json[\u0027message\u0027] \u003d\u003d \u0027Self-schedule deadline has already passed for today\u0027 so it pins the ps5-to-ps6 semantic.",
+      "parentUuid": "602c8469_0312426a",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
