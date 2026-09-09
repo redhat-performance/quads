@@ -1,6 +1,42 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "91e8ea4a_199ed20f",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T20:26:42Z",
+      "side": 1,
+      "message": "Only fires in the same-day-post-deadline case. When days_ahead is 0 (today is the deadline day) and now is past the deadline hour, the window path sets end to today\u0027s deadline hour, which is already behind start. Falling back to start + ssm_default_lifetime is the documented \u0027next window not within lifetime\u0027 case and keeps the schedule from ending before it starts. A 400 here would reject a request that worked pre-fix, so the fallback is the smaller change.",
+      "parentUuid": "b4a4eb56_d50acb9a",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dd702ee_9de201c9",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T20:26:42Z",
+      "side": 1,
+      "message": "Keeps days_ahead in 0..6 so the next deadline day is picked even when its weekday index is below today\u0027s (a Wednesday deadline when today is Thursday gives 6, not -1). Without it those requests used to 400 \u0027Invalid date range\u0027. This is the negative-days_ahead case from the earlier review.",
+      "parentUuid": "0941ced8_23a2bde1",
+      "revId": "5f047397d82f97910e90f59b2774950f6b158856",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0941ced8_23a2bde1",
