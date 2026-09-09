@@ -123,6 +123,24 @@
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cb6a8d5_5b4fb435",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T22:05:44Z",
+      "side": 1,
+      "message": "Thanks. The two edge nits (lifetime\u003c\u003d0 and exactly 21:00:00) both fall out as config-error or boundary 400s, which is fine.",
+      "parentUuid": "ad5a179e_99440ca8",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11216d5d_38feef53",
