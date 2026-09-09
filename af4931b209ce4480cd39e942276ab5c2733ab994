@@ -16,6 +16,24 @@
       "message": "Bug: the batch create returns assignment_id: null for a newly created assignment. assignment_id \u003d _assignment.id is read right after create_assignment(commit\u003dFalse, ...), but that call never flushes, so the autoincrement id is still None when the 201 body is built. The old path committed first so it was populated. Read it after db.session.commit() (or db.session.flush() before the read) and assert assignment_id is set in test_valid_create_new_assignment so it does not regress.\n\nAlso: create_schedule now does the active-assignment lookup and the is_self_schedule check twice (once pre-lock, again under the cloud row lock). The pre-lock copy is redundant. And except (SQLError, SQLAlchemyError) maps every DB fault to a 400, connection loss and IntegrityError included, so narrow it or return 500 for those. The self-schedule host-limit check (228-235) is still outside the lock and stays racy.",
       "revId": "af4931b209ce4480cd39e942276ab5c2733ab994",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e070bf1_08c11a78",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-09T09:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65724054_1c23e542",
+      "revId": "af4931b209ce4480cd39e942276ab5c2733ab994",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
