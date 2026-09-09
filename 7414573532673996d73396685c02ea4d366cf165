@@ -72,6 +72,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4dbdaa23_521bd3ff",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-09T22:05:41Z",
+      "side": 1,
+      "message": "Good catch, that is the 571 overrun. Pushed ps7: clamped the fallback, end \u003d min(start + lifetime, next_deadline), so a Tue-22:30 request now ends Sun 21:00 instead of Sun 22:30. Module passes with it.",
+      "parentUuid": "2f220f83_0dd2ab0d",
+      "revId": "7414573532673996d73396685c02ea4d366cf165",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ad5a179e_99440ca8",
         "filename": "src/quads/server/blueprints/schedules.py",
         "patchSetId": 6
