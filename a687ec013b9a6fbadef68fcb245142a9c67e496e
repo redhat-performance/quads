@@ -34,6 +34,24 @@
       "message": "Making this end \u003e now is the right half-open call, and is_host_available already matched it. Note the\nblast radius: the release plugin stamps build_start/build_end off get_current_schedule, which is now [] at\nexactly now \u003d\u003d end, so a build finishing on the boundary minute silently skips that stamp; start_move_batch\n(schedule.py:408) raises EntryNotFound at the same instant. Both are guarded, so no crash, but they are\nuncovered behavior changes. A test at the exact end boundary for the release path would pin it.",
       "revId": "a687ec013b9a6fbadef68fcb245142a9c67e496e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bea5d96f_2b160c5d",
+        "filename": "src/quads/server/dao/schedule.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T17:28:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15a05728_59fb37e1",
+      "revId": "a687ec013b9a6fbadef68fcb245142a9c67e496e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
