@@ -400,7 +400,7 @@ def create_schedule() -> Response:
             }
             return make_response(jsonify(response), 400)
 
-        if _start > _end:
+        if _start >= _end:
             db.session.rollback()
             response = {
                 "status_code": 400,
@@ -524,13 +524,16 @@ def update_schedule(schedule_id: int) -> Response:
         }
         return make_response(jsonify(response), 400)
 
-    if start and end and _start > _end:
-        response = {
-            "status_code": 400,
-            "error": "Bad Request",
-            "message": "Invalid date range for start or end, start must be before end",
-        }
-        return make_response(jsonify(response), 400)
+    if start or end:
+        _check_start = _start if start else schedule.start
+        _check_end = _end if end else schedule.end
+        if _check_start and _check_end and _check_start >= _check_end:
+            response = {
+                "status_code": 400,
+                "error": "Bad Request",
+                "message": "Invalid date range for start or end, start must be before end",
+            }
+            return make_response(jsonify(response), 400)
 
     if build_start and build_end and _build_start > _build_end:
         response = {
