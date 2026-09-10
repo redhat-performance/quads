@@ -1,6 +1,24 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "829f1d0d_165e1168",
+        "filename": "src/quads/server/dao/host.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T14:55:12Z",
+      "side": 1,
+      "message": "Resolved in PS4: added TestAvailabilitySummaryBoundary::test_valid_scheduled_at_half_open_end (scheduled\u003d1 before end, scheduled\u003d0 at exact end; fails on parent).",
+      "parentUuid": "682d1d7b_1cdc94e6",
+      "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "682d1d7b_1cdc94e6",
@@ -14,6 +32,24 @@
       "writtenOn": "2026-09-10T11:27:33Z",
       "side": 1,
       "message": "Follow-up (non-blocking): this is the only source change with no test - no test references get_availability_summary. Add a boundary test: schedule ending at now is \u0027scheduled\u0027 before end and not at end (half-open), so reports stop counting it during the release minute.",
+      "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cb71c7c_076ba03e",
+        "filename": "src/quads/server/dao/schedule.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T14:55:12Z",
+      "side": 1,
+      "message": "Resolved in PS4: exact-end consumers pinned by test_valid_at_exact_end (/moves at date \u003d\u003d end), and create_schedule now rejects start \u003d\u003d end (\u003e\u003d, matching the batch endpoint) covered by test_invalid_zero_length_range. The zero-length point branch remains availability-check only.",
+      "parentUuid": "6041f6cd_87f23703",
       "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     },
