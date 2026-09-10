@@ -80,6 +80,63 @@ class TestReadAvailable:
             assert api_resp.status_code == 200
             assert api_resp.json == resp
 
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_start_at_boundary(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and assignments
+        | WHEN: User checks availability for a range starting exactly when a schedule ends
+        | THEN: The answer matches the schedule creation check (no minute of the range is skipped)
+        """
+        auth_header = auth.get_auth_header()
+        base = {"cloud": "cloud02", "hostname": "host5.example.com"}
+        first = {
+            **base,
+            "start": "2099-01-05 00:00",
+            "end": "2099-01-05 10:00",
+        }
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=first,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+        # Block the first minute after the boundary so an off-by-one start shift is observable.
+        second = {
+            **base,
+            "start": "2099-01-05 10:00",
+            "end": "2099-01-05 10:01",
+        }
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=second,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+        req = {"start": "2099-01-05T10:00", "end": "2099-01-05T12:00"}
+        api_resp = unwrap_json(
+            test_client.get(
+                f"/api/v3/available/host5.example.com?{urlencode(req)}",
+                headers=auth_header,
+            )
+        )
+        assert api_resp.status_code == 200
+        assert api_resp.json == {"host5.example.com": "False"}
+
+        req["start"] = "2099-01-05T10:01"
+        api_resp = unwrap_json(
+            test_client.get(
+                f"/api/v3/available/host5.example.com?{urlencode(req)}",
+                headers=auth_header,
+            )
+        )
+        assert api_resp.status_code == 200
+        assert api_resp.json == {"host5.example.com": "True"}
+
 
 class TestAvailableInvalidInput:
     def test_invalid_host_date(self, test_client, auth):

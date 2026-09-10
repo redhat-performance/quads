@@ -134,7 +134,7 @@ class HostDao(BaseDao):
             select(Schedule.id).where(
                 Schedule.host_id == Host.id,
                 Schedule.start <= now,
-                Schedule.end >= now,
+                Schedule.end > now,
             )
         )
 

@@ -267,7 +267,7 @@ class ScheduleDao(BaseDao):
             query = query.join(Assignment).filter(Assignment.cloud == cloud)
         if not date:
             date = datetime.now()
-        query = query.filter(and_(Schedule.start <= date, Schedule.end >= date))
+        query = query.filter(and_(Schedule.start <= date, Schedule.end > date))
         if assignment_id:
             query = query.join(Assignment).filter(Assignment.id == assignment_id)
 
