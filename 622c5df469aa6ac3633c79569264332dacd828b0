@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9def8496_d9225114",
+        "filename": "src/quads/server/dao/host.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T14:58:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "682d1d7b_1cdc94e6",
+      "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3cb71c7c_076ba03e",
         "filename": "src/quads/server/dao/schedule.py",
         "patchSetId": 3
@@ -67,6 +85,24 @@
       "writtenOn": "2026-09-10T11:27:33Z",
       "side": 1,
       "message": "Zero-length point branch verified: at instant T \u003d\u003d schedule end a host is available (A/B: fails on parent, passes here), and back-to-back schedules are occupied at the next schedule\u0027s start. Non-blocking follow-ups: exact-end consumers (/moves with minute-precision date, /available list cloud-gate) are untested at date \u003d\u003d end; and create_schedule accepts start \u003d\u003d end, so this branch also permits an inert [T, T) schedule at an existing end - optional hardening, separate change.",
+      "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "beffe0a1_441decb5",
+        "filename": "src/quads/server/dao/schedule.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T14:58:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6041f6cd_87f23703",
       "revId": "622c5df469aa6ac3633c79569264332dacd828b0",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
