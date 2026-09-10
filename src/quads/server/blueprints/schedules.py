@@ -400,7 +400,7 @@ def create_schedule() -> Response:
             }
             return make_response(jsonify(response), 400)
 
-        if _start > _end:
+        if _start >= _end:
             db.session.rollback()
             response = {
                 "status_code": 400,

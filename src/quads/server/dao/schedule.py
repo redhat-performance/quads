@@ -116,7 +116,7 @@ class ScheduleDao(BaseDao):
                 Host.broken.is_(False),
                 Host.retired.is_(False),
                 Schedule.start <= now,
-                Schedule.end >= now,
+                Schedule.end > now,
                 Schedule.end <= cutoff,
             )
             .order_by(Schedule.end.asc())
@@ -267,7 +267,7 @@ class ScheduleDao(BaseDao):
             query = query.join(Assignment).filter(Assignment.cloud == cloud)
         if not date:
             date = datetime.now()
-        query = query.filter(and_(Schedule.start <= date, Schedule.end >= date))
+        query = query.filter(and_(Schedule.start <= date, Schedule.end > date))
         if assignment_id:
             query = query.join(Assignment).filter(Assignment.id == assignment_id)
 
@@ -290,8 +290,8 @@ class ScheduleDao(BaseDao):
             .join(Host, Schedule.host_id == Host.id)
             .filter(
                 and_(
-                    Schedule.start <= end,
-                    Schedule.end >= start,
+                    Schedule.start < end,
+                    Schedule.end > start,
                     Host.retired.is_(False),
                     Host.broken.is_(False),
                 )
@@ -300,9 +300,7 @@ class ScheduleDao(BaseDao):
         )
 
         total_schedules = (
-            db.session.query(func.count(Schedule.id))
-            .filter(and_(Schedule.start <= end, Schedule.end >= start))
-            .scalar()
+            db.session.query(func.count(Schedule.id)).filter(and_(Schedule.start < end, Schedule.end > start)).scalar()
         )
 
         hosts = (
@@ -353,7 +351,7 @@ class ScheduleDao(BaseDao):
             .outerjoin(Schedule, Host.id == Schedule.host_id)
             .outerjoin(Assignment, Schedule.assignment_id == Assignment.id)
             .outerjoin(Cloud, Assignment.cloud_id == Cloud.id)
-            .filter(Schedule.start <= _end, Schedule.end >= _start)
+            .filter(Schedule.start < _end, Schedule.end > _start)
             .group_by(Host.name)
             .all()
         )
@@ -372,6 +370,11 @@ class ScheduleDao(BaseDao):
         if exclude:
             query = query.filter(Schedule.id != exclude)
         results = query.all()
+        if start == end:
+            # Zero-length (point) query: a host is unavailable at an instant only
+            # when a schedule covers it, [s, e). The interval checks below use
+            # end <= result.end, which would reject the instant at result.end.
+            return not any(result.start <= start < result.end for result in results)
         for result in results:
             if result.start <= start < result.end:
                 return False
