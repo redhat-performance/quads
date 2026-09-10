@@ -267,7 +267,7 @@ class ScheduleDao(BaseDao):
             query = query.join(Assignment).filter(Assignment.cloud == cloud)
         if not date:
             date = datetime.now()
-        query = query.filter(and_(Schedule.start <= date, Schedule.end >= date))
+        query = query.filter(and_(Schedule.start <= date, Schedule.end > date))
         if assignment_id:
             query = query.join(Assignment).filter(Assignment.id == assignment_id)
 
@@ -372,6 +372,11 @@ class ScheduleDao(BaseDao):
         if exclude:
             query = query.filter(Schedule.id != exclude)
         results = query.all()
+        if start == end:
+            # Zero-length (point) query: a host is unavailable at an instant only
+            # when a schedule covers it, [s, e). The interval checks below use
+            # end <= result.end, which would reject the instant at result.end.
+            return not any(result.start <= start < result.end for result in results)
         for result in results:
             if result.start <= start < result.end:
                 return False
