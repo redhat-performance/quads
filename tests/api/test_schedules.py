@@ -25,7 +25,11 @@ from tests.config import (
 )
 from tests.helpers import unwrap_json
 from quads.server.blueprints.schedules import _trigger_jira_notification
-from quads.server.dao.baseDao import SQLError
+from quads.server.dao.assignment import AssignmentDao
+from quads.server.dao.baseDao import InvalidArgument, SQLError
+from quads.server.dao.host import HostDao
+from quads.server.dao.schedule import ScheduleDao
+from quads.server.models import db
 
 prefill_settings = ["clouds, vlans, hosts, assignments"]
 prefill_schedule = ["clouds, vlans, hosts, assignments, schedules"]
@@ -264,6 +268,64 @@ class TestCreateSchedule:
             resp["id"] = response.json["id"]
             assert response.status_code == 201
             assert response.json == resp
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_invalid_zero_length_range(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and assignments
+        | WHEN: User tries to create a schedule with start equal to end
+        | THEN: User should not be able to create a zero-length schedule
+        """
+        auth_header = auth.get_auth_header()
+        schedule_request = SCHEDULE_1_REQUEST.copy()
+        schedule_request["start"] = "2099-06-01 12:00"
+        schedule_request["end"] = "2099-06-01 12:00"
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=schedule_request,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid date range for start or end, start must be before end"
+
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_back_to_back(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts and assignments
+        | WHEN: User schedules a host for a range starting exactly when an existing schedule ends
+        | THEN: The back-to-back schedule is created (half-open [start, end) boundaries)
+        """
+        auth_header = auth.get_auth_header()
+        base = {"cloud": "cloud02", "hostname": "host4.example.com"}
+        first = {
+            **base,
+            "start": "2099-01-02 00:00",
+            "end": "2099-01-02 08:00",
+        }
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=first,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+        second = {
+            **base,
+            "start": "2099-01-02 08:00",
+            "end": "2099-01-02 12:00",
+        }
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=second,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
 
     @pytest.mark.parametrize("prefill", prefill_self_schedule, indirect=True)
     @patch("quads.server.dao.schedule.datetime")
@@ -642,6 +704,39 @@ class TestGetSchedules:
         assert len(response.json) >= 0
 
     @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_valid_current_at_exact_end(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules
+        | WHEN: User asks for the current schedule at the exact moment a schedule ends
+        | THEN: The schedule is no longer current (half-open [start, end) boundaries)
+        """
+        auth_header = auth.get_auth_header()
+        req = {
+            "cloud": "cloud02",
+            "hostname": "host5.example.com",
+            "start": "2099-01-08 00:00",
+            "end": "2099-01-08 10:00",
+        }
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json=req,
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+        url = "/api/v3/schedules/current?host=host5.example.com&date=2099-01-08T10:00"
+        response = unwrap_json(test_client.get(url, headers=auth_header))
+        assert response.status_code == 200
+        assert response.json == []
+
+        url = "/api/v3/schedules/current?host=host5.example.com&date=2099-01-08T09:00"
+        response = unwrap_json(test_client.get(url, headers=auth_header))
+        assert response.status_code == 200
+        assert len(response.json) == 1
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
     def test_valid_current_filter_date(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
@@ -895,6 +990,63 @@ class TestUpdateSchedule:
         assert response.json["message"] == "Invalid date range for start or end, start must be before end"
 
     @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_zero_length_date_range(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to update a schedule with start equal to end
+        | THEN: User should not be able to update the schedule
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/schedules/{SCHEDULE_1_RESPONSE['id']}",
+                json={"start": "2020-01-01T00:00", "end": "2020-01-01T00:00"},
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid date range for start or end, start must be before end"
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_start_at_or_after_persisted_end(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to update only start to a value at or after the persisted end
+        | THEN: User should not be able to update the schedule
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/schedules/{SCHEDULE_1_RESPONSE['id']}",
+                json={"start": f"{end_str}T22:00"},
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid date range for start or end, start must be before end"
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_end_at_or_before_persisted_start(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
+        | WHEN: User tries to update only end to a value at or before the persisted start
+        | THEN: User should not be able to update the schedule
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.patch(
+                f"/api/v3/schedules/{SCHEDULE_1_RESPONSE['id']}",
+                json={"end": f"{start_str}T22:00"},
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 400
+        assert response.json["error"] == "Bad Request"
+        assert response.json["message"] == "Invalid date range for start or end, start must be before end"
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
     def test_invalid_build_date_range(self, test_client, auth, prefill):
         """
         | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules from TestCreateSchedule
@@ -995,6 +1147,88 @@ class TestDeleteSchedule:
         )
         assert response.status_code == 200
         assert response.json["message"] == "Schedule deleted"
+
+
+class TestScheduleDaoRangeGuard:
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_dao_create_rejects_zero_length(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules
+        | WHEN: The DAO create path is called directly with start == end
+        | THEN: It raises instead of persisting a zero-length schedule
+        """
+        host = HostDao.get_host("host1.example.com")
+        assignment = AssignmentDao.get_assignment(1)
+        with pytest.raises(InvalidArgument):
+            ScheduleDao.create_schedule(
+                start=datetime(2099, 1, 1, 10, 0),
+                end=datetime(2099, 1, 1, 10, 0),
+                assignment=assignment,
+                host=host,
+            )
+
+    @pytest.mark.parametrize("prefill", prefill_schedule, indirect=True)
+    def test_dao_update_rejects_zero_length(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules
+        | WHEN: The DAO update path is called directly with end at the persisted start
+        | THEN: It raises instead of persisting a zero-length schedule
+        """
+        host = HostDao.get_host("host1.example.com")
+        assignment = AssignmentDao.get_assignment(1)
+        schedule = ScheduleDao.create_schedule(
+            start=datetime(2099, 1, 1, 10, 0),
+            end=datetime(2099, 1, 1, 11, 0),
+            assignment=assignment,
+            host=host,
+        )
+        try:
+            with pytest.raises(InvalidArgument):
+                ScheduleDao.update_schedule(schedule.id, end=schedule.start)
+            db.session.rollback()
+        finally:
+            if ScheduleDao.get_schedule(schedule.id):
+                ScheduleDao.remove_schedule(schedule.id)
+
+
+class TestAvailabilitySummaryBoundary:
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_scheduled_at_half_open_end(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules
+        | WHEN: User asks for the availability summary at the exact moment a schedule ends
+        | THEN: The host counts as scheduled before the end and not at the end
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json={
+                    "cloud": "cloud02",
+                    "hostname": "host1.example.com",
+                    "start": "2099-05-01 00:00",
+                    "end": "2099-05-01 10:00",
+                },
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+        params = {
+            "two_week_start": "2099-04-15T00:00",
+            "two_week_end": "2099-05-15T00:00",
+            "four_week_end": "2099-06-01T00:00",
+        }
+        for now, expected in [("2099-05-01T09:00", 1), ("2099-05-01T10:00", 0)]:
+            response = unwrap_json(
+                test_client.get(
+                    f"/api/v3/hosts/availability_summary?{urlencode({**params, 'now': now})}",
+                    headers=auth_header,
+                )
+            )
+            assert response.status_code == 200
+            row = next(r for r in response.json if r["model"] == "FC640")
+            assert row["scheduled"] == expected
 
 
 class TestCreateSchedulesBatch:

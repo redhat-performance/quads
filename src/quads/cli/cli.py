@@ -1009,6 +1009,9 @@ class QuadsCli:
 
             for schedule in schedules:
                 end_date = schedule.end - timedelta(weeks=weeks) if weeks else _date
+                # Shrink targets are floored to minutes; never send an end at
+                # or before start (zero-length ranges are invalid).
+                end_date = max(end_date, schedule.start + timedelta(minutes=1))
                 end = ":".join(end_date.isoformat().split(":")[:-1])
                 self.quads.update_schedule(schedule.id, {"end": end})
 
