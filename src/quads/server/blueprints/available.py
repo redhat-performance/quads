@@ -90,7 +90,7 @@ def is_available(hostname) -> Response:
     _start = _end = datetime.now()
     if _params.get("start"):
         try:
-            _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M") + timedelta(minutes=1)
+            _start = datetime.strptime(_params.get("start"), "%Y-%m-%dT%H:%M")
         except ValueError:
             return make_response(
                 jsonify(
