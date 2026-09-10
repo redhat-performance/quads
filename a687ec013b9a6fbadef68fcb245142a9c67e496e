@@ -1,6 +1,24 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcb23629_505ccf99",
+        "filename": "src/quads/server/dao/schedule.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006732
+      },
+      "writtenOn": "2026-09-10T14:55:13Z",
+      "side": 1,
+      "message": "Addressed in PS4. Half-open carried to get_expiring_schedules (end \u003e now), get_utilization_stats and get_hosts_range_schedules (strict overlap), so all schedule-window queries agree. The release plugin / start_move_batch exact instant: both guarded; the difference exists only at now \u003d\u003d end exactly (ends are minute-precision, now carries microseconds, measure-zero in production; for now \u003e end old and new behavior are identical). Exact-end read semantics pinned by test_valid_at_exact_end (/moves at date \u003d\u003d end). The start_move_batch progress-loss at end is pre-existing (occurs for any now \u003e end) and tracked separately.",
+      "parentUuid": "15a05728_59fb37e1",
+      "revId": "a687ec013b9a6fbadef68fcb245142a9c67e496e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15a05728_59fb37e1",
