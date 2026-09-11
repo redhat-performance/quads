@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84d8b083_918cd0d5",
+        "filename": "src/quads/server/blueprints/schedules.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-11T07:15:57Z",
+      "side": 1,
+      "message": "Non-blocking: this [start, end) and non-zero-length guard is only enforced in the API endpoints (create_schedule, create_schedules_batch, update_schedule). ScheduleDao.create_schedule and create_schedules do no range check, so a direct DAO call can still persist a zero-length or inverted schedule, and the half-open queries just treat it as covering nothing. Consider validating in the DAO create path as the single choke point. The tests cover the API surfaces, not this bypass.",
+      "revId": "b356188533157f5e332c25fb7eba1a57df08135c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
