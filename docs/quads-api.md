@@ -116,7 +116,7 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
   * ```curl http://localhost/```
     - `/api/v3/version`             Obtain QUADS current version
     - `/api/v3/hosts`               Obtain a list of hosts managed by QUADS
-    - `/api/v3/hosts/availability_summary` Obtain host availability summary over two and four week windows
+    - `/api/v3/hosts/availability_summary` Obtain host availability summary over two and four week windows (requires `now`, `two_week_start`, `two_week_end` and `four_week_end` query params in `YYYY-MM-DDTHH:MM` format)
     - `/api/v3/hosts/os_list`       List available operating systems in Foreman
     - `/api/v3/hosts/<hostname>`    Obtain metadata for a specific host
     - `/api/v3/hosts/<hostname>/memory`       List memory for a specific host
@@ -152,6 +152,8 @@ curl -X POST -u $USERNAME:$PASSWORD -H 'accept: application/json' 'http://localh
     - `/api/v3/moves/progress/`     List all active move progress records (supports `?cloud=` and `?status=` filters)
     - `/api/v3/moves/progress/<hostname>` Get move progress for a specific host
     - `/api/v3/me`                  Obtain the authenticated user identity and roles (requires auth)
+    - `/api/v3/users?google_id=<id>` Look up a user by Google ID (requires auth); the query parameter is required
+    - `/api/v3/users/<email>`       Obtain metadata for a specific user (requires auth)
 
 ## API POST Operations
 * The following construct can be used via http ```POST``` to receive more detailed data by providing granular criteria to return JSON body data:
