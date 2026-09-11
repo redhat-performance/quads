@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock, call
 
 from quads.plugins.builtin.release.standard import StandardReleasePlugin
 
@@ -138,6 +138,99 @@ class TestConfigureAndVerifyIpmi:
             result = await plugin._configure_and_verify_ipmi("host1", "root", "adminpass", "newpass")
 
             assert result is None
+            mock_sleep.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_enable_user_before_configure(self, plugin):
+        """Tenant user is enabled before the password is set"""
+        with (
+            patch("quads.plugins.builtin.release.standard.Config") as mock_cfg,
+            patch("quads.plugins.builtin.release.standard.IPMI") as mock_ipmi_class,
+        ):
+            mock_cfg.plugins = {"standard": {"ipmi_credential_retries": 1, "ipmi_credential_retry_delay": 1}}
+            mock_cfg.__getitem__ = lambda self, key: {"ipmi_cloud_username_id": 4, "ipmi_cloud_username": "quads"}[key]
+
+            admin_ipmi = AsyncMock()
+            admin_ipmi.enable_user = AsyncMock(return_value=True)
+            admin_ipmi.configure_user = AsyncMock(return_value=True)
+            verify_ipmi = AsyncMock()
+            verify_ipmi.verify_credentials = AsyncMock(return_value=True)
+            mock_ipmi_class.side_effect = [admin_ipmi, verify_ipmi]
+
+            result = await plugin._configure_and_verify_ipmi("host1", "root", "adminpass", "newpass")
+
+            assert result is admin_ipmi
+            admin_ipmi.enable_user.assert_awaited_once_with(4)
+            assert admin_ipmi.mock_calls[0] == call.enable_user(4)
+            assert admin_ipmi.mock_calls[1] == call.configure_user(4, "newpass")
+
+    @pytest.mark.asyncio
+    async def test_enable_fails_then_succeeds(self, plugin):
+        """enable_user fails first attempt, succeeds on retry"""
+        with (
+            patch("quads.plugins.builtin.release.standard.Config") as mock_cfg,
+            patch("quads.plugins.builtin.release.standard.IPMI") as mock_ipmi_class,
+            patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+        ):
+            mock_cfg.plugins = {"standard": {"ipmi_credential_retries": 2, "ipmi_credential_retry_delay": 5}}
+            mock_cfg.__getitem__ = lambda self, key: {"ipmi_cloud_username_id": 4, "ipmi_cloud_username": "quads"}[key]
+
+            fail_ipmi = AsyncMock()
+            fail_ipmi.enable_user = AsyncMock(return_value=False)
+            ok_ipmi = AsyncMock()
+            ok_ipmi.enable_user = AsyncMock(return_value=True)
+            ok_ipmi.configure_user = AsyncMock(return_value=True)
+            verify_ipmi = AsyncMock()
+            verify_ipmi.verify_credentials = AsyncMock(return_value=True)
+            mock_ipmi_class.side_effect = [fail_ipmi, ok_ipmi, verify_ipmi]
+
+            result = await plugin._configure_and_verify_ipmi("host1", "root", "adminpass", "newpass")
+
+            assert result is ok_ipmi
+            mock_sleep.assert_called_once_with(5)
+
+    @pytest.mark.asyncio
+    async def test_failure_regates_when_rebuild(self, plugin):
+        """Failed credential attempt re-disables the user when rebuild=True"""
+        with (
+            patch("quads.plugins.builtin.release.standard.Config") as mock_cfg,
+            patch("quads.plugins.builtin.release.standard.IPMI") as mock_ipmi_class,
+            patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+        ):
+            mock_cfg.plugins = {"standard": {"ipmi_credential_retries": 1, "ipmi_credential_retry_delay": 1}}
+            mock_cfg.__getitem__ = lambda self, key: {"ipmi_cloud_username_id": 4, "ipmi_cloud_username": "quads"}[key]
+
+            admin_ipmi = AsyncMock()
+            admin_ipmi.enable_user = AsyncMock(return_value=True)
+            admin_ipmi.configure_user = AsyncMock(return_value=False)
+            mock_ipmi_class.return_value = admin_ipmi
+
+            result = await plugin._configure_and_verify_ipmi("host1", "root", "adminpass", "newpass", rebuild=True)
+
+            assert result is None
+            admin_ipmi.disable_user.assert_awaited_once_with(4)
+            mock_sleep.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_failure_no_regate_when_no_rebuild(self, plugin):
+        """Failed credential attempt leaves user untouched when rebuild=False"""
+        with (
+            patch("quads.plugins.builtin.release.standard.Config") as mock_cfg,
+            patch("quads.plugins.builtin.release.standard.IPMI") as mock_ipmi_class,
+            patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+        ):
+            mock_cfg.plugins = {"standard": {"ipmi_credential_retries": 1, "ipmi_credential_retry_delay": 1}}
+            mock_cfg.__getitem__ = lambda self, key: {"ipmi_cloud_username_id": 4, "ipmi_cloud_username": "quads"}[key]
+
+            admin_ipmi = AsyncMock()
+            admin_ipmi.enable_user = AsyncMock(return_value=True)
+            admin_ipmi.configure_user = AsyncMock(return_value=False)
+            mock_ipmi_class.return_value = admin_ipmi
+
+            result = await plugin._configure_and_verify_ipmi("host1", "root", "adminpass", "newpass", rebuild=False)
+
+            assert result is None
+            admin_ipmi.disable_user.assert_not_awaited()
             mock_sleep.assert_not_called()
 
     @pytest.mark.asyncio

@@ -52,8 +52,14 @@ class StandardReleasePlugin(ReleasePlugin):
         admin_username: str,
         admin_password: str,
         new_password: str,
+        rebuild: bool = False,
     ) -> Optional[IPMI]:
-        """Set and verify IPMI credentials for the tenant user with retry.
+        """Enable, set and verify IPMI credentials for the tenant user with retry.
+
+        The tenant user is enabled first so moves retried after a gated
+        (failed or cancelled) lifecycle can pass verify; this is a no-op when
+        the user is already enabled. On failure, wipe moves re-disable it so a
+        failed retry restores the gate instead of leaving it open.
 
         Returns the admin-credential IPMI instance on success, None on failure.
         """
@@ -63,6 +69,11 @@ class StandardReleasePlugin(ReleasePlugin):
 
         for attempt in range(1, max_retries + 1):
             ipmi = IPMI(host, admin_username, admin_password, logger=self.logger)
+            if not await ipmi.enable_user(Config["ipmi_cloud_username_id"]):
+                self.logger.warning(f"IPMI user enable failed for {host} (attempt {attempt}/{max_retries})")
+                if attempt < max_retries:
+                    await asyncio.sleep(retry_delay)
+                continue
             if not await ipmi.configure_user(Config["ipmi_cloud_username_id"], new_password):
                 self.logger.warning(f"IPMI credential set failed for {host} (attempt {attempt}/{max_retries})")
                 if attempt < max_retries:
@@ -76,6 +87,10 @@ class StandardReleasePlugin(ReleasePlugin):
             self.logger.warning(f"IPMI credential verification failed for {host} (attempt {attempt}/{max_retries})")
             if attempt < max_retries:
                 await asyncio.sleep(retry_delay)
+
+        if rebuild:
+            if not await ipmi.disable_user(Config["ipmi_cloud_username_id"]):
+                self.logger.warning(f"Failed to re-gate IPMI user for {host} after credential failure")
 
         self.logger.error(f"Failed to set and verify IPMI credentials for {host} after {max_retries} attempts")
         return None
@@ -116,7 +131,7 @@ class StandardReleasePlugin(ReleasePlugin):
         ipmi_password = config_ipmi["ipmi_password"]
         ipmi_new_pass = f"{Config['infra_location']}@{ticket}" if ticket else ipmi_password
 
-        ipmi = await self._configure_and_verify_ipmi(host, ipmi_username, ipmi_password, ipmi_new_pass)
+        ipmi = await self._configure_and_verify_ipmi(host, ipmi_username, ipmi_password, ipmi_new_pass, rebuild)
         if ipmi is None:
             self._update_host_on_failure(
                 host_obj,
