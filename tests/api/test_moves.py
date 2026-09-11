@@ -78,6 +78,49 @@ class TestReadMoves:
         assert response.status_code == 200
         assert response.json == resp
 
+    @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
+    def test_valid_at_exact_end(self, test_client, auth, prefill):
+        """
+        | GIVEN: Defaults, auth, clouds, vlans, hosts, assignments and schedules
+        | WHEN: User asks for moves at the exact moment a schedule ends
+        | THEN: The host is no longer scheduled and does not need a move (half-open [start, end))
+        """
+        auth_header = auth.get_auth_header()
+        response = unwrap_json(
+            test_client.post(
+                "/api/v3/schedules",
+                json={
+                    "cloud": "cloud02",
+                    "hostname": "host4.example.com",
+                    "start": "2099-04-01 00:00",
+                    "end": "2099-04-01 08:00",
+                },
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 201
+
+        req = {"date": "2099-04-01T08:00"}
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/moves?{urlencode(req)}",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        assert "host4.example.com" not in [m["host"] for m in response.json]
+
+        req = {"date": "2099-04-01T07:00"}
+        response = unwrap_json(
+            test_client.get(
+                f"/api/v3/moves?{urlencode(req)}",
+                headers=auth_header,
+            )
+        )
+        assert response.status_code == 200
+        moves = {m["host"]: m for m in response.json}
+        assert moves["host4.example.com"]["new"] == "cloud02"
+
 
 class TestMoveStatus:
     @pytest.mark.parametrize("prefill", prefill_settings, indirect=True)
