@@ -245,3 +245,52 @@ class TestOsDeploymentResource:
         assert await badfish_instance.boot_remote_image("server:/path/to.iso") is True
         expected = url("%s/Actions/DellOSDeploymentService.BootToNetworkISO" % OEM_OSD)
         assert badfish_instance.post_request.call_args[0][0] == expected
+
+
+class TestCreateJob:
+    @pytest.mark.asyncio
+    async def test_already_committed_400_is_success(self, badfish_instance):
+        with patch("quads.tools.external.badfish.logger") as mock_logger:
+            badfish_instance.post_request = AsyncMock(
+                return_value=make_response(
+                    400,
+                    {
+                        "error": {
+                            "@Message.ExtendedInfo": [
+                                {
+                                    "Message": "Pending configuration values are already committed, "
+                                    "unable to perform another set operation."
+                                }
+                            ]
+                        }
+                    },
+                )
+            )
+
+            await badfish_instance.create_job(url("%s/Oem/Dell/Jobs" % MANAGER_RESOURCE), {}, {})
+
+            mock_logger.info.assert_any_call("BIOS config job already scheduled by settings patch; continuing.")
+
+    @pytest.mark.asyncio
+    async def test_other_400_still_errors(self, badfish_instance):
+        with (
+            patch("quads.tools.external.badfish.logger") as mock_logger,
+            patch.object(Badfish, "error_handler", new=AsyncMock()) as mock_handler,
+        ):
+            badfish_instance.post_request = AsyncMock(
+                return_value=make_response(400, {"error": {"code": "Base.1.18.GeneralError"}})
+            )
+
+            await badfish_instance.create_job(url("%s/Oem/Dell/Jobs" % MANAGER_RESOURCE), {}, {})
+
+            mock_logger.error.assert_called_once()
+            mock_handler.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_success_status(self, badfish_instance):
+        with patch("quads.tools.external.badfish.logger") as mock_logger:
+            badfish_instance.post_request = AsyncMock(return_value=make_response())
+
+            await badfish_instance.create_job(url("%s/Oem/Dell/Jobs" % MANAGER_RESOURCE), {}, {})
+
+            mock_logger.info.assert_any_call("POST command passed to create target config job.")

@@ -833,6 +833,11 @@ class Badfish:
 
         if status_code in expected:
             logger.info("POST command passed to create target config job.")
+        elif status_code == 400 and "already committed" in (await _response.text("utf-8", "ignore")).lower():
+            # On Dell iDRAC9 the Bios/Settings PATCH with SettingsApplyTime
+            # (OnReset) already schedules the BIOS configuration job, so the
+            # explicit create job request is refused as "already committed".
+            logger.info("BIOS config job already scheduled by settings patch; continuing.")
         else:
             logger.error("POST command failed to create BIOS config job, status code is %s." % status_code)
 
