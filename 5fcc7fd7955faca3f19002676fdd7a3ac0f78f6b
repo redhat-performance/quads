@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a862120_2d4b0f06",
+        "filename": "src/quads/plugins/builtin/release/standard.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1039924
+      },
+      "writtenOn": "2026-09-11T17:37:24Z",
+      "side": 1,
+      "message": "On the failure path this un-gates the user. When _configure_and_verify_ipmi returns None the caller bails at standard.py:129-135, before the `if rebuild:` re-disable at line 140. So a gated host (tenant user disabled from a prior wipe) whose retry fails every configure attempt is left enabled, which is the opposite of the \u0027gate policy is unchanged\u0027 claim. Re-disable on the failure path so a failed retry restores the gate.",
+      "revId": "5fcc7fd7955faca3f19002676fdd7a3ac0f78f6b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    }
+  ]
+}
