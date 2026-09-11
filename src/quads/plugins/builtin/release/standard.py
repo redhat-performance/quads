@@ -53,7 +53,11 @@ class StandardReleasePlugin(ReleasePlugin):
         admin_password: str,
         new_password: str,
     ) -> Optional[IPMI]:
-        """Set and verify IPMI credentials for the tenant user with retry.
+        """Enable, set and verify IPMI credentials for the tenant user with retry.
+
+        The tenant user is enabled first so moves retried after a gated
+        (failed or cancelled) lifecycle can pass verify; this is a no-op when
+        the user is already enabled. Wipe moves re-disable it afterwards.
 
         Returns the admin-credential IPMI instance on success, None on failure.
         """
@@ -63,6 +67,11 @@ class StandardReleasePlugin(ReleasePlugin):
 
         for attempt in range(1, max_retries + 1):
             ipmi = IPMI(host, admin_username, admin_password, logger=self.logger)
+            if not await ipmi.enable_user(Config["ipmi_cloud_username_id"]):
+                self.logger.warning(f"IPMI user enable failed for {host} (attempt {attempt}/{max_retries})")
+                if attempt < max_retries:
+                    await asyncio.sleep(retry_delay)
+                continue
             if not await ipmi.configure_user(Config["ipmi_cloud_username_id"], new_password):
                 self.logger.warning(f"IPMI credential set failed for {host} (attempt {attempt}/{max_retries})")
                 if attempt < max_retries:
