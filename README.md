@@ -306,6 +306,13 @@ Available roles:
 flask --app quads.server.app mod-user --username user@example.com --password newsecurepassword
 ```
 
+**Change a user's role (promote to admin or demote to user):**
+```bash
+flask --app quads.server.app mod-user --username user@example.com --role admin
+```
+
+The `--role` option accepts `admin` or `user` and replaces the user's current role. It can be combined with `--password` in a single call.
+
 **Delete a user:**
 ```bash
 flask --app quads.server.app delete-user --username user@example.com
