@@ -180,19 +180,38 @@ def create_app(test_config=None) -> Flask:
 
     @flask_app.cli.command("mod-user")
     @click.option("--username", required=True, help="The username/email of the user")
-    @click.option(
-        "--password", prompt=True, hide_input=True, confirmation_prompt=True, help="The password of the user"
-    )
+    @click.option("--password", required=False, help="The password of the user")
+    @click.option("--role", required=False, help="The role of the user (admin or user)")
     @with_appcontext
-    def mod_user(username: str, password: str):
-        """Modifies an existing user's password."""
+    def mod_user(username: str, password: str, role: str):
+        """Modifies an existing user's password and/or role."""
 
-        success = modify_user(user_datastore, username, new_password=password)
-        if success:
+        user = user_datastore.find_user(email=username)
+        if not user:
+            print(f"User {username} not found")
+            return
+
+        if role:
+            role_obj = db.session.query(Role).filter(Role.name == role).first()
+            if not role_obj:
+                print(f"Role {role} not found")
+                return
+
+        if not password and not role:
+            password = click.prompt("Password", hide_input=True, confirmation_prompt=True)
+
+        if password:
+            if not modify_user(user_datastore, username, new_password=password):
+                print("Error: Could not modify user")
+                return
             print("Password updated")
-            print(f"User {username} successfully modified")
-        else:
-            print("Error: Could not modify user")
+
+        if role:
+            user.roles = [role_obj]
+            db.session.commit()
+            print(f"Role updated to {role}")
+
+        print(f"User {username} successfully modified")
 
     @flask_app.cli.command("delete-user")
     @click.option("--username", required=True, help="The username/email of the user to delete")
